@@ -1,0 +1,6 @@
+framework module Pods_MusicianshipTrainer {
+  umbrella header "Pods-MusicianshipTrainer-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,50 @@
+--TODO
+
+Metronome button???
+USe MID bonary files for examples
+Refactor content - content to cloud
+start new instument/ voice
+
+make a grade #2,8 clap example?
+
+do a simple example to understand geometry
+make a view builder that can render all text in buttons in one style
+G Major triad wont display top D in base cleff
+
+--MID
+onDone score playing not called if metroom running with the playing
+quaver bar wrong  when rotate device - need to refresh layout on rotate
+midi sampler has to load piano sound file every time it starts, causes a delay at metronom.playScore
+try on real piano
+scroller for logged messagws
+instruments - more sf2 files
+longer recordings get an error - still true?
+
+--LOW
+handle ledger lines for all notes (now its just middle C)
+
+---LONG TERM
+The notes view should only be called once per score view (not per staff) and update both staffs in one pass. The offset for notes dispays should be Middle C
+
+--- Questions
+//layout of plying example 1 with low middle C ruins layout relative to staff enclsoing border
+record volume too soft
+
+
+--DONE
+tapping marked correct or not
+iOS min version - IOS 15, Sep 20,2021
+More examples for play/clap
+!speak the rhythm
+    !last tap note does not show, what is its value??
+turn on/off voice
+!identical student/given rhythms dont line up on UI
+  detect tempo for clapping visual
+  hilight on correct staff notes where students rhythm matches
+tap analyse return true/false for correct
+do test #5
+
+1.0.13
+various bug and UI fixes
+remove metronome on iPhone
+
