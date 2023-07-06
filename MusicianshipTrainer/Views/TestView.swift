@@ -29,13 +29,23 @@ struct TestView: View {
 //            StaffNotesView(score: score, staff: staff, lineSpacing: StaffLayoutSize(lineSpacing: 20))
 //                //.border(Color.indigo)
 //                .frame(width: 5 * Double(ts.notesLength ?? 0) + 200)
+            Spacer()
             
             Button(action: {
-                firebase.test()
+                firebase.driveTest()
             }) {
                 Text("FireStore").padding()
             }
-            //Spacer()
+            
+            Spacer()
+            
+            Button(action: {
+                firebase.driveTest()
+            }) {
+                Text("FireStore").padding()
+            }
+            
+            Spacer()
         }
     }
 }

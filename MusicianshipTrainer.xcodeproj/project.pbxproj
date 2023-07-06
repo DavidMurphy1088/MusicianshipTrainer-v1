@@ -88,6 +88,7 @@
 		7BC42EB42A550F4E004FE117 /* GPTQuestions in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB32A550F4E004FE117 /* GPTQuestions */; };
 		7BC42EB62A550F63004FE117 /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB52A550F62004FE117 /* Notes */; };
 		7BC42EB82A550F6C004FE117 /* Todo in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB72A550F6C004FE117 /* Todo */; };
+		7BD1E5B82A5671AC009AD7E8 /* GoogleSpreadsheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD1E5B72A5671AC009AD7E8 /* GoogleSpreadsheet.swift */; };
 		7BFA209F2A555BCA000A09CD /* credentials.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7BFA209E2A555BCA000A09CD /* credentials.plist */; };
 		7BFA20A12A555D90000A09CD /* GoogleAPI in Resources */ = {isa = PBXBuildFile; fileRef = 7BFA20A02A555D90000A09CD /* GoogleAPI */; };
 		90B705EC67B5572A255054E3 /* Pods_MusicianshipTrainer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FF18680D5DC8FA8469AA316 /* Pods_MusicianshipTrainer.framework */; };
@@ -196,6 +197,7 @@
 		7BC42EB32A550F4E004FE117 /* GPTQuestions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GPTQuestions; sourceTree = "<group>"; };
 		7BC42EB52A550F62004FE117 /* Notes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
 		7BC42EB72A550F6C004FE117 /* Todo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Todo; sourceTree = "<group>"; };
+		7BD1E5B72A5671AC009AD7E8 /* GoogleSpreadsheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSpreadsheet.swift; sourceTree = "<group>"; };
 		7BFA209E2A555BCA000A09CD /* credentials.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = credentials.plist; sourceTree = "<group>"; };
 		7BFA20A02A555D90000A09CD /* GoogleAPI */ = {isa = PBXFileReference; lastKnownFileType = text; path = GoogleAPI; sourceTree = "<group>"; };
 		B972016AF73F96B52619845C /* Pods_MusicianshipTrainerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MusicianshipTrainerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -299,6 +301,7 @@
 				7B40B7ED2A54DF8F00CA7FC4 /* Scale.swift */,
 				7B40B7EE2A54DF8F00CA7FC4 /* SpeechSynth.swift */,
 				7BB835452A5548750083C1C0 /* Firestore.swift */,
+				7BD1E5B72A5671AC009AD7E8 /* GoogleSpreadsheet.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -544,9 +547,9 @@
 			);
 			mainGroup = 7B4F643E2A54DC5F00727710;
 			packageReferences = (
-				7B40B80C2A54E0BE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKit.git" */,
-				7B40B80F2A54E0FE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKitEX.git" */,
-				7B40B8122A54E18100CA7FC4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */,
+				7B40B80C2A54E0BE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKit" */,
+				7B40B80F2A54E0FE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKitEX" */,
+				7B40B8122A54E18100CA7FC4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 7B4F64482A54DC6000727710 /* Products */;
 			projectDirPath = "";
@@ -701,6 +704,7 @@
 				7B40B7F12A54DF9000CA7FC4 /* Score.swift in Sources */,
 				7B40B83D2A54E52A00CA7FC4 /* ClapTestView.swift in Sources */,
 				7B40B8392A54E52A00CA7FC4 /* CapOrPlayView.swift in Sources */,
+				7BD1E5B82A5671AC009AD7E8 /* GoogleSpreadsheet.swift in Sources */,
 				7B40B8082A54DF9000CA7FC4 /* KeySignature.swift in Sources */,
 				7B40B7F22A54DF9000CA7FC4 /* TimeSlice.swift in Sources */,
 				7B40B8332A54E52A00CA7FC4 /* StaffNotesView.swift in Sources */,
@@ -1064,7 +1068,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		7B40B80C2A54E0BE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKit.git" */ = {
+		7B40B80C2A54E0BE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AudioKit/AudioKit.git";
 			requirement = {
@@ -1072,7 +1076,7 @@
 				minimumVersion = 5.0.0;
 			};
 		};
-		7B40B80F2A54E0FE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKitEX.git" */ = {
+		7B40B80F2A54E0FE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKitEX" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AudioKit/AudioKitEX.git";
 			requirement = {
@@ -1080,7 +1084,7 @@
 				minimumVersion = 5.0.0;
 			};
 		};
-		7B40B8122A54E18100CA7FC4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */ = {
+		7B40B8122A54E18100CA7FC4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
@@ -1093,22 +1097,22 @@
 /* Begin XCSwiftPackageProductDependency section */
 		7B40B80D2A54E0BE00CA7FC4 /* AudioKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7B40B80C2A54E0BE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKit.git" */;
+			package = 7B40B80C2A54E0BE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKit" */;
 			productName = AudioKit;
 		};
 		7B40B8102A54E0FE00CA7FC4 /* AudioKitEX */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7B40B80F2A54E0FE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKitEX.git" */;
+			package = 7B40B80F2A54E0FE00CA7FC4 /* XCRemoteSwiftPackageReference "AudioKitEX" */;
 			productName = AudioKitEX;
 		};
 		7B40B8132A54E18100CA7FC4 /* FirebaseDatabase */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7B40B8122A54E18100CA7FC4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = 7B40B8122A54E18100CA7FC4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseDatabase;
 		};
 		7BB835482A5555130083C1C0 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7B40B8122A54E18100CA7FC4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = 7B40B8122A54E18100CA7FC4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */

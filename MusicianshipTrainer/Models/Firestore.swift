@@ -8,13 +8,35 @@ class FirestorePersistance {
     init() {
     }
     
-//    func driveTest() {
-//        let driveScope = "https://www.googleapis.com/auth/drive.readonly"
-//        let grantedScopes = user.grantedScopes
-//        if grantedScopes == nil || !grantedScopes!.contains(driveScope) {
-//          // Request additional Drive scope.
-//        }
-//    }
+    func driveTest() {
+        let x = "https://docs.google.com/document/d/1X8EKKTL9tkNf687opYxqXZUxYf9H3yt67lSod8ZbOIQ/edit?usp=sharing"
+        guard let url = URL(string: x) else {
+            print("Invalid URL")
+            return
+        }
+
+        // Create a URLSession instance
+        let session = URLSession.shared
+
+        // Create a data task to perform the request
+        let task = session.dataTask(with: url) { (data, response, error) in
+            // Handle the response or error
+            if let error = error {
+                print("Error: \(error.localizedDescription)")
+            } else if let httpResponse = response as? HTTPURLResponse {
+                print("Status code: \(httpResponse.statusCode)")
+                
+                if let data = data {
+                    // Process the response data
+                    let responseString = String(data: data, encoding: .utf8)
+                    print("Response: \(responseString ?? "")")
+                }
+            }
+        }
+
+        // Start the task
+        task.resume()
+    }
     
     func test() {
         
