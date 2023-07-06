@@ -327,24 +327,24 @@
 		7B40B8152A54E52A00CA7FC4 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				7B40B8162A54E52A00CA7FC4 /* TopicsNavigationView.swift */,
-				7B40B8172A54E52A00CA7FC4 /* StaffView.swift */,
-				7B40B8182A54E52A00CA7FC4 /* NoteView.swift */,
-				7B40B8192A54E52A00CA7FC4 /* TappingView.swift */,
+				7B40B8282A54E52A00CA7FC4 /* ClapTestView.swift */,
+				7B40B82A2A54E52A00CA7FC4 /* ConfigurationView.swift */,
+				7B40B8272A54E52A00CA7FC4 /* ContentSectionView.swift */,
+				7B40B8212A54E52A00CA7FC4 /* IndexView.swift */,
+				7B40B8292A54E52A00CA7FC4 /* LaunchScreen.swift */,
 				7B40B81A2A54E52A00CA7FC4 /* MetronomeView.swift */,
+				7B40B8182A54E52A00CA7FC4 /* NoteView.swift */,
 				7B40B81B2A54E52A00CA7FC4 /* PianoView.swift */,
-				7B40B81C2A54E52A00CA7FC4 /* VoiceCounter.swift */,
+				7B40B82B2A54E52A00CA7FC4 /* ScoreView.swift */,
 				7B40B81D2A54E52A00CA7FC4 /* StaffNotesView.swift */,
-				7B40B81E2A54E52A00CA7FC4 /* UIGlobals.swift */,
+				7B40B8172A54E52A00CA7FC4 /* StaffView.swift */,
+				7B40B8222A54E52A00CA7FC4 /* Syllabus */,
+				7B40B8192A54E52A00CA7FC4 /* TappingView.swift */,
 				7B40B81F2A54E52A00CA7FC4 /* TestView.swift */,
 				7B40B8202A54E52A00CA7FC4 /* ToolsView.swift */,
-				7B40B8212A54E52A00CA7FC4 /* IndexView.swift */,
-				7B40B8222A54E52A00CA7FC4 /* Syllabus */,
-				7B40B8272A54E52A00CA7FC4 /* ContentSectionView.swift */,
-				7B40B8282A54E52A00CA7FC4 /* ClapTestView.swift */,
-				7B40B8292A54E52A00CA7FC4 /* LaunchScreen.swift */,
-				7B40B82A2A54E52A00CA7FC4 /* ConfigurationView.swift */,
-				7B40B82B2A54E52A00CA7FC4 /* ScoreView.swift */,
+				7B40B8162A54E52A00CA7FC4 /* TopicsNavigationView.swift */,
+				7B40B81E2A54E52A00CA7FC4 /* UIGlobals.swift */,
+				7B40B81C2A54E52A00CA7FC4 /* VoiceCounter.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";

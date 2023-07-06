@@ -60,14 +60,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct MusicianshipTrainerApp: App {
     @StateObject var launchScreenState = LaunchScreenStateManager()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    static let productionMode = false
+    @ObservedObject var exampleData = ExampleData.shared
+    static let productionMode = true
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Musicianship")
     //product licensed by grade 14Jun23
     static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
     var launchTimeSecs = 2.5
     
     init() {
-        //NoteLayoutPositions.setup()
     }
     
     var body: some Scene {
@@ -75,13 +75,33 @@ struct MusicianshipTrainerApp: App {
             VStack {
                 
                 if launchScreenState.state == .finished {
-                    if MusicianshipTrainerApp.productionMode {
-                        TopicsNavigationView(topic: MusicianshipTrainerApp.root)
-                            .tabItem {Label("Exercises", image: "music.note")
+                    if exampleData.dataStatus == GoogleSpreadsheet.DataStatus.ready {
+                        if MusicianshipTrainerApp.productionMode {
+                            TopicsNavigationView(topic: MusicianshipTrainerApp.root)
+                                .tabItem {Label("Exercises", image: "music.note")
+                                }
+                        }
+                        else {
+                            IndexView()
                         }
                     }
                     else {
-                        IndexView()
+                        if exampleData.dataStatus == GoogleSpreadsheet.DataStatus.waiting {
+                            Spacer()
+                            Image(systemName: "hourglass.tophalf.fill")
+                                .resizable()
+                                .frame(width: 100, height: 100)
+                            //.scaleEffect(2.0)
+                                .foregroundColor(Color.blue)
+                                .padding()
+                            Text("")
+                            Text("Loading Content...").font(.headline)
+                            Spacer()
+                        }
+                        else {
+                            Text("Sorry, we could not create an internet conection.").font(.headline).foregroundColor(.red)
+                            Text("Please try again.").font(.headline).foregroundColor(.red)
+                        }
                     }
                 }
                 if MusicianshipTrainerApp.productionMode {

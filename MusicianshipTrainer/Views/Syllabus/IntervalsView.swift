@@ -278,6 +278,7 @@ struct IntervalAnswerView: View, QuestionPartProtocol {
 struct IntervalView: View {
     let id = UUID()
     @State var refresh:Bool = false
+    @ObservedObject var exampleData = ExampleData.shared
     var contentSection:ContentSection
     //WARNING - Making Score a @STATE makes instance #1 of this struct pass its Score to instance #2
     var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)

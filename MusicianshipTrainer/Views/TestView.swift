@@ -33,7 +33,7 @@ struct TestView: View {
             Spacer()
             
             Button(action: {
-                spreadsheet.get() { data in
+                spreadsheet.get() { data, status in
                     // Handle the result from F1
                     print("Received data: \(data)")
                 }

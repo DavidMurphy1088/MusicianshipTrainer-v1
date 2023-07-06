@@ -2,31 +2,158 @@ import Foundation
 
 class ExampleData : ObservableObject {
     static var shared = ExampleData()
-    var data = [String: String]()
+    //var data = [String: String]()
+    var data:[String: String] = [:]
+
     var fromCloud = true
-    @Published var dataReady:Bool
-    
+    @Published var dataStatus:GoogleSpreadsheet.DataStatus = .waiting
+
     init() {
+        self.dataStatus = .waiting
         if self.fromCloud {
-            self.dataReady = false
-            GoogleSpreadsheet().get() { data in
-                // Handle the result from F1
-                print("Received data: \(data)")
-                self.setDataReady(way: data != nil)
+            GoogleSpreadsheet().get() { status, data in
+                //sleep(6)
+                //print("Received data: \(data)")
+                if status == .ready {
+                    if let data = data {
+                        self.loadData(data: data)
+                        self.setDataReady(way: status)
+                    }
+                    else {
+                        self.setDataReady(way: .failed)
+                    }
+                }
+                else {
+                    self.setDataReady(way: status)
+                }
             }
         }
         else {
-            dataReady = true
+            dataStatus = .ready
             hardCoded()
         }
     }
     
-    func setDataReady(way:Bool) {
-        DispatchQueue.main.async {
-            self.dataReady = way
+    ///load data from Google Drive Sheet
+    func loadData(data:[[String]]) {
+        var path:[String] = ["", "", ""]
+        let offset = 2 //start of path offset
+        
+        for rowCells in data {
+            if rowCells.count == 0 {
+                continue
+            }
+            let type = rowCells[0]
+            if type == "//" {
+                continue
+            }
+
+            var rowData = ""
+            for i in 0..<rowCells.count {
+                if i<offset {
+                    continue
+                }
+                let cell = rowCells[i]
+                if i < path.count + offset {
+                    if cell.count == 0 {
+                        continue
+                    }
+                    path[i - offset] = cell
+                }
+                else {
+                    if i > path.count + offset {
+                        rowData += "(\(cell)) "
+                    }
+                }
+                
+            }
+            if rowData.count == 0 {
+                continue
+            }
+            var key = ""
+            for i in 0..<path.count {
+                key += path[i]
+                if i < path.count - 1 {
+                    key += "."
+                }
+            }
+            self.data[key] = rowData
         }
     }
+    
+    func setDataReady(way:GoogleSpreadsheet.DataStatus) {
+        DispatchQueue.main.async {
+            self.dataStatus = way
+        }
+    }
+    
+    func get(contentSection:ContentSection) -> [Any]! {
+        var current = contentSection
+        var key = ""
+        while true {
+            key = current.name + key
+            let par = current.parent
+            if par == nil {
+                break
+            }
+            current = par!
+            key = "." + key
+        }
+        return getData(key: key)
+    }
+    
+    func getData(key:String, warnNotFound:Bool=true) -> [Any]! {
+        //let key = grade+"."+testType+"."+exampleKey
+        let data = data[key]
+        guard data != nil else {
+            if warnNotFound {
+                Logger.logger.reportError(self, "No data for \(key)")
+            }
+            return nil
+        }
+        //data = data!.replacingOccurrences(of: " ", with: "")
+        let tuples = data!.components(separatedBy: " ")
 
+        var result:[Any] = []
+        for entry in tuples {
+            var tuple = entry.replacingOccurrences(of: "(", with: "")
+            tuple = tuple.replacingOccurrences(of: ")", with: "")
+            let parts = tuple.components(separatedBy: ",")
+            if parts.count == 2  {
+                let notePitch:Int? = Int(parts[0])
+                if let notePitch = notePitch {
+                    //let pitch = Int(parts[0])
+                    let value = Double(parts[1]) ?? 1
+                    //if let pitch = pitch {
+                    result.append(Note(num: notePitch, value: value))
+                    //}
+                }
+                else {
+                    if parts[0] == "TS" {
+                        var ts = TimeSignature(top: 4, bottom: 4)
+                        ts.isCommonTime = true
+                        result.append(result.append(ts))
+                    }
+
+                }
+            }
+            else {
+                if parts.count == 1 {
+                    if parts[0] == "K" {
+                        result.append(KeySignature(type: .sharp, count: 1))
+                    }
+                    if parts[0] == "B" {
+                        result.append(BarLine())
+                    }
+                }
+                if parts.count == 3 {
+                    result.append(TimeSignature(top: Int(parts[1]) ?? 0, bottom: Int(parts[2]) ?? 0))
+                }
+            }
+        }
+        //Logger.logger.log(self, "Entry count for \(key) is \(result.count)")
+        return result
+    }
     func hardCoded() {
         // =========== Instructions
 
@@ -116,71 +243,5 @@ class ExampleData : ObservableObject {
         data["test"]  = "(67,.5) (69,.5) (71,2)"
     }
     
-    func get(contentSection:ContentSection) -> [Any]! {
-        var current = contentSection
-        var key = ""
-        while true {
-            key = current.name + key
-            let par = current.parent
-            if par == nil {
-                break
-            }
-            current = par!
-            key = "." + key
-        }
-        return getData(key: key)
-    }
-    
-    func getData(key:String, warnNotFound:Bool=true) -> [Any]! {
-        //let key = grade+"."+testType+"."+exampleKey
-        let data = data[key]
-        guard data != nil else {
-            if warnNotFound {
-                Logger.logger.reportError(self, "No data for \(key)")
-            }
-            return nil
-        }
-        //data = data!.replacingOccurrences(of: " ", with: "")
-        let tuples = data!.components(separatedBy: " ")
 
-        var result:[Any] = []
-        for entry in tuples {
-            var tuple = entry.replacingOccurrences(of: "(", with: "")
-            tuple = tuple.replacingOccurrences(of: ")", with: "")
-            let parts = tuple.components(separatedBy: ",")
-            if parts.count == 2  {
-                let notePitch:Int? = Int(parts[0])
-                if let notePitch = notePitch {
-                    //let pitch = Int(parts[0])
-                    let value = Double(parts[1]) ?? 1
-                    //if let pitch = pitch {
-                    result.append(Note(num: notePitch, value: value))
-                    //}
-                }
-                else {
-                    if parts[0] == "TS" {
-                        var ts = TimeSignature(top: 4, bottom: 4)
-                        ts.isCommonTime = true
-                        result.append(result.append(ts))
-                    }
-
-                }
-            }
-            else {
-                if parts.count == 1 {
-                    if parts[0] == "K" {
-                        result.append(KeySignature(type: .sharp, count: 1))
-                    }
-                    if parts[0] == "B" {
-                        result.append(BarLine())
-                    }
-                }
-                if parts.count == 3 {
-                    result.append(TimeSignature(top: Int(parts[1]) ?? 0, bottom: Int(parts[2]) ?? 0))
-                }
-            }
-        }
-        //Logger.logger.log(self, "Entry count for \(key) is \(result.count)")
-        return result
-    }
 }
