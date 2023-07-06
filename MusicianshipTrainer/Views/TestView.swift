@@ -5,7 +5,8 @@ struct TestView: View {
 //    @ObservedObject var staff:Staff
 //    @ObservedObject var ts:TimeSlice
     let firebase = FirestorePersistance()
-    
+    let spreadsheet = GoogleSpreadsheet()
+
     init() {
 //        score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
 //        let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5)
@@ -32,9 +33,12 @@ struct TestView: View {
             Spacer()
             
             Button(action: {
-                firebase.driveTest()
+                spreadsheet.get() { data in
+                    // Handle the result from F1
+                    print("Received data: \(data)")
+                }
             }) {
-                Text("FireStore").padding()
+                Text("Google ").padding()
             }
             
             Spacer()

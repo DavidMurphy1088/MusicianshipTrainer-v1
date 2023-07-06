@@ -1,12 +1,10 @@
 --TODO
-commit 1
 
-Metronome button???
-USe MID bonary files for examples
+move API key out off source code
 Refactor content - content to cloud
-start new instument/ voice
 
-make a grade #2,8 clap example?
+
+
 
 do a simple example to understand geometry
 make a view builder that can render all text in buttons in one style

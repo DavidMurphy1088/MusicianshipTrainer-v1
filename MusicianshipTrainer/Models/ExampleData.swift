@@ -1,11 +1,33 @@
 import Foundation
-class ExampleData {
-    
+
+class ExampleData : ObservableObject {
     static var shared = ExampleData()
     var data = [String: String]()
+    var fromCloud = true
+    @Published var dataReady:Bool
     
     init() {
+        if self.fromCloud {
+            self.dataReady = false
+            GoogleSpreadsheet().get() { data in
+                // Handle the result from F1
+                print("Received data: \(data)")
+                self.setDataReady(way: data != nil)
+            }
+        }
+        else {
+            dataReady = true
+            hardCoded()
+        }
+    }
+    
+    func setDataReady(way:Bool) {
+        DispatchQueue.main.async {
+            self.dataReady = way
+        }
+    }
 
+    func hardCoded() {
         // =========== Instructions
 
         data["Grade 1.Intervals Visual.Instructions"] = "In the exam you will be shown three notes, and be asked to identify the intervals as either a second or a third."
