@@ -180,7 +180,7 @@
 		7B40B8292A54E52A00CA7FC4 /* LaunchScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LaunchScreen.swift; sourceTree = "<group>"; };
 		7B40B82A2A54E52A00CA7FC4 /* ConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigurationView.swift; sourceTree = "<group>"; };
 		7B40B82B2A54E52A00CA7FC4 /* ScoreView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScoreView.swift; sourceTree = "<group>"; };
-		7B4F64472A54DC6000727710 /* MusicianshipTrainer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicianshipTrainer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B4F64472A54DC6000727710 /* Musicianship Trainer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Musicianship Trainer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B4F644A2A54DC6000727710 /* MusicianshipTrainerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerApp.swift; sourceTree = "<group>"; };
 		7B4F644E2A54DC6100727710 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B4F64512A54DC6100727710 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -378,7 +378,7 @@
 		7B4F64482A54DC6000727710 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7B4F64472A54DC6000727710 /* MusicianshipTrainer.app */,
+				7B4F64472A54DC6000727710 /* Musicianship Trainer.app */,
 				7B4F645D2A54DC6200727710 /* MusicianshipTrainerTests.xctest */,
 				7B4F64672A54DC6200727710 /* MusicianshipTrainerUITests.xctest */,
 			);
@@ -476,7 +476,7 @@
 				7BB835482A5555130083C1C0 /* FirebaseFirestore */,
 			);
 			productName = MusicianshipTrainer;
-			productReference = 7B4F64472A54DC6000727710 /* MusicianshipTrainer.app */;
+			productReference = 7B4F64472A54DC6000727710 /* Musicianship Trainer.app */;
 			productType = "com.apple.product-type.application";
 		};
 		7B4F645C2A54DC6200727710 /* MusicianshipTrainerTests */ = {
@@ -913,7 +913,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dmurphy.test.MusicianshipTrainer;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Musicianship Trainer";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -943,7 +943,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dmurphy.test.MusicianshipTrainer;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Musicianship Trainer";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
