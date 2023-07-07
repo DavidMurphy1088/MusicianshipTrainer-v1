@@ -1,29 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>NSCameraUsageDescription</key>
-	<string>This application does not use the camera</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This application uses your microphone to record your music playing</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>13.3</string>
-	<key>UISupportsDocumentBrowser</key>
-	<true/>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
-    <key>GIDClientID</key>
-    <string>858515368370-5m489vdb4f9d2342jauq4gab8lg7he8p.apps.googleusercontent.com</string>
-    <key>CFBundleURLTypes</key>
-    <array>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>com.googleusercontent.apps.858515368370-5m489vdb4f9d2342jauq4gab8lg7he8p</string>
-        </array>
-      </dict>
-    </array>
-</dict>
+<dict/>
 </plist>
