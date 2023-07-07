@@ -2,7 +2,6 @@ import Foundation
 
 class ExampleData : ObservableObject {
     static var shared = ExampleData()
-    //var data = [String: String]()
     var data:[String: String] = [:]
 
     var fromCloud = true
@@ -34,7 +33,7 @@ class ExampleData : ObservableObject {
         }
     }
     
-    ///load data from Google Drive Sheet
+    //load data from Google Drive Sheet
     func loadData(data:[[String]]) {
         var path:[String] = ["", "", ""]
         let offset = 2 //start of path offset
