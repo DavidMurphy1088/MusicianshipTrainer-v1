@@ -89,6 +89,7 @@
 		7BC42EB62A550F63004FE117 /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB52A550F62004FE117 /* Notes */; };
 		7BC42EB82A550F6C004FE117 /* Todo in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB72A550F6C004FE117 /* Todo */; };
 		7BD1E5B82A5671AC009AD7E8 /* GoogleSpreadsheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD1E5B72A5671AC009AD7E8 /* GoogleSpreadsheet.swift */; };
+		7BD1E5BA2A57D088009AD7E8 /* StaffCharacteristics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */; };
 		7BFA209F2A555BCA000A09CD /* credentials.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7BFA209E2A555BCA000A09CD /* credentials.plist */; };
 		7BFA20A12A555D90000A09CD /* GoogleAPI in Resources */ = {isa = PBXBuildFile; fileRef = 7BFA20A02A555D90000A09CD /* GoogleAPI */; };
 		90B705EC67B5572A255054E3 /* Pods_MusicianshipTrainer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FF18680D5DC8FA8469AA316 /* Pods_MusicianshipTrainer.framework */; };
@@ -198,6 +199,7 @@
 		7BC42EB52A550F62004FE117 /* Notes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
 		7BC42EB72A550F6C004FE117 /* Todo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Todo; sourceTree = "<group>"; };
 		7BD1E5B72A5671AC009AD7E8 /* GoogleSpreadsheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSpreadsheet.swift; sourceTree = "<group>"; };
+		7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaffCharacteristics.swift; sourceTree = "<group>"; };
 		7BFA209E2A555BCA000A09CD /* credentials.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = credentials.plist; sourceTree = "<group>"; };
 		7BFA20A02A555D90000A09CD /* GoogleAPI */ = {isa = PBXFileReference; lastKnownFileType = text; path = GoogleAPI; sourceTree = "<group>"; };
 		B972016AF73F96B52619845C /* Pods_MusicianshipTrainerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MusicianshipTrainerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -302,6 +304,7 @@
 				7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */,
 				7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */,
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,
+				7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -718,6 +721,7 @@
 				7B40B7FB2A54DF9000CA7FC4 /* LineChartView.swift in Sources */,
 				7B40B8302A54E52A00CA7FC4 /* MetronomeView.swift in Sources */,
 				7B40B80B2A54DF9000CA7FC4 /* SpeechSynth.swift in Sources */,
+				7BD1E5BA2A57D088009AD7E8 /* StaffCharacteristics.swift in Sources */,
 				7B4F64542A54DC6100727710 /* Persistence.swift in Sources */,
 				7B40B7F62A54DF9000CA7FC4 /* Chord.swift in Sources */,
 				7B40B8322A54E52A00CA7FC4 /* VoiceCounter.swift in Sources */,

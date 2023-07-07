@@ -117,9 +117,6 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
         self.score = score
         self.contentSection = contentSection
         self.mode = mode
-        let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (mode == .rhythmVisualClap || mode == .rhythmEchoClap) ? 1 : 5)
-        
-        score.setStaff(num: 0, staff: staff)
         if mode == .melodyPlay {
             let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: mode == .rhythmVisualClap ? 1 : 5)
             bstaff.isHidden = true
@@ -127,12 +124,21 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
             //score.hiddenStaffNo = 1
         }
         let exampleData = exampleData.get(contentSection: contentSection) //(contentSection.parent!.name, contentSection.name)
-        score.setStaff(num: 0, staff: staff)
         self.rhythmHeard = self.mode == .rhythmVisualClap ? true : false
-        
+        var staff:Staff?
         if let entries = exampleData {
-            //var ctr = 0
             for entry in entries {
+                if entry is KeySignature {
+                    score.setKey(key: Key(type: .major, keySig: KeySignature(type: .sharp, count: 1)))
+                }
+                if entry is TimeSignature {
+                    let ts = entry as! TimeSignature
+                    score.timeSignature = ts
+                }
+                if entry is StaffCharacteristics {
+                    staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (mode == .rhythmVisualClap || mode == .rhythmEchoClap) ? 1 : 5)
+                    score.setStaff(num: 0, staff: staff!)
+                }
                 if entry is Note {
                     let timeSlice = score.addTimeSlice()
                     let note = entry as! Note
@@ -143,14 +149,12 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
                 if entry is BarLine {
                     score.addBarLine()
                 }
-                if entry is TimeSignature {
-                    let ts = entry as! TimeSignature
-                    score.timeSignature = ts
-                }
-                if entry is KeySignature {
-                    score.setKey(key: Key(type: .major, keySig: KeySignature(type: .sharp, count: 1)))
-                }
             }
+        }
+        if staff == nil {
+            //TODO remove when conversiont to cloud content is done
+            staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (mode == .rhythmVisualClap || mode == .rhythmEchoClap) ? 1 : 5)
+            score.setStaff(num: 0, staff: staff!)
         }
         if mode == .melodyPlay {
             if let timeSlice = score.getLastTimeSlice() {

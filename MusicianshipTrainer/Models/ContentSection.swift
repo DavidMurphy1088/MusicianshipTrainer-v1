@@ -71,7 +71,7 @@ class ContentSection: Identifiable {
         
         if level == 1 {
             for i in 1...32 {
-                addExample(exampleNum:i)
+                addExample(exampleNum: i)
             }
         }
     }
@@ -117,16 +117,13 @@ class ContentSection: Identifiable {
             key = parent!.name+"."+key
         }
         let exampleData = ExampleData.shared.getData(key: key, warnNotFound: false)
+        //let exampleData = ExampleData.shared.get(contentSection: self)
         if exampleData == nil {
             return
         }
         subSections.append(ContentSection(parent: self, type: SectionType.example, name:exampleName, isActive: true))
     }
 }
-
-
-
-
 
 class Syllabus {
     static public let shared = Syllabus()

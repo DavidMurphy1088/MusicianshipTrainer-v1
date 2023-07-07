@@ -103,7 +103,17 @@ class ExampleData : ObservableObject {
     }
     
     func getData(key:String, warnNotFound:Bool=true) -> [Any]! {
+        if self.fromCloud {
+            return getDataCloud(key: key, warnNotFound: warnNotFound)
+        }
+        else {
+            return getDataLocal(key: key, warnNotFound: warnNotFound)
+        }
+    }
+    
+    func getDataCloud(key:String, warnNotFound:Bool=true) -> [Any]! {
         //let key = grade+"."+testType+"."+exampleKey
+        print("\n\(key) --> ", terminator: "")
         let data = data[key]
         guard data != nil else {
             if warnNotFound {
@@ -111,7 +121,85 @@ class ExampleData : ObservableObject {
             }
             return nil
         }
-        //data = data!.replacingOccurrences(of: " ", with: "")
+        let tuples = data!.components(separatedBy: " ")
+
+        var result:[Any] = []
+        
+        for i in 0..<tuples.count {
+            var tuple = tuples[i].replacingOccurrences(of: "(", with: "")
+            tuple = tuple.replacingOccurrences(of: ")", with: "")
+            let parts = tuple.components(separatedBy: ",")
+            
+            //Fixed
+            
+            if i == 0 {
+                result.append(KeySignature(type: .sharp, count: parts[0] == "C" ? 0 : 1))
+                continue
+            }
+            if i == 1 {
+                if parts.count == 1 {
+                    let ts = TimeSignature(top: 4, bottom: 4)
+                    ts.isCommonTime = true
+                    result.append(ts)
+                    continue
+                }
+
+                if parts.count == 2 {
+                    result.append(TimeSignature(top: Int(parts[0]) ?? 0, bottom: Int(parts[1]) ?? 0))
+                    continue
+                }
+                Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(key) \(tuple)")
+                continue
+            }
+            if i == 2 {
+                if parts.count == 1 {
+                    if let lines = Int(parts[0]) {
+                        result.append(StaffCharacteristics(lines: lines))
+                        continue
+                    }
+                }
+                Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(key) \(tuple)")
+                continue
+            }
+            
+            // Repeating
+            
+            if parts.count == 1  {
+                if parts[0] == "B" {
+                    result.append(BarLine())
+                }
+                continue
+            }
+            
+            if parts.count == 2  {
+                let notePitch:Int? = Int(parts[0])
+                if let notePitch = notePitch {
+                    //let pitch = Int(parts[0])
+                    let value = Double(parts[1]) ?? 1
+                    //if let pitch = pitch {
+                    result.append(Note(num: notePitch, value: value))
+                    print("\(notePitch),\(value);", terminator: "")
+                    //}
+                }
+                continue
+            }
+            Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(key) \(tuple)")
+        }
+        //Logger.logger.log(self, "Entry count for \(key) is \(result.count)")
+        print("\n")
+        return result
+    }
+    
+    func getDataLocal(key:String, warnNotFound:Bool=true) -> [Any]! {
+        //let key = grade+"."+testType+"."+exampleKey
+        print("\n\(key) --> ", terminator: "")
+        let data = data[key]
+        guard data != nil else {
+            if warnNotFound {
+                Logger.logger.reportError(self, "No data for \(key)")
+            }
+            return nil
+        }
         let tuples = data!.components(separatedBy: " ")
 
         var result:[Any] = []
@@ -126,6 +214,7 @@ class ExampleData : ObservableObject {
                     let value = Double(parts[1]) ?? 1
                     //if let pitch = pitch {
                     result.append(Note(num: notePitch, value: value))
+                    print("\(notePitch),\(value);", terminator: "")
                     //}
                 }
                 else {
@@ -133,6 +222,7 @@ class ExampleData : ObservableObject {
                         var ts = TimeSignature(top: 4, bottom: 4)
                         ts.isCommonTime = true
                         result.append(result.append(ts))
+                        print("\(ts.top),\(ts.bottom);5;", terminator: "")
                     }
 
                 }
@@ -141,19 +231,24 @@ class ExampleData : ObservableObject {
                 if parts.count == 1 {
                     if parts[0] == "K" {
                         result.append(KeySignature(type: .sharp, count: 1))
+                        print("C;", terminator: "")
                     }
                     if parts[0] == "B" {
                         result.append(BarLine())
+                        print("B;", terminator: "")
                     }
                 }
                 if parts.count == 3 {
                     result.append(TimeSignature(top: Int(parts[1]) ?? 0, bottom: Int(parts[2]) ?? 0))
+                    print("\(parts[1]),\(parts[2]);5;", terminator: "")
                 }
             }
         }
         //Logger.logger.log(self, "Entry count for \(key) is \(result.count)")
+        print("\n")
         return result
     }
+    
     func hardCoded() {
         // =========== Instructions
 
