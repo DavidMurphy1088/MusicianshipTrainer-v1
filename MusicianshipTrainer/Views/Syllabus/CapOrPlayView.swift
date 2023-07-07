@@ -129,7 +129,8 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
         if let entries = exampleData {
             for entry in entries {
                 if entry is KeySignature {
-                    score.setKey(key: Key(type: .major, keySig: KeySignature(type: .sharp, count: 1)))
+                    let keySignature = entry as! KeySignature
+                    score.setKey(key: Key(type: .major, keySig: keySignature))
                 }
                 if entry is TimeSignature {
                     let ts = entry as! TimeSignature
