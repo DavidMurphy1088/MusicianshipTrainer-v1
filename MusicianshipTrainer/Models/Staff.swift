@@ -219,7 +219,7 @@ class Staff : ObservableObject {
         else {
             offset = noteStaffPlacement[noteValue].offsetFromStaffMidline
         }
-        var ledgerLines:[Int] = []
+        let ledgerLines:[Int] = []
         return (offset, ledgerLines)
     }
     

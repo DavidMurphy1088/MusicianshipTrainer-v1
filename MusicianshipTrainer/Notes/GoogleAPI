@@ -18,4 +18,11 @@ https://www.googleapis.com/drive/v2/files/12VCNR7qtn0PTeKo2wfN2YMcpLL6ASa0k?alt=
 refresh access token at
 https://developers.google.com/oauthplayground/?code=4/0AZEOvhVoVKE7PG28-LtaD4y51-iKJhwEFJCwKjqYDxZ4jmtyqgTPRyv2aZV8lQ71OyTZ8A&scope=https://www.googleapis.com/auth/drive%20https://www.googleapis.com/auth/drive.file%20https://www.googleapis.com/auth/drive.readonly
 
+---Getting Started with the REST API for iOS
+installing the PODs:
+https://developers.google.com/identity/sign-in/ios/sign-in
 
+-----Using a SERVICE ACCOUNT
+https://developers.google.com/identity/protocols/oauth2/service-account
+Your application calls Google APIs on behalf of the service account, so users aren't directly involved
+Typically, an application uses a service account when the application uses Google APIs to work with its own data rather than a user's data.

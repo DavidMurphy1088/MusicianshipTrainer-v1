@@ -1,5 +1,6 @@
-
 import Foundation
+import GoogleAPIClientForREST
+import GTMSessionFetcher
 
 struct JSONSheet: Codable {
     let range: String
@@ -15,6 +16,51 @@ class GoogleSpreadsheet {
         case failed
     }
     
+    func test() {
+        let serviceAccountKeyPath = "path/to/service_account_key.json"
+
+        func connectToDriveAPI() {
+            // Load the service account JSON key file
+            guard let jsonData = try? Data(contentsOf: URL(fileURLWithPath: serviceAccountKeyPath)),
+                  let credentials = try? GoogleCredentials.from(jsonKeyData: jsonData) else {
+                print("Failed to load service account credentials.")
+                return
+            }
+
+            // Create a GTMSessionFetcherService and set the credentials
+            let fetcherService = GTMSessionFetcherService()
+            fetcherService.authorizer = try? credentials.authorize()
+
+            // Create a Google Drive service and set the fetcher service
+            let driveService = GTLRDriveService()
+            driveService.fetcherService = fetcherService
+
+            // Make API requests using the Google Drive service
+            listFiles(using: driveService)
+        }
+
+        func listFiles(using service: GTLRDriveService) {
+            let query = GTLRDriveQuery_FilesList.query()
+            query.pageSize = 10
+
+            service.executeQuery(query) { (ticket, files, error) in
+                if let error = error {
+                    print("Error listing files: \(error.localizedDescription)")
+                    return
+                }
+
+                if let files = files as? GTLRDrive_FileList, let items = files.files {
+                    for item in items {
+                        print(item.name ?? "Unknown")
+                    }
+                }
+            }
+        }
+
+        // Call the connectToDriveAPI function to initiate the connection
+        connectToDriveAPI()
+
+    }
     func getFile(onDone: @escaping (_ dataStatus:DataStatus, [[String]]?) -> Void) {
         //---> API keys are not supported by this API. Expected OAuth2 access token or other authentication credentials
         //that assert a principal. See https://cloud.google.com/docs/authentication

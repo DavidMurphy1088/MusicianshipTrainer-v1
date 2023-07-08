@@ -1,4 +1,6 @@
 import SwiftUI
+import GoogleSignIn
+import GoogleSignInSwift
 
 struct TestView: View {
 //    var score:Score
@@ -17,6 +19,28 @@ struct TestView: View {
 //        self.staff = staff
     }
     
+//    func handleSignInButton() {
+//    //https://developers.google.com/identity/sign-in/ios/sign-in
+//      GIDSignIn.sharedInstance.signIn(
+//        withPresenting: rootViewController) { signInResult, error in
+//          guard let result = signInResult else {
+//            // Inspect error
+//            return
+//          }
+//          // If sign in succeeded, display the app's main content View.
+//        }
+//      )
+//    }
+    func signIn() {
+        if let user = GIDSignIn.sharedInstance.currentUser {
+            
+            print(user.userID)
+        }
+        else {
+            print("No user...")
+        }
+    }
+    
     var body: some View {
         VStack {
             //Text("test")
@@ -32,6 +56,18 @@ struct TestView: View {
 //                .frame(width: 5 * Double(ts.notesLength ?? 0) + 200)
             Spacer()
             
+            //GoogleSignInButton(action: handleSignInButton)
+            
+            Spacer()
+            
+            Button(action: {
+                spreadsheet.getSheet() { data, status in
+                    self.signIn()
+                }
+            }) {
+                Text("Google SignIn").padding()
+            }
+
             Button(action: {
                 spreadsheet.getSheet() { data, status in
                     // Handle the result from F1
