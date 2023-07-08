@@ -14,7 +14,7 @@ class ContentSection: Identifiable {
     var isActive:Bool
     var level:Int
     var instructions:String = ""
-    var hints = ""
+    //var hints = ""
     
     enum SectionType {
         case none
@@ -61,12 +61,12 @@ class ContentSection: Identifiable {
         if let parent = parent {
             var key = "\(parent.name).\(name).Instructions"
             if exampleData.data.keys.contains(key) {
-                self.instructions = exampleData.data[key]!
+                self.instructions = exampleData.data[key]![0]
             }
-            key = "\(parent.name).\(name).Hints"
-            if exampleData.data.keys.contains(key) {
-                self.hints = exampleData.data[key]!
-            }
+//            key = "\(parent.name).\(name).Hints"
+//            if exampleData.data.keys.contains(key) {
+//                self.hints = exampleData.data[key]!
+//            }
         }
         
         if level == 1 {

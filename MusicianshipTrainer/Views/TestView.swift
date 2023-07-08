@@ -33,14 +33,22 @@ struct TestView: View {
             Spacer()
             
             Button(action: {
-                spreadsheet.get() { data, status in
+                spreadsheet.getSheet() { data, status in
                     // Handle the result from F1
                     print("Received data: \(data)")
                 }
             }) {
-                Text("Google ").padding()
+                Text("Google Sheet").padding()
             }
             
+            Button(action: {
+                spreadsheet.getFile() { data, status in
+                    print("Received data: \(data)")
+                }
+            }) {
+                Text("Google HTML").padding()
+            }
+
             Spacer()
             
             Button(action: {

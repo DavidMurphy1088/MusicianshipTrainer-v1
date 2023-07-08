@@ -1,1 +1,21 @@
 https://developers.google.com/identity/sign-in/ios/start
+
+OAuth Rest playground
+
+https://developers.google.com/oauthplayground/?code=4/0AZEOvhVlUbCwcauRrO5qDcu5FevQydCoWgLIAbfikKXRg_tSX5MIp8yxzDEmtByzvZvVow&scope=https://www.googleapis.com/auth/drive.readonly
+
+API DOCS Rest DOC
+
+https://cloud.google.com/document-ai/docs/reference/rpc/google.cloud.documentai.v1
+
+Download FILE
+
+---> Download FILE WORKS for HTML FILE (but needs a current OAuth2 access token)
+-- works in playground which can excahne authorization for current access token
+
+https://www.googleapis.com/drive/v2/files/12VCNR7qtn0PTeKo2wfN2YMcpLL6ASa0k?alt=media&source=downloadUrl
+
+refresh access token at
+https://developers.google.com/oauthplayground/?code=4/0AZEOvhVoVKE7PG28-LtaD4y51-iKJhwEFJCwKjqYDxZ4jmtyqgTPRyv2aZV8lQ71OyTZ8A&scope=https://www.googleapis.com/auth/drive%20https://www.googleapis.com/auth/drive.file%20https://www.googleapis.com/auth/drive.readonly
+
+

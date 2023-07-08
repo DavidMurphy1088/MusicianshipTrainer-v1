@@ -61,7 +61,7 @@ struct MusicianshipTrainerApp: App {
     @StateObject var launchScreenState = LaunchScreenStateManager()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @ObservedObject var exampleData = ExampleData.shared
-    static let productionMode = true
+    static let productionMode = false
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Musicianship")
     //product licensed by grade 14Jun23
     static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
