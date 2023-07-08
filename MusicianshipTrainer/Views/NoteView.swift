@@ -45,7 +45,7 @@ struct NoteView: View {
         if note.sequence == 7 {
             
         }
-        let val = note.isDotted ? note.getValue() * 2.0/3.0 : note.getValue()
+        //let val = note.isDotted ? note.getValue() * 2.0/3.0 : note.getValue()
     }
     
     var body: some View {

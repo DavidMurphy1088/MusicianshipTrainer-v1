@@ -238,9 +238,9 @@ class Chord : Identifiable {
             done.append(fromIdx)
             log.append((self.notes[fromIdx].midiNumber, bestPitch, done.count))
         }
-        let ls = log.sorted {
-            $0.0 < $1.1
-        }
+//        let ls = log.sorted {
+//            $0.0 < $1.1
+//        }
 
         result.order()
         return result

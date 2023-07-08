@@ -110,12 +110,12 @@ class NoteOnsetAnalyser : ObservableObject {
              // ============== make the segments
             audioFile = try AVAudioFile(forReading: url) //required again since the scan of the whole file above makes this next code fail
             let threshold = maxValue * 0.2 //TODO UI??
-            var frameCtr = 0
+            //var frameCtr = 0
 
             let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: audioFile.fileFormat.sampleRate,
                                        channels: audioFile.fileFormat.channelCount, interleaved: false)
-            for segmentIndex in 0..<totalSegmentCount {
-                let startSample = AVAudioFramePosition(segmentIndex) * AVAudioFramePosition(framesPerSegment)
+            for _ in 0..<totalSegmentCount {
+//                let startSample = AVAudioFramePosition(segmentIndex) * AVAudioFramePosition(framesPerSegment)
                 let framesBuffer = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(framesPerSegment))!
                 
                 try audioFile.read(into: framesBuffer)
@@ -184,7 +184,7 @@ class NoteOnsetAnalyser : ObservableObject {
                           FFTFrameSize:Int, FFTFrameOffset:Int) {
         self.correctNotes = [(64,2), (62,2), (60,1), (62,1), (64,2), (67,4), (67,4), (65,2), (67,2)]
         //var segmentsPerSlice = Int(Double(self.segmentAverages.count) * noteOnsetSliceWidthPercent)
-        var segmentsPerSlice = Int(noteOnsetSliceMilliSecs / segmentLengthSecondsMilliSec)
+        let segmentsPerSlice = Int(noteOnsetSliceMilliSecs / segmentLengthSecondsMilliSec)
         
         //var segmentsPerSlice = 1 //TODO
         if segmentsPerSlice == 0 {
@@ -247,7 +247,7 @@ class NoteOnsetAnalyser : ObservableObject {
             var startFrame = offset.startSegment * self.framesPerSegment
             startFrame += FFTFrameOffset
             let endFrame = startFrame + Int(offset.duration()) * self.framesPerSegment
-            let frameCnt = endFrame - startFrame
+            //let frameCnt = endFrame - startFrame
             //let requiredValues = Int(Double(frameCnt * FFTFrameSizePercent) / 100.0)
             let requiredValues = FFTFrameSize
             var ctr = 0
@@ -384,7 +384,7 @@ class NoteOnsetAnalyser : ObservableObject {
     //method for pitch estimation in audio signals.
     func performYINalgorithm1(_ audioSamples: [Float], sampleRate: Float) -> Float? {
         let bufferSize = audioSamples.count
-        let threshold: Float = 0.15 // Adjust the threshold as needed
+        //let threshold: Float = 0.15 // Adjust the threshold as needed
         
         // Step 1: Calculate the difference function
         var differenceFunction = [Float](repeating: 0.0, count: bufferSize)
@@ -515,14 +515,14 @@ class NoteOnsetAnalyser : ObservableObject {
 
         // Create the high-pass filter kernel
         var filterKernel = [Float](repeating: 0.0, count: Int(numFrames))
-        let filterLength = vDSP_Length(filterKernel.count)
+        //let filterLength = vDSP_Length(filterKernel.count)
         let alpha = 0.5 * exp(-2.0 * .pi * normalizedCutoff)
         let beta = 2.0 * alpha * cos(2.0 * .pi * normalizedCutoff)
         filterKernel[0] = 1.0 - alpha
         filterKernel[1] = -beta
 
         // Apply the high-pass filter to the signal
-        var filterState = [Float](repeating: 0.0, count: filterOrder)
+        //var filterState = [Float](repeating: 0.0, count: filterOrder)
         vDSP_deq22(signal, vDSP_Stride(1), filterKernel, &signal, vDSP_Stride(1), numFrames) //, filterLength)
 
         return signal
@@ -543,7 +543,7 @@ class NoteOnsetAnalyser : ObservableObject {
     
     func findDominantPitch(fftOutput: [Float], sampleRate: Float) -> Int? {
         let fftSize = fftOutput.count
-        let nyquistFrequency = sampleRate / 2
+        //let nyquistFrequency = sampleRate / 2
         let binSize = sampleRate / Float(fftSize)
         
         var maxAmplitude: Float = 0.0
@@ -566,7 +566,7 @@ class NoteOnsetAnalyser : ObservableObject {
     
     func performPeakInterpolation(fftOutput: [Float], sampleRate: Float) -> Float? {
         let fftSize = fftOutput.count
-        let nyquistFrequency = sampleRate / 2
+        //let nyquistFrequency = sampleRate / 2
         let binSize = sampleRate / Float(fftSize)
         
         var maxAmplitude: Float = 0.0

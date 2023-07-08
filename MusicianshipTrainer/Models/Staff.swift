@@ -104,7 +104,7 @@ class Staff : ObservableObject {
             let f = String(line.components(separatedBy: " ")[0])
             //noteOffsetEntries.append(pairs) //Just C Major
             let fx:String = String(f.first!)
-            var off = Int(fx)
+            let off = Int(fx)
             noteOffsets.append((off == nil ? 0 : off)!)
         }
         
@@ -132,8 +132,8 @@ class Staff : ObservableObject {
                 noteOffsetInScale =  noteOffsetInScale - 7
             }
             
-            var name = ""
-            name = "X" //String(Note.noteNames[(noteOffsetInScale+2) % Note.noteNames.count])
+            //var name = ""
+            //name = "X" //String(Note.noteNames[(noteOffsetInScale+2) % Note.noteNames.count])
             let offset = noteOffsetInScale + 1
             placement = NoteStaffPlacement(name: "X", offsetFroMidLine: offset)
             noteStaffPlacement[noteValue] = placement

@@ -59,7 +59,7 @@ class ContentSection: Identifiable {
         }
         let exampleData = ExampleData.shared
         if let parent = parent {
-            var key = "\(parent.name).\(name).Instructions"
+            let key = "\(parent.name).\(name).Instructions"
             if exampleData.data.keys.contains(key) {
                 self.instructions = exampleData.data[key]![0]
             }

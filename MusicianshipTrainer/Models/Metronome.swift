@@ -353,9 +353,9 @@ class Metronome: ObservableObject {
         
         //https://www.rockhoppertech.com/blog/the-great-avaudiounitsampler-workout/#soundfont
         //https://sites.google.com/site/soundfonts4u/
-        var soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
+        let soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
         //var soundFontNames = [("Piano", "Dore Mark's (SF) Fazioli-v2.5.sf2"), ("Guitar", "GuitarAcoustic")]
-        var samplerFileName = soundFontNames[0].1
+        let samplerFileName = soundFontNames[0].1
         
         AppDelegate.startAVAudioSession(category: .playback)
         midiSampler = AVAudioUnitSampler()
