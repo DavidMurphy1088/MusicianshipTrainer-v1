@@ -19,9 +19,10 @@ class GoogleSpreadsheet {
         //---> API keys are not supported by this API. Expected OAuth2 access token or other authentication credentials
         //that assert a principal. See https://cloud.google.com/docs/authentication
         //var url = "https://docs.googleapis.com/v1/documents/"
-        var url = "https://www.googleapis.com/drive/v2/files/12VCNR7qtn0PTeKo2wfN2YMcpLL6ASa0k?alt=media&source=downloadUrl"
+        //var url = "https://www.googleapis.com/drive/v2/files/12VCNR7qtn0PTeKo2wfN2YMcpLL6ASa0k?alt=media&source=downloadUrl"
+        var url = "https://docs.google.com/document/d/1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM/edit?usp=sharing"
         //url += "1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM" //document id
-        url += "?key=AIzaSyAE2BUYT57itqrYlVR4wIg8yszz9J88nQ8" //API key
+        //url += "?key=AIzaSyAE2BUYT57itqrYlVR4wIg8yszz9J88nQ8" //API key
         
    // Authorization: Bearer ya29.a0AbVbY6PN9OQWsJRxV3WQH1xmSPTOoqQFdSzSNUOt1r6GAzfFCOPnOXUhxMs2lZBb3L0Bd6eEL1pfVs-i28ZW_gENcdmM-
         
@@ -36,12 +37,12 @@ class GoogleSpreadsheet {
 
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        var auth = ""
-        auth += "Bearer ya29.a0AbVbY6PN9OQWsJRxV3WQH1xmSPTOoqQFdSzSNUOt1r6GAzfFCOPnOXUhxMs2lZBb3L0Bd6eEL1pfVs"
-        auth += "-i28ZW_gENcdmM-ehjxzjoECIL1lQJCod8ng98AU05wNtlTqa11uHADdA1YE249CkYKF"
-        auth += "BmZzXwjNP7aCgYKAdISARESFQFWKvPlIaHF3VHadIHpa7wLNBT6WQ0163"
-        print (auth)
-        request.addValue(auth, forHTTPHeaderField: "Authorization")
+//        var auth = ""
+//        auth += "Bearer ya29.a0AbVbY6PN9OQWsJRxV3WQH1xmSPTOoqQFdSzSNUOt1r6GAzfFCOPnOXUhxMs2lZBb3L0Bd6eEL1pfVs"
+//        auth += "-i28ZW_gENcdmM-ehjxzjoECIL1lQJCod8ng98AU05wNtlTqa11uHADdA1YE249CkYKF"
+//        auth += "BmZzXwjNP7aCgYKAdISARESFQFWKvPlIaHF3VHadIHpa7wLNBT6WQ0163"
+//        print (auth)
+//        request.addValue(auth, forHTTPHeaderField: "Authorization")
 
         // Create a URLSession
         let task = session.dataTask(with: request) { (data, response, error) in
