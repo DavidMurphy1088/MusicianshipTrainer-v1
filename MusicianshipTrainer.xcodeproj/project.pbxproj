@@ -81,6 +81,7 @@
 		7B4F64622A54DC6200727710 /* MusicianshipTrainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F64612A54DC6200727710 /* MusicianshipTrainerTests.swift */; };
 		7B4F646C2A54DC6200727710 /* MusicianshipTrainerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */; };
 		7B4F646E2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */; };
+		7B6EB4982A5930FB00C5DE59 /* Google-OAuth.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B6EB4972A5930FB00C5DE59 /* Google-OAuth.plist */; };
 		7BB835442A5542CE0083C1C0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7BB835432A5542CD0083C1C0 /* GoogleService-Info.plist */; };
 		7BB835462A5548750083C1C0 /* Firestore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB835452A5548750083C1C0 /* Firestore.swift */; };
 		7BB835492A5555130083C1C0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB835482A5555130083C1C0 /* FirebaseFirestore */; };
@@ -192,6 +193,7 @@
 		7B4F64672A54DC6200727710 /* MusicianshipTrainerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MusicianshipTrainerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITests.swift; sourceTree = "<group>"; };
 		7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		7B6EB4972A5930FB00C5DE59 /* Google-OAuth.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Google-OAuth.plist"; sourceTree = "<group>"; };
 		7BB835432A5542CD0083C1C0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7BB835452A5548750083C1C0 /* Firestore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore.swift; sourceTree = "<group>"; };
 		7BC42EB12A550F39004FE117 /* AudioNotes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AudioNotes; sourceTree = "<group>"; };
@@ -388,6 +390,7 @@
 		7B4F64492A54DC6000727710 /* MusicianshipTrainer */ = {
 			isa = PBXGroup;
 			children = (
+				7B6EB4972A5930FB00C5DE59 /* Google-OAuth.plist */,
 				7B4F644E2A54DC6100727710 /* Assets.xcassets */,
 				7BFA209E2A555BCA000A09CD /* credentials.plist */,
 				7BB835432A5542CD0083C1C0 /* GoogleService-Info.plist */,
@@ -463,6 +466,7 @@
 				7B4F64432A54DC6000727710 /* Sources */,
 				7B4F64442A54DC6000727710 /* Frameworks */,
 				7B4F64452A54DC6000727710 /* Resources */,
+				A9AABF11AAD8D69AB1C714A1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -506,6 +510,7 @@
 				7B4F64632A54DC6200727710 /* Sources */,
 				7B4F64642A54DC6200727710 /* Frameworks */,
 				7B4F64652A54DC6200727710 /* Resources */,
+				3613D80069EAB9B1F345D182 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -579,6 +584,7 @@
 				7B28079D2A5508D300C70EF4 /* open-clap_F_minor.wav in Resources */,
 				7B2807992A5508D300C70EF4 /* Mechanical metronome - High.aif in Resources */,
 				7B2807A22A5508D300C70EF4 /* simplemelodypiano.wav in Resources */,
+				7B6EB4982A5930FB00C5DE59 /* Google-OAuth.plist in Resources */,
 				7B28079E2A5508D300C70EF4 /* Playing.html in Resources */,
 				7BC42EB42A550F4E004FE117 /* GPTQuestions in Resources */,
 				7B4F64522A54DC6100727710 /* Preview Assets.xcassets in Resources */,
@@ -611,6 +617,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		3613D80069EAB9B1F345D182 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MusicianshipTrainer-MusicianshipTrainerUITests/Pods-MusicianshipTrainer-MusicianshipTrainerUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MusicianshipTrainer-MusicianshipTrainerUITests/Pods-MusicianshipTrainer-MusicianshipTrainerUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MusicianshipTrainer-MusicianshipTrainerUITests/Pods-MusicianshipTrainer-MusicianshipTrainerUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		94BE78FD3557B2BDB51C9B18 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -653,6 +676,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A9AABF11AAD8D69AB1C714A1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MusicianshipTrainer/Pods-MusicianshipTrainer-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MusicianshipTrainer/Pods-MusicianshipTrainer-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MusicianshipTrainer/Pods-MusicianshipTrainer-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		C5A83032A42F24A41F76EDE6 /* [CP] Check Pods Manifest.lock */ = {
