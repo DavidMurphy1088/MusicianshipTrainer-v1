@@ -48,3 +48,6 @@ Filtering: Apply filters to remove unwanted noise or emphasize specific frequenc
 Low-pass filter: Removes high-frequency components, retaining only the lower frequencies relevant to the piano notes.
 High-pass filter: Removes low-frequency components, keeping only the higher frequencies.
 Band-pass filter: Passes a specific range of frequencies and attenuates others. You can use a band-pass filter to focus on the frequency range of the piano notes.
+=====================
+
+I need to be able to read documents on Google Drive from a swift ios application. The google documnets API does not support authentication by API keys. Instead, authentication must be done using a Google Service Account

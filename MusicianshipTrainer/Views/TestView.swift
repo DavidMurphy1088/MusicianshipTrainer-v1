@@ -67,6 +67,15 @@ struct TestView: View {
 //            }
 
             Button(action: {
+                spreadsheet.getDocument() { data, status in
+                    // Handle the result from F1
+                    print("Received data: \(data)")
+                }
+            }) {
+                Text("Google Document").padding()
+            }
+
+            Button(action: {
                 spreadsheet.getSheet() { data, status in
                     // Handle the result from F1
                     print("Received data: \(data)")
