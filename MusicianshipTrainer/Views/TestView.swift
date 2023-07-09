@@ -60,13 +60,11 @@ struct TestView: View {
             
             Spacer()
             
-            Button(action: {
-                spreadsheet.getSheet() { data, status in
-                    self.signIn()
-                }
-            }) {
-                Text("Google SignIn").padding()
-            }
+//            Button(action: {
+//                spreadsheet.getFile()
+//            }) {
+//                Text("Google SignIn").padding()
+//            }
 
             Button(action: {
                 spreadsheet.getSheet() { data, status in

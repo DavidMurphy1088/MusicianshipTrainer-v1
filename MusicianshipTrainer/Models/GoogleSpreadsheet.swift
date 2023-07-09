@@ -1,6 +1,8 @@
 import Foundation
-import GoogleAPIClientForREST
+import GoogleSignIn
 import GTMSessionFetcher
+import GTMAppAuth
+import GoogleAPIClientForREST
 
 struct JSONSheet: Codable {
     let range: String
@@ -10,63 +12,66 @@ struct JSONSheet: Codable {
 class GoogleSpreadsheet {
     let logger = Logger()
     
+    let serviceAccountKeyPath = "path/to/service_account_key.json"
+
     enum DataStatus {
         case ready
         case waiting
         case failed
     }
     
-    func test() {
-        let serviceAccountKeyPath = "path/to/service_account_key.json"
+    func authenticateWithServiceAccount() {
+        var jsonData1:Data
+        if let filePath = Bundle.main.path(forResource: "googl-service-account-keys", ofType: "json") {
+            let fileURL = URL(fileURLWithPath: filePath)
+            do {
+                jsonData1 = try Data(contentsOf: fileURL)
+                //return data
+            } catch {
+                print("Error loading data from file: \(error.localizedDescription)")
+            }
+        }
 
-        func connectToDriveAPI() {
-            // Load the service account JSON key file
-            guard let jsonData = try? Data(contentsOf: URL(fileURLWithPath: serviceAccountKeyPath)),
-                  let credentials = try? GoogleCredentials.from(jsonKeyData: jsonData) else {
-                print("Failed to load service account credentials.")
+
+        let service = GTLRDriveService()
+
+        // Configure the service account authentication
+        service.authorizer = try? GTMAppAuthFetcherAuthorization(fromKeychainForName: "YOUR_KEYCHAIN_NAME")
+        
+        // Make API requests using the Google Drive service
+        
+        let query = GTLRDriveQuery_FilesList.query()
+        query.pageSize = 10
+
+        service.executeQuery(query) { (ticket, files, error) in
+            if let error = error {
+                print("Error listing files: \(error.localizedDescription)")
                 return
             }
 
-            // Create a GTMSessionFetcherService and set the credentials
-            let fetcherService = GTMSessionFetcherService()
-            fetcherService.authorizer = try? credentials.authorize()
-
-            // Create a Google Drive service and set the fetcher service
-            let driveService = GTLRDriveService()
-            driveService.fetcherService = fetcherService
-
-            // Make API requests using the Google Drive service
-            listFiles(using: driveService)
-        }
-
-        func listFiles(using service: GTLRDriveService) {
-            let query = GTLRDriveQuery_FilesList.query()
-            query.pageSize = 10
-
-            service.executeQuery(query) { (ticket, files, error) in
-                if let error = error {
-                    print("Error listing files: \(error.localizedDescription)")
-                    return
-                }
-
-                if let files = files as? GTLRDrive_FileList, let items = files.files {
-                    for item in items {
-                        print(item.name ?? "Unknown")
-                    }
+            if let files = files as? GTLRDrive_FileList, let items = files.files {
+                for item in items {
+                    print(item.name ?? "Unknown")
                 }
             }
         }
-
-        // Call the connectToDriveAPI function to initiate the connection
-        connectToDriveAPI()
-
     }
+
+    func test() {
+        // Call the connectToDriveAPI function to initiate the connection
+        //connectToDriveAPI()
+        authenticateWithServiceAccount()
+        //listFiles()
+    }
+    
     func getFile(onDone: @escaping (_ dataStatus:DataStatus, [[String]]?) -> Void) {
         //---> API keys are not supported by this API. Expected OAuth2 access token or other authentication credentials
         //that assert a principal. See https://cloud.google.com/docs/authentication
         //var url = "https://docs.googleapis.com/v1/documents/"
         //var url = "https://www.googleapis.com/drive/v2/files/12VCNR7qtn0PTeKo2wfN2YMcpLL6ASa0k?alt=media&source=downloadUrl"
-        var url = "https://docs.google.com/document/d/1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM/edit?usp=sharing"
+        var url = "http://docs.google.com/document/d/1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM/edit?usp=sharing"
+        url = "http://drive.google.com/file/d/1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad/view?usp=sharing"
+        url = "http://drive.google.com/file/d/1aY9bthIlxrUgqJ2GXupMAejalKN0wXFD/view?usp=sharing"
         //url += "1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM" //document id
         //url += "?key=AIzaSyAE2BUYT57itqrYlVR4wIg8yszz9J88nQ8" //API key
         
@@ -102,7 +107,16 @@ class GoogleSpreadsheet {
             } else if let httpResponse = response as? HTTPURLResponse {
                 print("Status code: \(httpResponse.statusCode)")
                 if let data = data {
-                    print(String(data: data, encoding: .utf8))
+                    //print(String(data: data, encoding: .utf8) ?? "")
+                    print("Data size:", data.count)
+                    let attributedString = try? NSAttributedString(data: data,
+                                                                         options: [.documentType: NSAttributedString.DocumentType.html],
+                                                                         documentAttributes: nil)
+                    if let s = attributedString?.string {
+                        print("HTML size:", s.count)
+                        print ("--<", s)
+                    }
+
 //                    // Process the response data
 //                    let responseString = String(data: data, encoding: .utf8)
 //                    //print("Response: \(responseString ?? "")")

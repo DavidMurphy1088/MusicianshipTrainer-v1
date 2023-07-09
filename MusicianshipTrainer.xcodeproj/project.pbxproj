@@ -73,6 +73,7 @@
 		7B40B83E2A54E52A00CA7FC4 /* LaunchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8292A54E52A00CA7FC4 /* LaunchScreen.swift */; };
 		7B40B83F2A54E52A00CA7FC4 /* ConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B82A2A54E52A00CA7FC4 /* ConfigurationView.swift */; };
 		7B40B8402A54E52A00CA7FC4 /* ScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B82B2A54E52A00CA7FC4 /* ScoreView.swift */; };
+		7B457D682A59945500380B01 /* googl-service-account-keys.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B457D672A59945500380B01 /* googl-service-account-keys.json */; };
 		7B4F644B2A54DC6000727710 /* MusicianshipTrainerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F644A2A54DC6000727710 /* MusicianshipTrainerApp.swift */; };
 		7B4F644F2A54DC6100727710 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B4F644E2A54DC6100727710 /* Assets.xcassets */; };
 		7B4F64522A54DC6100727710 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B4F64512A54DC6100727710 /* Preview Assets.xcassets */; };
@@ -181,6 +182,7 @@
 		7B40B8292A54E52A00CA7FC4 /* LaunchScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LaunchScreen.swift; sourceTree = "<group>"; };
 		7B40B82A2A54E52A00CA7FC4 /* ConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigurationView.swift; sourceTree = "<group>"; };
 		7B40B82B2A54E52A00CA7FC4 /* ScoreView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScoreView.swift; sourceTree = "<group>"; };
+		7B457D672A59945500380B01 /* googl-service-account-keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "googl-service-account-keys.json"; sourceTree = "<group>"; };
 		7B4F64472A54DC6000727710 /* Musicianship Trainer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Musicianship Trainer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B4F644A2A54DC6000727710 /* MusicianshipTrainerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerApp.swift; sourceTree = "<group>"; };
 		7B4F644E2A54DC6100727710 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -393,6 +395,7 @@
 				7B6EB4972A5930FB00C5DE59 /* Google-OAuth.plist */,
 				7B4F644E2A54DC6100727710 /* Assets.xcassets */,
 				7BFA209E2A555BCA000A09CD /* credentials.plist */,
+				7B457D672A59945500380B01 /* googl-service-account-keys.json */,
 				7BB835432A5542CD0083C1C0 /* GoogleService-Info.plist */,
 				7B2807A52A55092400C70EF4 /* HTML */,
 				7B4F64582A54DC6100727710 /* Info.plist */,
@@ -579,6 +582,7 @@
 				7BFA20A12A555D90000A09CD /* GoogleAPI in Resources */,
 				7B2807A42A5508D300C70EF4 /* Echo Clap.html in Resources */,
 				7B28079C2A5508D300C70EF4 /* Clapping.html in Resources */,
+				7B457D682A59945500380B01 /* googl-service-account-keys.json in Resources */,
 				7B28079F2A5508D300C70EF4 /* clap-single-inspectorj.wav in Resources */,
 				7B2807A32A5508D300C70EF4 /* Intervals Aural.html in Resources */,
 				7B28079D2A5508D300C70EF4 /* open-clap_F_minor.wav in Resources */,
