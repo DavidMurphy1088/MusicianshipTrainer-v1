@@ -176,20 +176,26 @@ code_sign_if_enabled() {
 }
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
-  install_framework "${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/GTMAppAuth/GTMAppAuth.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/BlueCryptor/Cryptor.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/BlueECC/CryptorECC.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/BlueRSA/CryptorRSA.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/GoogleAPIClientForREST/GoogleAPIClientForREST.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/GoogleSignIn/GoogleSignIn.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/GoogleSignInSwiftSupport/GoogleSignInSwift.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/KituraContracts/KituraContracts.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/LoggerAPI/LoggerAPI.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/Logging/Logging.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  install_framework "${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/GTMAppAuth/GTMAppAuth.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/BlueCryptor/Cryptor.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/BlueECC/CryptorECC.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/BlueRSA/CryptorRSA.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/GoogleAPIClientForREST/GoogleAPIClientForREST.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/GoogleSignIn/GoogleSignIn.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/GoogleSignInSwiftSupport/GoogleSignInSwift.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/KituraContracts/KituraContracts.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/LoggerAPI/LoggerAPI.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/Logging/Logging.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
   wait

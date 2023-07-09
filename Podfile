@@ -6,9 +6,10 @@ target 'MusicianshipTrainer' do
   use_frameworks!
 
   # Pods for MusicianshipTrainer
-	pod 'GoogleSignIn'
-	pod 'GoogleSignInSwiftSupport'
+	# pod 'GoogleSignIn'
+	# pod 'GoogleSignInSwiftSupport'
 	pod 'GoogleAPIClientForREST/Drive'
+  pod 'SwiftJWT'
 
   target 'MusicianshipTrainerTests' do
     inherit! :search_paths
