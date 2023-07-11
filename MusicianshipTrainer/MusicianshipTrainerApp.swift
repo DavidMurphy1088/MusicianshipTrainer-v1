@@ -60,7 +60,7 @@ struct MusicianshipTrainerApp: App {
         WindowGroup {
             VStack {
                 if launchScreenState.state == .finished {
-                    if exampleData.dataStatus == GoogleAPI.DataStatus.ready {
+                    if exampleData.dataStatus == RequestStatus.success {
                         if !MusicianshipTrainerApp.productionMode {
                             TestView()
                         }
@@ -69,7 +69,7 @@ struct MusicianshipTrainerApp: App {
                             .tabItem {Label("Exercises", image: "music.note")}
                     }
                     else {
-                        if exampleData.dataStatus == GoogleAPI.DataStatus.waiting {
+                        if exampleData.dataStatus == RequestStatus.waiting {
                             Spacer()
                             Image(systemName: "hourglass.tophalf.fill")
                                 .resizable()

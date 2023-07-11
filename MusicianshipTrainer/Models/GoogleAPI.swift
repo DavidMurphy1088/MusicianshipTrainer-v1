@@ -2,14 +2,35 @@ import Foundation
 import SwiftJWT
 import Alamofire
 
+enum OAuthCallType {
+    case file
+    case filesInFolder
+}
+
+enum RequestStatus {
+    case success
+    case waiting
+    case failed
+}
+
+class DataRequest {
+    var callType:OAuthCallType
+    var id:String
+    var targetExampleKey: String?
+    var url:String?
+    var accessToken:String?
+    
+    init(callType:OAuthCallType, id:String, targetExampleKey:String?) {
+        self.callType = callType
+        self.id = id
+        self.targetExampleKey = targetExampleKey
+    }
+}
+
 class GoogleAPI {
     let logger = Logger.logger
     
-    enum DataStatus {
-        case ready
-        case waiting
-        case failed
-    }
+    //typealias MyFunctionType = (ReturnDataTarget, DataStatus, String) -> Void
 
     func getGoogleAPIData(key:String) -> String? {
         var data:String? = nil
@@ -25,42 +46,42 @@ class GoogleAPI {
         return data
     }
     
-    func getExampleSheet(onDone: @escaping (_ dataStatus:DataStatus, _ data:Data?) -> Void) {
+    func getExampleSheet(onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         let examplesSheetKey:String? = getGoogleAPIData(key: "exampleSheetID")
+        
         if let examplesSheetKey = examplesSheetKey {
-            getSheetId(sheetId: examplesSheetKey, onDone: onDone)
+            let request = DataRequest(callType: .file, id: examplesSheetKey, targetExampleKey: nil)
+            var url:String
+            url = "https://sheets.googleapis.com/v4/spreadsheets/"
+            url +=  request.id
+            url += "/values/Sheet1"
+            //var request = request
+            request.url = url
+            getByAPI(request: request) {status,data in
+                onDone(.success, data)
+            }
         }
         else {
             logger.reportError(self, "Cannot find example sheet id")
-            onDone(DataStatus.failed, nil)
+            onDone(.failed, nil)
         }
     }
-        
-    func getSheetId(sheetId:String, onDone: @escaping (_ dataStatus:DataStatus, _ data:Data?) -> Void) {
-        var url:String
-        url = "https://sheets.googleapis.com/v4/spreadsheets/"
-        url +=  sheetId
-        url += "/values/Sheet1"
-        getByAPI(url: url, parseJSONFunction: onDone)
-    }
-    
 
     ///Call a Google Drive API (sheets, files etc) using an API key. Note that this does not require an oAuth2 token request.
     ///Data accessed via an API key only is regarded as less senstive by Google than data in a Google doc that requires an OAuth token
-    ///
-    private func getByAPI(url:String,
-                          //codableType:T.Type,
-                          parseJSONFunction: @escaping (_ status:DataStatus, _ data:Data?) -> Void) {
+    
+    private func getByAPI(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
+        
         var apiKey:String? = getGoogleAPIData(key: "APIKey")
-        guard let apiKey = apiKey else {
+        guard let apiKey = apiKey, let url = request.url else {
             logger.reportError(self, "Cannot find API key")
-            parseJSONFunction(DataStatus.failed, nil)
+            onDone(.failed, nil)
             return
         }
         let urlWithKey = url + "?key=\(apiKey)"
         guard let url = URL(string: urlWithKey) else {
             logger.reportError(self, "Sheets, Invalid url \(url)")
-            parseJSONFunction(DataStatus.failed, nil)
+            onDone(.failed, nil)
             return
         }
         let session = URLSession.shared
@@ -68,58 +89,58 @@ class GoogleAPI {
         let task = session.dataTask(with: url) { (data, response, error) in
             if let error = error {
                 self.logger.reportError(self, "DataTask Error \(error.localizedDescription)")
-                parseJSONFunction(DataStatus.failed, nil)
+                onDone(.failed, nil)
             } else if let httpResponse = response as? HTTPURLResponse {
                 if let data = data {
                     let responseString = String(data: data, encoding: .utf8)
                     if httpResponse.statusCode == 200 {
                         guard let responseData = (responseString!).data(using: .utf8) else {
                             self.logger.reportError(self, "Invalid JSON data")
-                            parseJSONFunction(DataStatus.failed, nil)
+                            onDone(.failed, nil)
                             return
                         }
-                        //do {
-                            //let jsonData = try JSONDecoder().decode(codableType.self, from: data)
-                            //let x = jsonData as codableType
-                            parseJSONFunction(DataStatus.ready, data)
-                        //}
-//                        catch  {
-//                            self.logger.reportError(self, "Cannot parse data using \(codableType)")
-//                            parseJSONFunction(DataStatus.failed, nil)
-//                        }
+                        onDone(.success, data)
                     }
                     else {
                         self.logger.reportError(self, "HTTP response code \(httpResponse.statusCode) \(responseString ?? "")")
-                        parseJSONFunction(DataStatus.failed, nil)
+                        onDone(.failed, nil)
                     }
                 }
                 else {
                     self.logger.reportError(self, "HTTP response, no data")
-                    parseJSONFunction(DataStatus.failed, nil)
+                    onDone(.failed, nil)
                 }
             }
         }
+        
         task.resume()
     }
     
     //======================= OAuth Calls ======================
-    enum OAuthCallType {
-        case file
-        case filesInFolder
-    }
-
-    func getFileByName() {
-        let folderId = "15Jo3tWKLjrM-JtXRCiysSpiF81GaNo_G"
-        getDataByID(callType: .filesInFolder, resourceId: folderId, onDone: makeFileList)
-    }
     
-    func makeFileList(dataStatus:DataStatus, data:Data?) {
+
+    func getFileByName(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data) -> Void) {
+        let folderId = getGoogleAPIData(key: "GoogleDriveDataFolderID")
+        guard let folderId = folderId else {
+            self.logger.reportError(self, "No folder Id")
+            return
+        }
+        request.id = folderId
+        request.callType = .filesInFolder
+        getDataByID(request: request) { status, data in
+            self.makeFileList(request: request, data: data) //{status, data  in
+//            }
+        }
+    }
+        
+    func makeFileList(request:DataRequest, data:Data?) {
         guard let data = data else {
             self.logger.reportError(self, "No data for file list")
             return
         }
         struct GoogleFile : Codable {
             let name: String
+            let id: String
         }
         struct FileSearch : Codable {
             let kind:String
@@ -127,11 +148,10 @@ class GoogleAPI {
         }
         do {
             let filesData = try JSONDecoder().decode(FileSearch.self, from: data)
-            //print (jsonData)
+            print ("FILES-")
             for f in filesData.files {
-                print(f.name)
+                print(f.name, "\t", f.id)
             }
-            //let sheetRows = jsonData.values
         }
         catch {
             self.logger.log(self, "failed load")
@@ -142,8 +162,8 @@ class GoogleAPI {
     ///Get a Google Drive resource (file, list of files etc) by its id
     ///First get an OAuth token by issuing a signed request for the required scopes (read). The request is packaged a JWT and signed by the private key of the service account.
     ///Then use that OAuth token to authenticate the call to the Google API
-    ///
-    func getDataByID(callType: OAuthCallType, resourceId:String, onDone: @escaping (_ dataStatus:DataStatus, Data?) -> Void) {
+
+    func getDataByID(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
 
         struct GoogleClaims: Claims {
             let iss: String
@@ -220,7 +240,9 @@ class GoogleAPI {
                 if let json = json {
                     let accessToken = json["access_token"] as? String
                     if let accessToken = accessToken {
-                        fetchGoogleResourceContent(callType: callType, resourceId:resourceId, with: accessToken, onDone: onDone)
+                        //fetchGoogleResourceContent(callType: request.callType, resourceId:request.id, with: accessToken, onDone: onDone)
+                        request.accessToken = accessToken
+                        fetchGoogleResourceContent(request: request, onDone: onDone)
                     }
                     else {
                         self.logger.reportError(self, "Cannot find access token")
@@ -236,16 +258,25 @@ class GoogleAPI {
 
     //================================== Google Docs document using the Google Docs API and the OAuth2 access token:
 
-        func fetchGoogleResourceContent(callType: OAuthCallType, resourceId: String, with accessToken: String, onDone: @escaping (_ dataStatus:DataStatus, Data?) -> Void) {
+//        func fetchGoogleResourceContent(callType: OAuthCallType,
+//                                        resourceId: String, with accessToken: String,
+//                                        onDone: @escaping (_ requestStatus:RequestStatus, Data?) -> Void) {
+        func fetchGoogleResourceContent(request: DataRequest,
+                                            //resourceId: String, with accessToken: String,
+                                            onDone: @escaping (_ requestStatus:RequestStatus, Data?) -> Void) {
+            guard let accessToken = request.accessToken else {
+                self.logger.reportError(self, "No access token")
+                return
+            }
             let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)",
                                         "Accept": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
             
             let url:String
-            if callType == .file {
-                url = "https://www.googleapis.com/drive/v3/files/\(resourceId)?alt=media"
+            if request.callType == .file {
+                url = "https://www.googleapis.com/drive/v3/files/\(request.id)?alt=media"
             }
             else {
-                url = "https://www.googleapis.com/drive/v3/files?q='\(resourceId)'+in+parents"
+                url = "https://www.googleapis.com/drive/v3/files?q='\(request.id)'+in+parents"
             }
             
             AF.request(url, headers: headers).response { response in
@@ -254,7 +285,7 @@ class GoogleAPI {
                     if let data = data {
                         //let str = String(data: data, encoding: .utf8)
                         //print("Document content: \(str ?? "No content")")
-                        onDone(DataStatus.ready, data)
+                        onDone(.success, data)
                     }
                     else {
                         self.logger.reportError(self, "File by ID has no data")

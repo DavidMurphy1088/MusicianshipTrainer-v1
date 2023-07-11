@@ -4,13 +4,14 @@ class ExampleData : ObservableObject {
     static var shared = ExampleData()
     var logger = Logger.logger
     var data:[String: [String]] = [:]
-
-    @Published var dataStatus:GoogleAPI.DataStatus = .waiting
+    let googleAPI = GoogleAPI()
+    
+    @Published var dataStatus:RequestStatus = .waiting
 
     init() {
         self.dataStatus = .waiting
-        GoogleAPI().getExampleSheet() { status, data in
-            if status == .ready {
+        googleAPI.getExampleSheet() { status, data in
+            if status == .success {
                 if let data = data {
                     //let val = data.values
                     struct JSONSheet: Codable {
@@ -86,12 +87,24 @@ class ExampleData : ObservableObject {
                 }
             }
             //print("Example data:", key, rowData)
+            //let prefixTag = "FileName:"
+            
+            let testString = "ABC123"
+            let prefix = "ABC"
 
-            self.data[key] = rowData
+            if rowData.count > 0 && rowData[0].hasPrefix(prefix) {
+                let index = rowData[0].index(rowData[0].startIndex, offsetBy: prefix.count)
+                let restOfString = rowData[0][index...]
+//                let request = DataRequest()
+//                googleAPI.getFileByName(request: <#DataRequest#>, onDone: <#(RequestStatus, Data) -> Void#>)
+            }
+            else {
+                self.data[key] = rowData
+            }
         }
     }
     
-    func setDataReady(way:GoogleAPI.DataStatus) {
+    func setDataReady(way:RequestStatus) {
         DispatchQueue.main.async {
             self.dataStatus = way
         }
