@@ -2,7 +2,6 @@ import Foundation
 import SwiftJWT
 import Alamofire
 
-
 class GoogleAPI {
     let logger = Logger.logger
     
@@ -37,8 +36,6 @@ class GoogleAPI {
         }
     }
         
-    //func getSheetId(sheetId:String, onDone: @escaping (_ dataStatus:DataStatus, [[String]]?) -> Void) {
-    
     func getSheetId(sheetId:String, onDone: @escaping (_ dataStatus:DataStatus, _ data:Data?) -> Void) {
         var url:String
         url = "https://sheets.googleapis.com/v4/spreadsheets/"
@@ -47,12 +44,6 @@ class GoogleAPI {
         getByAPI(url: url, parseJSONFunction: onDone)
     }
     
-//    private func unpackSheetData(dataStatus:DataStatus, jsonData:Decodable?) {
-//        let ex = ExampleData.shared
-//        ex.
-//        ex.setDataReady(way: .ready)
-//        print (jsonData)
-//    }
 
     ///Call a Google Drive API (sheets, files etc) using an API key. Note that this does not require an oAuth2 token request.
     ///Data accessed via an API key only is regarded as less senstive by Google than data in a Google doc that requires an OAuth token
@@ -98,7 +89,7 @@ class GoogleAPI {
 //                        }
                     }
                     else {
-                        self.logger.reportError(self, "HTTP response code not 200 \(httpResponse.statusCode) \(responseString ?? "")")
+                        self.logger.reportError(self, "HTTP response code \(httpResponse.statusCode) \(responseString ?? "")")
                         parseJSONFunction(DataStatus.failed, nil)
                     }
                 }
@@ -111,11 +102,48 @@ class GoogleAPI {
         task.resume()
     }
     
-    ///Get a Google Drive file by its id
+    //======================= OAuth Calls ======================
+    enum OAuthCallType {
+        case file
+        case filesInFolder
+    }
+
+    func getFileByName() {
+        let folderId = "15Jo3tWKLjrM-JtXRCiysSpiF81GaNo_G"
+        getDataByID(callType: .filesInFolder, resourceId: folderId, onDone: makeFileList)
+    }
+    
+    func makeFileList(dataStatus:DataStatus, data:Data?) {
+        guard let data = data else {
+            self.logger.reportError(self, "No data for file list")
+            return
+        }
+        struct GoogleFile : Codable {
+            let name: String
+        }
+        struct FileSearch : Codable {
+            let kind:String
+            let files:[GoogleFile]
+        }
+        do {
+            let filesData = try JSONDecoder().decode(FileSearch.self, from: data)
+            //print (jsonData)
+            for f in filesData.files {
+                print(f.name)
+            }
+            //let sheetRows = jsonData.values
+        }
+        catch {
+            self.logger.log(self, "failed load")
+        }
+    }
+
+
+    ///Get a Google Drive resource (file, list of files etc) by its id
     ///First get an OAuth token by issuing a signed request for the required scopes (read). The request is packaged a JWT and signed by the private key of the service account.
-    ///Then use that OAuth token to authenticate the call to the Google Drive API
+    ///Then use that OAuth token to authenticate the call to the Google API
     ///
-    func getFileByID(fileId:String, onDone: @escaping (_ dataStatus:DataStatus, String?) -> Void) {
+    func getDataByID(callType: OAuthCallType, resourceId:String, onDone: @escaping (_ dataStatus:DataStatus, Data?) -> Void) {
 
         struct GoogleClaims: Claims {
             let iss: String
@@ -192,7 +220,7 @@ class GoogleAPI {
                 if let json = json {
                     let accessToken = json["access_token"] as? String
                     if let accessToken = accessToken {
-                        fetchGoogleDocContent(fileId:fileId, with: accessToken, onDone: onDone)
+                        fetchGoogleResourceContent(callType: callType, resourceId:resourceId, with: accessToken, onDone: onDone)
                     }
                     else {
                         self.logger.reportError(self, "Cannot find access token")
@@ -208,18 +236,25 @@ class GoogleAPI {
 
     //================================== Google Docs document using the Google Docs API and the OAuth2 access token:
 
-        func fetchGoogleDocContent(fileId: String, with accessToken: String, onDone: @escaping (_ dataStatus:DataStatus, String?) -> Void) {
+        func fetchGoogleResourceContent(callType: OAuthCallType, resourceId: String, with accessToken: String, onDone: @escaping (_ dataStatus:DataStatus, Data?) -> Void) {
             let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)",
                                         "Accept": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
-            let fileURL = "https://www.googleapis.com/drive/v3/files/\(fileId)?alt=media"
-
-            AF.request(fileURL, headers: headers).response { response in
+            
+            let url:String
+            if callType == .file {
+                url = "https://www.googleapis.com/drive/v3/files/\(resourceId)?alt=media"
+            }
+            else {
+                url = "https://www.googleapis.com/drive/v3/files?q='\(resourceId)'+in+parents"
+            }
+            
+            AF.request(url, headers: headers).response { response in
                 switch response.result {
                 case .success(let data):
                     if let data = data {
-                        let str = String(data: data, encoding: .utf8)
-                        print("Document content: \(str ?? "No content")")
-                        onDone(DataStatus.ready, str)
+                        //let str = String(data: data, encoding: .utf8)
+                        //print("Document content: \(str ?? "No content")")
+                        onDone(DataStatus.ready, data)
                     }
                     else {
                         self.logger.reportError(self, "File by ID has no data")
@@ -230,7 +265,6 @@ class GoogleAPI {
             }
         }
     }
-    
     
     //    func authenticateWithServiceAccount() {
     //        var jsonData1:Data

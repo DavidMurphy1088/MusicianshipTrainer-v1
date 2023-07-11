@@ -45,17 +45,26 @@ struct TestView: View {
             }) {
                 Text("Induce Error").padding()
             }
-
+            
+            Button(action: {
+                //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
+                let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
+               googleAPI.getFileByName()
+                
+            }) {
+                Text("Get File by Name").padding()
+            }
+ 
             Button(action: {
                 //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
                 let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
 
-                googleAPI.getFileByID(fileId: fileId) {status, data in
+                googleAPI.getDataByID(callType: .file, resourceId: fileId) {status, data in
                     print(status)
-                    print(data)
+                    print(String(data: data!, encoding: .utf8) ?? "")
                 }
             }) {
-                Text("Google Drive File").padding()
+                Text("Google File By ID").padding()
             }
             
             Button(action: {
@@ -66,7 +75,6 @@ struct TestView: View {
                 Text("Google Examples Sheet").padding()
             }
                 
-                //Spacer()
         }
     }
 }
