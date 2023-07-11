@@ -52,58 +52,22 @@ struct TestView: View {
                 Text("Error:\(logger.errorMsg)").padding()
             }
 
-            //GoogleSignInButton(action: handleSignInButton)
-            
             Spacer()
             
-//            Button(action: {
-//                spreadsheet.getFile()
-//            }) {
-//                Text("Google SignIn").padding()
-//            }
-
             Button(action: {
                 spreadsheet.createJWTToken()
             }) {
-                Text("JWT Token").padding()
+                Text("Google Drive File").padding()
             }
-
-//            Button(action: {
-//                spreadsheet.getDocument() { data, status in
-//                    // Handle the result from F1
-//                    print("Received data: \(data)")
-//                }
-//            }) {
-//                Text("Google Document").padding()
-//            }
 
             Button(action: {
-                let id = "1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM" //Doc
-                //let id = "1XuzlysxFgEvuTaqFccp7hZQG0eVhLlIf9AlPLKIUkyo" //Sheet
-                spreadsheet.getSheetId(sheetId: id) { status, data in
-                    // Handle the result from F1
-                    print("Received data: \(data)")
+                spreadsheet.getExampleSheet() { status, data in
+                    print("Received data: \(status) \(data)")
                 }
             }) {
-                Text("Google Sheet").padding()
+                Text("Google Examples Sheet").padding()
             }
-            
-//            Button(action: {
-//                spreadsheet.getDriveFileId(id: "1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM") { data, status in
-//                    print("Received data: \(data)")
-//                }
-//            }) {
-//                Text("Google File ID").padding()
-//            }
 
-            Spacer()
-            
-//            Button(action: {
-//                firebase.driveTest()
-//            }) {
-//                Text("FireStore").padding()
-//            }
-            
             Spacer()
         }
     }

@@ -6,6 +6,9 @@
 **/*.wav
 **/*.aif
 
+**/musicianshiptrainer_service_account_key_6040bf4c23a8.json
+**/GoogleAPI.plist
+
 ### Firebase ###
 .idea
 **/node_modules/*
