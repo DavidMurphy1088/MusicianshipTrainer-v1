@@ -2,10 +2,6 @@ import Foundation
 import SwiftJWT
 import Alamofire
 
-struct JSONSheet: Codable {
-    let range: String
-    let values:[[String]]
-}
 
 class GoogleAPI {
     let logger = Logger.logger
@@ -30,7 +26,7 @@ class GoogleAPI {
         return data
     }
     
-    func getExampleSheet(onDone: @escaping (_ dataStatus:DataStatus, [[String]]?) -> Void) {
+    func getExampleSheet(onDone: @escaping (_ dataStatus:DataStatus, _ data:Data?) -> Void) {
         let examplesSheetKey:String? = getGoogleAPIData(key: "exampleSheetID")
         if let examplesSheetKey = examplesSheetKey {
             getSheetId(sheetId: examplesSheetKey, onDone: onDone)
@@ -40,27 +36,40 @@ class GoogleAPI {
             onDone(DataStatus.failed, nil)
         }
     }
+        
+    //func getSheetId(sheetId:String, onDone: @escaping (_ dataStatus:DataStatus, [[String]]?) -> Void) {
     
-    ///Read a Google Sheet using an API key. Note that reading  Sheets does not require an oAuth2 token request.
-    ///Data in sheets is regarded as less senstive by Google than data in a Google doc
-    ///
-    func getSheetId(sheetId:String, onDone: @escaping (_ dataStatus:DataStatus, [[String]]?) -> Void) {
-        var apiKey:String? = getGoogleAPIData(key: "APIKey")
-        guard let apiKey = apiKey else {
-            logger.reportError(self, "Cannot find API key")
-            onDone(DataStatus.failed, nil)
-            return
-        }
-
+    func getSheetId(sheetId:String, onDone: @escaping (_ dataStatus:DataStatus, _ data:Data?) -> Void) {
         var url:String
         url = "https://sheets.googleapis.com/v4/spreadsheets/"
         url +=  sheetId
         url += "/values/Sheet1"
-        url += "?key=\(apiKey)"
+        getByAPI(url: url, parseJSONFunction: onDone)
+    }
+    
+//    private func unpackSheetData(dataStatus:DataStatus, jsonData:Decodable?) {
+//        let ex = ExampleData.shared
+//        ex.
+//        ex.setDataReady(way: .ready)
+//        print (jsonData)
+//    }
 
-        guard let url = URL(string: url) else {
+    ///Call a Google Drive API (sheets, files etc) using an API key. Note that this does not require an oAuth2 token request.
+    ///Data accessed via an API key only is regarded as less senstive by Google than data in a Google doc that requires an OAuth token
+    ///
+    private func getByAPI(url:String,
+                          //codableType:T.Type,
+                          parseJSONFunction: @escaping (_ status:DataStatus, _ data:Data?) -> Void) {
+        var apiKey:String? = getGoogleAPIData(key: "APIKey")
+        guard let apiKey = apiKey else {
+            logger.reportError(self, "Cannot find API key")
+            parseJSONFunction(DataStatus.failed, nil)
+            return
+        }
+        let urlWithKey = url + "?key=\(apiKey)"
+        guard let url = URL(string: urlWithKey) else {
             logger.reportError(self, "Sheets, Invalid url \(url)")
-            onDone(DataStatus.failed, nil)
+            parseJSONFunction(DataStatus.failed, nil)
             return
         }
         let session = URLSession.shared
@@ -68,33 +77,34 @@ class GoogleAPI {
         let task = session.dataTask(with: url) { (data, response, error) in
             if let error = error {
                 self.logger.reportError(self, "DataTask Error \(error.localizedDescription)")
-                onDone(DataStatus.failed, nil)
+                parseJSONFunction(DataStatus.failed, nil)
             } else if let httpResponse = response as? HTTPURLResponse {
                 if let data = data {
                     let responseString = String(data: data, encoding: .utf8)
                     if httpResponse.statusCode == 200 {
-                        guard let jsonData = (responseString!).data(using: .utf8) else {
+                        guard let responseData = (responseString!).data(using: .utf8) else {
                             self.logger.reportError(self, "Invalid JSON data")
-                            onDone(DataStatus.failed, nil)
+                            parseJSONFunction(DataStatus.failed, nil)
                             return
                         }
-                        do {
-                            let sheet = try JSONDecoder().decode(JSONSheet.self, from: jsonData)
-                            onDone(DataStatus.ready, sheet.values)
-                            
-                        } catch {
-                            self.logger.reportError(self, "JSON Decode Error \(error.localizedDescription)")
-                            onDone(DataStatus.failed, nil)
-                        }
+                        //do {
+                            //let jsonData = try JSONDecoder().decode(codableType.self, from: data)
+                            //let x = jsonData as codableType
+                            parseJSONFunction(DataStatus.ready, data)
+                        //}
+//                        catch  {
+//                            self.logger.reportError(self, "Cannot parse data using \(codableType)")
+//                            parseJSONFunction(DataStatus.failed, nil)
+//                        }
                     }
                     else {
-                        self.logger.reportError(self, "HTTP response code not 200 \(httpResponse.statusCode) \(responseString)")
-                        onDone(DataStatus.failed, nil)
+                        self.logger.reportError(self, "HTTP response code not 200 \(httpResponse.statusCode) \(responseString ?? "")")
+                        parseJSONFunction(DataStatus.failed, nil)
                     }
                 }
                 else {
                     self.logger.reportError(self, "HTTP response, no data")
-                    onDone(DataStatus.failed, nil)
+                    parseJSONFunction(DataStatus.failed, nil)
                 }
             }
         }

@@ -31,32 +31,40 @@ struct TestView: View {
 //                //.border(Color.indigo)
 //                .frame(width: 5 * Double(ts.notesLength ?? 0) + 200)
                 //Spacer()
-                if logger.errorNo >= 0 {
-                    Text("Error no \(logger.errorNo)")
+            if logger.errorNo >= 0 {
+                Text("Error no \(logger.errorNo)")
+            }
+            if let err = logger.errorMsg {
+                Text("Error:\(err)").padding()
+            }
+            
+            //Spacer()
+            
+            Button(action: {
+                logger.reportError(String("") as AnyObject, "test error")
+            }) {
+                Text("Induce Error").padding()
+            }
+
+            Button(action: {
+                //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
+                let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
+
+                googleAPI.getFileByID(fileId: fileId) {status, data in
+                    print(status)
+                    print(data)
                 }
-                if logger.errorMsg != "" {
-                    Text("Error:\(logger.errorMsg)").padding()
+            }) {
+                Text("Google Drive File").padding()
+            }
+            
+            Button(action: {
+                googleAPI.getExampleSheet() { status, data in
+                    print("Received data: \(status) \(data)")
                 }
-                
-                //Spacer()
-                
-                Button(action: {
-                    let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
-                    googleAPI.getFileByID(fileId: fileId) {status, data in
-                        print(status)
-                        print(data)
-                    }
-                }) {
-                    Text("Google Drive File").padding()
-                }
-                
-                Button(action: {
-                    googleAPI.getExampleSheet() { status, data in
-                        print("Received data: \(status) \(data)")
-                    }
-                }) {
-                    Text("Google Examples Sheet").padding()
-                }
+            }) {
+                Text("Google Examples Sheet").padding()
+            }
                 
                 //Spacer()
         }

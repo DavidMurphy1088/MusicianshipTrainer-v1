@@ -31,7 +31,7 @@ struct ContentSectionHeaderView: View {
                 .padding()
             if contentSection.level == 1 {
                 HStack {
-                    Text(contentSection.instructions)
+                    Text(contentSection.instructions ?? "loading...")
                         //.font(.body)
                         .font(.title2)
                         .multilineTextAlignment(.leading)

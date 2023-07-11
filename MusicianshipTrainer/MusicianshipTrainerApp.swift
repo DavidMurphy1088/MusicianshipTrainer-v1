@@ -91,8 +91,11 @@ struct MusicianshipTrainerApp: App {
 //                                }) {
 //                                    Text("Show Error")
 //                                }
-                                Text("Error:\(logger.errorMsg)").padding()
-                                Text("\(logger.loggedMsg)").padding()
+                                if let errMsg = logger.errorMsg {
+                                    Text("Error:\(errMsg)").padding()
+                                }
+//                                if let
+//                                Text("\(logger.loggedMsg)").padding()
                             }
                         }
                     }

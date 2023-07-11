@@ -12,13 +12,27 @@ class ExampleData : ObservableObject {
         GoogleAPI().getExampleSheet() { status, data in
             if status == .ready {
                 if let data = data {
-                    self.loadData(data: data)
-                    self.setDataReady(way: status)
+                    //let val = data.values
+                    struct JSONSheet: Codable {
+                        let range: String
+                        let values:[[String]]
+                    }
+                    do {
+                        let jsonData = try JSONDecoder().decode(JSONSheet.self, from: data)
+                        let sheetRows = jsonData.values
+                        self.loadData(data: sheetRows)
+                        self.setDataReady(way: status)
+                        self.logger.log(self, "loaded \(self.data.count) example rows")
+                    }
+                    catch {
+                        self.logger.log(self, "failed load \(self.data.count) example rows")
+                    }
                 }
                 else {
                     self.setDataReady(way: .failed)
+                    self.logger.log(self, "failed load \(self.data.count) example rows")
                 }
-                self.logger.log(self, "loaded \(self.data.count) example rows")
+                
             }
             else {
                 self.setDataReady(way: status)

@@ -484,6 +484,7 @@ struct ClapOrPlayView: View {
     @State var refresh:Bool = false
     //WARNING - Making Score a @STATE makes instance #1 of this struct pass its Score to instance #2
     var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
+    @ObservedObject var logger = Logger.logger
     @ObservedObject var answer: Answer = Answer()
     var presentQuestionView:ClapOrPlayPresentView?
     var answerQuestionView:ClapOrPlayAnswerView?
@@ -509,6 +510,10 @@ struct ClapOrPlayView: View {
             else {
                 answerQuestionView
             }
+            if let errMsg = logger.errorMsg {
+                Text(errMsg)
+            }
+
         }
     }
 

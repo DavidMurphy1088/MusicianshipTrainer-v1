@@ -13,8 +13,7 @@ class ContentSection: Identifiable {
     var parent:ContentSection?
     var isActive:Bool
     var level:Int
-    var instructions:String = ""
-    //var hints = ""
+    var instructions:String?
     
     enum SectionType {
         case none
