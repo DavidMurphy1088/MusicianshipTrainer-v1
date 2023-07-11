@@ -47,6 +47,7 @@ struct ClapTestView: View {
         synthesizer.delegate = CompletionHandler(completion)
     }
 
+    
     var body: some View {
         VStack {
             Button("Speak") {
