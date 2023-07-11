@@ -82,6 +82,7 @@
 		7B4F646C2A54DC6200727710 /* MusicianshipTrainerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */; };
 		7B4F646E2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */; };
 		7B5B14742A5CBB310076EE09 /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B5B14732A5CBB310076EE09 /* GoogleAPI.plist */; };
+		7BAB37D62A5D027B004FA3AA /* Google_OAuth2_Keys.json in Resources */ = {isa = PBXBuildFile; fileRef = 7BAB37D52A5D027B004FA3AA /* Google_OAuth2_Keys.json */; };
 		7BB835462A5548750083C1C0 /* Firestore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB835452A5548750083C1C0 /* Firestore.swift */; };
 		7BB835492A5555130083C1C0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB835482A5555130083C1C0 /* FirebaseFirestore */; };
 		7BC42EB22A550F39004FE117 /* AudioNotes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB12A550F39004FE117 /* AudioNotes */; };
@@ -196,6 +197,7 @@
 		7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITests.swift; sourceTree = "<group>"; };
 		7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		7B5B14732A5CBB310076EE09 /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
+		7BAB37D52A5D027B004FA3AA /* Google_OAuth2_Keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Google_OAuth2_Keys.json; sourceTree = "<group>"; };
 		7BB835452A5548750083C1C0 /* Firestore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore.swift; sourceTree = "<group>"; };
 		7BC42EB12A550F39004FE117 /* AudioNotes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AudioNotes; sourceTree = "<group>"; };
 		7BC42EB32A550F4E004FE117 /* GPTQuestions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GPTQuestions; sourceTree = "<group>"; };
@@ -289,6 +291,7 @@
 		7B324A8B2A5A81DC00681ED7 /* Google */ = {
 			isa = PBXGroup;
 			children = (
+				7BAB37D52A5D027B004FA3AA /* Google_OAuth2_Keys.json */,
 				7B5B14732A5CBB310076EE09 /* GoogleAPI.plist */,
 			);
 			path = Google;
@@ -601,6 +604,7 @@
 				7B2807992A5508D300C70EF4 /* Mechanical metronome - High.aif in Resources */,
 				7B2807A22A5508D300C70EF4 /* simplemelodypiano.wav in Resources */,
 				7B28079E2A5508D300C70EF4 /* Playing.html in Resources */,
+				7BAB37D62A5D027B004FA3AA /* Google_OAuth2_Keys.json in Resources */,
 				7BC42EB42A550F4E004FE117 /* GPTQuestions in Resources */,
 				7B4F64522A54DC6100727710 /* Preview Assets.xcassets in Resources */,
 				7BC42EB22A550F39004FE117 /* AudioNotes in Resources */,

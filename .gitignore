@@ -8,8 +8,8 @@
 
 #all files under directory...
 
-#/Google/*
-
+/Google/*
+Google/*
 
 ### Firebase ###
 .idea

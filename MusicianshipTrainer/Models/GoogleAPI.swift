@@ -124,7 +124,7 @@ class GoogleAPI {
         }
 
         var privateKey:String?
-        if let url = Bundle.main.url(forResource: "Google_OAuth_Keys", withExtension: "json") {
+        if let url = Bundle.main.url(forResource: "Google_OAuth2_Keys", withExtension: "json") {
             do {
                 let data = try Data(contentsOf: url)
                 let decoder = JSONDecoder()
