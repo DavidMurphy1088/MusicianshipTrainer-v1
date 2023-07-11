@@ -1,13 +1,14 @@
 import SwiftUI
-import GoogleSignIn
-import GoogleSignInSwift
+//import GoogleSignIn
+//import GoogleSignInSwift
 
 struct TestView: View {
 //    var score:Score
 //    @ObservedObject var staff:Staff
 //    @ObservedObject var ts:TimeSlice
-    let firebase = FirestorePersistance()
-    let spreadsheet = GoogleSpreadsheet()
+    //let firebase = FirestorePersistance()
+    let spreadsheet = GoogleAPI()
+    @ObservedObject var logger = Logger.logger
 
     init() {
 //        score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
@@ -31,15 +32,7 @@ struct TestView: View {
 //        }
 //      )
 //    }
-    func signIn() {
-        if let user = GIDSignIn.sharedInstance.currentUser {
-            
-            print(user.userID)
-        }
-        else {
-            print("No user...")
-        }
-    }
+
     
     var body: some View {
         VStack {
@@ -55,7 +48,10 @@ struct TestView: View {
 //                //.border(Color.indigo)
 //                .frame(width: 5 * Double(ts.notesLength ?? 0) + 200)
             Spacer()
-            
+            if logger.errorMsg != "" {
+                Text("Error:\(logger.errorMsg)").padding()
+            }
+
             //GoogleSignInButton(action: handleSignInButton)
             
             Spacer()
@@ -67,16 +63,24 @@ struct TestView: View {
 //            }
 
             Button(action: {
-                spreadsheet.getDocument() { data, status in
-                    // Handle the result from F1
-                    print("Received data: \(data)")
-                }
+                spreadsheet.createJWTToken()
             }) {
-                Text("Google Document").padding()
+                Text("JWT Token").padding()
             }
 
+//            Button(action: {
+//                spreadsheet.getDocument() { data, status in
+//                    // Handle the result from F1
+//                    print("Received data: \(data)")
+//                }
+//            }) {
+//                Text("Google Document").padding()
+//            }
+
             Button(action: {
-                spreadsheet.getSheet() { data, status in
+                let id = "1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM" //Doc
+                //let id = "1XuzlysxFgEvuTaqFccp7hZQG0eVhLlIf9AlPLKIUkyo" //Sheet
+                spreadsheet.getSheetId(sheetId: id) { status, data in
                     // Handle the result from F1
                     print("Received data: \(data)")
                 }
@@ -84,21 +88,21 @@ struct TestView: View {
                 Text("Google Sheet").padding()
             }
             
-            Button(action: {
-                spreadsheet.getFile() { data, status in
-                    print("Received data: \(data)")
-                }
-            }) {
-                Text("Google HTML").padding()
-            }
+//            Button(action: {
+//                spreadsheet.getDriveFileId(id: "1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM") { data, status in
+//                    print("Received data: \(data)")
+//                }
+//            }) {
+//                Text("Google File ID").padding()
+//            }
 
             Spacer()
             
-            Button(action: {
-                firebase.driveTest()
-            }) {
-                Text("FireStore").padding()
-            }
+//            Button(action: {
+//                firebase.driveTest()
+//            }) {
+//                Text("FireStore").padding()
+//            }
             
             Spacer()
         }

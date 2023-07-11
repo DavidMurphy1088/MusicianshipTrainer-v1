@@ -1,15 +1,8 @@
 PODS:
+  - Alamofire (5.7.1)
   - BlueCryptor (1.0.32)
   - BlueECC (1.2.5)
   - BlueRSA (1.0.200)
-  - GoogleAPIClientForREST/Core (3.0.0):
-    - GTMSessionFetcher/Full (< 4.0, >= 1.6.1)
-  - GoogleAPIClientForREST/Drive (3.0.0):
-    - GoogleAPIClientForREST/Core
-    - GTMSessionFetcher/Full (< 4.0, >= 1.6.1)
-  - GTMSessionFetcher/Core (3.0.0)
-  - GTMSessionFetcher/Full (3.0.0):
-    - GTMSessionFetcher/Core
   - KituraContracts (1.2.1):
     - LoggerAPI (~> 1.7)
   - LoggerAPI (1.9.200):
@@ -23,32 +16,30 @@ PODS:
     - LoggerAPI (~> 1.7)
 
 DEPENDENCIES:
-  - GoogleAPIClientForREST/Drive
+  - Alamofire
   - SwiftJWT
 
 SPEC REPOS:
   trunk:
+    - Alamofire
     - BlueCryptor
     - BlueECC
     - BlueRSA
-    - GoogleAPIClientForREST
-    - GTMSessionFetcher
     - KituraContracts
     - LoggerAPI
     - Logging
     - SwiftJWT
 
 SPEC CHECKSUMS:
+  Alamofire: 0123a34370cb170936ae79a8df46cc62b2edeb88
   BlueCryptor: b0aee3d9b8f367b49b30de11cda90e1735571c24
   BlueECC: 0d18e93347d3ec6d41416de21c1ffa4d4cd3c2cc
   BlueRSA: dfeef51db96bcc4edec654956c1581adbda4e6a3
-  GoogleAPIClientForREST: 77c1fea751a6b572af8d8a224a5990f92ff80010
-  GTMSessionFetcher: c1edebe64e9fb4e8f6415d018edf1fd3eac074a1
   KituraContracts: e845e60dc8627ad0a76fa55ef20a45451d8f830b
   LoggerAPI: ad9c4a6f1e32f518fdb43a1347ac14d765ab5e3d
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
   SwiftJWT: 88c412708f58c169d431d344c87bc79a87c830ae
 
-PODFILE CHECKSUM: 26778b61b79dc73d5e25a58c5baa6e3311bcd830
+PODFILE CHECKSUM: b39f5e2f0650a62cce3cf9e1c914f1e8e6ed9258
 
 COCOAPODS: 1.12.1

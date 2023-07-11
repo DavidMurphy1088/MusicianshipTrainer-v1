@@ -5,12 +5,11 @@ class ExampleData : ObservableObject {
     var data:[String: [String]] = [:]
 
     //var fromCloud = true
-    @Published var dataStatus:GoogleSpreadsheet.DataStatus = .waiting
+    @Published var dataStatus:GoogleAPI.DataStatus = .waiting
 
     init() {
         self.dataStatus = .waiting
-        GoogleSpreadsheet().getSheet() { status, data in
-            //sleep(6)
+        GoogleAPI().getExampleSheet() { status, data in
             if status == .ready {
                 if let data = data {
                     self.loadData(data: data)
@@ -72,11 +71,13 @@ class ExampleData : ObservableObject {
                     key += "."
                 }
             }
+            //print("Example data:", key, rowData)
+
             self.data[key] = rowData
         }
     }
     
-    func setDataReady(way:GoogleSpreadsheet.DataStatus) {
+    func setDataReady(way:GoogleAPI.DataStatus) {
         DispatchQueue.main.async {
             self.dataStatus = way
         }

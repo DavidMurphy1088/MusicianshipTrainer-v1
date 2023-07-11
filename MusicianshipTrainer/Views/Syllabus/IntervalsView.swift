@@ -194,9 +194,9 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                 .background(UIGlobals.backgroundColor)
                 .padding()
                 Spacer()
-                if logger.status.count > 0 {
-                    Text(logger.status).foregroundColor(logger.isError ? .red : .gray)
-                }
+//                if logger.status.count > 0 {
+//                    Text(logger.status).foregroundColor(logger.isError ? .red : .gray)
+                //}
             }
         )
     }

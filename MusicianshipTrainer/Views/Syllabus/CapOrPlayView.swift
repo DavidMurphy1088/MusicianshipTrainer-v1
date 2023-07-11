@@ -320,9 +320,9 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
                     }
                     Spacer() //Keep - required to align the page from the top
                     //Text(audioRecorder.status).padding()
-                    if logger.status.count > 0 {
-                        Text(logger.status).font(logger.isError ? .title3 : .body).foregroundColor(logger.isError ? .red : .gray)
-                    }
+//                    if logger.status.count > 0 {
+//                        Text(logger.status).font(logger.isError ? .title3 : .body).foregroundColor(logger.isError ? .red : .gray)
+//                    }
                 }
                 .onAppear() {
                     score.setHiddenStaff(num: 1, isHidden: true)

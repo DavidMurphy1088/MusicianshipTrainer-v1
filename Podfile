@@ -8,8 +8,11 @@ target 'MusicianshipTrainer' do
   # Pods for MusicianshipTrainer
 	# pod 'GoogleSignIn'
 	# pod 'GoogleSignInSwiftSupport'
-	pod 'GoogleAPIClientForREST/Drive'
+  #pod 'GTMAppAuth'
+	#pod 'GoogleAPIClientForREST'
+  #pod 'GoogleAPIClientForREST/Drive'
   pod 'SwiftJWT'
+  pod 'Alamofire'
 
   target 'MusicianshipTrainerTests' do
     inherit! :search_paths

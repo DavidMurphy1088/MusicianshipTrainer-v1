@@ -26,3 +26,5 @@ https://developers.google.com/identity/sign-in/ios/sign-in
 https://developers.google.com/identity/protocols/oauth2/service-account
 Your application calls Google APIs on behalf of the service account, so users aren't directly involved
 Typically, an application uses a service account when the application uses Google APIs to work with its own data rather than a user's data.
+
+https://stackoverflow.com/questions/76650597/google-document-api-failing-authentication-with-a-google-service-account-empt
