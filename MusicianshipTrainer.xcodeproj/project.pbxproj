@@ -20,6 +20,7 @@
 		7B2807A32A5508D300C70EF4 /* Intervals Aural.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807962A5508D200C70EF4 /* Intervals Aural.html */; };
 		7B2807A42A5508D300C70EF4 /* Echo Clap.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807972A5508D200C70EF4 /* Echo Clap.html */; };
 		7B2807A72A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807A62A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 */; };
+		7B35F21A2A5CDDF00035654A /* musicianshiptrainer_service_account_6040bf4c23a8.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B35F2192A5CDDEF0035654A /* musicianshiptrainer_service_account_6040bf4c23a8.json */; };
 		7B40B7EF2A54DF9000CA7FC4 /* TapRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */; };
 		7B40B7F02A54DF9000CA7FC4 /* ExampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D22A54DF8F00CA7FC4 /* ExampleData.swift */; };
 		7B40B7F12A54DF9000CA7FC4 /* Score.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D32A54DF8F00CA7FC4 /* Score.swift */; };
@@ -82,7 +83,6 @@
 		7B4F646C2A54DC6200727710 /* MusicianshipTrainerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */; };
 		7B4F646E2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */; };
 		7B5B14742A5CBB310076EE09 /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B5B14732A5CBB310076EE09 /* GoogleAPI.plist */; };
-		7B5B14762A5CCD4B0076EE09 /* musicianshiptrainer_service_account_key_6040bf4c23a8.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B5B14752A5CCD4B0076EE09 /* musicianshiptrainer_service_account_key_6040bf4c23a8.json */; };
 		7BB835462A5548750083C1C0 /* Firestore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB835452A5548750083C1C0 /* Firestore.swift */; };
 		7BB835492A5555130083C1C0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB835482A5555130083C1C0 /* FirebaseFirestore */; };
 		7BC42EB22A550F39004FE117 /* AudioNotes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB12A550F39004FE117 /* AudioNotes */; };
@@ -134,6 +134,7 @@
 		7B2807962A5508D200C70EF4 /* Intervals Aural.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "Intervals Aural.html"; sourceTree = "<group>"; };
 		7B2807972A5508D200C70EF4 /* Echo Clap.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "Echo Clap.html"; sourceTree = "<group>"; };
 		7B2807A62A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Nice-Steinway-v3.8.sf2"; sourceTree = "<group>"; };
+		7B35F2192A5CDDEF0035654A /* musicianshiptrainer_service_account_6040bf4c23a8.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = musicianshiptrainer_service_account_6040bf4c23a8.json; path = ../../../../Downloads/musicianshiptrainer_service_account_6040bf4c23a8.json; sourceTree = "<group>"; };
 		7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TapRecorder.swift; sourceTree = "<group>"; };
 		7B40B7D22A54DF8F00CA7FC4 /* ExampleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleData.swift; sourceTree = "<group>"; };
 		7B40B7D32A54DF8F00CA7FC4 /* Score.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Score.swift; sourceTree = "<group>"; };
@@ -197,7 +198,6 @@
 		7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITests.swift; sourceTree = "<group>"; };
 		7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		7B5B14732A5CBB310076EE09 /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
-		7B5B14752A5CCD4B0076EE09 /* musicianshiptrainer_service_account_key_6040bf4c23a8.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = musicianshiptrainer_service_account_key_6040bf4c23a8.json; sourceTree = "<group>"; };
 		7BB835452A5548750083C1C0 /* Firestore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore.swift; sourceTree = "<group>"; };
 		7BC42EB12A550F39004FE117 /* AudioNotes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AudioNotes; sourceTree = "<group>"; };
 		7BC42EB32A550F4E004FE117 /* GPTQuestions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GPTQuestions; sourceTree = "<group>"; };
@@ -291,7 +291,7 @@
 		7B324A8B2A5A81DC00681ED7 /* Google */ = {
 			isa = PBXGroup;
 			children = (
-				7B5B14752A5CCD4B0076EE09 /* musicianshiptrainer_service_account_key_6040bf4c23a8.json */,
+				7B35F2192A5CDDEF0035654A /* musicianshiptrainer_service_account_6040bf4c23a8.json */,
 				7B5B14732A5CBB310076EE09 /* GoogleAPI.plist */,
 			);
 			path = Google;
@@ -607,8 +607,8 @@
 				7BC42EB42A550F4E004FE117 /* GPTQuestions in Resources */,
 				7B4F64522A54DC6100727710 /* Preview Assets.xcassets in Resources */,
 				7BC42EB22A550F39004FE117 /* AudioNotes in Resources */,
+				7B35F21A2A5CDDF00035654A /* musicianshiptrainer_service_account_6040bf4c23a8.json in Resources */,
 				7B4F644F2A54DC6100727710 /* Assets.xcassets in Resources */,
-				7B5B14762A5CCD4B0076EE09 /* musicianshiptrainer_service_account_key_6040bf4c23a8.json in Resources */,
 				7B28079A2A5508D300C70EF4 /* Intervals Visual.html in Resources */,
 				7B2807A72A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 in Resources */,
 				7B2807A12A5508D300C70EF4 /* Mechanical metronome - Low.aif in Resources */,
