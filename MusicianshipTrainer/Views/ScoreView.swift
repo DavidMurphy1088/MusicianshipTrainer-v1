@@ -106,14 +106,13 @@ struct ScoreView: View {
 //=======
 
         let ls = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
-        print("\nSET ORIENTATION", ctx, terminator: "")
-        if UIDevice.current.orientation.isLandscape {
-            print("\tLandscape", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
-        }
-        else {
-            print("\tPortrait", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
-        }
-        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", ls)
+//        if UIDevice.current.orientation.isLandscape {
+//            print("\tLandscape", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
+//        }
+//        else {
+//            print("\tPortrait", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
+//        }
+//        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", ls)
         self.staffLayoutSize.setLineSpacing(ls)
 //>>>>>>> main
     }

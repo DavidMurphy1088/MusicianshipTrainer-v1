@@ -70,7 +70,7 @@ class ContentSection: Identifiable {
         }
         
         if level == 1 {
-            for i in 1...32 {
+            for i in 1...100 {
                 addExample(exampleNum: i)
             }
         }

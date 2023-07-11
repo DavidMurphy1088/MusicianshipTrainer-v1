@@ -3,11 +3,8 @@ import SwiftUI
 //import GoogleSignInSwift
 
 struct TestView: View {
-//    var score:Score
-//    @ObservedObject var staff:Staff
-//    @ObservedObject var ts:TimeSlice
-    //let firebase = FirestorePersistance()
-    let spreadsheet = GoogleAPI()
+
+    let googleAPI = GoogleAPI()
     @ObservedObject var logger = Logger.logger
 
     init() {
@@ -19,20 +16,6 @@ struct TestView: View {
 //        self.ts = ts
 //        self.staff = staff
     }
-    
-//    func handleSignInButton() {
-//    //https://developers.google.com/identity/sign-in/ios/sign-in
-//      GIDSignIn.sharedInstance.signIn(
-//        withPresenting: rootViewController) { signInResult, error in
-//          guard let result = signInResult else {
-//            // Inspect error
-//            return
-//          }
-//          // If sign in succeeded, display the app's main content View.
-//        }
-//      )
-//    }
-
     
     var body: some View {
         VStack {
@@ -47,28 +30,35 @@ struct TestView: View {
 //            StaffNotesView(score: score, staff: staff, lineSpacing: StaffLayoutSize(lineSpacing: 20))
 //                //.border(Color.indigo)
 //                .frame(width: 5 * Double(ts.notesLength ?? 0) + 200)
-            Spacer()
-            if logger.errorMsg != "" {
-                Text("Error:\(logger.errorMsg)").padding()
-            }
-
-            Spacer()
-            
-            Button(action: {
-                spreadsheet.createJWTToken()
-            }) {
-                Text("Google Drive File").padding()
-            }
-
-            Button(action: {
-                spreadsheet.getExampleSheet() { status, data in
-                    print("Received data: \(status) \(data)")
+                //Spacer()
+                if logger.errorNo >= 0 {
+                    Text("Error no \(logger.errorNo)")
                 }
-            }) {
-                Text("Google Examples Sheet").padding()
-            }
-
-            Spacer()
+                if logger.errorMsg != "" {
+                    Text("Error:\(logger.errorMsg)").padding()
+                }
+                
+                //Spacer()
+                
+                Button(action: {
+                    let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
+                    googleAPI.getFileByID(fileId: fileId) {status, data in
+                        print(status)
+                        print(data)
+                    }
+                }) {
+                    Text("Google Drive File").padding()
+                }
+                
+                Button(action: {
+                    googleAPI.getExampleSheet() { status, data in
+                        print("Received data: \(status) \(data)")
+                    }
+                }) {
+                    Text("Google Examples Sheet").padding()
+                }
+                
+                //Spacer()
         }
     }
 }

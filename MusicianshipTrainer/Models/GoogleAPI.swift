@@ -8,7 +8,7 @@ struct JSONSheet: Codable {
 }
 
 class GoogleAPI {
-    let logger = Logger()
+    let logger = Logger.logger
     
     enum DataStatus {
         case ready
@@ -40,7 +40,10 @@ class GoogleAPI {
             onDone(DataStatus.failed, nil)
         }
     }
-
+    
+    ///Read a Google Sheet using an API key. Note that reading  Sheets does not require an oAuth2 token request.
+    ///Data in sheets is regarded as less senstive by Google than data in a Google doc
+    ///
     func getSheetId(sheetId:String, onDone: @escaping (_ dataStatus:DataStatus, [[String]]?) -> Void) {
         var apiKey:String? = getGoogleAPIData(key: "APIKey")
         guard let apiKey = apiKey else {
@@ -70,7 +73,7 @@ class GoogleAPI {
                 if let data = data {
                     let responseString = String(data: data, encoding: .utf8)
                     if httpResponse.statusCode == 200 {
-                        guard let jsonData = responseString!.data(using: .utf8) else {
+                        guard let jsonData = (responseString!).data(using: .utf8) else {
                             self.logger.reportError(self, "Invalid JSON data")
                             onDone(DataStatus.failed, nil)
                             return
@@ -98,7 +101,12 @@ class GoogleAPI {
         task.resume()
     }
     
-    func createJWTToken() {
+    ///Get a Google Drive file by its id
+    ///First get an OAuth token by issuing a signed request for the required scopes (read). The request is packaged a JWT and signed by the private key of the service account.
+    ///Then use that OAuth token to authenticate the call to the Google Drive API
+    ///
+    func getFileByID(fileId:String, onDone: @escaping (_ dataStatus:DataStatus, String?) -> Void) {
+
         struct GoogleClaims: Claims {
             let iss: String
             let scope: String
@@ -174,7 +182,7 @@ class GoogleAPI {
                 if let json = json {
                     let accessToken = json["access_token"] as? String
                     if let accessToken = accessToken {
-                        fetchGoogleDocContent(with: accessToken)
+                        fetchGoogleDocContent(fileId:fileId, with: accessToken, onDone: onDone)
                     }
                     else {
                         self.logger.reportError(self, "Cannot find access token")
@@ -190,10 +198,9 @@ class GoogleAPI {
 
     //================================== Google Docs document using the Google Docs API and the OAuth2 access token:
 
-        func fetchGoogleDocContent(with accessToken: String) {
+        func fetchGoogleDocContent(fileId: String, with accessToken: String, onDone: @escaping (_ dataStatus:DataStatus, String?) -> Void) {
             let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)",
                                         "Accept": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
-            let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
             let fileURL = "https://www.googleapis.com/drive/v3/files/\(fileId)?alt=media"
 
             AF.request(fileURL, headers: headers).response { response in
@@ -202,12 +209,13 @@ class GoogleAPI {
                     if let data = data {
                         let str = String(data: data, encoding: .utf8)
                         print("Document content: \(str ?? "No content")")
+                        onDone(DataStatus.ready, str)
                     }
                     else {
                         self.logger.reportError(self, "File by ID has no data")
                     }
                 case .failure(let error):
-                    self.logger.reportError(self, "Error getting drive file by ID")
+                    self.logger.reportError(self, "Error getting drive file by ID \(error.localizedDescription)")
                 }
             }
         }

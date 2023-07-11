@@ -46,7 +46,9 @@ struct TopicsNavigationView: View {
                             .disabled(!contentSection.isActive)
                         }
                     }
+                    
                     GradeIntroView()
+                    
                     List(topic.subSections) { contentSection in
                         NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                             VStack(alignment: .center) {

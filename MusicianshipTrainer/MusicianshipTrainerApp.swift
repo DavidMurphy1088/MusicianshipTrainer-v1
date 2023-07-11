@@ -58,55 +58,57 @@ struct MusicianshipTrainerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if !MusicianshipTrainerApp.productionMode {
-                IndexView()
-            }
-            else {
-                VStack {
-                    if launchScreenState.state == .finished {
-                        if exampleData.dataStatus == GoogleAPI.DataStatus.ready {
-                            TopicsNavigationView(topic: MusicianshipTrainerApp.root)
-                                .tabItem {Label("Exercises", image: "music.note")}
+            VStack {
+                if launchScreenState.state == .finished {
+                    if exampleData.dataStatus == GoogleAPI.DataStatus.ready {
+                        if !MusicianshipTrainerApp.productionMode {
+                            TestView()
+                        }
+
+                        TopicsNavigationView(topic: MusicianshipTrainerApp.root)
+                            .tabItem {Label("Exercises", image: "music.note")}
+                    }
+                    else {
+                        if exampleData.dataStatus == GoogleAPI.DataStatus.waiting {
+                            Spacer()
+                            Image(systemName: "hourglass.tophalf.fill")
+                                .resizable()
+                                .frame(width: 30, height: 60)
+                            //.scaleEffect(2.0)
+                                .foregroundColor(Color.blue)
+                                .padding()
+                            Text("")
+                            Text("Loading Content...").font(.headline)
+                            Spacer()
                         }
                         else {
-                            if exampleData.dataStatus == GoogleAPI.DataStatus.waiting {
-                                Spacer()
-                                Image(systemName: "hourglass.tophalf.fill")
-                                    .resizable()
-                                    .frame(width: 100, height: 100)
-                                //.scaleEffect(2.0)
-                                    .foregroundColor(Color.blue)
-                                    .padding()
-                                Text("")
-                                Text("Loading Content...").font(.headline)
-                                Spacer()
-                            }
-                            else {
-                                VStack {
-                                    Text("Sorry, we could not create an internet conection.").font(.headline).foregroundColor(.red).padding()
-                                    Text("Please try again.").font(.headline).foregroundColor(.red).padding()
-                                    Text(" ").padding()
-                                    if logger.errorMsg != "" {
-                                        Text("Error:\(logger.errorMsg)").padding()
-                                    }
-                                    Text("\(logger.loggedMsg)").padding()
-                                }
+                            VStack {
+                                Text("Sorry, we could not create an internet conection.").font(.headline).foregroundColor(.red).padding()
+                                Text("Please try again.").font(.headline).foregroundColor(.red).padding()
+                                Text(" ").padding()
+//                                Button(action: {
+//                                    logger.refresh()
+//                                }) {
+//                                    Text("Show Error")
+//                                }
+                                Text("Error:\(logger.errorMsg)").padding()
+                                Text("\(logger.loggedMsg)").padding()
                             }
                         }
                     }
-                    
+                }
+                if MusicianshipTrainerApp.productionMode  {
                     if launchScreenState.state != .finished {
                         LaunchScreenView(launchTimeSecs: launchTimeSecs)
                     }
                 }
-                .environmentObject(launchScreenState)
-                .task {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + launchTimeSecs) {
-                        self.launchScreenState.dismiss()
-                    }
+            }
+            .environmentObject(launchScreenState)
+            .task {
+                DispatchQueue.main.asyncAfter(deadline: .now() + launchTimeSecs) {
+                    self.launchScreenState.dismiss()
                 }
             }
-
         }
     }
 }

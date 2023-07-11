@@ -2,9 +2,9 @@ import Foundation
 
 class ExampleData : ObservableObject {
     static var shared = ExampleData()
+    var logger = Logger.logger
     var data:[String: [String]] = [:]
 
-    //var fromCloud = true
     @Published var dataStatus:GoogleAPI.DataStatus = .waiting
 
     init() {
@@ -18,12 +18,12 @@ class ExampleData : ObservableObject {
                 else {
                     self.setDataReady(way: .failed)
                 }
+                self.logger.log(self, "loaded \(self.data.count) example rows")
             }
             else {
                 self.setDataReady(way: status)
             }
         }
-
     }
     
     //load data from Google Drive Sheet
@@ -103,16 +103,13 @@ class ExampleData : ObservableObject {
     }
     
     func getDataCloud(key:String, warnNotFound:Bool=true) -> [Any]! {
-        //let key = grade+"."+testType+"."+exampleKey
-        //print("\n\(key) --> ", terminator: "")
         let data = data[key]
         guard data != nil else {
             if warnNotFound {
-                Logger.logger.reportError(self, "No data for \(key)")
+                Logger.logger.reportError(self, "No data for key:[\(key)]")
             }
             return nil
         }
-        //let tuples = data!.components(separatedBy: " ")
         let tuples:[String] = data!
 
         var result:[Any] = []
