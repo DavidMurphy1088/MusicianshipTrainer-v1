@@ -6,8 +6,10 @@
 **/*.wav
 **/*.aif
 
-**/Google_OAuth_Keys.json
-**/GoogleAPI.plist
+#all files under directory...
+
+#/Google/*
+
 
 ### Firebase ###
 .idea
