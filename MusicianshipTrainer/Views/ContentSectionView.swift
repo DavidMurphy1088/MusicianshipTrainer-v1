@@ -101,44 +101,40 @@ struct ContentSectionView: View {
                 }
             }
             else {
-                if let parentSection = parentSection {
-                    if parentSection.sectionType == ContentSection.SectionType.testType {
-                        if parentSection.name.contains("Intervals Visual") {
-                           IntervalView(
-                                mode: QuestionMode.intervalVisual,
-                                contentSection: contentSection
-                            )
-                        }
-                        if parentSection.name.contains("Clapping") {
-                            ClapOrPlayView (
-                                mode: QuestionMode.rhythmVisualClap,
-                                 //presentType: IntervalPresentView.self,
-                                 //answerType: IntervalAnswerView.self,
-                                 contentSection: contentSection
-                             )
+                if contentSection.name.contains("Intervals Visual") {
+                   IntervalView(
+                        mode: QuestionMode.intervalVisual,
+                        contentSection: contentSection
+                    )
+                }
+                if contentSection.name.contains("Clapping") {
+                    ClapOrPlayView (
+                        mode: QuestionMode.rhythmVisualClap,
+                         //presentType: IntervalPresentView.self,
+                         //answerType: IntervalAnswerView.self,
+                         contentSection: contentSection
+                     )
 
-                        }
-                        if parentSection.name.contains("Playing") {
-                            ClapOrPlayView (
-                                mode: QuestionMode.melodyPlay,
-                                 //presentType: IntervalPresentView.self,
-                                 //answerType: IntervalAnswerView.self,
-                                 contentSection: contentSection
-                             )
-                        }
-                        if parentSection.name.contains("Intervals Aural") {
-                           IntervalView(
-                                mode: QuestionMode.intervalAural,
-                                contentSection: contentSection
-                            )
-                        }
-                        if parentSection.name.contains("Echo Clap") {
-                            ClapOrPlayView (
-                                mode: QuestionMode.rhythmEchoClap,
-                                 contentSection: contentSection
-                             )
-                        }
-                    }
+                }
+                if contentSection.name.contains("Playing") {
+                    ClapOrPlayView (
+                        mode: QuestionMode.melodyPlay,
+                         //presentType: IntervalPresentView.self,
+                         //answerType: IntervalAnswerView.self,
+                         contentSection: contentSection
+                     )
+                }
+                if contentSection.name.contains("Intervals Aural") {
+                   IntervalView(
+                        mode: QuestionMode.intervalAural,
+                        contentSection: contentSection
+                    )
+                }
+                if contentSection.name.contains("Echo Clap") {
+                    ClapOrPlayView (
+                        mode: QuestionMode.rhythmEchoClap,
+                         contentSection: contentSection
+                     )
                 }
              }
         }

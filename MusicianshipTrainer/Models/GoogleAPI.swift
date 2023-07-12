@@ -5,6 +5,7 @@ import Alamofire
 enum OAuthCallType {
     case file
     case filesInFolder
+    case googleDoc
 }
 
 enum RequestStatus {
@@ -38,17 +39,19 @@ class GoogleAPI {
         if let path = Bundle.main.path(forResource: pListName, ofType: "plist"),
            let dict = NSDictionary(contentsOfFile: path) as? [String: AnyObject] {
             data = dict[key] as? String
+            return data
         }
         guard let data = data else {
             logger.reportError(self, "Cannot find key \(key) in \(pListName).plist")
             return nil
         }
-        return data
+        return nil
     }
     
     func getExampleSheet(onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
-        let examplesSheetKey:String? = getGoogleAPIData(key: "exampleSheetID")
-        
+        //let examplesSheetKey:String? = getGoogleAPIData(key: "exampleSheetID")
+        let examplesSheetKey:String? = getGoogleAPIData(key: "test_examples")
+
         if let examplesSheetKey = examplesSheetKey {
             let request = DataRequest(callType: .file, id: examplesSheetKey, targetExampleKey: nil)
             var url:String
@@ -119,24 +122,78 @@ class GoogleAPI {
     //======================= OAuth Calls ======================
     
 
-    func getFileByName(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data) -> Void) {
+    func getDocumentByName(name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
         let folderId = getGoogleAPIData(key: "GoogleDriveDataFolderID")
         guard let folderId = folderId else {
             self.logger.reportError(self, "No folder Id")
             return
         }
-        request.id = folderId
-        request.callType = .filesInFolder
+        
+        let request = DataRequest(callType: .filesInFolder, id: folderId, targetExampleKey: nil)
+        
         getDataByID(request: request) { status, data in
-            self.makeFileList(request: request, data: data) //{status, data  in
-//            }
+            let fileId = self.getFileIDFromName(name:name, data: data) //{status, data  in
+            guard let fileId = fileId else {
+                self.logger.reportError(self, "File name note found \(name)")
+                onDone(.failed, nil)
+                return
+            }
+            //https://docs.google.com/document/d/1WMW0twPTy0GpKXhlpiFjo-LO2YkDNnmPyp2UYrvXItU/edit?usp=sharing
+            let request = DataRequest(callType: .googleDoc, id: fileId, targetExampleKey: nil)
+            self.getDataByID(request: request) { status, data in
+                print(status)
+                if let data = data {
+                    struct Document: Codable {
+                        let body: Body
+                    }
+
+                    struct Body: Codable {
+                        let content: [Content]
+                    }
+
+                    struct Content: Codable {
+                        let paragraph: Paragraph?
+                    }
+                    
+                    struct Paragraph: Codable {
+                        let elements: [Element]
+                    }
+                                            
+                    struct Element: Codable {
+                        let textRun: TextRun
+                    }
+                    
+                    struct TextRun: Codable {
+                        let content: String
+                    }
+
+                    do {
+                        let decoder = JSONDecoder()
+                        let document = try decoder.decode(Document.self, from: data)
+                        var textContent = ""
+                        for content in document.body.content {
+                            if let paragraph = content.paragraph {
+                                for element in paragraph.elements {
+                                    textContent += element.textRun.content
+                                }
+                            }
+                        }
+                        //print(textContent)
+                        onDone(.success, textContent)
+                    }
+                    catch let error {
+                        self.logger.reportError(self, "Cannot parse \(name) \(error.localizedDescription)")
+                        onDone(.failed, nil)
+                    }
+                }
+            }
         }
     }
         
-    func makeFileList(request:DataRequest, data:Data?) {
+    func getFileIDFromName(name:String, data:Data?) -> String? {
         guard let data = data else {
             self.logger.reportError(self, "No data for file list")
-            return
+            return nil
         }
         struct GoogleFile : Codable {
             let name: String
@@ -151,11 +208,15 @@ class GoogleAPI {
             print ("FILES-")
             for f in filesData.files {
                 print(f.name, "\t", f.id)
+                if f.name == name {
+                    return f.id
+                }
             }
         }
         catch {
             self.logger.log(self, "failed load")
         }
+        return nil
     }
 
 
@@ -271,14 +332,27 @@ class GoogleAPI {
             let headers: HTTPHeaders = ["Authorization": "Bearer \(accessToken)",
                                         "Accept": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
             
-            let url:String
-            if request.callType == .file {
+            let url:String?
+//            if request.callType == .file {
+//                url = "https://www.googleapis.com/drive/v3/files/\(request.id)?alt=media"
+//            }
+//            else {
+//                url = "https://www.googleapis.com/drive/v3/files?q='\(request.id)'+in+parents"
+//            }
+            switch request.callType {
+            case .file:
                 url = "https://www.googleapis.com/drive/v3/files/\(request.id)?alt=media"
-            }
-            else {
+            case .filesInFolder:
                 url = "https://www.googleapis.com/drive/v3/files?q='\(request.id)'+in+parents"
+            case .googleDoc:
+                url = "https://docs.googleapis.com/v1/documents/\(request.id)"
+            //default:
+                //url = nil
             }
-            
+            guard let url = url else {
+                self.logger.reportError(self, "No URL for request")
+                return
+            }
             AF.request(url, headers: headers).response { response in
                 switch response.result {
                 case .success(let data):

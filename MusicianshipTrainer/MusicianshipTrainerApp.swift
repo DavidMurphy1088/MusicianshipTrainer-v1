@@ -50,7 +50,8 @@ struct MusicianshipTrainerApp: App {
     static let productionMode = false
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Musicianship")
     //product licensed by grade 14Jun23
-    static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
+    //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
+    static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "")
     var launchTimeSecs = 2.5
     
     init() {

@@ -3,12 +3,12 @@ import Foundation
 class ExampleData : ObservableObject {
     static var shared = ExampleData()
     var logger = Logger.logger
-    var data:[String: [String]] = [:]
-    let googleAPI = GoogleAPI()
+    private var data:[String: [String]] = [:]
+    private let googleAPI = GoogleAPI()
     
     @Published var dataStatus:RequestStatus = .waiting
 
-    init() {
+    private init() {
         self.dataStatus = .waiting
         googleAPI.getExampleSheet() { status, data in
             if status == .success {
@@ -33,7 +33,6 @@ class ExampleData : ObservableObject {
                     self.setDataReady(way: .failed)
                     self.logger.log(self, "failed load \(self.data.count) example rows")
                 }
-                
             }
             else {
                 self.setDataReady(way: status)
@@ -43,9 +42,13 @@ class ExampleData : ObservableObject {
     
     //load data from Google Drive Sheet
     func loadData(data:[[String]]) {
-        var path:[String] = ["", "", ""]
-        let offset = 2 //start of path offset
+        var keyPath:[String] = []
         
+        ///set according to the format of the examples Sheet
+        let keyOffsetStart = 1 //start of path offset
+        let keyDepth = 4 //num columns representing the structure key
+        let dataOffsetStart = 6 //start of path offset
+
         for rowCells in data {
             if rowCells.count == 0 {
                 continue
@@ -56,51 +59,54 @@ class ExampleData : ObservableObject {
             }
 
             var rowData:[String] = []
-            //var rowDataIndex = 0
             
             for i in 0..<rowCells.count {
-                if i<offset {
+                if i<keyOffsetStart {
                     continue
                 }
                 let cell = rowCells[i]
-                if i < path.count + offset {
-                    if cell.count == 0 {
-                        continue
-                    }
-                    path[i - offset] = cell
-                }
-                else {
-                    if i > path.count + offset {
-                        rowData.append("\(cell)")
+                if i <= keyDepth {
+                    if !cell.isEmpty {
+                        if keyPath.count > 0 {
+                            keyPath = Array(keyPath.prefix(i-1))
+                        }
+                        keyPath.append(cell)
                     }
                 }
-                
-            }
-            if rowData.count == 0 {
-                continue
+                if i >= dataOffsetStart {
+                    rowData.append("\(cell)")
+                }
             }
             var key = ""
-            for i in 0..<path.count {
-                key += path[i]
-                if i < path.count - 1 {
+            for i in 0..<keyPath.count {
+                key += keyPath[i]
+                if i < keyPath.count - 1 {
                     key += "."
                 }
             }
-            //print("Example data:", key, rowData)
-            //let prefixTag = "FileName:"
-            
-            let testString = "ABC123"
-            let prefix = "ABC"
-
-            if rowData.count > 0 && rowData[0].hasPrefix(prefix) {
-                let index = rowData[0].index(rowData[0].startIndex, offsetBy: prefix.count)
-                let restOfString = rowData[0][index...]
-//                let request = DataRequest()
-//                googleAPI.getFileByName(request: <#DataRequest#>, onDone: <#(RequestStatus, Data) -> Void#>)
-            }
-            else {
+             if !key.isEmpty {
                 self.data[key] = rowData
             }
+        }
+        loadContentSections()
+    }
+    
+    func loadContentSections() {
+        var parents:[Int : ContentSection] = [:]
+        for key in self.data.keys.sorted() {
+            let keyLevel = key.filter { $0 == "." }.count  //NZMEB is level 1 with parent the root
+            //print(String(repeating: " ", count: 3 * keyLevel), "exampleData.data \(key) data:\(self.data[key])")
+
+            var parentSection:ContentSection
+            if keyLevel == 0 {
+                parentSection = MusicianshipTrainerApp.root
+            }
+            else {
+                parentSection = parents[keyLevel-1]!
+            }
+            let section = ContentSection(parent: parentSection, type: .example, name: key)
+            parentSection.subSections.append(section)
+            parents[keyLevel] = section
         }
     }
     
@@ -111,18 +117,18 @@ class ExampleData : ObservableObject {
     }
     
     func get(contentSection:ContentSection) -> [Any]! {
-        var current = contentSection
-        var key = ""
-        while true {
-            key = current.name + key
-            let par = current.parent
-            if par == nil {
-                break
-            }
-            current = par!
-            key = "." + key
-        }
-        return getData(key: key)
+//        var current = contentSection
+//        var key = ""
+//        while true {
+//            key = current.name + key
+//            let par = current.parent
+//            if par == nil {
+//                break
+//            }
+//            current = par!
+//            key = "." + key
+//        }
+        return getData(key: contentSection.name)
     }
     
     func getData(key:String, warnNotFound:Bool=true) -> [Any]! {
@@ -130,7 +136,7 @@ class ExampleData : ObservableObject {
     }
     
     func getDataCloud(key:String, warnNotFound:Bool=true) -> [Any]! {
-        let data = data[key]
+        let data = self.data[key]
         guard data != nil else {
             if warnNotFound {
                 Logger.logger.reportError(self, "No data for key:[\(key)]")
@@ -190,92 +196,16 @@ class ExampleData : ObservableObject {
             if parts.count == 2  {
                 let notePitch:Int? = Int(parts[0])
                 if let notePitch = notePitch {
-                    //let pitch = Int(parts[0])
                     let value = Double(parts[1]) ?? 1
-                    //if let pitch = pitch {
                     result.append(Note(num: notePitch, value: value))
-                    //print("\(notePitch),\(value);", terminator: "")
-                    //}
                 }
                 continue
             }
             Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(key) \(tuple)")
         }
-        //Logger.logger.log(self, "Entry count for \(key) is \(result.count)")
-        //print("\n")
         return result
     }
     
-//    func getDataLocal(key:String, warnNotFound:Bool=true) -> [Any]! {
-//        //let key = grade+"."+testType+"."+exampleKey
-//        //print("\n\(key) --> ", terminator: "")
-//        let data = data[key]
-//        guard data != nil else {
-//            if warnNotFound {
-//                Logger.logger.reportError(self, "No data for \(key)")
-//            }
-//            return nil
-//        }
-//        let tuples = data!.components(separatedBy: " ")
-//
-//        var result:[Any] = []
-//        for entry in tuples {
-//            var tuple = entry.replacingOccurrences(of: "(", with: "")
-//            tuple = tuple.replacingOccurrences(of: ")", with: "")
-//            let parts = tuple.components(separatedBy: ",")
-//            if parts.count == 2  {
-//                let notePitch:Int? = Int(parts[0])
-//                if let notePitch = notePitch {
-//                    //let pitch = Int(parts[0])
-//                    let value = Double(parts[1]) ?? 1
-//                    //if let pitch = pitch {
-//                    result.append(Note(num: notePitch, value: value))
-//                    //print("\(notePitch),\(value);", terminator: "")
-//                    //}
-//                }
-//                else {
-//                    if parts[0] == "TS" {
-//                        var ts = TimeSignature(top: 4, bottom: 4)
-//                        ts.isCommonTime = true
-//                        result.append(result.append(ts))
-//                        //print("\(ts.top),\(ts.bottom);5;", terminator: "")
-//                    }
-//
-//                }
-//            }
-//            else {
-//                if parts.count == 1 {
-//                    if parts[0] == "K" {
-//                        result.append(KeySignature(type: .sharp, count: 1))
-//                        //print("C;", terminator: "")
-//                    }
-//                    if parts[0] == "B" {
-//                        result.append(BarLine())
-//                        print("B;", terminator: "")
-//                    }
-//                }
-//                if parts.count == 3 {
-//                    result.append(TimeSignature(top: Int(parts[1]) ?? 0, bottom: Int(parts[2]) ?? 0))
-//                    //print("\(parts[1]),\(parts[2]);5;", terminator: "")
-//                }
-//            }
-//        }
-//        //Logger.logger.log(self, "Entry count for \(key) is \(result.count)")
-//        //print("\n")
-//        return result
-//    }
-    
-//    func hardCoded() {
-//        // =========== Instructions
-//
-//        data["Grade 1.Intervals Visual.Instructions"] = "In the exam you will be shown three notes, and be asked to identify the intervals as either a second or a third."
-//        data["Grade 1.Intervals Visual.Hints"] = "Hints - Good luck!"
-//
-//        var instr = "In the exam you will be asked to clap a written 4-bar rhythm in 3/4 time or 4/4 time."
-//        instr += "\n\nThe note values that could be included are:"
-//        instr += "\n\n\u{2022} Pair of Quavers / Eighth Notes"
-//        instr += "\n\u{2022} Crotchet / Quarter Note"
-//        instr += "\n\u{2022} Minim / Half Note"
 //        instr += "\n\u{2022} Dotted Minim / Three Quarter Note"
 //        instr += "\n\u{2022} Semibreve / Whole Note"
 //
