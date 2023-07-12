@@ -46,8 +46,8 @@ class ExampleData : ObservableObject {
         
         ///set according to the format of the examples Sheet
         let keyOffsetStart = 1 //start of path offset
-        let keyDepth = 4 //num columns representing the structure key
-        let dataOffsetStart = 6 //start of path offset
+        let keyDepth = 5 //num columns representing the structure key
+        let dataOffsetStart = keyOffsetStart + keyDepth  //start of data
 
         for rowCells in data {
             if rowCells.count == 0 {
@@ -73,7 +73,7 @@ class ExampleData : ObservableObject {
                         keyPath.append(cell)
                     }
                 }
-                if i >= dataOffsetStart {
+                if i > dataOffsetStart {
                     rowData.append("\(cell)")
                 }
             }
@@ -95,7 +95,7 @@ class ExampleData : ObservableObject {
         var parents:[Int : ContentSection] = [:]
         for key in self.data.keys.sorted() {
             let keyLevel = key.filter { $0 == "." }.count  //NZMEB is level 1 with parent the root
-            //print(String(repeating: " ", count: 3 * keyLevel), "exampleData.data \(key) data:\(self.data[key])")
+            print("\n", String(repeating: " ", count: 3 * keyLevel), "exampleData.data \(key) \tdata:\(self.data[key])")
 
             var parentSection:ContentSection
             if keyLevel == 0 {
@@ -170,7 +170,7 @@ class ExampleData : ObservableObject {
                     result.append(TimeSignature(top: Int(parts[0]) ?? 0, bottom: Int(parts[1]) ?? 0))
                     continue
                 }
-                Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(key) \(tuple)")
+                Logger.logger.reportError(self, "Unknown time signature tuple at \(i) :  \(key) \(tuple)")
                 continue
             }
             if i == 2 {
@@ -180,7 +180,7 @@ class ExampleData : ObservableObject {
                         continue
                     }
                 }
-                Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(key) \(tuple)")
+                Logger.logger.reportError(self, "Unknown staff line tuple at \(i) :  \(key) tuple:[\(tuple)]")
                 continue
             }
             
