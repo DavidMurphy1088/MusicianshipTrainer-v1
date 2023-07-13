@@ -96,6 +96,7 @@
 		7BD1E5B82A5671AC009AD7E8 /* GoogleAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD1E5B72A5671AC009AD7E8 /* GoogleAPI.swift */; };
 		7BD1E5BA2A57D088009AD7E8 /* StaffCharacteristics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */; };
 		7BFA20A12A555D90000A09CD /* GoogleAPI in Resources */ = {isa = PBXBuildFile; fileRef = 7BFA20A02A555D90000A09CD /* GoogleAPI */; };
+		7BFD93B02A5FA9E3002878D3 /* NameToTitleMap.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7BFD93AF2A5FA9E3002878D3 /* NameToTitleMap.plist */; };
 		90B705EC67B5572A255054E3 /* Pods_MusicianshipTrainer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FF18680D5DC8FA8469AA316 /* Pods_MusicianshipTrainer.framework */; };
 		AC959D240BE7D5D26F269092 /* Pods_MusicianshipTrainerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B972016AF73F96B52619845C /* Pods_MusicianshipTrainerTests.framework */; };
 /* End PBXBuildFile section */
@@ -206,6 +207,7 @@
 		7BD1E5B72A5671AC009AD7E8 /* GoogleAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAPI.swift; sourceTree = "<group>"; };
 		7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaffCharacteristics.swift; sourceTree = "<group>"; };
 		7BFA20A02A555D90000A09CD /* GoogleAPI */ = {isa = PBXFileReference; lastKnownFileType = text; path = GoogleAPI; sourceTree = "<group>"; };
+		7BFD93AF2A5FA9E3002878D3 /* NameToTitleMap.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = NameToTitleMap.plist; sourceTree = "<group>"; };
 		B972016AF73F96B52619845C /* Pods_MusicianshipTrainerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MusicianshipTrainerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C73EC977F79EB93049F428C4 /* Pods-MusicianshipTrainer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MusicianshipTrainer.release.xcconfig"; path = "Target Support Files/Pods-MusicianshipTrainer/Pods-MusicianshipTrainer.release.xcconfig"; sourceTree = "<group>"; };
 		CD859A55CE5E5C53193CC808 /* Pods-MusicianshipTrainerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MusicianshipTrainerTests.debug.xcconfig"; path = "Target Support Files/Pods-MusicianshipTrainerTests/Pods-MusicianshipTrainerTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -405,13 +407,14 @@
 		7B4F64492A54DC6000727710 /* MusicianshipTrainer */ = {
 			isa = PBXGroup;
 			children = (
-				7B324A8B2A5A81DC00681ED7 /* Google */,
 				7B4F644E2A54DC6100727710 /* Assets.xcassets */,
+				7B324A8B2A5A81DC00681ED7 /* Google */,
 				7B2807A52A55092400C70EF4 /* HTML */,
 				7B4F64582A54DC6100727710 /* Info.plist */,
 				7B40B7D02A54DF8F00CA7FC4 /* Models */,
 				7B4F64552A54DC6100727710 /* MusicianshipTrainer.xcdatamodeld */,
 				7B4F644A2A54DC6000727710 /* MusicianshipTrainerApp.swift */,
+				7BFD93AF2A5FA9E3002878D3 /* NameToTitleMap.plist */,
 				7BC42EB02A550F24004FE117 /* Notes */,
 				7B4F64532A54DC6100727710 /* Persistence.swift */,
 				7B4F64502A54DC6100727710 /* Preview Content */,
@@ -601,6 +604,7 @@
 				7B5B14742A5CBB310076EE09 /* GoogleAPI.plist in Resources */,
 				7B2807A32A5508D300C70EF4 /* Intervals Aural.html in Resources */,
 				7B28079D2A5508D300C70EF4 /* open-clap_F_minor.wav in Resources */,
+				7BFD93B02A5FA9E3002878D3 /* NameToTitleMap.plist in Resources */,
 				7B2807992A5508D300C70EF4 /* Mechanical metronome - High.aif in Resources */,
 				7B2807A22A5508D300C70EF4 /* simplemelodypiano.wav in Resources */,
 				7B28079E2A5508D300C70EF4 /* Playing.html in Resources */,
@@ -954,7 +958,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;
@@ -988,7 +992,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;

@@ -40,7 +40,7 @@ struct TopicsNavigationView: View {
                     if false {
                         List(topic.subSections) { contentSection in
                             NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
-                                Text(contentSection.title)
+                                Text(contentSection.getTitle())
                                     .font(.title2)
                             }
                             .disabled(!contentSection.isActive)
@@ -52,7 +52,7 @@ struct TopicsNavigationView: View {
                     List(topic.subSections) { contentSection in
                         NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                             VStack(alignment: .center) {
-                                Text(contentSection.title).padding()
+                                Text(contentSection.getTitle()).padding()
                                     .font(.title2)
                             }
                             //.navigationBarTitleDisplayMode(.inline)
@@ -85,7 +85,7 @@ struct TopicsNavigationView: View {
                 List(topic.subSections) { contentSection in
                     NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                         VStack {
-                            Text(contentSection.title)
+                            Text(contentSection.getTitle())
                                 .font(.title2)
                                 .padding()
                         }

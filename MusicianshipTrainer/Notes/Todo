@@ -1,13 +1,10 @@
 --TODO
 
-start nav structure at Column D
-map keys to user friendly section headings
+start at NZMEB (no AMEB)
+(set prod mode)
+
 load instructions from cloud
 load tips tricks from cloud
-
-
-move API key out off source code
-
 
 do a simple example to understand geometry
 make a view builder that can render all text in buttons in one style

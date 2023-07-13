@@ -1,7 +1,5 @@
 import SwiftUI
 //import GoogleSignIn
-//import GoogleSignInSwift
-
 struct TestView: View {
 
     let googleAPI = GoogleAPI()
@@ -38,47 +36,52 @@ struct TestView: View {
                 Text("Error:\(err)").padding()
             }
             
-            //Spacer()
-            
-            Button(action: {
-                logger.reportError(String("") as AnyObject, "test error")
-            }) {
-                Text("Induce Error").padding()
-            }
-            
-            
-            Button(action: {
-                //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
-                //let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
-                //let request = DataRequest(callType: .file, id: fileId, targetExampleKey: nil)
-                let name = "NZMEB.Grade 1.Intervals Visual.Instructions"
-                googleAPI.getDocumentByName(name: name) {status,data in
-                    print(status, data ?? "")
+            HStack {
+                Button(action: {
+                    ExampleData.shared.loadData()
+                }) {
+                    Text("Refresh Content").padding()
+                }.padding()
+                
+                Button(action: {
+                    logger.reportError(String("") as AnyObject, "test error")
+                }) {
+                    Text("Induce Error").padding()
+                }
+
+                Button(action: {
+                    //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
+                    //let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
+                    //let request = DataRequest(callType: .file, id: fileId, targetExampleKey: nil)
+                    let name = "NZMEB.Grade 1.Intervals Visual.Instructions"
+                    googleAPI.getDocumentByName(name: name) {status,data in
+                        print(status, data ?? "")
+                    }
+                    
+                }) {
+                    Text("Get Document by Name").padding()
                 }
                 
-            }) {
-                Text("Get Document by Name").padding()
-            }
- 
-            Button(action: {
-                //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
-                let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
-                let request = DataRequest(callType: .file, id: fileId, targetExampleKey: nil)
-
-                googleAPI.getDataByID(request: request) {status, data in
-                    print(status)
-                    print(String(data: data!, encoding: .utf8) ?? "")
+                Button(action: {
+                    //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
+                    let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
+                    let request = DataRequest(callType: .file, id: fileId, targetExampleKey: nil)
+                    
+                    googleAPI.getDataByID(request: request) {status, data in
+                        print(status)
+                        print(String(data: data!, encoding: .utf8) ?? "")
+                    }
+                }) {
+                    Text("Google File By ID").padding()
                 }
-            }) {
-                Text("Google File By ID").padding()
-            }
-            
-            Button(action: {
-                googleAPI.getExampleSheet() { status, data in
-                    print("Received data: \(status) \(data)")
+                
+                Button(action: {
+                    googleAPI.getExampleSheet() { status, data in
+                        print("Received data: \(status) \(data)")
+                    }
+                }) {
+                    Text("Google Examples Sheet").padding()
                 }
-            }) {
-                Text("Google Examples Sheet").padding()
             }
                 
         }

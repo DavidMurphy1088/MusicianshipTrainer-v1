@@ -38,16 +38,17 @@ class Note : Hashable, Comparable, ObservableObject {
     static let VALUE_WHOLE = 4.0
 
     let id = UUID()
-    
     var midiNumber:Int
     var staffNum:Int? //Narrow the display of the note to just one staff
     
     private var value:Double = Note.VALUE_QUARTER
     var isDotted:Bool = false
     var isOnlyRhythmNote = false
+    var accidental:Int? = nil //< 0 = flat, ==0 natural, > 0 sharp
 
     var sequence:Int = 0 //the note's sequence position 
-    var rotated:Bool = false //true if note must be displaued vertically rotated due to closeness to a neighbor.
+    var rotated:Bool = false //true if note must be displayed vertically rotated due to closeness to a neighbor.
+    
     var beamType:QuaverBeamType = .none
     //the note where the quaver beam for this note ends
     var beamEndNote:Note? = nil
@@ -64,11 +65,12 @@ class Note : Hashable, Comparable, ObservableObject {
         return (note1 % 12) == (note2 % 12)
     }
     
-    init(num:Int, value:Double = Note.VALUE_QUARTER, staffNum:Int? = nil, isDotted:Bool = false) {
+    init(num:Int, value:Double = Note.VALUE_QUARTER, accidental:Int?=nil, staffNum:Int? = nil, isDotted:Bool = false) {
         self.midiNumber = num
         self.staffNum = staffNum
         self.value = value
         self.isDotted = isDotted
+        self.accidental = accidental
         if value == 3.0 {
             self.isDotted = true
         }
@@ -218,12 +220,14 @@ class Note : Hashable, Comparable, ObservableObject {
         if noteTag == .hilightExpected {
             return Color(red: 0, green: 0.5, blue: 0)
         }
+//        if let accidental = accidental {
+//            return Color.blue
+//        }
+
         if staffNum == nil {
             return Color(.black)
         }
-        else {
-            return Color(staffNum == staff.staffNum ? .black : .clear)
-        }
+        return Color(staffNum == staff.staffNum ? .black : .clear)
     }
 
 }

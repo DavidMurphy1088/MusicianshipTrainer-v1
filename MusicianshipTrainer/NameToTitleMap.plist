@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>4_Echo Clap</key>
+	<string>Echo Clap</string>
+	<key>3_Intervals Aural</key>
+	<string>Recognising Aural Intervals</string>
+	<key>2_Playing</key>
+	<string>Playing At Sight</string>
+	<key>1_Clapping</key>
+	<string>Tapping At Sight</string>
+	<key>0_Intervals Visual</key>
+	<string>Recognising Visual Intervals</string>
+	<key>1_ExamMode</key>
+	<string>Exam Mode</string>
+	<key>0_PracticeMode</key>
+	<string>Practice Mode</string>
+</dict>
+</plist>

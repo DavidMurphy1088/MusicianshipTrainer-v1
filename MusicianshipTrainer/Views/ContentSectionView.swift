@@ -9,7 +9,6 @@ struct ContentSectionHelpView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        //print(contentSection.name)
         if let htmlPath = Bundle.main.path(forResource: contentSection.name, ofType: "html") {
             let url = URL(fileURLWithPath: htmlPath)
             let request = URLRequest(url: url)
@@ -25,8 +24,7 @@ struct ContentSectionHeaderView: View {
     
     var body: some View {
         VStack {
-            //Text("ContentSectionView Level:\(contentSection.level) name:\(contentSection.name) name:\(contentSection.title)").font(.title)
-            Text("\(contentSection.title)").font(.title)
+            Text("\(contentSection.getTitle())").font(.title)
                 .fontWeight(.bold)
                 .padding()
             if contentSection.level == 1 {
@@ -71,13 +69,12 @@ struct ContentSectionView: View {
         var parentType:ContentSection? = contentSection
 
         while parentType != nil {
-            if parentType!.sectionType == ContentSection.SectionType.testType {
-                self.parentSection = parentType!
-                break
-            }
+//            if parentType!.sectionType == ContentSection.SectionType.testType {
+//                self.parentSection = parentType!
+//                break
+//            }
             parentType = parentType!.parent
         }
-        //print("ContentSectionView", contentSection.name, contentSection.subSections.count, "parentType", parentType?.name)
     }
    
     var body: some View {
@@ -87,27 +84,30 @@ struct ContentSectionView: View {
                 ContentSectionHeaderView(contentSection: contentSection)
                     .padding()
                 VStack {
-                    List(contentSection.subSections) { subtopic in
-                        NavigationLink(destination: ContentSectionView(contentSection: subtopic)) {
-                            VStack {
-                                Text(subtopic.title).padding()
-                                //Text("___")
-                                //.navigationBarTitle("Title").font(.largeTitle)
-                                //.navigationBarTitleDisplayMode(.inline)
-                                    .font(.title2)
+                    List(contentSection.subSections) { subSection in
+                        if !subSection.type.hasPrefix("I") {
+                            NavigationLink(destination: ContentSectionView(contentSection: subSection)) {
+                                VStack {
+                                    Text(subSection.getTitle()).padding()
+                                    //Text("___")
+                                    //.navigationBarTitle("Title").font(.largeTitle)
+                                    //.navigationBarTitleDisplayMode(.inline)
+                                        .font(.title2)
+                                }
                             }
                         }
                     }
                 }
             }
             else {
-                if contentSection.name.contains("Intervals Visual") {
+                let path = contentSection.getPath()
+                if path.contains("Intervals Visual") {
                    IntervalView(
                         mode: QuestionMode.intervalVisual,
                         contentSection: contentSection
                     )
                 }
-                if contentSection.name.contains("Clapping") {
+                if path.contains("Clapping") {
                     ClapOrPlayView (
                         mode: QuestionMode.rhythmVisualClap,
                          //presentType: IntervalPresentView.self,
@@ -116,7 +116,7 @@ struct ContentSectionView: View {
                      )
 
                 }
-                if contentSection.name.contains("Playing") {
+                if path.contains("Playing") {
                     ClapOrPlayView (
                         mode: QuestionMode.melodyPlay,
                          //presentType: IntervalPresentView.self,
@@ -124,13 +124,13 @@ struct ContentSectionView: View {
                          contentSection: contentSection
                      )
                 }
-                if contentSection.name.contains("Intervals Aural") {
+                if path.contains("Intervals Aural") {
                    IntervalView(
                         mode: QuestionMode.intervalAural,
                         contentSection: contentSection
                     )
                 }
-                if contentSection.name.contains("Echo Clap") {
+                if path.contains("Echo Clap") {
                     ClapOrPlayView (
                         mode: QuestionMode.rhythmEchoClap,
                          contentSection: contentSection

@@ -48,6 +48,20 @@ struct NoteView: View {
         //let val = note.isDotted ? note.getValue() * 2.0/3.0 : note.getValue()
     }
     
+    func getAccidental(accidental:Int) -> String {
+        if accidental < 0 {
+            return "\u{266D}"
+        }
+        else {
+            if accidental > 0 {
+                return "\u{266F}"
+            }
+            else {
+                return "\u{266E}"
+            }
+        }
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             let noteFrameWidth = geometry.size.width * 1.0 //center the note in the space allocated by the parent for this note's view
@@ -56,6 +70,13 @@ struct NoteView: View {
             let noteValueUnDotted = note.isDotted ? note.getValue() * 2.0/3.0 : note.getValue()
 
             ZStack {
+                if let accidental = note.accidental {
+                     Text(getAccidental(accidental: accidental))
+                        .font(.system(size: lineSpacing * 3.0))
+                    .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
+                    .position(x: noteFrameWidth/2 - lineSpacing * 2.0, y: noteEllipseMidpoint)
+
+                }
                 //Note ellipse
                 if note.noteTag == .inError {
                     Text("X")
@@ -64,6 +85,7 @@ struct NoteView: View {
                         .foregroundColor(.red)
                         .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
                         .position(x: noteFrameWidth/2, y: noteEllipseMidpoint)
+
                 }
                 else {
                     if [Note.VALUE_QUARTER, Note.VALUE_QUAVER].contains(noteValueUnDotted )  {

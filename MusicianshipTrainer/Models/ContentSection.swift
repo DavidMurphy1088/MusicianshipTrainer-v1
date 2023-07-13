@@ -4,26 +4,18 @@ import AVFoundation
 class ContentSection: Identifiable {
     let id = UUID()
     var name: String = ""
-    var title: String
+    var type:String = ""
     var subSections:[ContentSection] = []
-    var sectionType:SectionType
     var parent:ContentSection?
     var isActive:Bool
     var level:Int
     var instructions:String?
     
-    enum SectionType {
-        case none
-        case grade
-        case testType
-        case example
-    }
-    
-    init(parent:ContentSection?, type:SectionType, name:String, title:String? = nil, isActive:Bool = true) {
+    init(parent:ContentSection?, name:String, type:String, isActive:Bool = true) {
         self.parent = parent
-        self.sectionType = type
-        self.name = name        
+        self.name = name
         self.isActive = isActive
+        self.type = type
         var par = parent
         var level = 0
         var path = name
@@ -33,12 +25,12 @@ class ContentSection: Identifiable {
             par = par!.parent
         }
         self.level = level
-        if let title = title {
-            self.title = title
-        }
-        else {
-            self.title = name
-        }
+//        if let title = title {
+//            self.title = title
+//        }
+//        else {
+//            self.title = name
+//        }
         //let exampleData = ExampleData.shared
 //        for key in exampleData.data.keys.sorted() {
 //            let data = "" //exampleData.data[key]
@@ -85,14 +77,27 @@ class ContentSection: Identifiable {
 //        }
     }
     
-    func getPathName() -> String {
+    func getTitle() -> String {
+        if let path = Bundle.main.path(forResource: "NameToTitleMap", ofType: "plist"),
+           let dict = NSDictionary(contentsOfFile: path) as? [String: AnyObject] {
+            if let stringValue = dict[self.name] as? String {
+                return stringValue
+            }
+        }
+        print("==========getTitte no Map", self.name, self.level)
+        return self.name
+    }
+    
+    func getPath() -> String {
         var path = ""
         var section = self
         while true {
             path = section.name + path
             if let parent = section.parent {
                 section = parent
-                path = "." + path
+                if parent.parent != nil {
+                    path = "." + path
+                }                
             }
             else {
                 break
@@ -102,36 +107,23 @@ class ContentSection: Identifiable {
     }
     
     func getPathTitle() -> String {
-        var path = ""
+        var title = ""
         var section = self
         while true {
-            path = section.title + path
+            title = section.getTitle() + title
             if let parent = section.parent {
                 section = parent
-                path = "." + path
+                if parent.parent != nil {
+                    title = "." + title
+                }
             }
             else {
                 break
             }
         }
-        return path
+        return title
     }
 
-    //Add an example number if the data for it exists
-//    func addExample(exampleNum:Int) {
-//        let exampleName = "Example \(exampleNum)"
-//        var key = self.name+"."+exampleName
-//        if parent != nil {
-//            //key = "Musicianship."+parent!.name+"."+key//TODO fix this...
-//            key = parent!.name+"."+key
-//        }
-//        let exampleData = ExampleData.shared.getData(key: key, warnNotFound: false)
-//        //let exampleData = ExampleData.shared.get(contentSection: self)
-//        if exampleData == nil {
-//            return
-//        }
-//        subSections.append(ContentSection(parent: self, type: SectionType.example, name:exampleName, isActive: true))
-//    }
 }
 
 class Syllabus {
