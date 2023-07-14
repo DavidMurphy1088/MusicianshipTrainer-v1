@@ -53,7 +53,8 @@ struct TestView: View {
                     //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
                     //let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
                     //let request = DataRequest(callType: .file, id: fileId, targetExampleKey: nil)
-                    let name = "NZMEB.Grade 1.Intervals Visual.Instructions"
+                    //let name = "NZMEB.Grade 1.Intervals Visual.Instructions"
+                    let name = "TestTipsTricks"
                     googleAPI.getDocumentByName(name: name) {status,data in
                         print(status, data ?? "")
                     }

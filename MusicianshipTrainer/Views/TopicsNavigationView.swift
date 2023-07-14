@@ -28,7 +28,7 @@ struct GradeIntroView: View {
 }
 
 struct TopicsNavigationView: View {
-    let topic:ContentSection
+    let contentSection:ContentSection
     @State private var isShowingConfiguration = false
 
     var body: some View {
@@ -38,7 +38,7 @@ struct TopicsNavigationView: View {
                     //This is the list placed in the split navigation screen.
                     //The 2nd NavigationView below (for iPhone without split nav) will present the topics on the first screen the user sees
                     if false {
-                        List(topic.subSections) { contentSection in
+                        List(contentSection.subSections) { contentSection in
                             NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                                 Text(contentSection.getTitle())
                                     .font(.title2)
@@ -49,7 +49,7 @@ struct TopicsNavigationView: View {
                     
                     GradeIntroView()
                     
-                    List(topic.subSections) { contentSection in
+                    List(contentSection.subSections) { contentSection in
                         NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                             VStack(alignment: .center) {
                                 Text(contentSection.getTitle()).padding()
@@ -82,7 +82,7 @@ struct TopicsNavigationView: View {
         }
         else {
             NavigationView {
-                List(topic.subSections) { contentSection in
+                List(contentSection.subSections) { contentSection in
                     NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                         VStack {
                             Text(contentSection.getTitle())

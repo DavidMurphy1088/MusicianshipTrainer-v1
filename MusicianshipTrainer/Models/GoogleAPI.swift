@@ -29,6 +29,7 @@ class DataRequest {
 }
 
 class GoogleAPI {
+    static let shared = GoogleAPI()
     let logger = Logger.logger
     
     //typealias MyFunctionType = (ReturnDataTarget, DataStatus, String) -> Void

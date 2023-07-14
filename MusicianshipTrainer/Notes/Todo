@@ -1,10 +1,11 @@
 --TODO
+load instructions from cloud
+//load tips tricks from cloud
+
+set prod mode
 
 start at NZMEB (no AMEB)
 (set prod mode)
-
-load instructions from cloud
-load tips tricks from cloud
 
 do a simple example to understand geometry
 make a view builder that can render all text in buttons in one style

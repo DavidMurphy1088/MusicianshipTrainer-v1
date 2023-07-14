@@ -52,9 +52,21 @@ struct MusicianshipTrainerApp: App {
     //product licensed by grade 14Jun23
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
     static let root:ContentSection = ContentSection(parent: nil, name: "", type: "")
+    //var launchTimeSecs = 2.5
     var launchTimeSecs = 2.5
-    
+
     init() {
+    }
+    
+    func getStartContentSection() -> ContentSection {
+        var cs:ContentSection
+        if MusicianshipTrainerApp.productionMode {
+            cs = MusicianshipTrainerApp.root.subSections[1].subSections[0] //NZMEB, Grade 1
+        }
+        else {
+            cs = MusicianshipTrainerApp.root.subSections[1].subSections[0].subSections[0] //NZMEB, Grade 1, practice
+        }
+        return cs
     }
     
     var body: some Scene {
@@ -63,10 +75,12 @@ struct MusicianshipTrainerApp: App {
                 if launchScreenState.state == .finished {
                     if exampleData.dataStatus == RequestStatus.success {
                         if !MusicianshipTrainerApp.productionMode {
-                            TestView()
+                            if UIDevice.current.userInterfaceIdiom == .pad {
+                                TestView()
+                            }
                         }
 
-                        TopicsNavigationView(topic: MusicianshipTrainerApp.root)
+                        TopicsNavigationView(contentSection: getStartContentSection())
                             .tabItem {Label("Exercises", image: "music.note")}
                     }
                     else {

@@ -13,7 +13,7 @@ class ExampleData : ObservableObject {
     static var shared = ExampleData()
     var logger = Logger.logger
     private var dataDictionary:[String: ExampleDataRow ] = [:]
-    private let googleAPI = GoogleAPI()
+    private let googleAPI = GoogleAPI.shared
     
     @Published var dataStatus:RequestStatus = .waiting
 
@@ -118,8 +118,8 @@ class ExampleData : ObservableObject {
         for key in self.dataDictionary.keys.sorted() {
             let keyLevel = key.filter { $0 == "." }.count  //NZMEB is level 1 with parent the root
             
-            //Comment but dont delete...
-            //print("\n", String(repeating: " ", count: 3 * keyLevel), "exampleData.data \(key) \tdata:\(self.dataDictionary[key])")
+            //Maybe comment but dont delete...
+            print("\n", String(repeating: " ", count: 3 * keyLevel), "exampleData.data \(key) \tdata:\(self.dataDictionary[key]?.data)")
 
             var parentSection:ContentSection
             if keyLevel == 0 {
@@ -163,10 +163,10 @@ class ExampleData : ObservableObject {
 //            key = "." + key
 //        }
         //return getData(key: contentSection.name)
-        return getData(key: contentSection.getPath())
+        return getData(key: contentSection.getPath(), type: contentSection.type)
     }
     
-    func getData(key:String, warnNotFound:Bool=true) -> [Any]! {
+    func getData(key:String, type:String, warnNotFound:Bool=true) -> [Any]! {
         let data = self.dataDictionary[key]
         guard data != nil else {
             if warnNotFound {
@@ -176,6 +176,10 @@ class ExampleData : ObservableObject {
         }
         //let tuples:[String] = data!
         let tuples:[String] = data!.data
+        
+        if type == "I" {
+            return [tuples[0]]
+        }
 
         var result:[Any] = []
         

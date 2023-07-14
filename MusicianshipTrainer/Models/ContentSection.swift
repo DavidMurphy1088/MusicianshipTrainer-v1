@@ -84,7 +84,7 @@ class ContentSection: Identifiable {
                 return stringValue
             }
         }
-        print("==========getTitte no Map", self.name, self.level)
+        //print("==========getTitte no Map", self.name, self.level)
         return self.name
     }
     

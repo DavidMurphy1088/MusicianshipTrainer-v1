@@ -80,11 +80,14 @@ struct LaunchScreenView: View {
                     Spacer()
                 }
                 VStack(alignment: .center) {
-                    Text("NZMEB Musicianship Trainer")
-                        //.font(.headline)
-                        .font(.title)
-                        .position(x: geo.size.width * 0.5, y: geo.size.height * 0.85)
-                        .opacity(self.opacity.imageOpacity)
+                    VStack {
+                        Text("NZMEB Musicianship Trainer").font(.title)
+                        Text("")
+                        Text("© 2023 MusicMaster LLC.").font(.title2)
+                    }
+                    .position(x: geo.size.width * 0.5, y: geo.size.height * 0.85)
+                    .opacity(self.opacity.imageOpacity)
+                    
                     Text("Version \(appVersion())")
                 }
             }

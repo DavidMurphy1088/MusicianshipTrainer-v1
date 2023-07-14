@@ -14,6 +14,16 @@ target 'MusicianshipTrainer' do
   pod 'SwiftJWT'
   pod 'Alamofire'
 
+  post_install do |installer|
+    installer.generated_projects.each do |project|
+      project.targets.each do |target|
+          target.build_configurations.each do |config|
+              config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+           end
+      end
+    end
+  end
+
   target 'MusicianshipTrainerTests' do
     inherit! :search_paths
     # Pods for testing
@@ -25,12 +35,3 @@ target 'MusicianshipTrainer' do
 
 end
 
-#post_install do |installer|
-#    installer.generated_projects.each do |project|
-#          project.targets.each do |target|
-#              target.build_configurations.each do |config|
-#                  config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-#               end
-#          end
-#   end
-#end

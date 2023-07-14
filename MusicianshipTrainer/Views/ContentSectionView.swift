@@ -3,16 +3,27 @@ import WebKit
 
 struct ContentSectionHelpView: UIViewRepresentable {
     var contentSection:ContentSection
+    let exampleData = ExampleData.shared
+    let googleAPI = GoogleAPI.shared
 
     func makeUIView(context: Context) -> WKWebView {
         return WKWebView()
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        if let htmlPath = Bundle.main.path(forResource: contentSection.name, ofType: "html") {
-            let url = URL(fileURLWithPath: htmlPath)
-            let request = URLRequest(url: url)
-            uiView.load(request)
+        let key = contentSection.getPath() + "." + "TipsAndTricks"
+        let array = exampleData.getData(key: key, type: "I")
+        if let array = array {
+            let file:String = array[0] as! String
+            print(file)
+            googleAPI.getDocumentByName(name: file) {status,document in
+                if status == .success {
+                    if let document = document {
+                        let htmlDocument:String = document
+                        uiView.loadHTMLString(htmlDocument, baseURL: nil)
+                    }
+                }
+            }
         }
     }
 }
@@ -27,14 +38,14 @@ struct ContentSectionHeaderView: View {
             Text("\(contentSection.getTitle())").font(.title)
                 .fontWeight(.bold)
                 .padding()
-            if contentSection.level == 1 {
+            //if contentSection.level == 1 {
                 HStack {
-                    Text(contentSection.instructions ?? "loading...")
-                        //.font(.body)
-                        .font(.title2)
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(nil)
-                        .padding()
+//                    Text(contentSection.instructions ?? "loading...")
+//                        //.font(.body)
+//                        .font(.title2)
+//                        .multilineTextAlignment(.leading)
+//                        .lineLimit(nil)
+//                        .padding()
                 }
                 Button(action: {
                     isHelpPresented.toggle()
@@ -55,7 +66,7 @@ struct ContentSectionHeaderView: View {
                         )
                 }
                 .padding()
-            }
+            //}
         }
     }
 }
@@ -79,7 +90,6 @@ struct ContentSectionView: View {
    
     var body: some View {
         VStack {
-            
             if contentSection.subSections.count > 0 {
                 ContentSectionHeaderView(contentSection: contentSection)
                     .padding()
