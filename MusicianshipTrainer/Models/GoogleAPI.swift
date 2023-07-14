@@ -121,7 +121,6 @@ class GoogleAPI {
     }
     
     //======================= OAuth Calls ======================
-    
 
     func getDocumentByName(name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
         let folderId = getGoogleAPIData(key: "GoogleDriveDataFolderID")
