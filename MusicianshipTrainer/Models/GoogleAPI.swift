@@ -219,7 +219,6 @@ class GoogleAPI {
         return nil
     }
 
-
     ///Get a Google Drive resource (file, list of files etc) by its id
     ///First get an OAuth token by issuing a signed request for the required scopes (read). The request is packaged a JWT and signed by the private key of the service account.
     ///Then use that OAuth token to authenticate the call to the Google API
