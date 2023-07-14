@@ -84,6 +84,21 @@ class ContentSection: Identifiable {
                 return stringValue
             }
         }
+        
+        // remove leading zero in example number
+        if let range = name.range(of: "example", options: .caseInsensitive) {
+            let substrings = name.components(separatedBy: " ")
+            if substrings.count > 1 {
+                let numStr = substrings[1]
+                if numStr.first == "0" {
+                    let num = Int(numStr)
+                    if let num = num {
+                        return substrings[0] + " \(num)"
+                    }
+                }
+            }
+        }
+
         //print("==========getTitte no Map", self.name, self.level)
         return self.name
     }

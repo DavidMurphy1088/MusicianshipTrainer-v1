@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		792B1A4D192934CF2AF4CCF2 /* Pods_MusicianshipTrainer_MusicianshipTrainerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42C8951FB7364C1CE3DCAA54 /* Pods_MusicianshipTrainer_MusicianshipTrainerUITests.framework */; };
+		7B0A64CF2A61562B0091A24A /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0A64CE2A61562B0091A24A /* Settings.swift */; };
 		7B2807992A5508D300C70EF4 /* Mechanical metronome - High.aif in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */; };
 		7B28079A2A5508D300C70EF4 /* Intervals Visual.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078D2A5508D200C70EF4 /* Intervals Visual.html */; };
 		7B28079B2A5508D300C70EF4 /* Ex1_Sine_Short.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */; };
@@ -52,7 +53,7 @@
 		7B40B80E2A54E0BE00CA7FC4 /* AudioKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7B40B80D2A54E0BE00CA7FC4 /* AudioKit */; };
 		7B40B8112A54E0FE00CA7FC4 /* AudioKitEX in Frameworks */ = {isa = PBXBuildFile; productRef = 7B40B8102A54E0FE00CA7FC4 /* AudioKitEX */; };
 		7B40B8142A54E18100CA7FC4 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 7B40B8132A54E18100CA7FC4 /* FirebaseDatabase */; };
-		7B40B82C2A54E52A00CA7FC4 /* TopicsNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8162A54E52A00CA7FC4 /* TopicsNavigationView.swift */; };
+		7B40B82C2A54E52A00CA7FC4 /* ContentNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8162A54E52A00CA7FC4 /* ContentNavigationView.swift */; };
 		7B40B82D2A54E52A00CA7FC4 /* StaffView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8172A54E52A00CA7FC4 /* StaffView.swift */; };
 		7B40B82E2A54E52A00CA7FC4 /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8182A54E52A00CA7FC4 /* NoteView.swift */; };
 		7B40B82F2A54E52A00CA7FC4 /* TappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8192A54E52A00CA7FC4 /* TappingView.swift */; };
@@ -123,6 +124,7 @@
 		35116A185CE346CADD3E25F4 /* Pods-MusicianshipTrainer-MusicianshipTrainerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MusicianshipTrainer-MusicianshipTrainerUITests.debug.xcconfig"; path = "Target Support Files/Pods-MusicianshipTrainer-MusicianshipTrainerUITests/Pods-MusicianshipTrainer-MusicianshipTrainerUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		42C8951FB7364C1CE3DCAA54 /* Pods_MusicianshipTrainer_MusicianshipTrainerUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MusicianshipTrainer_MusicianshipTrainerUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		54A8FF444C22240A3C5C59B7 /* Pods-MusicianshipTrainer-MusicianshipTrainerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MusicianshipTrainer-MusicianshipTrainerUITests.release.xcconfig"; path = "Target Support Files/Pods-MusicianshipTrainer-MusicianshipTrainerUITests/Pods-MusicianshipTrainer-MusicianshipTrainerUITests.release.xcconfig"; sourceTree = "<group>"; };
+		7B0A64CE2A61562B0091A24A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mechanical metronome - High.aif"; sourceTree = "<group>"; };
 		7B28078D2A5508D200C70EF4 /* Intervals Visual.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "Intervals Visual.html"; sourceTree = "<group>"; };
 		7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Ex1_Sine_Short.wav; sourceTree = "<group>"; };
@@ -164,7 +166,7 @@
 		7B40B7EC2A54DF8F00CA7FC4 /* SoundGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundGenerator.swift; sourceTree = "<group>"; };
 		7B40B7ED2A54DF8F00CA7FC4 /* Scale.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scale.swift; sourceTree = "<group>"; };
 		7B40B7EE2A54DF8F00CA7FC4 /* SpeechSynth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechSynth.swift; sourceTree = "<group>"; };
-		7B40B8162A54E52A00CA7FC4 /* TopicsNavigationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopicsNavigationView.swift; sourceTree = "<group>"; };
+		7B40B8162A54E52A00CA7FC4 /* ContentNavigationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentNavigationView.swift; sourceTree = "<group>"; };
 		7B40B8172A54E52A00CA7FC4 /* StaffView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaffView.swift; sourceTree = "<group>"; };
 		7B40B8182A54E52A00CA7FC4 /* NoteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
 		7B40B8192A54E52A00CA7FC4 /* TappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TappingView.swift; sourceTree = "<group>"; };
@@ -324,6 +326,7 @@
 				7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */,
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,
 				7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */,
+				7B0A64CE2A61562B0091A24A /* Settings.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -364,7 +367,7 @@
 				7B40B8192A54E52A00CA7FC4 /* TappingView.swift */,
 				7B40B81F2A54E52A00CA7FC4 /* TestView.swift */,
 				7B40B8202A54E52A00CA7FC4 /* ToolsView.swift */,
-				7B40B8162A54E52A00CA7FC4 /* TopicsNavigationView.swift */,
+				7B40B8162A54E52A00CA7FC4 /* ContentNavigationView.swift */,
 				7B40B81E2A54E52A00CA7FC4 /* UIGlobals.swift */,
 				7B40B81C2A54E52A00CA7FC4 /* VoiceCounter.swift */,
 			);
@@ -752,7 +755,7 @@
 				7B40B7FD2A54DF9000CA7FC4 /* NoteOnsetAnalyser.swift in Sources */,
 				7BB835462A5548750083C1C0 /* Firestore.swift in Sources */,
 				7B40B8002A54DF9000CA7FC4 /* ClapRecorder.swift in Sources */,
-				7B40B82C2A54E52A00CA7FC4 /* TopicsNavigationView.swift in Sources */,
+				7B40B82C2A54E52A00CA7FC4 /* ContentNavigationView.swift in Sources */,
 				7B40B8042A54DF9000CA7FC4 /* Key.swift in Sources */,
 				7B40B7F82A54DF9000CA7FC4 /* FFTTap.swift in Sources */,
 				7B40B82F2A54E52A00CA7FC4 /* TappingView.swift in Sources */,
@@ -763,6 +766,7 @@
 				7B40B7F42A54DF9000CA7FC4 /* Staff.swift in Sources */,
 				7B40B83A2A54E52A00CA7FC4 /* HelpView.swift in Sources */,
 				7B40B8372A54E52A00CA7FC4 /* IndexView.swift in Sources */,
+				7B0A64CF2A61562B0091A24A /* Settings.swift in Sources */,
 				7B40B83F2A54E52A00CA7FC4 /* ConfigurationView.swift in Sources */,
 				7B40B82D2A54E52A00CA7FC4 /* StaffView.swift in Sources */,
 				7B40B7F12A54DF9000CA7FC4 /* Score.swift in Sources */,

@@ -144,7 +144,7 @@ struct ScoreView: View {
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
-        .background(UIGlobals.backgroundColor)
+        .background(UIGlobals.backgroundColorHiliteBox)
         //.border(Color .red, width: 4)
         .frame(height: getFrameHeight())
     }

@@ -29,7 +29,7 @@ struct VoiceCounterView: View {
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
-        .background(UIGlobals.backgroundColor)
+        .background(UIGlobals.backgroundColorHiliteBox)
     }
 }
 

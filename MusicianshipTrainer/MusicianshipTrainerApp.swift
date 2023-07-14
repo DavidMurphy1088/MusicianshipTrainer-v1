@@ -14,6 +14,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
         Logger.logger.log(self, "Version.Build \(appVersion).\(buildNumber)")
+        if let retrievedColor = UserDefaults.standard.getSelectedColor() {
+            print("Retrieved color: \(retrievedColor)")
+        }
         return true
     }
     
@@ -47,7 +50,7 @@ struct MusicianshipTrainerApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @ObservedObject var exampleData = ExampleData.shared
     @ObservedObject var logger = Logger.logger
-    static let productionMode = false
+    static let productionMode = true
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Musicianship")
     //product licensed by grade 14Jun23
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
@@ -80,7 +83,7 @@ struct MusicianshipTrainerApp: App {
                             }
                         }
 
-                        TopicsNavigationView(contentSection: getStartContentSection())
+                        ContentNavigationView(contentSection: getStartContentSection())
                             .tabItem {Label("Exercises", image: "music.note")}
                     }
                     else {

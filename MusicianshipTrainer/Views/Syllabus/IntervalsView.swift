@@ -149,7 +149,7 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                                 .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.cornerRadius).padding()
                         }
                         .padding()
-                        .background(UIGlobals.backgroundColor)
+                        .background(UIGlobals.backgroundColorHiliteBox)
                         .padding()
                     }
                 }
@@ -191,7 +191,7 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                 .overlay(
                     RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
                 )
-                .background(UIGlobals.backgroundColor)
+                .background(UIGlobals.backgroundColorHiliteBox)
                 .padding()
                 Spacer()
 //                if logger.status.count > 0 {

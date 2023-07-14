@@ -27,7 +27,7 @@ struct GradeIntroView: View {
     }
 }
 
-struct TopicsNavigationView: View {
+struct ContentNavigationView: View {
     let contentSection:ContentSection
     @State private var isShowingConfiguration = false
 

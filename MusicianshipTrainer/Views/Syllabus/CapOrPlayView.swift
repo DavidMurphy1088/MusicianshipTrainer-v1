@@ -513,8 +513,8 @@ struct ClapOrPlayView: View {
             if let errMsg = logger.errorMsg {
                 Text(errMsg)
             }
-
         }
+        .background(UIGlobals.backgroundColorExamples)
     }
 
 }

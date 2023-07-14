@@ -2,9 +2,11 @@ import SwiftUI
 import CoreData
 
 class UIGlobals {
+    static var backgroundColorExamples = Color.white
+    static var backgroundColorMenus = Color.teal
+
     static let backgroundColorLighter = Color.blue.opacity(0.03)
-    static let backgroundColor = Color.blue.opacity(0.10) //0.04
-    //static let backgroundColorDarker = Color.blue.opacity(0.04)
+    static var backgroundColorHiliteBox = Color.blue.opacity(0.10) //0.04
     
     static let cornerRadius:CGFloat = 16
     static let borderColor:CGColor = CGColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)

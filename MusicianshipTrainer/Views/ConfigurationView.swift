@@ -4,29 +4,79 @@ import SwiftUI
 
 struct ConfigurationView: View {
     @Binding var isPresented: Bool
-    
+    @State private var selectedColorMenus = Color.white
+    @State private var selectedColorExamples = Color.white
+
     var body: some View {
         //GeometryReader { geo in //CAUSES ALL CHILDS LEft ALIGNED???
             VStack(alignment: .center) {
                 
-                HStack(alignment: .center) {
-                    Image("nzmeb_logo_transparent")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 64)
+//                HStack(alignment: .center) {
+//                    Image("nzmeb_logo_transparent")
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(width: 64)
                     Text("Configuration").font(.title).padding()
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                )
-                .background(UIGlobals.backgroundColor)
-                //.padding()
+//                }
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+//                )
+//                .background(UIGlobals.backgroundColorHiliteBox)
+//                //.padding()
                 
+                // =================== Colors ===================
+                
+                HStack {
+                    VStack {
+                        Circle()
+                            .fill(selectedColorMenus)
+                            .frame(width: 100, height: 100)
+                        
+                        ColorPicker("Menus : Select a Color", selection: $selectedColorMenus, supportsOpacity: false)
+                            .padding()
+                    }
+                    .padding()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.blue, lineWidth: 2)
+                    )
+                    .padding()
+                    
+                    VStack {
+                        Circle()
+                            .fill(selectedColorExamples)
+                            .frame(width: 100, height: 100)
+                        
+                        ColorPicker("Examples : Select a Color", selection: $selectedColorExamples, supportsOpacity: false)
+                            .padding()
+                    }
+                    .padding()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.blue, lineWidth: 2)
+                    )
+                    .padding()
+                }
+
+
                 ConfigSelectInstrument().padding()
                 
                 //ContentView2()
-                Button("Cancel") {
-                    isPresented = false
+                HStack {
+                    Button("Ok") {
+                        UIGlobals.backgroundColorMenus = selectedColorMenus
+                        UIGlobals.backgroundColorHiliteBox = selectedColorExamples
+                        UserDefaults.standard.setSelectedColor(selectedColorExamples)
+                        //                    if let retrievedColor = UserDefaults.standard.getSelectedColor() {
+                        //                        print("Retrieved color: \(retrievedColor)")
+                        //                    }
+                        isPresented = false
+                    }
+                    .padding()
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                    .padding()
                 }
                 
                 let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
@@ -34,29 +84,27 @@ struct ConfigurationView: View {
 
                 Text("Musicianship Trainer - Version.Build \(appVersion).\(buildNumber)").font(.headline).padding()
                 
-                //ContentView()
-                
-                //VoiceListView()
             }
-       // }
+        //}
     }
 }
 
 struct ConfigSelectInstrument: View {
     let options = ["Piano", "Vocal", "Violin", "Guitar"]
     @State private var selectedOption: String?
-    @State private var isShowingSelection = false
     
     var body: some View {
         VStack {
-            //Text("Selected Option: \(selectedOption ?? "None")")
-            Button("Select Instrument") {
-                isShowingSelection = true
+            VStack {
+                Picker("Select an option", selection: $selectedOption) {
+                    ForEach(options, id: \.self) { option in
+                        Text(option)
+                    }
+                }
+                .pickerStyle(.wheel)
+                
             }
-            .sheet(isPresented: $isShowingSelection) {
-               // OptionSelectionView(selectedOption: $selectedOption)
-            }
-       }
+        }
     }
 }
 
