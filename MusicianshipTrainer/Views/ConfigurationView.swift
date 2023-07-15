@@ -4,8 +4,8 @@ import SwiftUI
 
 struct ConfigurationView: View {
     @Binding var isPresented: Bool
-    @State private var selectedColorMenus = Color.white
-    @State private var selectedColorExamples = Color.white
+    @State var colorScore:Color
+    @State var colorInstructions:Color// = Color.white
 
     var body: some View {
         //GeometryReader { geo in //CAUSES ALL CHILDS LEft ALIGNED???
@@ -24,16 +24,26 @@ struct ConfigurationView: View {
 //                .background(UIGlobals.backgroundColorHiliteBox)
 //                //.padding()
                 
+                VStack {
+                    Text("Select Your Instrument")
+                    ConfigSelectInstrument()
+                }
+                .frame(width: 100, height: 100)
+                
                 // =================== Colors ===================
                 
                 HStack {
                     VStack {
                         Circle()
-                            .fill(selectedColorMenus)
+                            .fill(colorScore)
                             .frame(width: 100, height: 100)
                         
-                        ColorPicker("Menus : Select a Color", selection: $selectedColorMenus, supportsOpacity: false)
-                            .padding()
+                        ColorPicker("Score : Select a Colour", selection: $colorScore, supportsOpacity: false)
+                            //.padding()
+                        
+                        Button("Reset") {
+                            colorScore = UIGlobals.colorDefault
+                        }
                     }
                     .padding()
                     .overlay(
@@ -44,11 +54,15 @@ struct ConfigurationView: View {
                     
                     VStack {
                         Circle()
-                            .fill(selectedColorExamples)
+                            .fill(colorInstructions)
                             .frame(width: 100, height: 100)
                         
-                        ColorPicker("Examples : Select a Color", selection: $selectedColorExamples, supportsOpacity: false)
-                            .padding()
+                        ColorPicker("Instructions : Select a Colour", selection: $colorInstructions, supportsOpacity: false)
+                            //.padding()
+                        Button("Reset") {
+                            colorInstructions = UIGlobals.colorInstructions
+                        }
+
                     }
                     .padding()
                     .overlay(
@@ -58,18 +72,15 @@ struct ConfigurationView: View {
                     .padding()
                 }
 
-
-                ConfigSelectInstrument().padding()
                 
                 //ContentView2()
+                
                 HStack {
                     Button("Ok") {
-                        UIGlobals.backgroundColorMenus = selectedColorMenus
-                        UIGlobals.backgroundColorHiliteBox = selectedColorExamples
-                        UserDefaults.standard.setSelectedColor(selectedColorExamples)
-                        //                    if let retrievedColor = UserDefaults.standard.getSelectedColor() {
-                        //                        print("Retrieved color: \(retrievedColor)")
-                        //                    }
+                        UIGlobals.colorScore = colorScore
+                        UIGlobals.colorInstructions = colorInstructions
+                        Settings.shared.saveColours()
+                        
                         isPresented = false
                     }
                     .padding()
@@ -82,8 +93,10 @@ struct ConfigurationView: View {
                 let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
                 let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
 
-                Text("Musicianship Trainer - Version.Build \(appVersion).\(buildNumber)").font(.headline).padding()
-                
+                VStack {
+                    Text("Musicianship Trainer - Version.Build \(appVersion).\(buildNumber)").font(.headline)
+                    Text("© 2023 MusicMaster LLC.").font(.headline)
+                }
             }
         //}
     }

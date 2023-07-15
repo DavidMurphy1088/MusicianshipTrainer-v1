@@ -86,7 +86,8 @@ struct MetronomeView: View {
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
-        .background(UIGlobals.backgroundColorHiliteBox)
+        //.background(UIGlobals.backgroundColorHiliteBox)
+        .background(UIGlobals.colorInstructions)
 
     }
 }

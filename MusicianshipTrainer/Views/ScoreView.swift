@@ -49,10 +49,7 @@ struct ScoreView: View {
     init(score:Score) {
         self.score = score
         self.staffLayoutSize = StaffLayoutSize(lineSpacing: UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0)
-//<<<<<<< HEAD
         self.staffLayoutSize.lineSpacing = 0.0
-//=======
-//>>>>>>> main
         setOrientationLineSize(ctx: "ScoreView::init")
         //print("SCORE VIEW INIT", "width::", UIScreen.main.bounds.width, "line spacing", lineSpacing.value)
     }
@@ -78,7 +75,6 @@ struct ScoreView: View {
     func setOrientationLineSize(ctx:String) {
         //Absolutley no idea - the width reported here decreases in landscape mode so use height (which increases)
         //https://www.hackingwithswift.com/quick-start/swiftui/how-to-detect-device-rotation
-//<<<<<<< HEAD
         var lineSpacing:Double
         if self.staffLayoutSize.lineSpacing == 0 {
             lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
@@ -144,7 +140,7 @@ struct ScoreView: View {
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
-        .background(UIGlobals.backgroundColorHiliteBox)
+        .background(UIGlobals.colorScore)
         //.border(Color .red, width: 4)
         .frame(height: getFrameHeight())
     }

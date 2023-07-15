@@ -62,7 +62,9 @@ struct ContentNavigationView: View {
                         //.navigationTitle("NavTtitle::\(self.topic.level == 0 ? "" : topic.title)")
                    }
                     .sheet(isPresented: $isShowingConfiguration) {
-                        ConfigurationView(isPresented: $isShowingConfiguration)
+                        ConfigurationView(isPresented: $isShowingConfiguration,
+                                          colorScore: UIGlobals.colorScore,
+                                          colorInstructions: UIGlobals.colorInstructions)
                     }
                 }
                 //.navigationTitle(topic.name) ?? ignored??
@@ -72,6 +74,8 @@ struct ContentNavigationView: View {
                             isShowingConfiguration = true
                         }) {
                             Image(systemName: "gear")
+                            .font(.largeTitle)
+                            .scaleEffect(1.0)
                         }
                     }
                 }
@@ -93,18 +97,27 @@ struct ContentNavigationView: View {
                     .disabled(!contentSection.isActive)
                 }
                 .sheet(isPresented: $isShowingConfiguration) {
-                    ConfigurationView(isPresented: $isShowingConfiguration)
+                    ConfigurationView(isPresented: $isShowingConfiguration,
+                                      colorScore: UIGlobals.colorScore,
+                                      colorInstructions: UIGlobals.colorInstructions
+                                    )
                 }
                 //.navigationTitle(topic.name)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            isShowingConfiguration = true
-                        }) {
-                            Image(systemName: "gear")
-                        }
-                    }
-                }
+//                .toolbar {
+//                    ToolbarItem(placement: .navigationBarTrailing) {
+//                        Button(action: {
+//                            isShowingConfiguration = true
+//                        }) {
+//                            Image(systemName: "xgear")
+//                                //.resizable()
+//                                //.frame(width: 200, height: 200)
+//                                //.font(.largeTitle)
+//                                //.scaleEffect(1.5)
+//                                .resizable()
+//                                .frame(width: 132, height: 132)
+//                        }
+//                    }
+//                }
             }
         }
     }

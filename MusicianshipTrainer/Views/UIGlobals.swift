@@ -2,11 +2,13 @@ import SwiftUI
 import CoreData
 
 class UIGlobals {
-    static var backgroundColorExamples = Color.white
-    static var backgroundColorMenus = Color.teal
+    static var colorDefault = Color.blue.opacity(0.10)
+    
+    static var colorScore = UIGlobals.colorDefault
+    static var colorInstructions = UIGlobals.colorDefault
 
-    static let backgroundColorLighter = Color.blue.opacity(0.03)
-    static var backgroundColorHiliteBox = Color.blue.opacity(0.10) //0.04
+    //static var backgroundColorHiliteBox = Color.blue.opacity(0.10) //0.04
+    //static let backgroundColorLighter = Color.blue.opacity(0.03)
     
     static let cornerRadius:CGFloat = 16
     static let borderColor:CGColor = CGColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)
@@ -25,13 +27,3 @@ struct StandardButtonStyle: ButtonStyle {
     }
 }
 
-//Button(action: {
-//}) {
-//    Text("Click Me")
-//}
-//.StandardButtonStyle(CustomButtonStyle())
-
-//    .overlay(
-//                    RoundedRectangle(cornerRadius: 8)
-//                        .stroke(Color.white, lineWidth: 2)
-//                )

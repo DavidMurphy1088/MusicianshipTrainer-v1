@@ -125,6 +125,7 @@
 		42C8951FB7364C1CE3DCAA54 /* Pods_MusicianshipTrainer_MusicianshipTrainerUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MusicianshipTrainer_MusicianshipTrainerUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		54A8FF444C22240A3C5C59B7 /* Pods-MusicianshipTrainer-MusicianshipTrainerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MusicianshipTrainer-MusicianshipTrainerUITests.release.xcconfig"; path = "Target Support Files/Pods-MusicianshipTrainer-MusicianshipTrainerUITests/Pods-MusicianshipTrainer-MusicianshipTrainerUITests.release.xcconfig"; sourceTree = "<group>"; };
 		7B0A64CE2A61562B0091A24A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		7B0A64D42A623B2C0091A24A /* 8-Bit__Newest_.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "8-Bit__Newest_.sf2"; sourceTree = "<group>"; };
 		7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mechanical metronome - High.aif"; sourceTree = "<group>"; };
 		7B28078D2A5508D200C70EF4 /* Intervals Visual.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "Intervals Visual.html"; sourceTree = "<group>"; };
 		7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Ex1_Sine_Short.wav; sourceTree = "<group>"; };
@@ -271,6 +272,7 @@
 			children = (
 				7B2807A62A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 */,
 				7B2807922A5508D200C70EF4 /* clap-single-inspectorj.wav */,
+				7B0A64D42A623B2C0091A24A /* 8-Bit__Newest_.sf2 */,
 				7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */,
 				7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */,
 				7B2807942A5508D200C70EF4 /* Mechanical metronome - Low.aif */,

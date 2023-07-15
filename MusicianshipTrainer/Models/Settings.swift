@@ -2,16 +2,17 @@ import Foundation
 import SwiftUI
 
 enum UserDefaultKeys {
-    static let selectedColor = "SelectedColor"
+    static let selectedColorScore = "SelectedColorScore"
+    static let selectedColorInstructions = "SelectedColorInstructions"
 }
 
 extension UserDefaults {
-    func setSelectedColor(_ color: Color) {
-        set(color.rgbData, forKey: UserDefaultKeys.selectedColor)
+    func setSelectedColor(key:String, _ color: Color) {
+        set(color.rgbData, forKey: key)
     }
 
-    func getSelectedColor() -> Color? {
-        guard let data = data(forKey: UserDefaultKeys.selectedColor) else { return nil }
+    func getSelectedColor(key:String) -> Color? {
+        guard let data = data(forKey: key) else { return nil }
         return Color.rgbDataToColor(data)
     }
 }
@@ -28,5 +29,26 @@ extension Color {
             return nil
         }
         return Color(uiColor)
+    }
+}
+
+class Settings {
+    static let shared = Settings()
+    let id = UUID()
+    
+    init() {
+        if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorScore) {
+            print("Retrieved color: \(retrievedColor)")
+            UIGlobals.colorScore = retrievedColor
+        }
+        if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorInstructions) {
+            print("Retrieved color: \(retrievedColor)")
+            UIGlobals.colorInstructions = retrievedColor
+        }
+    }
+    
+    func saveColours() {
+        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorScore, UIGlobals.colorScore)
+        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorInstructions, UIGlobals.colorInstructions)
     }
 }

@@ -115,27 +115,49 @@ class Staff : ObservableObject {
             
             var placement = NoteStaffPlacement(name: "X", offsetFroMidLine: 100)
             noteStaffPlacement.append(placement)
-            if noteValue <= middleNoteValue - 12 || noteValue >= middleNoteValue + 12 {
+            if noteValue < middleNoteValue - 6 * Note.OCTAVE || noteValue >= middleNoteValue + 6 * Note.OCTAVE {
                 continue
             }
-            var diff = noteValue - middleNoteValue
-            var noteOffsetInScale = 0
-            if diff > 0 {
-                noteOffsetInScale = noteOffsets[diff - 1]
+            if self.type == .bass {
+                if noteValue == 48 {
+                    var debug = 72
+                }
+            }
+            var offsetFromTonic = (noteValue - Note.MIDDLE_C) % Note.OCTAVE
+            if offsetFromTonic < 0 {
+                offsetFromTonic = noteOffsets.count + offsetFromTonic
+            }
+            var offsetFromMidLine = noteOffsets[offsetFromTonic]
+            var octave:Int
+            var referenceNote = type == .treble ? Note.MIDDLE_C : Note.MIDDLE_C - 2 * Note.OCTAVE
+            if noteValue >= referenceNote {
+                octave = (noteValue - referenceNote) / Note.OCTAVE
             }
             else {
-                let n = noteOffsets.count + diff - 1
-                if diff >= n {
-                    diff = diff - 12
-                }
-                noteOffsetInScale = noteOffsets[n]
-                noteOffsetInScale =  noteOffsetInScale - 7
+                octave = (referenceNote - noteValue) / Note.OCTAVE
+                octave -= 1
             }
+            offsetFromMidLine += (octave - 1) * 7 //8 offsets to next octave
+            offsetFromMidLine += type == .treble ? 1 : -1
+            placement = NoteStaffPlacement(name: "X", offsetFroMidLine: offsetFromMidLine)
+
             
-            //var name = ""
-            //name = "X" //String(Note.noteNames[(noteOffsetInScale+2) % Note.noteNames.count])
-            let offset = noteOffsetInScale + 1
-            placement = NoteStaffPlacement(name: "X", offsetFroMidLine: offset)
+//            var diff = noteValue - middleNoteValue
+//            var noteOffsetInScale = 0
+//            if diff > 0 {
+//                noteOffsetInScale = noteOffsets[diff - 1]
+//            }
+//            else {
+//                let n = noteOffsets.count + diff - 1
+//                if diff >= n {
+//                    diff = diff - 12
+//                }
+//                noteOffsetInScale = noteOffsets[n]
+//                noteOffsetInScale =  noteOffsetInScale - 7
+//            }
+            
+            //let offset = noteOffsetInScale + 1
+            //placement = NoteStaffPlacement(name: "X", offsetFroMidLine: offset)
             noteStaffPlacement[noteValue] = placement
         }
     }

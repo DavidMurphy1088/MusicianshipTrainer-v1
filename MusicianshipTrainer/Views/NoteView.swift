@@ -62,6 +62,33 @@ struct NoteView: View {
         }
     }
     
+    struct LedgerLine:Hashable {
+        var offsetVertical:Double
+    }
+    
+    func getLedgerLines(note:Note, noteWidth:Double, lineSpacing:Double) -> [LedgerLine] {
+        var result:[LedgerLine] = []
+        if note.midiNumber >= 81 { //A5
+            result.append(LedgerLine(offsetVertical: 3 * lineSpacing * -1.0))
+            if note.midiNumber >= 84 {
+                result.append(LedgerLine(offsetVertical: 4 * lineSpacing * -1.0))
+            }
+            if note.midiNumber >= 88 {
+                result.append(LedgerLine(offsetVertical: 5 * lineSpacing * -1.0))
+            }
+        }
+        if note.midiNumber <= 60 {
+            result.append(LedgerLine(offsetVertical: 3 * lineSpacing * 1.0))
+            if note.midiNumber <= 58 {
+                result.append(LedgerLine(offsetVertical: 4 * lineSpacing * 1.0))
+            }
+            if note.midiNumber <= 54 {
+                result.append(LedgerLine(offsetVertical: 5 * lineSpacing * 1.0))
+            }
+        }
+        return result
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             let noteFrameWidth = geometry.size.width * 1.0 //center the note in the space allocated by the parent for this note's view
@@ -116,23 +143,23 @@ struct NoteView: View {
                             .foregroundColor(note.getColor(staff: staff))
                     }
                     
-                    //ledger line hack - totally not generalized :(
                     if !note.isOnlyRhythmNote {
                         if staff.type == .treble {
-                            if note.midiNumber <= Note.MIDDLE_C {
-                                //let xOffset:Double = UIDevice.current.userInterfaceIdiom == .phone ? -Double(lineSpacing) / 2.0 : noteFrameWidth / 6.0
-                                let xOffset:Double = UIDevice.current.userInterfaceIdiom == .phone ? -Double(lineSpacing) / 2.0 : noteFrameWidth / 3.5
+                            ForEach(getLedgerLines(note: note, noteWidth: noteWidth, lineSpacing: lineSpacing), id: \.self) { line in
+                                let y = geometry.size.height/2.0 + line.offsetVertical
+                                let x = noteFrameWidth/2 - noteWidth
                                 Path { path in
-                                    path.move(to: CGPoint(x: (xOffset), y: noteEllipseMidpoint))
-                                    path.addLine(to: CGPoint(x: (noteFrameWidth - xOffset), y: noteEllipseMidpoint))
+                                    path.move(to: CGPoint(x: x, y: y))
+                                    path.addLine(to: CGPoint(x: x + 2 * noteWidth, y: y))
                                 }
                                 .stroke(note.getColor(staff: staff), lineWidth: 1)
+                                //.stroke(Color.red, lineWidth: 2)
                             }
                         }
                     }
                 }
                 // hilite
-                if note.hilite {
+                if note.hilite && staff.type == .treble {
                     Ellipse()
                         .stroke(Color.blue, lineWidth: 3) // minim or use foreground color for 1/4 note
                         .frame(width: noteWidth * 1.8, height: CGFloat(Double(lineSpacing) * 1.8))

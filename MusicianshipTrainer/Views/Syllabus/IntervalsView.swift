@@ -73,7 +73,7 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                     timeSlice.addNote(n: note)
                     intervalNotes.append(note)
                     if mode == .intervalAural {
-                        chord.addNote(note: Note(num: note.midiNumber, value: 2))
+                        chord.addNote(note: Note(num: note.midiNumber, value: 2, accidental: note.accidental))
                     }
                 }
                 if entry is TimeSignature {
@@ -111,7 +111,8 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .stroke(scoreWasPlayed ? Color.black : Color.clear, lineWidth: 1)
-                                    .background(selectedIntervalIndex == index ? Color(.systemTeal) : Color.clear)
+                                    //.background(selectedIntervalIndex == index ? Color(.systemTeal) : Color.clear)
+                                    .background(selectedIntervalIndex == index ? UIGlobals.colorInstructions : Color.clear)
                             )
                     }
                     .padding()
@@ -126,15 +127,12 @@ struct IntervalPresentView: View, QuestionPartProtocol {
             VStack {
                 if mode == .intervalVisual {
                     ScoreSpacerView()
-//<<<<<<< HEAD
                     ScoreSpacerView()
                     ScoreView(score: score).padding()
                     ScoreSpacerView()
                     ScoreSpacerView()
-//=======
                     //ScoreView(score: score).padding()
                     ScoreSpacerView()
-//>>>>>>> main
                 }
                 
                 HStack {
@@ -149,7 +147,8 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                                 .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.cornerRadius).padding()
                         }
                         .padding()
-                        .background(UIGlobals.backgroundColorHiliteBox)
+                        //.background(UIGlobals.backgroundColorHiliteBox)
+                        .background(UIGlobals.colorInstructions)
                         .padding()
                     }
                 }
@@ -183,7 +182,10 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                             }
                         }) {
                             Text("Check Your Answer")
-                                .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.cornerRadius).padding()
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.blue)
+                                .cornerRadius(UIGlobals.cornerRadius).padding()
                         }
                         .padding()
                     }
@@ -191,12 +193,9 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                 .overlay(
                     RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
                 )
-                .background(UIGlobals.backgroundColorHiliteBox)
+                .background(UIGlobals.colorInstructions)
                 .padding()
                 Spacer()
-//                if logger.status.count > 0 {
-//                    Text(logger.status).foregroundColor(logger.isError ? .red : .gray)
-                //}
             }
         )
     }

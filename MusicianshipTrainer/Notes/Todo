@@ -1,20 +1,28 @@
 --TODO
+
+//sight reading no base score!!!!
+verify commit with new SF2
+SF2 channels???
+fikcer in title image
+
 load instructions from cloud
 //load tips tricks from cloud
-save selected colors
 
-//sorting on examples
-color background
-prod mode but allow refresh
-ledger lines on high notes
-accidnts dont show on chords (aurala test)
+//ledger lines on high notes
+
+//accidnts dont show on chords (aurala test)
+
 stem direction on chord - aural 39
 low notes aural example 23
 
-set prod mode
+//sorting on examples
+color background
+save selected colors
+//prod mode but allow refresh
 
-start at NZMEB (no AMEB)
-(set prod mode)
+config icon
+
+set prod mode
 
 do a simple example to understand geometry
 make a view builder that can render all text in buttons in one style

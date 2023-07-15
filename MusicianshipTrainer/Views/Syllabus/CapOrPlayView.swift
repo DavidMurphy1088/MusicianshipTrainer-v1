@@ -24,7 +24,8 @@ struct PracticeToolView: View {
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
-        .background(UIGlobals.backgroundColorLighter)
+        //.background(UIGlobals.backgroundColorLighter)
+        .background(UIGlobals.colorInstructions)
         .padding()
     }
 }
@@ -117,12 +118,7 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
         self.score = score
         self.contentSection = contentSection
         self.mode = mode
-        if mode == .melodyPlay {
-            let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: mode == .rhythmVisualClap ? 1 : 5)
-            bstaff.isHidden = true
-            score.setStaff(num: 1, staff: bstaff)
-            //score.hiddenStaffNo = 1
-        }
+        
         let exampleData = exampleData.get(contentSection: contentSection) //(contentSection.parent!.name, contentSection.name)
         self.rhythmHeard = self.mode == .rhythmVisualClap ? true : false
         var staff:Staff?
@@ -153,7 +149,7 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
             }
         }
         if staff == nil {
-            //TODO remove when conversiont to cloud content is done
+            //TODO remove when conversion to cloud content is done
             staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (mode == .rhythmVisualClap || mode == .rhythmEchoClap) ? 1 : 5)
             score.setStaff(num: 0, staff: staff!)
         }
@@ -162,6 +158,10 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
                 timeSlice.addTonicChord()
                 timeSlice.setTags(high: score.key.keySig.accidentalCount > 0 ? "G" : "C", low: "I")
             }
+            let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: mode == .rhythmVisualClap ? 1 : 5)
+            bstaff.isHidden = true
+            score.setStaff(num: 1, staff: bstaff)
+            //score.hiddenStaffNo = 1
         }
     }
 
@@ -244,8 +244,8 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
                             .overlay(
                                 RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
                             )
-                            .background(UIGlobals.backgroundColorLighter)
-
+                            //.background(UIGlobals.backgroundColorLighter)
+                            //.background(UIGlobals.backgroundColorHiliteBox)
 
                             Button(action: {
                                 answer.setState(.recording)
@@ -514,7 +514,8 @@ struct ClapOrPlayView: View {
                 Text(errMsg)
             }
         }
-        .background(UIGlobals.backgroundColorExamples)
+        //.background(UIGlobals.backgroundColorExamples)
+        //.background(UIGlobals.colorInstructions)
     }
 
 }
