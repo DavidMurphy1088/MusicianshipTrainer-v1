@@ -514,8 +514,7 @@ struct ClapOrPlayView: View {
                 Text(errMsg)
             }
         }
-        //.background(UIGlobals.backgroundColorExamples)
-        //.background(UIGlobals.colorInstructions)
+        .background(UIGlobals.colorBackground)
     }
 
 }

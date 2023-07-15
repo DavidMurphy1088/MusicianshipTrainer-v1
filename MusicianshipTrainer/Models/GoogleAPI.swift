@@ -182,7 +182,9 @@ class GoogleAPI {
                         onDone(.success, textContent)
                     }
                     catch let error {
-                        self.logger.reportError(self, "Cannot parse \(name) \(error.localizedDescription)")
+                        let str = String(data: data, encoding: .utf8)
+                        print(str)
+                        self.logger.reportError(self, "Cannot parse \(name) \(error.localizedDescription) data:\(str)")
                         onDone(.failed, nil)
                     }
                 }

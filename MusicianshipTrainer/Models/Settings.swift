@@ -4,6 +4,7 @@ import SwiftUI
 enum UserDefaultKeys {
     static let selectedColorScore = "SelectedColorScore"
     static let selectedColorInstructions = "SelectedColorInstructions"
+    static let selectedColorBackground = "SelectedColorBackground"
 }
 
 extension UserDefaults {
@@ -38,17 +39,19 @@ class Settings {
     
     init() {
         if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorScore) {
-            print("Retrieved color: \(retrievedColor)")
             UIGlobals.colorScore = retrievedColor
         }
         if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorInstructions) {
-            print("Retrieved color: \(retrievedColor)")
             UIGlobals.colorInstructions = retrievedColor
+        }
+        if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorBackground) {
+            UIGlobals.colorBackground = retrievedColor
         }
     }
     
     func saveColours() {
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorScore, UIGlobals.colorScore)
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorInstructions, UIGlobals.colorInstructions)
+        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorBackground, UIGlobals.colorBackground)
     }
 }

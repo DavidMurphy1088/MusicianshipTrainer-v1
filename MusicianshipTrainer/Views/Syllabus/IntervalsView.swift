@@ -310,6 +310,8 @@ struct IntervalView: View {
                 Text(errMsg)
             }
         }
+        .background(UIGlobals.colorBackground)
+
     }
 }
 

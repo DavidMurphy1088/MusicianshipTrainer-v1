@@ -3,9 +3,11 @@ import CoreData
 
 class UIGlobals {
     static var colorDefault = Color.blue.opacity(0.10)
-    
+    static var colorBackgroundDefault = Color.white
+
     static var colorScore = UIGlobals.colorDefault
     static var colorInstructions = UIGlobals.colorDefault
+    static var colorBackground = colorBackgroundDefault
 
     //static var backgroundColorHiliteBox = Color.blue.opacity(0.10) //0.04
     //static let backgroundColorLighter = Color.blue.opacity(0.03)

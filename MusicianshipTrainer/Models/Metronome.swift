@@ -5,6 +5,7 @@ import AVFoundation
 class Metronome: ObservableObject {
     
     static private var shared:Metronome = Metronome()
+    static private var nextInstrument = 0
     
     let id = UUID()
     @Published var clapCounter = 0
@@ -182,7 +183,15 @@ class Metronome: ObservableObject {
     }
     
     func stopPlayingScore() {
-        self.score = nil
+        DispatchQueue.main.async {
+            self.score = nil
+            let audioUnitSampler:AVAudioUnitSampler = self.getMidiAudioSampler()
+            for m in 58...74 {
+                audioUnitSampler.stopNote(UInt8(m), onChannel: UInt8(0))
+            }
+            audioUnitSampler.reset()
+        }
+
     }
 
     //private func startThreadRunning(audioTicker:AudioSamplerPlayer?, audioSamplerPlayerMIDI:AVAudioUnitSampler?, numberOfTicks:Int? = nil, onDone: (()->Void)? = nil) {
@@ -224,7 +233,7 @@ class Metronome: ObservableObject {
                     if let score = score {
                         firstNote = false
                         if let timeSlice = nextScoreTimeSlice {
-                            let channel = 0
+                            //let channelx = 0
                             var noteInChordNum = 0
                             for note in timeSlice.notes {
                                 if currentNoteDuration < note.getValue() {
@@ -242,7 +251,7 @@ class Metronome: ObservableObject {
                                 else {
                                     //print(" --- Score play note", loopCtr, "next score time slice", nextScoreTimeSlice)
                                     if let audioPlayer = audioSamplerPlayerMIDI {
-                                        audioPlayer.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(channel))
+                                        audioPlayer.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
                                     }
                                 }
                                 if noteInChordNum == 0 && note.getValue() < 1.0 {
@@ -354,7 +363,7 @@ class Metronome: ObservableObject {
         //https://www.rockhoppertech.com/blog/the-great-avaudiounitsampler-workout/#soundfont
         //https://sites.google.com/site/soundfonts4u/
         let soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
-        //let soundFontNames = [("Piano", "8-Bit__Newest_"), ("Guitar", "GuitarAcoustic")]
+        //let soundFontNames = [("Piano", "marcato strings"), ("Guitar", "GuitarAcoustic")]
         //var soundFontNames = [("Piano", "Dore Mark's (SF) Fazioli-v2.5.sf2"), ("Guitar", "GuitarAcoustic")]
         let samplerFileName = soundFontNames[0].1
         
@@ -365,16 +374,19 @@ class Metronome: ObservableObject {
         //18May23 -For some unknown reason and after hours of investiagtion this loadSoundbank must oocur before every play, not jut at init time
         
         if let url = Bundle.main.url(forResource:samplerFileName, withExtension:"sf2") {
-            for instrumentProgramNumber in 0..<256 {
+            let ins = 0
+            for instrumentProgramNumber in ins..<256 {
                 do {
                     try midiSampler.loadSoundBankInstrument(at: url, program: UInt8(instrumentProgramNumber), bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB), bankLSB: UInt8(kAUSampler_DefaultBankLSB))
-                    //print(midiSampler.)
+
+                    print("SF2", instrumentProgramNumber)
+                    //Metronome.nextInstrument += 1
                     break
                 }
                 catch {
                 }
+                
             }
-
         }
         else {
             Logger.logger.reportError(self, "Cannot loadSoundBankInstrument \(samplerFileName)")

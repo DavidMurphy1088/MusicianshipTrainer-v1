@@ -64,6 +64,7 @@ struct ContentNavigationView: View {
                     .sheet(isPresented: $isShowingConfiguration) {
                         ConfigurationView(isPresented: $isShowingConfiguration,
                                           colorScore: UIGlobals.colorScore,
+                                          colorBackground: UIGlobals.colorBackground,
                                           colorInstructions: UIGlobals.colorInstructions)
                     }
                 }
@@ -99,6 +100,7 @@ struct ContentNavigationView: View {
                 .sheet(isPresented: $isShowingConfiguration) {
                     ConfigurationView(isPresented: $isShowingConfiguration,
                                       colorScore: UIGlobals.colorScore,
+                                      colorBackground: UIGlobals.colorBackground,
                                       colorInstructions: UIGlobals.colorInstructions
                                     )
                 }

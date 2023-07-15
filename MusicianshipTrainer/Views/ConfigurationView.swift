@@ -5,6 +5,7 @@ import SwiftUI
 struct ConfigurationView: View {
     @Binding var isPresented: Bool
     @State var colorScore:Color
+    @State var colorBackground:Color
     @State var colorInstructions:Color// = Color.white
 
     var body: some View {
@@ -16,7 +17,7 @@ struct ConfigurationView: View {
 //                        .resizable()
 //                        .scaledToFit()
 //                        .frame(width: 64)
-                    Text("Configuration").font(.title).padding()
+                    Text("Your Preferences").font(.title).padding()
 //                }
 //                .overlay(
 //                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
@@ -35,41 +36,43 @@ struct ConfigurationView: View {
                 HStack {
                     VStack {
                         Circle()
+                            .fill(colorBackground)
+                            .frame(width: 100, height: 100)
+                        
+                        ColorPicker("Background : Select a Colour", selection: $colorBackground, supportsOpacity: false)
+                        
+                        Button("Reset") {
+                            colorBackground = UIGlobals.colorBackgroundDefault
+                        }
+                    }
+                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
+
+                    VStack {
+                        Circle()
                             .fill(colorScore)
                             .frame(width: 100, height: 100)
                         
                         ColorPicker("Score : Select a Colour", selection: $colorScore, supportsOpacity: false)
-                            //.padding()
                         
                         Button("Reset") {
                             colorScore = UIGlobals.colorDefault
                         }
                     }
-                    .padding()
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.blue, lineWidth: 2)
-                    )
-                    .padding()
-                    
+                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
+
                     VStack {
                         Circle()
                             .fill(colorInstructions)
                             .frame(width: 100, height: 100)
                         
                         ColorPicker("Instructions : Select a Colour", selection: $colorInstructions, supportsOpacity: false)
-                            //.padding()
+
                         Button("Reset") {
                             colorInstructions = UIGlobals.colorInstructions
                         }
 
                     }
-                    .padding()
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.blue, lineWidth: 2)
-                    )
-                    .padding()
+                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
                 }
 
                 
@@ -79,8 +82,8 @@ struct ConfigurationView: View {
                     Button("Ok") {
                         UIGlobals.colorScore = colorScore
                         UIGlobals.colorInstructions = colorInstructions
+                        UIGlobals.colorBackground = colorBackground
                         Settings.shared.saveColours()
-                        
                         isPresented = false
                     }
                     .padding()
@@ -121,27 +124,3 @@ struct ConfigSelectInstrument: View {
     }
 }
 
-//struct OptionSelectionView: View {
-//    let metro = Metronome.getMetronomeWithCurrentSettings()
-//    @Binding var selectedOption: String?
-//    @Environment(\.presentationMode) var presentationMode
-//
-//    var body: some View {
-//        List {
-//            ForEach(metro.soundFontNames.indices, id: \.self) { index in
-//                Button(action: {
-//                    metro.samplerFileName = metro.soundFontNames[index].1
-//                    //if let presentationMode = presentationMode {
-//                                presentationMode.wrappedValue.dismiss()
-//                            //}
-//
-//                }) {
-//                    VStack(alignment: .leading) {
-//                        Text("Index: \(metro.soundFontNames[index].0)")
-//                     }
-//                }
-//            }
-//        }
-//        .navigationTitle("Select Instrument")
-//    }
-//}
