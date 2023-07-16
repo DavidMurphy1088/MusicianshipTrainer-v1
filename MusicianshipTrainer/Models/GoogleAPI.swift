@@ -32,8 +32,6 @@ class GoogleAPI {
     static let shared = GoogleAPI()
     let logger = Logger.logger
     
-    //typealias MyFunctionType = (ReturnDataTarget, DataStatus, String) -> Void
-
     func getGoogleAPIData(key:String) -> String? {
         var data:String? = nil
         let pListName = "GoogleAPI"
@@ -320,11 +318,7 @@ class GoogleAPI {
 
     //================================== Google Docs document using the Google Docs API and the OAuth2 access token:
 
-//        func fetchGoogleResourceContent(callType: OAuthCallType,
-//                                        resourceId: String, with accessToken: String,
-//                                        onDone: @escaping (_ requestStatus:RequestStatus, Data?) -> Void) {
-        func fetchGoogleResourceContent(request: DataRequest,
-                                            //resourceId: String, with accessToken: String,
+    func fetchGoogleResourceContent(request: DataRequest,
                                             onDone: @escaping (_ requestStatus:RequestStatus, Data?) -> Void) {
             guard let accessToken = request.accessToken else {
                 self.logger.reportError(self, "No access token")
@@ -334,12 +328,7 @@ class GoogleAPI {
                                         "Accept": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
             
             let url:String?
-//            if request.callType == .file {
-//                url = "https://www.googleapis.com/drive/v3/files/\(request.id)?alt=media"
-//            }
-//            else {
-//                url = "https://www.googleapis.com/drive/v3/files?q='\(request.id)'+in+parents"
-//            }
+
             switch request.callType {
             case .file:
                 url = "https://www.googleapis.com/drive/v3/files/\(request.id)?alt=media"
@@ -347,8 +336,6 @@ class GoogleAPI {
                 url = "https://www.googleapis.com/drive/v3/files?q='\(request.id)'+in+parents"
             case .googleDoc:
                 url = "https://docs.googleapis.com/v1/documents/\(request.id)"
-            //default:
-                //url = nil
             }
             guard let url = url else {
                 self.logger.reportError(self, "No URL for request")
@@ -372,193 +359,4 @@ class GoogleAPI {
         }
     }
     
-    //    func authenticateWithServiceAccount() {
-    //        var jsonData1:Data
-    //        if let filePath = Bundle.main.path(forResource: "googl-service-account-keys", ofType: "json") {
-    //            let fileURL = URL(fileURLWithPath: filePath)
-    //            do {
-    //                jsonData1 = try Data(contentsOf: fileURL)
-    //                //return data
-    //            } catch {
-    //                print("Error loading data from file: \(error.localizedDescription)")
-    //            }
-    //        }
-    //
-    //
-    //        let service = GTLRDriveService()
-    //
-    //        // Configure the service account authentication
-    //        service.authorizer = try? GTMAppAuthFetcherAuthorization(fromKeychainForName: "YOUR_KEYCHAIN_NAME")
-    //
-    //        // Make API requests using the Google Drive service
-    //
-    //        let query = GTLRDriveQuery_FilesList.query()
-    //        query.pageSize = 10
-    //
-    //        service.executeQuery(query) { (ticket, files, error) in
-    //            if let error = error {
-    //                print("Error listing files: \(error.localizedDescription)")
-    //                return
-    //            }
-    //
-    //            if let files = files as? GTLRDrive_FileList, let items = files.files {
-    //                for item in items {
-    //                    print(item.name ?? "Unknown")
-    //                }
-    //            }
-    //        }
-    //    }
-    
-    //    func getDriveFileId(id:String, onDone: @escaping (_ dataStatus:DataStatus, [[String]]?) -> Void) {
-    //        //This will give you metadata about the file. To get the actual file content, you would typically use the alt=media query parameter, but it doesn't
-    //        //work with API Keys. It requires OAuth 2.0 authentication, as the file content is considered sensitive data even if the file is public.
-    //        //Remember, using an API key has security implications and limitations. It only provides access to publicly accessible data and doesn't allow for modification
-    //        //of files or access to more sensitive data.
-    //        //For full functionality, OAuth 2.0 is the recommended method to access files on Google Drive programmatically.
-    //
-    //        var url = "https://drive.google.com/file/d/\(id)/view"
-    //        url += "?key=AIzaSyAE2BUYT57itqrYlVR4wIg8yszz9J88nQ8" //API key
-    //        guard let url = URL(string: url) else {
-    //            print("Invalid URL")
-    //            logger.reportError(self, "Invalid url \(url)")
-    //            onDone(DataStatus.failed, nil)
-    //            return
-    //        }
-    //        let session = URLSession.shared
-    //
-    //        let task = session.dataTask(with: url) { (data, response, error) in
-    //            if let error = error {
-    //                //print("Error: \(error.localizedDescription)")
-    //                self.logger.reportError(self, "dataTask Error \(error.localizedDescription)")
-    //                onDone(DataStatus.failed, nil)
-    //            } else if let httpResponse = response as? HTTPURLResponse {
-    //                print("Status code: \(httpResponse.statusCode)")
-    //
-    //                if let data = data {
-    //                    // Process the response data
-    //                    let responseString = String(data: data, encoding: .utf8)
-    //                    //print("Response: \(responseString ?? "")")
-    //                    if httpResponse.statusCode == 200 {
-    //                        guard let jsonData = responseString!.data(using: .utf8) else {
-    //                            self.logger.reportError(self, "Invalid JSON data")
-    //                            onDone(DataStatus.failed, nil)
-    //                            return
-    //                        }
-    //                        do {
-    //                            let sheet = try JSONDecoder().decode(JSONSheet.self, from: jsonData)
-    //                            onDone(DataStatus.ready, sheet.values)
-    //
-    //                        } catch {
-    //                            self.logger.reportError(self, "JSON Decode Error \(error.localizedDescription)")
-    //                            onDone(DataStatus.failed, nil)
-    //                        }
-    //                    }
-    //                    else {
-    //                        self.logger.reportError(self, "HTTP response code \(httpResponse.statusCode) \(responseString)")
-    //                        onDone(DataStatus.failed, nil)
-    //                    }
-    //                }
-    //            }
-    //            //}
-    //        }
-    //        task.resume()
-    //    }
-    
-    //func getToken1() {
-//        // ================= Get a JWT token for your service account: ===================
-//
-//        let header = Header(kid: "...")
-//
-//        let claims = ClaimsStandardJWT(
-//            iss: "...",
-//            aud: ["https://www.googleapis.com/oauth2/v4/token"],
-//            exp: Date().addingTimeInterval(3600),
-//            iat: Date()
-//        )
-//
-//        var jwt = JWT(header: header, claims: claims)
-//
-//        let privateKey = """
-//        -----BEGIN PRIVATE KEY-----...
-//        -----END PRIVATE KEY-----
-//        """
-//        guard let privateKeyData = privateKey.data(using: .utf8) else {
-//            print("Failed to convert string to data")
-//            return
-//        }
-//        var signedJWT = ""
-//        do {
-//            signedJWT = try jwt.sign(using: .rs256(privateKey: privateKeyData))
-//        } catch  {
-//            print("Failed to sign JWT: \(error)")
-//        }
-//        let headers: HTTPHeaders = ["Content-Type": "application/x-www-form-urlencoded"]
-//
-//        let params: Parameters = [
-//            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
-//            "assertion": signedJWT,
-//            "scope": "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/documents.readonly"
-//        ]
-//
-//        AF.request("https://oauth2.googleapis.com/token",
-//                   method: .post,
-//                   parameters: params,
-//                   encoding: URLEncoding.httpBody,
-//                   headers: headers).responseJSON { response in
-//            switch response.result {
-//            case .success(let value):
-//                let json = value as? [String: Any]
-//                if let json = json {
-//                    let accessToken = json["access_token"] as? String
-//                    if let accessToken = accessToken {
-//                        //fetchGoogleDocContent(with: accessToken)
-//                    }
-//                }
-//            case .failure(let error):
-//                print("Error getting access token: \(error)")
-//            }
-//        }
-//    }
-//
-    //    func getDocument(onDone: @escaping (_ dataStatus:DataStatus, [[String]]?) -> Void) {
-    //        var url = "https://docs.googleapis.com/v1/documents/"
-    //        url += "1ywIemFFkPwh-jzIReU9qAu511qKeOrJBa-bTjHQ6rTM" //document id
-    //        url += "?key=AIzaSyAE2BUYT57itqrYlVR4wIg8yszz9J88nQ8" //API key
-    //        guard let url = URL(string: url) else {
-    //            print("Invalid URL")
-    //            logger.reportError(self, "Invalid url \(url)")
-    //            onDone(DataStatus.failed, nil)
-    //            return
-    //        }
-    //        let session = URLSession.shared
-    //
-    //        let task = session.dataTask(with: url) { (data, response, error) in
-    //            if let error = error {
-    //                print("Error: \(error.localizedDescription)")
-    //                self.logger.reportError(self, "dataTask Error \(error.localizedDescription)")
-    //                onDone(DataStatus.failed, nil)
-    //            } else if let httpResponse = response as? HTTPURLResponse {
-    //                print("Status code: \(httpResponse.statusCode)")
-    //                if let data = data {
-    //                    // Process the response data
-    //                    let responseString = String(data: data, encoding: .utf8)
-    //                    print("Response: \(responseString ?? "")")
-    //                    guard let jsonData = responseString!.data(using: .utf8) else {
-    //                        self.logger.reportError(self, "Invalid JSON data")
-    //                        onDone(DataStatus.failed, nil)
-    //                        return
-    //                    }
-    //                    do {
-    //                        let sheet = try JSONDecoder().decode(JSONSheet.self, from: jsonData)
-    //                        onDone(DataStatus.ready, sheet.values)
-    //
-    //                    } catch {
-    //                        self.logger.reportError(self, "JSON Decode Error \(error.localizedDescription)")
-    //                        onDone(DataStatus.failed, nil)
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        task.resume()
-    //    }
 }

@@ -11,7 +11,7 @@ class ContentSection: Identifiable {
     var level:Int
     var instructions:String?
     
-    init(parent:ContentSection?, name:String, type:String, isActive:Bool = true) {
+    init(parent:ContentSection?, name:String, type:String, instructions:String?, isActive:Bool = true) {
         self.parent = parent
         self.name = name
         self.isActive = isActive
@@ -25,6 +25,7 @@ class ContentSection: Identifiable {
             par = par!.parent
         }
         self.level = level
+        self.instructions = instructions
 //        if let title = title {
 //            self.title = title
 //        }
@@ -139,6 +140,14 @@ class ContentSection: Identifiable {
         return title
     }
 
+    func getChildSectionByName(name: String) -> ContentSection? {
+        for child in self.subSections {
+            if child.name == name {
+                return child
+            }
+        }
+        return nil
+    }
 }
 
 class Syllabus {

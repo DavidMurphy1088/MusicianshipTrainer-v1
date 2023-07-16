@@ -9,7 +9,8 @@ enum LaunchScreenStep {
 
 final class LaunchScreenStateManager: ObservableObject {
 
-@MainActor @Published private(set) var state: LaunchScreenStep = .firstStep
+    @MainActor @Published private(set) var state: LaunchScreenStep = .firstStep
+    
     @MainActor func dismiss() {
         Task {
             state = .secondStep
@@ -46,6 +47,8 @@ class Opacity : ObservableObject {
 }
 
 struct LaunchScreenView: View {
+    static var staticId = 0
+    var id = 0
     @ObservedObject var opacity:Opacity
     @State var durationSeconds:Double
     @EnvironmentObject private var launchScreenState: LaunchScreenStateManager // Mark 1
@@ -53,6 +56,8 @@ struct LaunchScreenView: View {
     init(launchTimeSecs:Double) {
         self.opacity = Opacity(launchTimeSecs: launchTimeSecs)
         self.durationSeconds = launchTimeSecs
+        self.id = LaunchScreenView.staticId
+        LaunchScreenView.staticId += 1
     }
 
     func appVersion() -> String {
@@ -61,48 +66,50 @@ struct LaunchScreenView: View {
         return "\(appVersion).\(buildNumber)"
     }
     
+    func log() {
+        print("LaunchScreenView ", "id:", id, "state:", launchScreenState.state, "opac:", opacity.imageOpacity, "dur:", durationSeconds, "id:")
+    }
+    
     @ViewBuilder
     private var image: some View {  // Mark 3
         GeometryReader { geo in
-            ZStack {
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Image("nzmeb_logo_transparent")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: geo.size.width * 0.75)
-                            .opacity(self.opacity.imageOpacity)
-                        //.border(Color(.red))
-                        Spacer()
-                    }
-                    Spacer()
-                }
-                VStack(alignment: .center) {
+            //let x = log()
+            //hack: for some reason there are 2 instances of LaunchScreenView. The first starts showing too early ??
+            if id == 1 {
+                ZStack {
                     VStack {
-                        Text("NZMEB Musicianship Trainer").font(.title)
-                        Text("")
-                        Text("© 2023 MusicMaster LLC.").font(.title2)
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Image("nzmeb_logo_transparent")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: geo.size.width * 0.75)
+                                .opacity(self.opacity.imageOpacity)
+                            Spacer()
+                        }
+                        Spacer()
                     }
-                    .position(x: geo.size.width * 0.5, y: geo.size.height * 0.85)
-                    .opacity(self.opacity.imageOpacity)
-                    
-                    Text("Version \(appVersion())")
+                    VStack(alignment: .center) {
+                        VStack {
+                            Text("NZMEB Musicianship Trainer").font(.title)
+                            Text("")
+                            Text("© 2023 MusicMaster LLC.").font(.title2)
+                        }
+                        .position(x: geo.size.width * 0.5, y: geo.size.height * 0.85)
+                        .opacity(self.opacity.imageOpacity)
+                        
+                        Text("Version \(appVersion())")
+                    }
                 }
             }
         }
     }
     
-    @ViewBuilder
-    private var backgroundColor: some View {  // Mark 3
-        //Color.orange.ignoresSafeArea()
-        //Color.cyan.ignoresSafeArea()
-        //Color.gray.ignoresSafeArea()
-        //Color.blue.ignoresSafeArea()
-        //Color.secondary.ignoresSafeArea()
-        Color(red: 150 / 255, green: 210 / 255, blue: 225 / 255).ignoresSafeArea()
-    }
+//    @ViewBuilder
+//    private var backgroundColor: some View {  // Mark 3
+//        Color(red: 150 / 255, green: 210 / 255, blue: 225 / 255).ignoresSafeArea()
+//    }
     
     var body: some View {
         ZStack {

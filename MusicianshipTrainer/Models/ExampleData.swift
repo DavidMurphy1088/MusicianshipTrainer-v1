@@ -64,8 +64,13 @@ class ExampleData : ObservableObject {
         let typeOffset = keyOffsetStart + keyDepth
         let typeDepth = 1
         let dataOffsetStart = typeOffset + typeDepth  + 1   //start of data
-
+        var rowNum = 0
+        
         for rowCells in sheetRows {
+            rowNum += 1
+//            if rowNum > 14 {
+//                rowNum = rowNum + 0
+//            }
             if rowCells.count == 0 {
                 continue
             }
@@ -119,7 +124,8 @@ class ExampleData : ObservableObject {
             let keyLevel = key.filter { $0 == "." }.count  //NZMEB is level 1 with parent the root
             
             //Maybe comment but dont delete...
-            print("\n", String(repeating: " ", count: 3 * keyLevel), "exampleData.data \(key) \tdata:\(self.dataDictionary[key]?.data)")
+            print("\n", String(repeating: " ", count: 3 * keyLevel),
+                  "exampleData.data \(key) \ttype:\(self.dataDictionary[key]?.type) data:\(self.dataDictionary[key]?.data)")
 
             var parentSection:ContentSection
             if keyLevel == 0 {
@@ -135,10 +141,14 @@ class ExampleData : ObservableObject {
             let name = components[components.count-1]
             let dictionaryData = self.dataDictionary[key]
             var type = ""
+            var instructions:String? = nil
             if let data = dictionaryData {
                 type = data.type
+                if type == "I" {
+                    instructions = data.data[0]
+                }
             }
-            let section = ContentSection(parent: parentSection, name: name, type: type)
+            let section = ContentSection(parent: parentSection, name: name, type: type, instructions: instructions)
             parentSection.subSections.append(section)
             parents[keyLevel] = section
         }

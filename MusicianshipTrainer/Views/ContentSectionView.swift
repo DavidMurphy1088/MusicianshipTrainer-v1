@@ -1,7 +1,7 @@
 import SwiftUI
 import WebKit
 
-struct ContentSectionHelpView: UIViewRepresentable {
+struct ContentSectionTipsView: UIViewRepresentable {
     var contentSection:ContentSection
     let exampleData = ExampleData.shared
     let googleAPI = GoogleAPI.shared
@@ -28,45 +28,78 @@ struct ContentSectionHelpView: UIViewRepresentable {
     }
 }
    
+struct ContentSectionInstructionsView: UIViewRepresentable {
+    var htmlDocument:String
+
+    func makeUIView(context: Context) -> WKWebView {
+        return WKWebView()
+    }
+    
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        uiView.loadHTMLString(htmlDocument.trimmingCharacters(in: .whitespaces), baseURL: nil)
+    }
+}
+
 struct ContentSectionHeaderView: View {
     var contentSection:ContentSection
+    let googleAPI = GoogleAPI()
     @State private var isHelpPresented = false
-    var help:String = "In the exam you will be shown three notes and be asked to identify the intervals as either a second or a third."
+    @State private var instructions:String? = nil
+
+    func getInstructions()  {
+        let instructionContent = contentSection.getChildSectionByName(name: "Instructions")
+        if let instructions = instructionContent?.instructions {
+            googleAPI.getDocumentByName(name: instructions) {status,document in
+                print(status, document)
+                self.instructions = document
+            }
+        }
+    }
+    
+    func getParagraphCount(html:String) -> Int {
+        let p = html.components(separatedBy: "<p>").count
+        return p - 1
+    }
     
     var body: some View {
         VStack {
             Text("\(contentSection.getTitle())").font(.title)
                 .fontWeight(.bold)
-                .padding()
-            //if contentSection.level == 1 {
-                HStack {
-//                    Text(contentSection.instructions ?? "loading...")
-//                        //.font(.body)
-//                        .font(.title2)
-//                        .multilineTextAlignment(.leading)
-//                        .lineLimit(nil)
-//                        .padding()
-                }
-                Button(action: {
-                    isHelpPresented.toggle()
-                }) {
+            
+            VStack {
+                if let instructions = self.instructions {
                     HStack {
-                        Text("Tips and Tricks")
-                        Image(systemName: "questionmark.circle")
-                            .font(.largeTitle)
+                        //Spacer()
+                        ContentSectionInstructionsView(htmlDocument: instructions)
+                            .padding(.horizontal)
+                            //.border(Color.black)
+                            .padding(.horizontal)
+                            .frame(height: getParagraphCount(html: instructions) < 2 ? 100 : 300)
+                        //Spacer()
                     }
                 }
-
-                .sheet(isPresented: $isHelpPresented) {
-                    ContentSectionHelpView(contentSection: contentSection)
-                        .padding()
-                        .background(
-                            Rectangle()
-                                .stroke(Color.blue, lineWidth: 4) 
-                        )
+            }
+            .onAppear() {
+                getInstructions()
+            }
+                        
+            Button(action: {
+                isHelpPresented.toggle()
+            }) {
+                HStack {
+                    Text("Tips and Tricks")
+                    Image(systemName: "questionmark.circle")
+                        .font(.largeTitle)
                 }
-                .padding()
-            //}
+            }
+            .sheet(isPresented: $isHelpPresented) {
+                ContentSectionTipsView(contentSection: contentSection)
+                    .padding()
+                    .background(
+                        Rectangle()
+                            .stroke(Color.blue, lineWidth: 4)
+                    )
+            }
         }
     }
 }
@@ -77,22 +110,21 @@ struct ContentSectionView: View {
     
     init(contentSection:ContentSection) {
         self.contentSection = contentSection
-        var parentType:ContentSection? = contentSection
-
-        while parentType != nil {
-//            if parentType!.sectionType == ContentSection.SectionType.testType {
-//                self.parentSection = parentType!
-//                break
-//            }
-            parentType = parentType!.parent
-        }
     }
    
     var body: some View {
         VStack {
             if contentSection.subSections.count > 0 {
+                //Spacer()
+                //GeometryReader { geometry in
                 ContentSectionHeaderView(contentSection: contentSection)
-                    .padding()
+                //.frame(height: 200)
+                //.frame(height: geometry.size.height / 3)
+                //NOTE: using geometry appears to ruin the rest of the layout - e..g huge vertical space between insructions and List
+                
+                //.padding(.vertical None)
+                //.border(Color.red)
+                //}
                 VStack {
                     List(contentSection.subSections) { subSection in
                         if !subSection.type.hasPrefix("I") {
@@ -108,6 +140,8 @@ struct ContentSectionView: View {
                         }
                     }
                 }
+                //.border(Color.green)
+                //Spacer()
             }
             else {
                 let path = contentSection.getPath()
@@ -148,8 +182,16 @@ struct ContentSectionView: View {
                 }
              }
         }
-        .navigationBarTitle(contentSection.level > 1 ? contentSection.getPathTitle() : "", displayMode: .inline)//.font(.title)
-        //.navigationBarTitle(contentSection.level > 1 ? contentSection.getPathName() : "", displayMode: .inline)//.font(.title)
+        .navigationBarTitle(getNavTitle(), displayMode: .inline)//.font(.title)
+    }
+    
+    func getNavTitle() -> String {
+        //if contentSection.level > 1 {
+            //if let parent = contentSection.parent {
+                return contentSection.getTitle()
+            //}
+        //}
+        //return ""
     }
 }
 
