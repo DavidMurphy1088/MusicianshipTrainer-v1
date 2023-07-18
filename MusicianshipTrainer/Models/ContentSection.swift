@@ -10,8 +10,9 @@ class ContentSection: Identifiable {
     var isActive:Bool
     var level:Int
     var instructions:String?
-    
-    init(parent:ContentSection?, name:String, type:String, instructions:String?, isActive:Bool = true) {
+    var tipsAndTricks:String?
+
+    init(parent:ContentSection?, name:String, type:String, instructions:String?, tipsAndTricks:String?, isActive:Bool = true) {
         self.parent = parent
         self.name = name
         self.isActive = isActive
@@ -26,56 +27,7 @@ class ContentSection: Identifiable {
         }
         self.level = level
         self.instructions = instructions
-//        if let title = title {
-//            self.title = title
-//        }
-//        else {
-//            self.title = name
-//        }
-        //let exampleData = ExampleData.shared
-//        for key in exampleData.data.keys.sorted() {
-//            let data = "" //exampleData.data[key]
-//            let keyLevels = key.filter { $0 == "." }.count  //NZMEB is level 1 with parent the root
-//            //print ("CSection-->lvl:", level, "parent:", parent?.name, "key:", key, keyLevels)
-//            print (String(repeating: " ", count: 3 * keyLevels), " create content section-->path:\(path) key:\(key) level:\(level)", key)
-//
-//            if path == key {
-//                if level < 2 {
-//                    //print ("  ADD:", String(repeating: " ", count: 3 * keyLevels), " create content section-->path:\(path) key:\(key) level:\(level)", key)
-//                    subSections.append(ContentSection(parent: self, type: SectionType.grade, name: key))
-//                }
-//            }
-//        }
-//          App will be licensed by grade now so dont show all grades
-//        if level == 0 {
-//            subSections.append(ContentSection(parent: self, type: SectionType.grade, name: "Pre Preliminary"))
-//            subSections.append(ContentSection(parent: self, type: SectionType.grade, name: "Preliminary"))
-//            subSections.append(ContentSection(parent: self, type: SectionType.grade, name: "Grade 1", isActive: true))
-//            for i in 2..<9 {
-//                subSections.append(ContentSection(parent: self, type: SectionType.grade, name: "Grade \(i)"))
-//            }
-//        }
-        
-//        if level == 0 {
-//            subSections.append(ContentSection(parent: self, type: SectionType.testType, name:"Intervals Visual", title:"Recognising Visual Intervals"))
-//            subSections.append(ContentSection(parent: self, type: SectionType.testType, name:"Clapping", title:"Tapping At Sight"))
-//            subSections.append(ContentSection(parent: self, type: SectionType.testType, name:"Playing", title: "Playing At Sight"))
-//            subSections.append(ContentSection(parent: self, type: SectionType.testType, name:"Intervals Aural", title:"Recognising Aural Intervals"))
-//            subSections.append(ContentSection(parent: self, type: SectionType.testType, name:"Echo Clap"))
-//        }
-//        let exampleData = ExampleData.shared
-//        if let parent = parent {
-//            let key = "\(parent.name).\(name).Instructions"
-//            if exampleData.data.keys.contains(key) {
-//                self.instructions = exampleData.data[key]![0]
-//            }
-//        }
-//
-//        if level == 1 {
-//            for i in 1...100 {
-//                addExample(exampleNum: i)
-//            }
-//        }
+        self.tipsAndTricks = tipsAndTricks
     }
     
     func getTitle() -> String {

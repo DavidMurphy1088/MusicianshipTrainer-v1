@@ -30,9 +30,14 @@ class DataRequest {
 
 class GoogleAPI {
     static let shared = GoogleAPI()
+    private var dataCache:[String:Data?] = [:]
     let logger = Logger.logger
     
-    func getGoogleAPIData(key:String) -> String? {
+    private init() {
+        
+    }
+    
+    private func getAPIBundleData(key:String) -> String? {
         var data:String? = nil
         let pListName = "GoogleAPI"
         if let path = Bundle.main.path(forResource: pListName, ofType: "plist"),
@@ -40,7 +45,7 @@ class GoogleAPI {
             data = dict[key] as? String
             return data
         }
-        guard let data = data else {
+        guard data != nil else {
             logger.reportError(self, "Cannot find key \(key) in \(pListName).plist")
             return nil
         }
@@ -48,7 +53,8 @@ class GoogleAPI {
     }
     
     func getExampleSheet(onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
-        let examplesSheetKey:String? = getGoogleAPIData(key: "exampleSheetID")
+        self.dataCache = [:]
+        let examplesSheetKey:String? = getAPIBundleData(key: "exampleSheetID")
         //let examplesSheetKey:String? = getGoogleAPIData(key: "test_examples")
 
         if let examplesSheetKey = examplesSheetKey {
@@ -74,7 +80,14 @@ class GoogleAPI {
     
     private func getByAPI(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         
-        var apiKey:String? = getGoogleAPIData(key: "APIKey")
+        if let key = request.targetExampleKey {
+            if let cachedData = self.dataCache[key] {
+                onDone(.success, cachedData)
+                return
+            }
+        }
+        
+        let apiKey:String? = getAPIBundleData(key: "APIKey")
         guard let apiKey = apiKey, let url = request.url else {
             logger.reportError(self, "Cannot find API key")
             onDone(.failed, nil)
@@ -101,6 +114,9 @@ class GoogleAPI {
                             onDone(.failed, nil)
                             return
                         }
+                        if let key = request.targetExampleKey {
+                            self.dataCache[key] = data
+                        }
                         onDone(.success, data)
                     }
                     else {
@@ -121,7 +137,14 @@ class GoogleAPI {
     //======================= OAuth Calls ======================
 
     func getDocumentByName(name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
-        let folderId = getGoogleAPIData(key: "GoogleDriveDataFolderID")
+        if let cachedData = self.dataCache[name] {
+            if let document = String(data: cachedData!, encoding: .utf8) {
+                onDone(.success, document)
+                return
+            }
+        }
+
+        let folderId = getAPIBundleData(key: "GoogleDriveDataFolderID")
         guard let folderId = folderId else {
             self.logger.reportError(self, "No folder Id")
             return
@@ -132,7 +155,7 @@ class GoogleAPI {
         getDataByID(request: request) { status, data in
             let fileId = self.getFileIDFromName(name:name, data: data) //{status, data  in
             guard let fileId = fileId else {
-                self.logger.reportError(self, "File name note found \(name)")
+                self.logger.reportError(self, "File name note found, name:[\(name)]")
                 onDone(.failed, nil)
                 return
             }
@@ -176,13 +199,15 @@ class GoogleAPI {
                                 }
                             }
                         }
-                        //print(textContent)
+                        let data = textContent.data(using: .utf8)
+                        if let data = data {
+                            self.dataCache[name] = data
+                        }
                         onDone(.success, textContent)
                     }
                     catch let error {
                         let str = String(data: data, encoding: .utf8)
-                        print(str)
-                        self.logger.reportError(self, "Cannot parse \(name) \(error.localizedDescription) data:\(str)")
+                        self.logger.reportError(self, "Cannot parse \(name) \(error.localizedDescription) data:\(str ?? "")")
                         onDone(.failed, nil)
                     }
                 }
@@ -233,7 +258,7 @@ class GoogleAPI {
             let iat: Date
         }
         
-        guard let projectEmail = self.getGoogleAPIData(key: "projectEmail") else {
+        guard let projectEmail = self.getAPIBundleData(key: "projectEmail") else {
             self.logger.reportError(self, "No project email")
             return
         }

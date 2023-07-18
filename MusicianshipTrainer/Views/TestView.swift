@@ -2,7 +2,7 @@ import SwiftUI
 //import GoogleSignIn
 struct TestView: View {
 
-    let googleAPI = GoogleAPI()
+    let googleAPI = GoogleAPI.shared
     @ObservedObject var logger = Logger.logger
 
     init() {

@@ -199,6 +199,8 @@ class Note : Hashable, Comparable, ObservableObject {
                     }
                 }
             }
+            if ts is BarLine {
+            }
             idx = idx - 1
         }
         if result == nil {

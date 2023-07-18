@@ -248,54 +248,118 @@ class Score : ObservableObject {
             staff.clear()
         }
     }
-
+    
+//    private func addQuaverBarState(previousIndex:Int, beamEndNote:Note) {
+//        var idx = previousIndex
+//        while idx >= 0 {
+//            if self.scoreEntries[idx] is TimeSlice {
+//                let timeslice:TimeSlice = self.scoreEntries[idx] as! TimeSlice
+//                if let notes = timeslice.getNotes() {
+//                    if notes.count > 0 {
+//                        //.notes[0] {
+//                        let prevNote = notes[0]
+//                        if prevNote.getValue() != Note.VALUE_QUAVER {
+//                            break
+//                        }
+//                        prevNote.beamEndNote = beamEndNote
+//                    }
+//                }
+//            }
+//            idx = idx - 1
+//        }
+//
+//    }
+    
+//    func addStemCharaceteristicsOld() {
+//            var ctr = 0
+//            var underBeam = false
+//            var previousNote:Note? = nil
+//            let timeSlices = self.getAllTimeSlices()
+//            for timeSlice in timeSlices {
+//                if timeSlice.notes.count == 0 {
+//                    continue
+//                }
+//                let note = timeSlice.notes[0]
+//                note.beamType = .none
+//                note.sequence = ctr
+//                if note.getValue() == Note.VALUE_QUAVER {
+//                    if !underBeam {
+//                        note.beamType = .start
+//                        underBeam = true
+//                    }
+//                    else {
+//                        note.beamType = .middle
+//                    }
+//                }
+//                else {
+//                    if underBeam {
+//                        if let beamEndNote = previousNote {
+//                            if beamEndNote.getValue() == Note.VALUE_QUAVER {
+//                                beamEndNote.beamType = .end
+//                            }
+//                            //update the notes under the quaver beam with the end note of the beam
+//                            var idx = ctr - 1
+//                            while idx >= 0 {
+//                                let prevNote = timeSlices[idx].notes[0]
+//                                if prevNote.getValue() != Note.VALUE_QUAVER {
+//                                    break
+//                                }
+//                                prevNote.beamEndNote = beamEndNote
+//                                idx = idx - 1
+//                            }
+//                        }
+//                        underBeam = false
+//                    }
+//                }
+//                previousNote = note
+//                ctr += 1
+//            }
+//        }
+            
+    ///If the last note added was a quaver, identify any previous adjoining quavers and set them to be joined with a quaver bar
     func addStemCharaceteristics() {
-        var ctr = 0
-        var underBeam = false
-        var previousNote:Note? = nil
-        let timeSlices = self.getAllTimeSlices()
-        for timeSlice in timeSlices {
-            if timeSlice.notes.count == 0 {
-                continue
-            }
-            let note = timeSlice.notes[0]
-            note.beamType = .none
-            note.sequence = ctr
-            if note.getValue() == Note.VALUE_QUAVER {
-                if !underBeam {
-                    note.beamType = .start
-                    underBeam = true
-                }
-                else {
-                    note.beamType = .middle
-                }
-            }
-            else {
-                if underBeam {
-                    if let beamEndNote = previousNote {
-                        if beamEndNote.getValue() == Note.VALUE_QUAVER {
-                            beamEndNote.beamType = .end
+        let lastNoteIndex = self.scoreEntries.count - 1
+        let scoreEntry = self.scoreEntries[lastNoteIndex]
+        if scoreEntry is TimeSlice {
+            let timeSlice = scoreEntry as! TimeSlice
+            let notes = timeSlice.notes
+            if notes.count > 0 {
+                let lastNote = notes[0]
+                lastNote.sequence = self.getAllTimeSlices().count
+                if lastNote.getValue() == Note.VALUE_QUAVER {
+                    //apply the quaver beam back from this note
+                    let endQuaver = notes[0]
+                    endQuaver.beamType = .end
+                    endQuaver.beamEndNote = endQuaver
+                    var lastQuaver:Note? = nil
+                    
+                    for i in stride(from: lastNoteIndex - 1, through: 0, by: -1) {
+                        let scoreEntry = self.scoreEntries[i]
+                        if !(scoreEntry is TimeSlice) {
+                            break
                         }
-                        //update the notes under the quaver beam with the end note of the beam
-                        var idx = ctr - 1
-                        while idx >= 0 {
-                            let prevNote = timeSlices[idx].notes[0]
-                            if prevNote.getValue() != Note.VALUE_QUAVER {
+                        let timeSlice = scoreEntry as! TimeSlice
+                        let notes = timeSlice.notes
+                        if notes.count > 0 {
+                            if notes[0].getValue() == Note.VALUE_QUAVER {
+                                let note = notes[0]
+                                note.beamType = .middle
+                                note.beamEndNote = endQuaver
+                                lastQuaver = note
+                            }
+                            else {
                                 break
                             }
-                            prevNote.beamEndNote = beamEndNote
-                            idx = idx - 1
                         }
                     }
-                    underBeam = false
+                    if let lastQuaver = lastQuaver {
+                        lastQuaver.beamType = .start
+                    }
                 }
             }
-            previousNote = note
-            ctr += 1
         }
-        
     }
-        
+
     // ================= Student feedback =================
     
     func constuctFeedback(scoreToCompare:Score, timeSliceNumber:Int?, tempo:Int, allowTempoVariation:Bool) -> StudentFeedback {

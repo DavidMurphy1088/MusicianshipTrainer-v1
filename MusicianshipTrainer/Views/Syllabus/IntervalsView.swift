@@ -22,11 +22,16 @@ struct IntervalPresentView: View, QuestionPartProtocol {
     @State private var selectedOption: String? = nil
     @State private var scoreWasPlayed = false
     
-    class IntervalName : Hashable {
+    class IntervalName : Hashable, Comparable {
         var interval: Int
         var name:String
         var explanation:[String]
         var isIncluded = true
+        
+        static func < (lhs: IntervalPresentView.IntervalName, rhs: IntervalPresentView.IntervalName) -> Bool {
+            return lhs.interval < rhs.interval
+        }
+
         init(interval:Int, name:String, explanation:[String]) {
             self.interval = interval
             self.name = name
@@ -40,15 +45,17 @@ struct IntervalPresentView: View, QuestionPartProtocol {
         }
     }
     
-    let intervals = [IntervalName(interval:2, name: "Second",
-                                  //explanation: ["A line to a space is a step which is a second interval",
-                                  //              "A space to a line is a step which is a second interval"]),
+    let intervals = [
+        IntervalName(interval:1, name: "Minor Second",
+                                  explanation: ["",
+                                                ""]),
+        IntervalName(interval:2, name: "Major Second",
                                   explanation: ["A line to a space is a step",
                                                 "A space to a line is a step"]),
-                     IntervalName(interval:3, name: "Third",
+        IntervalName(interval:3, name: "Minor Third",
                                 explanation: ["A line to a line is a skip",
                                               "A space to a space is a skip"]),
-                     IntervalName(interval:4, name: "Third",
+        IntervalName(interval:4, name: "Major Third",
                                 explanation: ["",""]),
     ]
     
@@ -87,18 +94,19 @@ struct IntervalPresentView: View, QuestionPartProtocol {
             score.addTimeSlice().addChord(c: chord)
         }
         for interval in intervals {
-            if interval.interval == 3 {
-                interval.isIncluded = mode == .intervalVisual
-            }
-            if interval.interval == 4 {
-                interval.isIncluded = mode == .intervalAural
-            }
+            //if interval.interval == 3 {
+                interval.isIncluded = true //mode == .intervalVisual
+            //}
+//            if interval.interval == 4 {
+//                interval.isIncluded = mode == .intervalAural
+//            }
         }
+        //print(intervals)
     }
     
     var selectIntervalView : some View {
-        HStack(spacing: 0) {
-            ForEach(Array(intervals.enumerated()), id: \.1) { index, interval in
+        VStack(spacing: 0) {
+            ForEach(Array(intervals.sorted().enumerated()), id: \.1) { index, interval in
                 if interval.isIncluded {
                     Button(action: {
                         selectedIntervalIndex = index

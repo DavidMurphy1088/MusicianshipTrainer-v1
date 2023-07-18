@@ -42,20 +42,35 @@ struct ContentSectionInstructionsView: UIViewRepresentable {
 
 struct ContentSectionHeaderView: View {
     var contentSection:ContentSection
-    let googleAPI = GoogleAPI()
+    let googleAPI = GoogleAPI.shared
     @State private var isHelpPresented = false
     @State private var instructions:String? = nil
+    @State private var tipsAndTricksExists = false
 
     func getInstructions()  {
         let instructionContent = contentSection.getChildSectionByName(name: "Instructions")
         if let instructions = instructionContent?.instructions {
             googleAPI.getDocumentByName(name: instructions) {status,document in
-                print(status, document)
-                self.instructions = document
+                //print(status, document)
+                if status == .success {
+                    self.instructions = document
+                }
             }
         }
     }
     
+    func getTipsAndTricks()  {
+        let tipsAndTricksContent = contentSection.getChildSectionByName(name: "TipsAndTricks")
+        if let tipsAndTricks = tipsAndTricksContent?.instructions {
+            googleAPI.getDocumentByName(name: tipsAndTricks) {status,document in
+                //print(status, document)
+                if status == .success {
+                    self.tipsAndTricksExists = true
+                }
+            }
+        }
+    }
+
     func getParagraphCount(html:String) -> Int {
         let p = html.components(separatedBy: "<p>").count
         return p - 1
@@ -81,24 +96,27 @@ struct ContentSectionHeaderView: View {
             }
             .onAppear() {
                 getInstructions()
+                getTipsAndTricks()
             }
-                        
-            Button(action: {
-                isHelpPresented.toggle()
-            }) {
-                HStack {
-                    Text("Tips and Tricks")
-                    Image(systemName: "questionmark.circle")
-                        .font(.largeTitle)
+                   
+            if tipsAndTricksExists {
+                Button(action: {
+                    isHelpPresented.toggle()
+                }) {
+                    HStack {
+                        Text("Tips and Tricks")
+                        Image(systemName: "questionmark.circle")
+                            .font(.largeTitle)
+                    }
                 }
-            }
-            .sheet(isPresented: $isHelpPresented) {
-                ContentSectionTipsView(contentSection: contentSection)
-                    .padding()
-                    .background(
-                        Rectangle()
-                            .stroke(Color.blue, lineWidth: 4)
-                    )
+                .sheet(isPresented: $isHelpPresented) {
+                    ContentSectionTipsView(contentSection: contentSection)
+                        .padding()
+                        .background(
+                            Rectangle()
+                                .stroke(Color.blue, lineWidth: 4)
+                        )
+                }
             }
         }
     }

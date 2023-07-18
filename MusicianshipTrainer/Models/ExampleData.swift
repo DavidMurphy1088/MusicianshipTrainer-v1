@@ -35,7 +35,7 @@ class ExampleData : ObservableObject {
                     do {
                         let jsonData = try JSONDecoder().decode(JSONSheet.self, from: data)
                         let sheetRows = jsonData.values
-                        self.loadData(sheetRows: sheetRows)
+                        self.loadSheetData(sheetRows: sheetRows)
                         self.setDataReady(way: status)
                         self.logger.log(self, "loaded \(self.dataDictionary.count) example rows")
                     }
@@ -55,7 +55,7 @@ class ExampleData : ObservableObject {
     }
     
     //load data from Google Drive Sheet
-    func loadData(sheetRows:[[String]]) {
+    func loadSheetData(sheetRows:[[String]]) {
         var keyPath:[String] = []
         
         ///set according to the format of the examples Sheet
@@ -124,8 +124,8 @@ class ExampleData : ObservableObject {
             let keyLevel = key.filter { $0 == "." }.count  //NZMEB is level 1 with parent the root
             
             //Maybe comment but dont delete...
-            print("\n", String(repeating: " ", count: 3 * keyLevel),
-                  "exampleData.data \(key) \ttype:\(self.dataDictionary[key]?.type) data:\(self.dataDictionary[key]?.data)")
+//            print("\n", String(repeating: " ", count: 3 * keyLevel),
+//                  "exampleData.data \(key) \ttype:\(self.dataDictionary[key]?.type) data:\(self.dataDictionary[key]?.data)")
 
             var parentSection:ContentSection
             if keyLevel == 0 {
@@ -148,7 +148,7 @@ class ExampleData : ObservableObject {
                     instructions = data.data[0]
                 }
             }
-            let section = ContentSection(parent: parentSection, name: name, type: type, instructions: instructions)
+            let section = ContentSection(parent: parentSection, name: name, type: type, instructions: instructions, tipsAndTricks: "")
             parentSection.subSections.append(section)
             parents[keyLevel] = section
         }

@@ -100,11 +100,6 @@ struct StaffNotesView: View {
         self.noteLayoutPositions = staff.noteLayoutPositions
         StaffNotesView.viewNum += 1
         self.viewNum = StaffNotesView.viewNum
-//<<<<<<< HEAD
-        //print("StaffNotesView init: num:", viewNum, "\tlineSpacing:", staffLayoutSize.lineSpacing)
-//=======
-        //print("    StaffNotesView init::lineSpace", viewNum, lineSpacing, self.getLineSpacing())
-//>>>>>>> main
     }
     
     func getNotes(entry:ScoreEntry) -> [Note] {
@@ -147,11 +142,7 @@ struct StaffNotesView: View {
         else {
             stemDirection = startNote.midiNumber < 71 ? -1.0 : 1.0
         }
-//<<<<<<< HEAD
 
-//=======
-        //end note
-//>>>>>>> main
         let endNotePos = noteLayoutPositions.positions[endNote]
         if let endNotePos = endNotePos {
             let xEndMid = endNotePos.origin.x + endNotePos.size.width / 2.0 + (noteWidth / 2.0 * stemDirection * -1.0)
@@ -203,14 +194,18 @@ struct StaffNotesView: View {
     }
     
     func getLineSpacing() -> Double {
-//<<<<<<< HEAD
-        //print("    StaffNotesView body:", viewNum, "lineSpacing", staffLayoutSize.lineSpacing)
-//=======
-        //print("    StaffNotesView body::lineSpace", viewNum, lineSpacing1.value)
-//>>>>>>> main
         return self.staffLayoutSize.lineSpacing
     }
 
+//    func log(notes: [Note : CGRect]) {
+//        for n in notes.keys {
+//            print("++++++Note seq", n.sequence, "midi:", n.midiNumber, n.getValue(), "\tBeamType:", n.beamType, "\tendNote:", n.beamEndNote?.midiNumber ?? "")
+//            let re = notes[n]
+//            //print ("   ", re)
+//        }
+//
+//    }
+    
     var body: some View {
         ZStack { //ZStack - notes and quaver beam drawing shares same space
             //let lineSpacing = self.getLineSpacing()
@@ -267,19 +262,14 @@ struct StaffNotesView: View {
                 .coordinateSpace(name: "ForEach")
             }
             .coordinateSpace(name: "HStack")
-//<<<<<<< HEAD
 
-//=======
-//
-//>>>>>>> main
             // ==================== Quaver beams =================
             
             if staff.staffNum == 0 {
                 GeometryReader { geo in
                     ZStack {
                         ZStack {
-                            //let log = log(lineSpacing: lineSpacing.value)
-                            //Text("PubUdateId:\(noteLayoutPositions.id) PubUdateCtr:\(noteLayoutPositions.updated)")
+                            //let log = log(notes: noteLayoutPositions.positions)
                             ForEach(noteLayoutPositions.positions.sorted(by: { $0.key.sequence < $1.key.sequence }), id: \.key) {
                                 endNote, endNotePos in
                                 if endNote.beamType == .end {
