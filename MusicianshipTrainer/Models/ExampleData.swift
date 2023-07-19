@@ -257,7 +257,5 @@ class ExampleData : ObservableObject {
         }
         return result
     }
-    
-
 
 }

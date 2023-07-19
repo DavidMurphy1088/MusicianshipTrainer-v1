@@ -27,14 +27,16 @@ struct NoteView: View {
     var lineSpacing:Double
     var noteWidth:Double
     var offsetFromStaffMiddle:Int
+    var accidental:Int?
     
-    init(staff:Staff, note:Note, noteWidth:Double, lineSpacing: Double, offsetFromStaffMiddle:Int) {
+    init(staff:Staff, note:Note, noteWidth:Double, lineSpacing: Double, offsetFromStaffMiddle:NoteStaffPlacement) {
         self.staff = staff
         self.note = note
         self.noteWidth = noteWidth
         self.color = Color.black 
         self.lineSpacing = lineSpacing
-        self.offsetFromStaffMiddle = offsetFromStaffMiddle
+        self.offsetFromStaffMiddle = offsetFromStaffMiddle.offsetFromStaffMidline
+        self.accidental = offsetFromStaffMiddle.accidental
         log()
     }
     
@@ -97,11 +99,13 @@ struct NoteView: View {
             let noteValueUnDotted = note.isDotted ? note.getValue() * 2.0/3.0 : note.getValue()
 
             ZStack {
-                if let accidental = note.accidental {
+                //if let accidental = note.accidental {
+                if let accidental = accidental {
+                    let yOffset = accidental == 1 ? lineSpacing / 5 : 0.0
                      Text(getAccidental(accidental: accidental))
                         .font(.system(size: lineSpacing * 3.0))
                     .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
-                    .position(x: noteFrameWidth/2 - lineSpacing * 2.0, y: noteEllipseMidpoint)
+                    .position(x: noteFrameWidth/2 - lineSpacing * 2.0, y: noteEllipseMidpoint + yOffset)
 
                 }
                 //Note ellipse

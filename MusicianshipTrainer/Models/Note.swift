@@ -45,7 +45,7 @@ class Note : Hashable, Comparable, ObservableObject {
     var isDotted:Bool = false
     var isOnlyRhythmNote = false
     var accidental:Int? = nil //< 0 = flat, ==0 natural, > 0 sharp
-
+    
     var sequence:Int = 0 //the note's sequence position 
     var rotated:Bool = false //true if note must be displayed vertically rotated due to closeness to a neighbor.
     

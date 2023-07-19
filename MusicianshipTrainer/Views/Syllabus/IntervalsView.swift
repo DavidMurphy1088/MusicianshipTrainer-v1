@@ -46,16 +46,16 @@ struct IntervalPresentView: View, QuestionPartProtocol {
     }
     
     let intervals = [
-        IntervalName(interval:1, name: "Minor Second",
+        IntervalName(interval:1, name: "Second", //Minor
                                   explanation: ["",
                                                 ""]),
-        IntervalName(interval:2, name: "Major Second",
+        IntervalName(interval:2, name: "Second", //Major
                                   explanation: ["A line to a space is a step",
                                                 "A space to a line is a step"]),
-        IntervalName(interval:3, name: "Minor Third",
+        IntervalName(interval:3, name: "Third", //Minor
                                 explanation: ["A line to a line is a skip",
                                               "A space to a space is a skip"]),
-        IntervalName(interval:4, name: "Major Third",
+        IntervalName(interval:4, name: "Third", //Major
                                 explanation: ["",""]),
     ]
     
@@ -73,7 +73,13 @@ struct IntervalPresentView: View, QuestionPartProtocol {
         self.score.setStaff(num: 0, staff: staff)
         let chord:Chord = Chord()
         if let entries = exampleData {
+            
             for entry in entries {
+                if entry is KeySignature {
+                    let keySignature = entry as! KeySignature
+                    score.setKey(key: Key(type: .major, keySig: keySignature))
+                }
+
                 if entry is Note {
                     let timeSlice = self.score.addTimeSlice()
                     let note = entry as! Note
@@ -95,7 +101,9 @@ struct IntervalPresentView: View, QuestionPartProtocol {
         }
         for interval in intervals {
             if mode == .intervalVisual {
-                interval.isIncluded = true //mode == .intervalVisual
+                interval.isIncluded = interval.interval == 2 || interval.interval == 4
+                //Grade 1 only talks about an interval as a 2nd or 3rd regardless of whether is minor or major
+                //interval.isAnswerOption = interval.interval == 2 || interval.interval == 4
             }
             else {
                 interval.isIncluded = interval.interval == 2 || interval.interval == 4
@@ -169,11 +177,12 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                 .disabled(mode == .intervalAural && scoreWasPlayed == false)
                 
                 VStack {
-                    if answer.state == .answered {
+                    //if answer.state == .answered {
                         Button(action: {
                             answer.setState(.submittedAnswer)
                             let interval = abs((intervalNotes[1].midiNumber - intervalNotes[0].midiNumber))
-                            if answer.selectedInterval == interval {
+                            let range = interval...interval+1
+                            if answer.selectedInterval != nil && range.contains(answer.selectedInterval!) {
                                 answer.correct = true
                                 answer.correctInterval = interval
                             }
@@ -188,14 +197,15 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                                 answer.explanation = name!.explanation[noteIsSpace ? 1 : 0]
                             }
                         }) {
-                            Text("Check Your Answer")
-                                .foregroundColor(.white)
+                            Text(answer.state == .answered ? "Check Your Answer" : "?")
+                                .foregroundColor(.white) //answer.state == .answered ? .white : .clear)
                                 .padding()
-                                .background(Color.blue)
+                                .background(.blue) //answer.state == .answered ? .blue : .clear)
                                 .cornerRadius(UIGlobals.cornerRadius).padding()
                         }
+                        .disabled(answer.state != .answered)
                         .padding()
-                    }
+                    //}
                 }
                 .overlay(
                     RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
@@ -233,15 +243,9 @@ struct IntervalAnswerView: View, QuestionPartProtocol {
         AnyView(
             VStack {
                 ScoreSpacerView()
-//<<<<<<< HEAD
-                //ScoreSpacerView()
                 ScoreView(score: score).padding()
                 ScoreSpacerView()
-                //ScoreSpacerView()
-//=======
-                //ScoreView(score: score).padding()
                 ScoreSpacerView()
-//>>>>>>> main
                 
                 HStack {
                     if answer.correct {

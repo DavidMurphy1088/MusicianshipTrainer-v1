@@ -1,6 +1,8 @@
 --TODO
-
 2nd chord display aural intervals
+default accidentals for key of G on staff init
+collapse is int to two options
+//2 intervals for visual min and maj
 
 stem direction on chord - aural 39
 SF2 channels???
