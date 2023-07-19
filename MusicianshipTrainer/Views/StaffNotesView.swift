@@ -130,7 +130,7 @@ struct StaffNotesView: View {
         }
         else {
             let noteData = staff.getNoteViewData(noteValue: note.midiNumber)
-            return noteData.0
+            return noteData.offsetFromStaffMidline
         }
     }
         

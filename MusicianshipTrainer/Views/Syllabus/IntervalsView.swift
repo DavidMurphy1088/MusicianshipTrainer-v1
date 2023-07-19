@@ -94,14 +94,13 @@ struct IntervalPresentView: View, QuestionPartProtocol {
             score.addTimeSlice().addChord(c: chord)
         }
         for interval in intervals {
-            //if interval.interval == 3 {
+            if mode == .intervalVisual {
                 interval.isIncluded = true //mode == .intervalVisual
-            //}
-//            if interval.interval == 4 {
-//                interval.isIncluded = mode == .intervalAural
-//            }
+            }
+            else {
+                interval.isIncluded = interval.interval == 2 || interval.interval == 4
+            }
         }
-        //print(intervals)
     }
     
     var selectIntervalView : some View {

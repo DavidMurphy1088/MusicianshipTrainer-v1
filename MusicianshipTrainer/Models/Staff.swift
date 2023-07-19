@@ -38,13 +38,16 @@ enum StaffType {
 }
 
 class NoteStaffPlacement {
-    var name:Character
+    var midi:Int
     var offsetFromStaffMidline:Int
-    var acc: Int?
-    init(name:Character, offsetFroMidLine:Int, _ acc:Int?=nil) {
+    var accidental: Int?
+    var ledgerLines:[Int] = []
+    
+    init(midi:Int, offsetFroMidLine:Int, accidental:Int?=nil) {
+        self.midi = midi
         self.offsetFromStaffMidline = offsetFroMidLine
-        self.acc = acc
-        self.name = name
+        self.accidental = accidental
+        //self.name = name
     }
 }
 
@@ -56,18 +59,19 @@ class NoteOffsetsInStaffByKey {
     var noteOffsetByKey:[String] = []
     init () {
         // offset, sign. sign = ' ' or 0=flat, 1=natural, 2=sharp
+        //modified July23 - use -1 for flat, 0 for natural, 1 for sharp. Done onlu so far forl col 0
         //  Key                 C    D♭   D    E♭   E    F    G♭   G    A♭   A    B♭   B
         noteOffsetByKey.append("0    0    0,1  0    0,1  0    0,1  0    0    0,1  0    0,0")  //C
-        noteOffsetByKey.append("0,2  1    0    1,0  0    1,0  1    0,2  1    0    1,0  0,0")  //C#
+        noteOffsetByKey.append("0,1  1    0    1,0  0    1,0  1    0,2  1    0    1,0  0,0")  //C#
         noteOffsetByKey.append("1    1,1  1    1    1,1  1    1,1  1    1,1  1    1    0,0")  //D
-        noteOffsetByKey.append("2,0  2    2,0  2    1    2,0  2    2,0  2    1,2  2    0,0")  //E♭
+        noteOffsetByKey.append("2,-1  2    2,0  2    1    2,0  2    2,0  2    1,2  2    0,0")  //E♭
         noteOffsetByKey.append("2    2,1  2    2,1  2    2    2,1  2    2,1  2    2,1  0,0")  //E
         noteOffsetByKey.append("3    3    3,1  3    3,1  3    3    3,1  3    3,1  3    0,0")  //F
-        noteOffsetByKey.append("3,2  4    3    4,0  3    4,0  4    3    4,0  3    4,0  0,0")  //F#
+        noteOffsetByKey.append("3,1  4    3    4,0  3    4,0  4    3    4,0  3    4,0  0,0")  //F#
         noteOffsetByKey.append("4    4,1  4    4    4,1  4    4,1  4    4    4,1  4    0,0")  //G
-        noteOffsetByKey.append("4,2  5    4,2  5    4    5,0  5    4,2  5    4    5,0  0,0")  //G#
+        noteOffsetByKey.append("4,1  5    4,2  5    4    5,0  5    4,2  5    4    5,0  0,0")  //G#
         noteOffsetByKey.append("5    5,1  5    5,1  5    5    5,1  5    5,1  5    5    0,0")  //A
-        noteOffsetByKey.append("6,0  6    6,0  6    6,0  6    6    6,0  6    6,0  6    0,0")  //B♭
+        noteOffsetByKey.append("6,-1  6    6,0  6    6,0  6    6    6,0  6    6,0  6    0,0")  //B♭
         noteOffsetByKey.append("6    6,1  6    6,1  6    6,1  6,1  6    6,1  6    6,1  0,0")  //B
     }
 }
@@ -99,35 +103,43 @@ class Staff : ObservableObject {
         noteLayoutPositions = NoteLayoutPositions(id: 0)
         
         //Determine the staff placement for each note pitch
-        var noteOffsets:[Int] = []
-        for line in NoteOffsetsInStaffByKey().noteOffsetByKey {
-            let f = String(line.components(separatedBy: " ")[0])
-            //noteOffsetEntries.append(pairs) //Just C Major
-            let fx:String = String(f.first!)
-            let off = Int(fx)
-            noteOffsets.append((off == nil ? 0 : off)!)
+        
+        var noteOffsets:[NoteStaffPlacement] = []
+        let keyColumn = 0 //C Major
+        
+        for scaleDegreeLine in NoteOffsetsInStaffByKey().noteOffsetByKey {
+            let scaleDegreeComponents:String = String(scaleDegreeLine.components(separatedBy: " ")[keyColumn])
+            let offsetAndAccidental = scaleDegreeComponents.components(separatedBy: ",")
+            let offset:Int? = Int(offsetAndAccidental[0])
+            if let offset = offset {
+                var accidental:Int? = nil
+                if offsetAndAccidental.count > 1 {
+                    let accStr = offsetAndAccidental[1]
+                    accidental = Int(accStr)
+                }
+                noteOffsets.append(NoteStaffPlacement(midi:0, offsetFroMidLine: offset, accidental: accidental))
+            }
+            else {
+                Logger.logger.reportError(self, "No offset for MIDI \(scaleDegreeLine)")
+            }
         }
         
         for noteValue in 0...highestNoteValue {
-            //Hack - set the note off the staff (i.e invisible) if its pitch is not mapped to the staff lines
-            //Fix - make sure both staff types have offset set for their full pitch ranges
-            //Fix - longer - offset should be from middle C, notes should be displayed on both staffs from a single traversal of the score's timeslices
+            //Fix - longer? - offset should be from middle C, notes should be displayed on both staffs from a single traversal of the score's timeslices
             
-            var placement = NoteStaffPlacement(name: "X", offsetFroMidLine: 100)
+            var placement = NoteStaffPlacement(midi: noteValue, offsetFroMidLine: 0)
             noteStaffPlacement.append(placement)
             if noteValue < middleNoteValue - 6 * Note.OCTAVE || noteValue >= middleNoteValue + 6 * Note.OCTAVE {
                 continue
             }
-            if self.type == .bass {
-                if noteValue == 48 {
-                    var debug = 72
-                }
+            if noteValue == 73 || noteValue == 72 {
+                var debug = 72
             }
             var offsetFromTonic = (noteValue - Note.MIDDLE_C) % Note.OCTAVE
             if offsetFromTonic < 0 {
                 offsetFromTonic = noteOffsets.count + offsetFromTonic
             }
-            var offsetFromMidLine = noteOffsets[offsetFromTonic]
+            var offsetFromMidLine = noteOffsets[offsetFromTonic].offsetFromStaffMidline
             var octave:Int
             var referenceNote = type == .treble ? Note.MIDDLE_C : Note.MIDDLE_C - 2 * Note.OCTAVE
             if noteValue >= referenceNote {
@@ -139,25 +151,14 @@ class Staff : ObservableObject {
             }
             offsetFromMidLine += (octave - 1) * 7 //8 offsets to next octave
             offsetFromMidLine += type == .treble ? 1 : -1
-            placement = NoteStaffPlacement(name: "X", offsetFroMidLine: offsetFromMidLine)
-
+            placement.offsetFromStaffMidline = offsetFromMidLine
             
-//            var diff = noteValue - middleNoteValue
-//            var noteOffsetInScale = 0
-//            if diff > 0 {
-//                noteOffsetInScale = noteOffsets[diff - 1]
-//            }
-//            else {
-//                let n = noteOffsets.count + diff - 1
-//                if diff >= n {
-//                    diff = diff - 12
-//                }
-//                noteOffsetInScale = noteOffsets[n]
-//                noteOffsetInScale =  noteOffsetInScale - 7
-//            }
+            //accidental
+            placement.accidental = noteOffsets[offsetFromTonic].accidental
             
-            //let offset = noteOffsetInScale + 1
-            //placement = NoteStaffPlacement(name: "X", offsetFroMidLine: offset)
+            if noteValue == 73 || noteValue == 72 {
+                print("note", noteValue, "offsetFromTonic", offsetFromTonic, "octave", octave)
+            }
             noteStaffPlacement[noteValue] = placement
         }
     }
@@ -230,19 +231,23 @@ class Staff : ObservableObject {
     
     //Tell a note how to display itself
     //func getNoteViewData(noteValue:Int) -> (Int, String, [Int]) {
-    func getNoteViewData(noteValue:Int) -> (Int, [Int]) {
-        var offset = 0
-        if self.type == .treble {
-            if noteValue >= noteStaffPlacement.count {
-                
-            }
-            offset = noteStaffPlacement[noteValue].offsetFromStaffMidline
-        }
-        else {
-            offset = noteStaffPlacement[noteValue].offsetFromStaffMidline
-        }
-        let ledgerLines:[Int] = []
-        return (offset, ledgerLines)
+    //func getNoteViewData(noteValue:Int) -> (Int, [Int]) {
+    func getNoteViewData(noteValue:Int) -> NoteStaffPlacement {
+        return noteStaffPlacement[noteValue]
+//        return NoteStaffPlacement(midi: noteValue, offsetFroMidLine: offset)
+//
+//        var offset = 0
+//        if self.type == .treble {
+////            if noteValue >= noteStaffPlacement.count {
+////
+////            }
+//            offset = noteStaffPlacement[noteValue].offsetFromStaffMidline
+//        }
+//        else {
+//            offset = noteStaffPlacement[noteValue].offsetFromStaffMidline
+//        }
+//        let ledgerLines:[Int] = []
+        //return (offset, ledgerLines)
     }
     
 }
