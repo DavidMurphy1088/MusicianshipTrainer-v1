@@ -127,6 +127,10 @@ struct StaffNotesView: View {
     
     ///The note has a default accidental determined by which key the score is in but can be overidden by content specifying a written accidental
     ///The written accidental must overide the default accidental and the note's offset adjusted accordingly.
+    ///When a written accidental is specified this code checks the note offset positions for this staff (coming from the score's key) and decides how the note should move from its
+    ///default staff offset based on the written accidental. e.g. a note at MIDI 75 would be defaulted to show as E ♭ in C major but may be speciifed to show as D# by a written
+    ///accidentail. In that case the note must shift down 1 unit of offset.
+    ///
     func noteOffsetFromMiddle(staff:Staff, note:Note) -> NoteStaffPlacement {
         let defaultNoteData = staff.getNoteViewPlacement(note: note)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
@@ -143,8 +147,8 @@ struct StaffNotesView: View {
                 let targetNoteStaffPlacement = staff.noteStaffPlacement[targetOffsetIndex]
                 let adjustOffset = defaultNoteStaffPlacement.offsetFromStaffMidline - targetNoteStaffPlacement.offsetFromStaffMidline
                 offsetFromMiddle -= adjustOffset
-                print("===>Adjust note:", note.midiNumber, "adjOffset:", adjustOffset,
-                      "defaultOffset:", defaultNoteData.offsetFromStaffMidline, "newOffset:", offsetFromMiddle)
+//                print("===>Adjust note:", note.midiNumber, "adjOffset:", adjustOffset,
+//                      "defaultOffset:", defaultNoteData.offsetFromStaffMidline, "newOffset:", offsetFromMiddle)
             }
         }
         else {

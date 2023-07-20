@@ -84,6 +84,7 @@
 		7B4F646C2A54DC6200727710 /* MusicianshipTrainerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */; };
 		7B4F646E2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */; };
 		7B5B14742A5CBB310076EE09 /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B5B14732A5CBB310076EE09 /* GoogleAPI.plist */; };
+		7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F52A68F63B00EA088E /* Cache.swift */; };
 		7BAB37D62A5D027B004FA3AA /* Google_OAuth2_Keys.json in Resources */ = {isa = PBXBuildFile; fileRef = 7BAB37D52A5D027B004FA3AA /* Google_OAuth2_Keys.json */; };
 		7BB835462A5548750083C1C0 /* Firestore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB835452A5548750083C1C0 /* Firestore.swift */; };
 		7BB835492A5555130083C1C0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB835482A5555130083C1C0 /* FirebaseFirestore */; };
@@ -202,6 +203,7 @@
 		7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITests.swift; sourceTree = "<group>"; };
 		7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		7B5B14732A5CBB310076EE09 /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
+		7B8EF2F52A68F63B00EA088E /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		7BAB37D52A5D027B004FA3AA /* Google_OAuth2_Keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Google_OAuth2_Keys.json; sourceTree = "<group>"; };
 		7BB835452A5548750083C1C0 /* Firestore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore.swift; sourceTree = "<group>"; };
 		7BC42EB12A550F39004FE117 /* AudioNotes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AudioNotes; sourceTree = "<group>"; };
@@ -330,6 +332,7 @@
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,
 				7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */,
 				7B0A64CE2A61562B0091A24A /* Settings.swift */,
+				7B8EF2F52A68F63B00EA088E /* Cache.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -780,6 +783,7 @@
 				7B40B8082A54DF9000CA7FC4 /* KeySignature.swift in Sources */,
 				7B40B7F22A54DF9000CA7FC4 /* TimeSlice.swift in Sources */,
 				7B40B8332A54E52A00CA7FC4 /* StaffNotesView.swift in Sources */,
+				7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */,
 				7B40B8032A54DF9000CA7FC4 /* Note.swift in Sources */,
 				7B40B80A2A54DF9000CA7FC4 /* Scale.swift in Sources */,
 				7B40B7F72A54DF9000CA7FC4 /* Metronome.swift in Sources */,

@@ -56,7 +56,6 @@ class StaffLayoutSize: ObservableObject {
         }
         return height
     }
-
 }
 
 class Score : ObservableObject {
@@ -224,10 +223,6 @@ class Score : ObservableObject {
         }
         updateStaffs()
     }
-
-//    func setTempo(temp: Int, pitch: Int? = nil) {
-//        self.tempo = Float(temp)
-//    }
     
     func addTimeSlice() -> TimeSlice {
         let ts = TimeSlice(score: self)
@@ -362,7 +357,8 @@ class Score : ObservableObject {
 
     // ================= Student feedback =================
     
-    func constuctFeedback(scoreToCompare:Score, timeSliceNumber:Int?, tempo:Int, allowTempoVariation:Bool) -> StudentFeedback {
+    func constuctFeedback(scoreToCompare:Score, timeSliceNumber:Int?, questionTempo:Int,
+                          metronomeTempoAtStartRecording:Int, allowTempoVariation:Bool) -> StudentFeedback {
         let feedback = StudentFeedback()
         if let timeSliceNumber = timeSliceNumber {
             let exampleTimeSlices = getAllTimeSlices()
@@ -386,17 +382,18 @@ class Score : ObservableObject {
             feedback.correct = true
             feedback.feedbackExplanation = "Good Job!"
             if let recordedTempo = scoreToCompare.recordedTempo {
-                if !allowTempoVariation && abs(recordedTempo - tempo) > 10 {
-                    feedback.feedbackExplanation = "But your tempo was \(recordedTempo < tempo ? "slower" : "faster") than the question tempo."
+                let tolerance = Int(Double(metronomeTempoAtStartRecording) * 0.10)
+                if !allowTempoVariation && abs(recordedTempo - metronomeTempoAtStartRecording) > tolerance {
+                    feedback.feedbackExplanation = "But your tempo of \(recordedTempo) was \(recordedTempo < metronomeTempoAtStartRecording ? "slower" : "faster") than the metronome tempo \(metronomeTempoAtStartRecording) you heard."
                 }
             }
         }
-        feedback.tempo = tempo
+        feedback.tempo = recordedTempo
         return feedback
     }
     
     //analyse the student's score against this score. Markup dfferences. Return false if there are errors
-    func markupStudentScore(questionTempo: Int, scoreToCompare:Score, allowTempoVariation:Bool) -> Bool {
+    func markupStudentScore(questionTempo: Int, recordedTempo:Int, metronomeTempo:Int, metronomeTempoAtStartRecording: Int, scoreToCompare:Score, allowTempoVariation:Bool) -> Bool {
         var errorsExist = false
         let difference = getFirstDifferentTimeSlice(compareScore: scoreToCompare)
         if let difference = difference {
@@ -413,7 +410,12 @@ class Score : ObservableObject {
                     if timeslice.notes.count > 0 {
                         timeslice.notes[0].setNoteTag(.hilightExpected)
                     }
-                    scoreToCompare.setStudentFeedback(studentFeedack: self.constuctFeedback(scoreToCompare: scoreToCompare, timeSliceNumber:difference, tempo: questionTempo, allowTempoVariation: allowTempoVariation))
+                    scoreToCompare.setStudentFeedback(
+                        studentFeedack: self.constuctFeedback(scoreToCompare: scoreToCompare,
+                                                              timeSliceNumber:difference,
+                                                              questionTempo: questionTempo,
+                                                              metronomeTempoAtStartRecording: metronomeTempoAtStartRecording,
+                                                              allowTempoVariation: allowTempoVariation))
                 }
             }
             //mark the remaining entries after the difference as invisibile in display
@@ -428,7 +430,10 @@ class Score : ObservableObject {
             }
         }
         else {
-            scoreToCompare.setStudentFeedback(studentFeedack: self.constuctFeedback(scoreToCompare: scoreToCompare, timeSliceNumber:nil, tempo: questionTempo, allowTempoVariation: allowTempoVariation))
+            scoreToCompare.setStudentFeedback(studentFeedack: self.constuctFeedback(scoreToCompare: scoreToCompare, timeSliceNumber:nil,
+                                                                                    questionTempo: questionTempo,
+                                                                                    metronomeTempoAtStartRecording: metronomeTempoAtStartRecording,
+                                                                                    allowTempoVariation: allowTempoVariation))
         }
         return errorsExist
     }

@@ -9,6 +9,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
     @Published var status:String = ""
     @Published var enableRecordingLight = false
     var metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "Tap Recorder init")
+    var metronomeTempoAtRecordingStart:Int? = nil
     
     func setStatus(_ msg:String) {
         DispatchQueue.main.async {
@@ -16,7 +17,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         }
     }
     
-    func startRecording(metronomeLeadIn:Bool)  {
+    func startRecording(metronomeLeadIn:Bool, metronomeTempoAtRecordingStart:Int)  {
         self.tapValues = []
         self.tapTimes = []
         if metronomeLeadIn {
@@ -26,6 +27,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         else {
             self.enableRecordingLight = true
         }
+        self.metronomeTempoAtRecordingStart = metronomeTempoAtRecordingStart
     }
     
     func endMetronomePrefix() {

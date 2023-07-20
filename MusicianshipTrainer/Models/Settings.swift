@@ -54,4 +54,5 @@ class Settings {
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorInstructions, UIGlobals.colorInstructions)
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorBackground, UIGlobals.colorBackground)
     }
+    
 }

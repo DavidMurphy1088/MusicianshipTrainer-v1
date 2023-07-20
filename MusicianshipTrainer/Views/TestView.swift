@@ -4,6 +4,8 @@ struct TestView: View {
 
     let googleAPI = GoogleAPI.shared
     @ObservedObject var logger = Logger.logger
+    let numbers = Array(1...10)
+    @State private var currentIndex = 0
 
     init() {
 //        score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
@@ -63,6 +65,17 @@ struct TestView: View {
                     Text("Get Document by Name").padding()
                 }
                 
+                //var body: some View {
+//                    NavigationView {
+//                        List(numbers.indices) { index in
+//                            NavigationLink(destination: ChildView(number: numbers[index],
+//                                                                 currentIndex: $currentIndex,
+//                                                                 maxIndex: numbers.count - 1)) {
+//                                Text("Go to Child View \(numbers[index])")
+//                            }
+//                        }
+//                    }
+
 //                Button(action: {
 //                    //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
 //                    let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
@@ -87,5 +100,27 @@ struct TestView: View {
                 
         }
     }
+    
+
+    struct ChildView: View {
+        let number: Int
+        @Binding var currentIndex: Int
+        let maxIndex: Int
+        
+        var body: some View {
+            VStack {
+                Text("Child View \(number)")
+                
+                if currentIndex < maxIndex {
+                    Button(action: {
+                        currentIndex += 1
+                    }) {
+                        Text("Go to Next Child View")
+                    }
+                }
+            }
+        }
+    }
+
 }
 

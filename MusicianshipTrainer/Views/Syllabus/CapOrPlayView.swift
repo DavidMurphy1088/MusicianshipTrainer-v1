@@ -252,7 +252,7 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
                                 metronome.stopTicking()
                                 if mode == .rhythmVisualClap || mode == .rhythmEchoClap {
                                     self.isTapping = true
-                                    tapRecorder.startRecording(metronomeLeadIn: false)
+                                    tapRecorder.startRecording(metronomeLeadIn: false, metronomeTempoAtRecordingStart: metronome.tempo)
                                 } else {
                                     audioRecorder.startRecording(outputFileName: contentSection.name)
                                 }
@@ -352,7 +352,7 @@ struct ClapOrPlayAnswerView: View, QuestionPartProtocol {
     @State var playingStudent = false
     @State var speechEnabled = false
     @State var tappingScore:Score?
-    @ObservedObject var metronome:Metronome
+    @ObservedObject var answerMetronome:Metronome
     @State var answerWasCorrect:Bool = false
     @ObservedObject var score:Score
     private var mode:QuestionMode
@@ -366,27 +366,31 @@ struct ClapOrPlayAnswerView: View, QuestionPartProtocol {
         self.answer = answer
         self.score = score
         self.mode = mode
-        self.metronome = Metronome.getMetronomeWithCurrentSettings(ctx:"ClapOrPlayAnswerView")
-        metronome.speechEnabled = self.speechEnabled
+        self.answerMetronome = Metronome.getMetronomeWithCurrentSettings(ctx:"ClapOrPlayAnswerView")
+        print(Metronome.getMetronomeWithCurrentSettings(ctx: "TEST").tempo)
+        answerMetronome.speechEnabled = self.speechEnabled
         self.onRefresh = refresh
     }
     
     func analyseStudentRhythm() {
         let rhythmAnalysis = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score)
         self.tappingScore = rhythmAnalysis
+        //print("===", tapRecorder.metronomeTempoAtRecordingStart)
         if let tappingScore = tappingScore {
-            let errorsExist = score.markupStudentScore(questionTempo: self.questionTempo, scoreToCompare: tappingScore, allowTempoVariation: mode != .rhythmEchoClap)
+            let errorsExist = score.markupStudentScore(questionTempo: self.questionTempo, recordedTempo: 0, metronomeTempo: 0,
+                                                       metronomeTempoAtStartRecording: tapRecorder.metronomeTempoAtRecordingStart ?? 0,
+                                                       scoreToCompare: tappingScore, allowTempoVariation: mode != .rhythmEchoClap)
             self.answerWasCorrect = !errorsExist
             if errorsExist {
                 //self.metronome.setTempo(tempo: self.questionTempo, context: "Analyse Student - failed")
-                self.metronome.setAllowTempoChange(allow: false)
-                self.metronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
+                self.answerMetronome.setAllowTempoChange(allow: false)
+                self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
             }
             else {
                 if let recordedTempo = rhythmAnalysis.recordedTempo {
-                    self.metronome.setTempo(tempo: recordedTempo, context: "Analyse Student - passed", allowBeyondLimits: true)
+                    self.answerMetronome.setTempo(tempo: recordedTempo, context: "Analyse Student - passed", allowBeyondLimits: true)
                 }
-                self.metronome.setAllowTempoChange(allow: true)
+                self.answerMetronome.setAllowTempoChange(allow: true)
             }
             tappingScore.label = "Your Rhythm"
         }
@@ -431,18 +435,18 @@ struct ClapOrPlayAnswerView: View, QuestionPartProtocol {
                 VStack {
                     PlayRecordingView(buttonLabel: "Hear The Given \(mode == .melodyPlay ? "Melody" : "Rhythm")",
                                       score: score,
-                                      metronome: metronome)
+                                      metronome: answerMetronome)
 
                     if mode == .melodyPlay {
                         PlayRecordingView(buttonLabel: "Hear Your \(mode == .melodyPlay ? "Melody" : "Rhythm")",
                                           score: nil,
-                                          metronome: metronome)
+                                          metronome: answerMetronome)
                     }
                     else {
                         if let tappingScore = self.tappingScore {
                             PlayRecordingView(buttonLabel: "Hear Your \(mode == .melodyPlay ? "Melody" : "Rhythm")",
                                               score: tappingScore,
-                                              metronome: metronome)
+                                              metronome: answerMetronome)
                         }
                     }
                     
@@ -467,7 +471,7 @@ struct ClapOrPlayAnswerView: View, QuestionPartProtocol {
                     analyseStudentRhythm()
                 }
                 else {
-                    metronome.setTempo(tempo: questionTempo, context: "AnswerMode::OnAppear")
+                    answerMetronome.setTempo(tempo: questionTempo, context: "AnswerMode::OnAppear")
                 }
                 score.setHiddenStaff(num: 1, isHidden: false)
             }
@@ -481,6 +485,8 @@ struct ClapOrPlayAnswerView: View, QuestionPartProtocol {
 struct ClapOrPlayView: View {
     let id = UUID()
     var contentSection:ContentSection
+    let parent:ContentSectionView
+    
     @State var refresh:Bool = false
     //WARNING - Making Score a @STATE makes instance #1 of this struct pass its Score to instance #2
     var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
@@ -496,8 +502,9 @@ struct ClapOrPlayView: View {
         }
     }
 
-    init(mode:QuestionMode, contentSection:ContentSection) {
+    init(mode:QuestionMode, contentSection:ContentSection, parent:ContentSectionView) {
         self.contentSection = contentSection
+        self.parent = parent
         presentQuestionView = ClapOrPlayPresentView(contentSection: contentSection, score: score, answer: answer, mode: mode)
         answerQuestionView = ClapOrPlayAnswerView(contentSection: contentSection, score: score, answer: answer, mode: mode, refresh: onRefresh)
     }
@@ -513,6 +520,12 @@ struct ClapOrPlayView: View {
             if let errMsg = logger.errorMsg {
                 Text(errMsg)
             }
+            Button(action: {
+                parent.nextContentSection()
+            }) {
+                Text("Go to Next Example)")
+            }
+            .padding()
         }
         .background(UIGlobals.colorBackground)
     }

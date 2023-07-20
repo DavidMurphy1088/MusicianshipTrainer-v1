@@ -125,11 +125,32 @@ struct ContentSectionHeaderView: View {
 struct ContentSectionView: View {
     var contentSection:ContentSection
     var parentSection:ContentSection? // the parent of this section that describes the test type
-    
-    init(contentSection:ContentSection) {
+    @Binding var parentsSelectedContentIndex: Int?
+    @State private var selectedContentIndex: Int?
+
+    init(contentSection:ContentSection, parentsSelectedContentIndex:Binding<Int?>) {
         self.contentSection = contentSection
+        _parentsSelectedContentIndex = parentsSelectedContentIndex
+        print("------ContentSectionView init", contentSection.level, contentSection.name, parentsSelectedContentIndex)
     }
    
+    func getContentIndexes() -> [Int] {
+        var indexes:[Int] = []
+        var i = 0
+        for section in contentSection.subSections {
+            if !section.type.hasPrefix("I") {
+                indexes.append(i)
+            }
+            i += 1
+        }
+        return [0,1,2,3]
+    }
+    
+    func nextContentSection() {
+        self.parentsSelectedContentIndex! += 1
+        //print("===>Next Inc", self.selectedContentIndex ?? "nil")
+    }
+    
     var body: some View {
         VStack {
             if contentSection.subSections.count > 0 {
@@ -144,19 +165,44 @@ struct ContentSectionView: View {
                 //.border(Color.red)
                 //}
                 VStack {
-                    List(contentSection.subSections) { subSection in
-                        if !subSection.type.hasPrefix("I") {
-                            NavigationLink(destination: ContentSectionView(contentSection: subSection)) {
-                                VStack {
-                                    Text(subSection.getTitle()).padding()
-                                    //Text("___")
-                                    //.navigationBarTitle("Title").font(.largeTitle)
-                                    //.navigationBarTitleDisplayMode(.inline)
-                                        .font(.title2)
-                                }
+//                    List(contentSection.subSections) { subSection in
+//                        if !subSection.type.hasPrefix("I") {
+//                            NavigationLink(destination: ContentSectionView(contentSection: subSection)
+//                                           //tag: subSection.id, selection: selectedContentIndex
+//                            ) {
+//                                VStack {
+//                                    Text(subSection.getTitle()).padding()
+//                                    //Text("___")
+//                                    //.navigationBarTitle("Title").font(.largeTitle)
+//                                    //.navigationBarTitleDisplayMode(.inline)
+//                                        .font(.title2)
+//                                }
+//                            }
+//                        }
+//                    }
+                    List(getContentIndexes().indices, id: \.self) { index in
+                        NavigationLink(destination: ContentSectionView(contentSection: contentSection.subSections[index],
+                                                                       parentsSelectedContentIndex: $selectedContentIndex),
+                                       tag: index,
+                                       selection: $selectedContentIndex) {
+                            VStack {
+                                Text(contentSection.subSections[index].getTitle())//.padding()
+                                Text("selected:\(self.selectedContentIndex ?? -1) listIndex:\(index)")
+                                //Text("___")
+                                //.navigationBarTitle("Title").font(.largeTitle)
+                                //.navigationBarTitleDisplayMode(.inline)
+                                    .font(.title2)
                             }
+
                         }
                     }
+                    .onAppear {
+//                        print("============OnApper \(self.selectedContentIndex ?? -1)" )
+//                        if self.selectedContentIndex == nil {
+//                            self.selectedContentIndex = 0
+//                        }
+                    }
+
                 }
                 //.border(Color.green)
                 //Spacer()
@@ -170,20 +216,20 @@ struct ContentSectionView: View {
                     )
                 }
                 if path.contains("Clapping") {
-                    ClapOrPlayView (
-                        mode: QuestionMode.rhythmVisualClap,
-                         //presentType: IntervalPresentView.self,
-                         //answerType: IntervalAnswerView.self,
-                         contentSection: contentSection
-                     )
+                    VStack {
+                        ClapOrPlayView (
+                            mode: QuestionMode.rhythmVisualClap,
+                            contentSection: contentSection,
+                            parent: self
+                        )
+                    }
 
                 }
                 if path.contains("Playing") {
                     ClapOrPlayView (
                         mode: QuestionMode.melodyPlay,
-                         //presentType: IntervalPresentView.self,
-                         //answerType: IntervalAnswerView.self,
-                         contentSection: contentSection
+                        contentSection: contentSection,
+                        parent: self
                      )
                 }
                 if path.contains("Intervals Aural") {
@@ -195,7 +241,8 @@ struct ContentSectionView: View {
                 if path.contains("Echo Clap") {
                     ClapOrPlayView (
                         mode: QuestionMode.rhythmEchoClap,
-                         contentSection: contentSection
+                        contentSection: contentSection,
+                        parent: self
                      )
                 }
              }
