@@ -54,8 +54,8 @@ class GoogleAPI {
     
     func getExampleSheet(onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         self.dataCache = [:]
-        let examplesSheetKey:String? = getAPIBundleData(key: "exampleSheetID")
-        //let examplesSheetKey:String? = getGoogleAPIData(key: "test_examples")
+        //let examplesSheetKey:String? = getAPIBundleData(key: "exampleSheetID")
+        let examplesSheetKey:String? = getAPIBundleData(key: "exampleSheetId1")
 
         if let examplesSheetKey = examplesSheetKey {
             let request = DataRequest(callType: .file, id: examplesSheetKey, targetExampleKey: nil)

@@ -27,7 +27,8 @@ struct SoundAnalyseView: View {
 
     init () {
         let data = ExampleData.shared
-        let exampleData = data.get(contentSection: ContentSection(parent: nil, name: "test", type: "", instructions: nil, tipsAndTricks: nil))
+        let exampleData = data.get(contentSection: ContentSection(parent: nil, name: "test", type: "",
+                                                                  loadedDictionaryKey: "", loadedRow:0))
 
         let staff1 = Staff(score: score1, type: .treble, staffNum: 0, linesInStaff: 5)
         let staff1B = Staff(score: score1, type: .bass, staffNum: 1, linesInStaff: 5)

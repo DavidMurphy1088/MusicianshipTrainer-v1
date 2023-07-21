@@ -51,7 +51,7 @@ class StaffLayoutSize: ObservableObject {
         //leave enough space above and below the staff for the Timeslice view to show its tags
         let height = Double(score.getTotalStaffLineCount() + 2) * self.lineSpacing
         if height != StaffLayoutSize.lastHeight {
-            print("ScoreView::staffHeight", height)
+            //print("ScoreView::staffHeight", height)
             StaffLayoutSize.lastHeight = height
         }
         return height

@@ -290,6 +290,8 @@ struct IntervalView: View {
     @State var refresh:Bool = false
     @ObservedObject var exampleData = ExampleData.shared
     var contentSection:ContentSection
+    let parent:ContentSectionView
+
     //WARNING - Making Score a @STATE makes instance #1 of this struct pass its Score to instance #2
     var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
     @ObservedObject var answer: Answer = Answer()
@@ -303,8 +305,10 @@ struct IntervalView: View {
         }
     }
     
-    init(mode:QuestionMode, contentSection:ContentSection) {
+    init(mode:QuestionMode, contentSection:ContentSection, parent:ContentSectionView) {
         self.contentSection = contentSection
+        self.parent = parent
+
         presentQuestionView = IntervalPresentView(contentSection: contentSection, score: self.score, answer: answer, mode:mode)
         answerQuestionView = IntervalAnswerView(contentSection: contentSection, score: score, answer: answer, mode:mode, refresh: onRefresh)
     }
@@ -317,9 +321,12 @@ struct IntervalView: View {
             else {
                 answerQuestionView
             }
-            if let errMsg = logger.errorMsg {
-                Text(errMsg)
+            Button(action: {
+                parent.nextContentSection()
+            }) {
+                Text("Go to Next Example)")
             }
+            .padding()
         }
         .background(UIGlobals.colorBackground)
 

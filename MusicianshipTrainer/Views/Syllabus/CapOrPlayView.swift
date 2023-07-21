@@ -517,13 +517,11 @@ struct ClapOrPlayView: View {
             else {
                 answerQuestionView
             }
-            if let errMsg = logger.errorMsg {
-                Text(errMsg)
-            }
+
             Button(action: {
                 parent.nextContentSection()
             }) {
-                Text("Go to Next Example)")
+                Text("Go to Next Example")
             }
             .padding()
         }

@@ -53,7 +53,7 @@ struct MusicianshipTrainerApp: App {
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Musicianship")
     //product licensed by grade 14Jun23
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
-    static let root:ContentSection = ContentSection(parent: nil, name: "", type: "", instructions: nil, tipsAndTricks: nil)
+    static let root:ContentSection = ContentSection(parent: nil, name: "", type: "", loadedDictionaryKey: "", loadedRow: 0)
     static let settings:Settings = Settings.shared
     var launchTimeSecs = 2.5
 
@@ -63,7 +63,7 @@ struct MusicianshipTrainerApp: App {
     func getStartContentSection() -> ContentSection {
         var cs:ContentSection
         if MusicianshipTrainerApp.productionMode {
-            cs = MusicianshipTrainerApp.root.subSections[1].subSections[0] //NZMEB, Grade 1
+            cs = MusicianshipTrainerApp.root//.subSections[1].subSections[0] //NZMEB, Grade 1
         }
         else {
             cs = MusicianshipTrainerApp.root.subSections[1].subSections[0].subSections[0] //NZMEB, Grade 1, practice
@@ -142,61 +142,61 @@ struct MusicianshipTrainerApp: App {
     }
 }
 
-struct ParentView: View {
-    let numbers = Array(0..<10)
-    @State private var selectedNumber: Int? 
-
-    func inc() {
-        selectedNumber! += 1
-    }
-
-    var body: some View {
-        NavigationView {
-            List(numbers.indices, id: \.self) { index in
-                NavigationLink(destination: ChildView(parent: self, number: numbers[index],
-                                                     selectedNumber: $selectedNumber,
-                                                     maxNumber: numbers.count - 1),
-                               tag: index,
-                               selection: $selectedNumber) {
-                    Text("Go to Child View \(numbers[index])")
-                }
-            }
-            .navigationTitle("Numbers")
-        }
-        .onAppear {
-            if selectedNumber == nil {
-                selectedNumber = 0
-            }
-        }
-
-    }
-}
-
-struct ChildView: View {
-    let parent:ParentView
-    let number: Int
-    @Binding var selectedNumber: Int?
-    let maxNumber: Int
-
-    func x() -> String {
-        if let n = selectedNumber {
-            return String(n)
-        }
-        return "X"
-    }
-    var body: some View {
-        VStack {
-            Text("Child View \(number)")
-
-            if number < maxNumber {
-                Button(action: {
-                    //selectedNumber = number + 1
-                    parent.inc()
-                    print("===", selectedNumber)
-                }) {
-                    Text("Go to Next Child View")
-                }
-            }
-        }
-    }
-}
+//struct ParentView: View {
+//    let numbers = Array(0..<10)
+//    @State private var selectedNumber: Int? 
+//
+//    func inc() {
+//        selectedNumber! += 1
+//    }
+//
+//    var body: some View {
+//        NavigationView {
+//            List(numbers.indices, id: \.self) { index in
+//                NavigationLink(destination: ChildView(parent: self, number: numbers[index],
+//                                                     selectedNumber: $selectedNumber,
+//                                                     maxNumber: numbers.count - 1),
+//                               tag: index,
+//                               selection: $selectedNumber) {
+//                    Text("Go to Child View \(numbers[index])")
+//                }
+//            }
+//            .navigationTitle("Numbers")
+//        }
+//        .onAppear {
+//            if selectedNumber == nil {
+//                selectedNumber = 0
+//            }
+//        }
+//
+//    }
+//}
+//
+//struct ChildView: View {
+//    let parent:ParentView
+//    let number: Int
+//    @Binding var selectedNumber: Int?
+//    let maxNumber: Int
+//
+//    func x() -> String {
+//        if let n = selectedNumber {
+//            return String(n)
+//        }
+//        return "X"
+//    }
+//    var body: some View {
+//        VStack {
+//            Text("Child View \(number)")
+//
+//            if number < maxNumber {
+//                Button(action: {
+//                    //selectedNumber = number + 1
+//                    parent.inc()
+//                    print("===", selectedNumber)
+//                }) {
+//                    Text("Go to Next Child View")
+//                }
+//            }
+//        }
+//    }
+//}

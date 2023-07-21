@@ -9,10 +9,12 @@ class ContentSection: Identifiable {
     var parent:ContentSection?
     var isActive:Bool
     var level:Int
-    var instructions:String?
-    var tipsAndTricks:String?
+    //var instructions:String?
+    //var tipsAndTricks:String?
+    var loadedDictionaryKey:String
+    var loadedRow:Int
 
-    init(parent:ContentSection?, name:String, type:String, instructions:String?, tipsAndTricks:String?, isActive:Bool = true) {
+    init(parent:ContentSection?, name:String, type:String, loadedDictionaryKey:String, loadedRow:Int, isActive:Bool = true) {
         self.parent = parent
         self.name = name
         self.isActive = isActive
@@ -26,8 +28,8 @@ class ContentSection: Identifiable {
             par = par!.parent
         }
         self.level = level
-        self.instructions = instructions
-        self.tipsAndTricks = tipsAndTricks
+        self.loadedDictionaryKey = loadedDictionaryKey
+        self.loadedRow = loadedRow
     }
     
     func getTitle() -> String {
@@ -92,9 +94,9 @@ class ContentSection: Identifiable {
         return title
     }
 
-    func getChildSectionByName(name: String) -> ContentSection? {
+    func getChildSectionByType(type: String) -> ContentSection? {
         for child in self.subSections {
-            if child.name == name {
+            if child.type == type {
                 return child
             }
         }

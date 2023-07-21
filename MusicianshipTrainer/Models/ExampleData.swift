@@ -3,7 +3,9 @@ import Foundation
 class ExampleDataRow {
     var type:String
     var data:[String]
-    init(type:String, data:[String]) {
+    var row:Int
+    init(row:Int, type:String, data:[String]) {
+        self.row = row
         self.type = type
         self.data = data
     }
@@ -12,7 +14,7 @@ class ExampleDataRow {
 class ExampleData : ObservableObject {
     static var shared = ExampleData()
     var logger = Logger.logger
-    private var dataDictionary:[String: ExampleDataRow ] = [:]
+    private var loadedDataDictionary:[String: ExampleDataRow ] = [:]
     private let googleAPI = GoogleAPI.shared
     
     @Published var dataStatus:RequestStatus = .waiting
@@ -23,7 +25,7 @@ class ExampleData : ObservableObject {
     }
     
     func loadData() {
-        dataDictionary = [:]
+        loadedDataDictionary = [:]
         googleAPI.getExampleSheet() { status, data in
             if status == .success {
                 if let data = data {
@@ -37,15 +39,15 @@ class ExampleData : ObservableObject {
                         let sheetRows = jsonData.values
                         self.loadSheetData(sheetRows: sheetRows)
                         self.setDataReady(way: status)
-                        self.logger.log(self, "loaded \(self.dataDictionary.count) example rows")
+                        self.logger.log(self, "loaded \(self.loadedDataDictionary.count) example rows")
                     }
                     catch {
-                        self.logger.log(self, "failed load \(self.dataDictionary.count) example rows")
+                        self.logger.log(self, "failed load \(self.loadedDataDictionary.count) example rows")
                     }
                 }
                 else {
                     self.setDataReady(way: .failed)
-                    self.logger.log(self, "failed load \(self.dataDictionary.count) example rows")
+                    self.logger.log(self, "failed load \(self.loadedDataDictionary.count) example rows")
                 }
             }
             else {
@@ -56,104 +58,175 @@ class ExampleData : ObservableObject {
     
     //load data from Google Drive Sheet
     func loadSheetData(sheetRows:[[String]]) {
-        var keyPath:[String] = []
-        
+
         ///set according to the format of the examples Sheet
-        let keyOffsetStart = 1 //start of path offset
-        let keyDepth = 5 //num columns representing the structure key
-        let typeOffset = keyOffsetStart + keyDepth
-        let typeDepth = 1
-        let dataOffsetStart = typeOffset + typeDepth  + 1   //start of data
+        let keyStart = 1 //start column of key
+        //let keyStartLicense = 3 //start column of key to keep for this license
+        let keyEnd = 5 //
+        var keyPathParts:[String] = Array(repeating: "", count: keyEnd - keyStart + 1)
+
+        let typeColumnStart = keyEnd + 2
+        let dataOffsetStart = keyEnd + 4   //start of data
         var rowNum = 0
         
         for rowCells in sheetRows {
             rowNum += 1
-//            if rowNum > 14 {
-//                rowNum = rowNum + 0
-//            }
             if rowCells.count == 0 {
                 continue
             }
             let type = rowCells[0]
-            if type == "//" {
+            if type.hasPrefix("//")  {
                 continue
             }
 
             var rowData:[String] = []
-            var rowType:String? = nil
-
+            var rowType:String = ""
+            var rowIsBlank = true
+            var rowHasData = false
+            //print ("===>", rowNum, keyPathParts)
+            
             for i in 0..<rowCells.count {
-                if i<keyOffsetStart {
+                if i<keyStart {
                     continue
                 }
+                
                 let cell = rowCells[i]
+                let cellData = cell.replacingOccurrences(of: " ", with: "")
+                if !cellData.isEmpty {
+                    rowIsBlank = false
+                }
+                if cell == "Exam Mode" {
+                    let xx = 1
+                }
 
-                if i <= keyDepth {
+                if i >= keyStart && i <= keyEnd {
                     if !cell.isEmpty {
-                        if keyPath.count > 0 {
-                            keyPath = Array(keyPath.prefix(i-1))
+                        keyPathParts[i - keyStart] = cell                        
+                        //clear the key to the right
+                        for j in i - keyStart+1..<keyPathParts.count {
+                            keyPathParts[j] = ""
                         }
-                        keyPath.append(cell)
                     }
                 }
-                if i == typeOffset {
-                    rowType = ("\(cell)")
+                
+                if i == typeColumnStart {
+                    rowType = cell
                 }
+                
                 if i >= dataOffsetStart {
-                    rowData.append("\(cell.replacingOccurrences(of: " ", with: ""))")
+                    //let cellData = cell
+                    rowData.append("\(cell)")
+                    if !cellData.isEmpty {
+                        rowHasData = true
+                    }
                 }
             }
-            var key = ""
-            for i in 0..<keyPath.count {
-                key += keyPath[i]
-                if i < keyPath.count - 1 {
-                    key += "."
+            if rowIsBlank {
+                continue
+            }
+            
+            if rowHasData {
+                if rowType.isEmpty {
+                    Logger.logger.reportError(self, "row \(rowNum) has no type")
+                    return
                 }
             }
-            if !key.isEmpty {
-                 self.dataDictionary[key] = ExampleDataRow(type: rowType ?? "", data: rowData)
+
+            var key:String? = ""
+            for i in 0..<keyPathParts.count {
+                let path = keyPathParts[i]
+                if i==0 && path != "NZMEB" {
+                    key = nil
+                    break
+                }
+                if i==1 && path != "Grade 1" {
+                    key = nil
+                    break
+                }
+                key! += path
+                if i < keyPathParts.count - 1 {
+                    key! += "."
+                }
             }
+            
+            if let key = key {
+                self.loadedDataDictionary[key] = ExampleDataRow(row: rowNum, type: rowType, data: rowData)
+            }
+        }
+        for k in self.loadedDataDictionary.keys.sorted() {
+            print("loadSheetData::", k)
         }
         loadContentSections()
     }
     
-    ///Create the nested content sections with their child sections
-    func loadContentSections() {
-        var parents:[Int : ContentSection] = [:]
-        for key in self.dataDictionary.keys.sorted() {
-            let keyLevel = key.filter { $0 == "." }.count  //NZMEB is level 1 with parent the root
-            
-            //Maybe comment but dont delete...
-//            print("\n", String(repeating: " ", count: 3 * keyLevel),
-//                  "exampleData.data \(key) \ttype:\(self.dataDictionary[key]?.type) data:\(self.dataDictionary[key]?.data)")
-
-            var parentSection:ContentSection
-            if keyLevel == 0 {
-                parentSection = MusicianshipTrainerApp.root
-            }
-            else {
-                parentSection = parents[keyLevel-1]!
-            }
-            let components = key.components(separatedBy: ".")
-            if components.count == 0 {
-                logger.reportError(self, "Invalid path \(key)")
-            }
-            let name = components[components.count-1]
-            let dictionaryData = self.dataDictionary[key]
-            var type = ""
-            var instructions:String? = nil
-            if let data = dictionaryData {
-                type = data.type
-                if type == "I" {
-                    instructions = data.data[0]
-                }
-            }
-            let section = ContentSection(parent: parentSection, name: name, type: type, instructions: instructions, tipsAndTricks: "")
-            parentSection.subSections.append(section)
-            parents[keyLevel] = section
+    func arrayToKeyStr(_ parts:[String]) -> String {
+        var str = ""
+        for p in parts {
+            str += "." + p
         }
+        return str
     }
     
+    ///Create the nested content sections with their child sections
+    func loadContentSections() {
+        var parents:[String : ContentSection] = [:]
+        
+        for loadedDictionaryKey in self.loadedDataDictionary.keys.sorted() {
+            
+            //discard the content for the unlicensed parts of the key
+            var allKeyParts = loadedDictionaryKey.split(separator: ".")
+            var keyParts:[String] = []
+            for i in 2..<allKeyParts.count {
+                keyParts.append(String(allKeyParts[i]))
+            }
+            
+            //print(keyParts)
+            for i in 0..<keyParts.count {
+                var parentSection:ContentSection
+                if i == 0 {
+                    parentSection = MusicianshipTrainerApp.root
+                }
+                else {
+                    let parentKey = arrayToKeyStr(Array(keyParts.prefix(i)))
+                    if parents[parentKey] == nil {
+                        Logger.logger.reportError(self, "No parent for key:\(parentKey)")
+                        return
+                    }
+                    parentSection = parents[parentKey]!
+                }
+                var hasSubsection = false
+                for subSection in parentSection.subSections {
+                    if subSection.name == keyParts[i] {
+                        hasSubsection = true
+                        break
+                    }
+                }
+                if !hasSubsection {
+                    let loadedData = self.loadedDataDictionary[loadedDictionaryKey]
+                    let contentSection = ContentSection(parent: parentSection, name: keyParts[i],
+                                                        type: loadedData!.type,
+                                                        loadedDictionaryKey: loadedDictionaryKey,
+                                                        loadedRow: loadedData!.row)
+                    parentSection.subSections.append(contentSection)
+                    //present the sections in the order in which they were loaded from the Sheet (not alpahbetically...)
+                    let sorted:[ContentSection] = parentSection.subSections.sorted { (c1, c2) -> Bool in
+                        return c1.loadedRow < c2.loadedRow
+                    }
+                    parentSection.subSections = sorted
+                    
+                    let dictKey = "."+contentSection.getPath()
+                    parents[dictKey] = contentSection
+                    
+                    let keyLevel = dictKey.components(separatedBy: ".").count
+                    //Comment maybe but dont delete.
+                    print("\n", String(repeating: " ", count: 4 * (keyLevel-1)),
+                          "ContentSection--> key:[\(loadedDictionaryKey)] \tname:[\(contentSection.name)]  \trow:\(loadedData?.row) type:\(loadedData?.type)") //\tdata:\(loadedData?.data)")
+
+                }
+            }
+        }
+    }
+
     func setDataReady(way:RequestStatus) {
         DispatchQueue.main.async {
             self.dataStatus = way
@@ -161,23 +234,37 @@ class ExampleData : ObservableObject {
     }
     
     func get(contentSection:ContentSection) -> [Any]! {
-//        var current = contentSection
-//        var key = ""
-//        while true {
-//            key = current.name + key
-//            let par = current.parent
-//            if par == nil {
-//                break
-//            }
-//            current = par!
-//            key = "." + key
-//        }
-        //return getData(key: contentSection.name)
-        return getData(key: contentSection.getPath(), type: contentSection.type)
+
+        return getData(key: contentSection.loadedDictionaryKey, type: contentSection.type)
     }
     
+    func getType(key:String) -> String? {
+        let data = self.loadedDataDictionary[key]
+        guard data != nil else {
+            Logger.logger.reportError(self, "No type for key:[\(key)]")
+            return nil
+        }
+        return data!.type
+    }
+    
+    func getFirstCol(key:String) -> String? {
+        let data = self.loadedDataDictionary[key]
+        guard data != nil else {
+            Logger.logger.reportError(self, "No first col for key:[\(key)]")
+            return nil
+        }
+        let tuples:[String] = data!.data
+        if tuples.count > 0 {
+            return tuples[0]
+        }
+        else {
+            Logger.logger.reportError(self, "No first col for key:[\(key)]")
+            return nil
+        }
+    }
+
     func getData(key:String, type:String, warnNotFound:Bool=true) -> [Any]! {
-        let data = self.dataDictionary[key]
+        let data = self.loadedDataDictionary[key]
         guard data != nil else {
             if warnNotFound {
                 Logger.logger.reportError(self, "No data for key:[\(key)]")
