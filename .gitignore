@@ -7,9 +7,7 @@
 **/*.aif
 
 #all files under directory...
-
-/Google/*
-Google/*
+**/APIKeys/**
 
 ### Firebase ###
 .idea
