@@ -1,28 +1,33 @@
 --TODO
-Google workspace
- - use keys of new service account
- - delete old service accout on old project
- - limit access to sheet
- - where to store videos
- - web site
- - check xero accouting
- 
-restructure content Sheet
- - bring all old data into new format
- - change authprization accoumt and note to close the old one
 
-way for users to see all errors..
 next button for ints and clap/rhythm in answer mode only
 next direct nav can't go past visual scorlloed area
+where to store all remaining exam mode data
+apply ui styling in extensions
+
+//test Ambers demo videos
+test Amber audio
+allow blank colum F for Ins and TT
+//use keys of new service account
+way for users to see all errors..
 bugs sheet
-
-
 2nds chord display aural intervals
-default accidentals for key of G on staff init
 
+//bring all old data into new format
+
+--Medium
+delete old service account on old project
+limit access to sheet
+change authprization accoumt and note to close the old one
 make tapping louder
-stem direction on chord - aural 39
+default accidentals for key of G on staff init
 SF2 channels???
+
+--NonCode
+web site
+check xero accouting
+where to store videos
+
 play song with interval?
 
 

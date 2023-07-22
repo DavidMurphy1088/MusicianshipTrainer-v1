@@ -1,5 +1,4 @@
 import SwiftUI
-//import GoogleSignIn
 struct TestView: View {
 
     let googleAPI = GoogleAPI.shared
@@ -62,29 +61,8 @@ struct TestView: View {
                 }) {
                     Text("Get Document by Name").padding()
                 }
-                
-                //var body: some View {
-//                    NavigationView {
-//                        List(numbers.indices) { index in
-//                            NavigationLink(destination: ChildView(number: numbers[index],
-//                                                                 currentIndex: $currentIndex,
-//                                                                 maxIndex: numbers.count - 1)) {
-//                                Text("Go to Child View \(numbers[index])")
-//                            }
-//                        }
-//                    }
-
-
-//                
-//                Button(action: {
-//                    googleAPI.getExampleSheet() { status, data in
-//                        print("Received data: \(status) \(data)")
-//                    }
-//                }) {
-//                    Text("Google Examples Sheet").padding()
-//                }
             }
-                
+            .padding(.horizontal)
         }
     }
     

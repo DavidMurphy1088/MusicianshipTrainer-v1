@@ -17,10 +17,11 @@ struct IntervalPresentView: View, QuestionPartProtocol {
     var intervalNotes:[Note] = []
     @ObservedObject private var logger = Logger.logger
     @State private var selectedIntervalIndex:Int = 10//? = nil
-    var mode:QuestionMode
+    var questionType:QuestionType
     let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"IntervalPresentView")
     @State private var selectedOption: String? = nil
     @State private var scoreWasPlayed = false
+    var mode: TestMode
     
     class IntervalName : Hashable, Comparable {
         var interval: Int
@@ -59,17 +60,17 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                                 explanation: ["",""]),
     ]
     
-    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, mode:QuestionMode) -> QuestionPartProtocol {
-        return IntervalPresentView(contentSection: contentSection, score:score, answer: answer, mode:mode)
+    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType) -> QuestionPartProtocol {
+        return IntervalPresentView(contentSection: contentSection, score:score, answer: answer, testMode:testMode, questionType:questionType)
     }
     
-    init(contentSection:ContentSection, score:Score, answer:Answer, mode:QuestionMode, refresh:(() -> Void)? = nil) {
+    init(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.answer = answer
         self.score = score
-        self.mode = mode
+        self.questionType = questionType
         let exampleData = exampleData.get(contentSection: contentSection) //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
         let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5)
-        
+        self.mode = testMode
         self.score.setStaff(num: 0, staff: staff)
         let chord:Chord = Chord()
         if let entries = exampleData {
@@ -85,7 +86,7 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                     let note = entry as! Note
                     timeSlice.addNote(n: note)
                     intervalNotes.append(note)
-                    if mode == .intervalAural {
+                    if questionType == .intervalAural {
                         chord.addNote(note: Note(num: note.midiNumber, value: 2, accidental: note.accidental))
                     }
                 }
@@ -100,7 +101,7 @@ struct IntervalPresentView: View, QuestionPartProtocol {
             score.addTimeSlice().addChord(c: chord)
         }
         for interval in intervals {
-            if mode == .intervalVisual {
+            if questionType == .intervalVisual {
                 interval.isIncluded = interval.interval == 2 || interval.interval == 4
                 //Grade 1 only talks about an interval as a 2nd or 3rd regardless of whether is minor or major
                 //interval.isAnswerOption = interval.interval == 2 || interval.interval == 4
@@ -121,8 +122,8 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                         answer.selectedInterval = intervals[index].interval
                     }) {
                         Text(interval.name)
-                        //.foregroundColor(.white)
-                            .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.cornerRadius).padding()
+                            .defaultStyle()
+                            .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .stroke(scoreWasPlayed ? Color.black : Color.clear, lineWidth: 1)
@@ -140,7 +141,7 @@ struct IntervalPresentView: View, QuestionPartProtocol {
     var body: AnyView {
         AnyView(
             VStack {
-                if mode == .intervalVisual {
+                if questionType == .intervalVisual {
                     ScoreSpacerView()
                     ScoreSpacerView()
                     ScoreView(score: score).padding()
@@ -151,20 +152,19 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                 }
                 
                 HStack {
-                    if mode != .intervalVisual {
+                    if questionType != .intervalVisual {
                         Button(action: {
                             metronome.playScore(score: score, onDone: {
                                 self.scoreWasPlayed = true
                             })
                             self.scoreWasPlayed = true
                         }) {
-                            Text("Hear Interval")
-                                .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.cornerRadius).padding()
+                            Text("Hear Interval").defaultStyle()
                         }
-                        .padding()
+                        //.padding()
                         //.background(UIGlobals.backgroundColorHiliteBox)
-                        .background(UIGlobals.colorInstructions)
-                        .padding()
+                        //.background(UIGlobals.colorInstructions)
+                        //.padding()
                     }
                 }
                 VStack {
@@ -174,10 +174,10 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                     }
                     .padding()
                 }
-                .disabled(mode == .intervalAural && scoreWasPlayed == false)
+                .disabled(questionType == .intervalAural && scoreWasPlayed == false)
                 
-                VStack {
-                    //if answer.state == .answered {
+                if answer.state == .answered {
+                    VStack {
                         Button(action: {
                             answer.setState(.submittedAnswer)
                             let interval = abs((intervalNotes[1].midiNumber - intervalNotes[0].midiNumber))
@@ -197,21 +197,17 @@ struct IntervalPresentView: View, QuestionPartProtocol {
                                 answer.explanation = name!.explanation[noteIsSpace ? 1 : 0]
                             }
                         }) {
-                            Text(answer.state == .answered ? "Check Your Answer" : "?")
-                                .foregroundColor(.white) //answer.state == .answered ? .white : .clear)
-                                .padding()
-                                .background(.blue) //answer.state == .answered ? .blue : .clear)
-                                .cornerRadius(UIGlobals.cornerRadius).padding()
+                            Text("Check Your Answer").defaultStyle()
                         }
                         .disabled(answer.state != .answered)
                         .padding()
-                    //}
+                    }
+//                    .overlay(
+//                        RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+//                    )
+//                    .background(UIGlobals.colorInstructions)
+//                    .padding()
                 }
-                .overlay(
-                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                )
-                .background(UIGlobals.colorInstructions)
-                .padding()
                 Spacer()
             }
         )
@@ -220,23 +216,23 @@ struct IntervalPresentView: View, QuestionPartProtocol {
 
 struct IntervalAnswerView: View, QuestionPartProtocol {
     @ObservedObject var answer:Answer
-    private var mode:QuestionMode
+    private var questionType:QuestionType
 
     private var score:Score
     private let imageSize = Double(32)
     private let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"Interval answer View")
     private var noteIsSpace:Bool
     
-    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, mode:QuestionMode) -> QuestionPartProtocol {
-        return IntervalAnswerView(contentSection:contentSection, score:score, answer: answer, mode: mode)
+    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType) -> QuestionPartProtocol {
+        return IntervalAnswerView(contentSection:contentSection, score:score, answer: answer, testMode:testMode, questionType: questionType)
     }
     
-    init(contentSection:ContentSection, score:Score, answer:Answer, mode:QuestionMode, refresh:(() -> Void)? = nil) {
+    init(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.answer = answer
         self.score = score
         self.noteIsSpace = true //[Note.MIDDLE_C + 5, Note.MIDDLE_C + 9, Note.MIDDLE_C + 12, Note.MIDDLE_C + 16].contains(intervalNotes[0].midiNumber)
         metronome.speechEnabled = false
-        self.mode = mode
+        self.questionType = questionType
     }
     
     var body: AnyView {
@@ -260,27 +256,21 @@ struct IntervalAnswerView: View, QuestionPartProtocol {
                 .padding()
                 
                 Text("The interval is a \(answer.correctIntervalName)").padding()
-                if mode == .intervalVisual {
+                if questionType == .intervalVisual {
                     Text(answer.explanation).italic().fixedSize(horizontal: false, vertical: true).padding()
                 }
                 
-                if mode == .intervalAural {
+                if questionType == .intervalAural {
                     Button(action: {
                         metronome.playScore(score: score)
                     }) {
-                        Text("Hear Interval")
-                            .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.cornerRadius).padding()
+                        Text("Hear Interval").defaultStyle()
                     }
                     .padding()
                 }
                 
                 Spacer()
             }
-//            .overlay(
-//                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-//            )
-//            .background(UIGlobals.backgroundColor)
-//            .padding()
         )
     }
 }
@@ -291,6 +281,7 @@ struct IntervalView: View {
     @ObservedObject var exampleData = ExampleData.shared
     var contentSection:ContentSection
     let parent:ContentSectionView
+    var testMode:TestMode
 
     //WARNING - Making Score a @STATE makes instance #1 of this struct pass its Score to instance #2
     var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
@@ -305,12 +296,13 @@ struct IntervalView: View {
         }
     }
     
-    init(mode:QuestionMode, contentSection:ContentSection, parent:ContentSectionView) {
+    init(questionType:QuestionType, contentSection:ContentSection, testMode:TestMode, parent:ContentSectionView) {
         self.contentSection = contentSection
         self.parent = parent
+        self.testMode = testMode
 
-        presentQuestionView = IntervalPresentView(contentSection: contentSection, score: self.score, answer: answer, mode:mode)
-        answerQuestionView = IntervalAnswerView(contentSection: contentSection, score: score, answer: answer, mode:mode, refresh: onRefresh)
+        presentQuestionView = IntervalPresentView(contentSection: contentSection, score: self.score, answer: answer, testMode:testMode, questionType:questionType)
+        answerQuestionView = IntervalAnswerView(contentSection: contentSection, score: score, answer: answer, testMode:testMode, questionType:questionType, refresh: onRefresh)
     }
 
     var body: some View {
@@ -324,7 +316,7 @@ struct IntervalView: View {
             Button(action: {
                 parent.nextContentSection()
             }) {
-                Text("Go to Next Example)")
+                Text("Go to Next Example)").defaultStyle()
             }
             .padding()
         }

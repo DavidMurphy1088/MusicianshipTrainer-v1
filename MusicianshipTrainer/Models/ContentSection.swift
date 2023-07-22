@@ -1,6 +1,17 @@
 import Foundation
 import AVFoundation
 
+enum ContentSectionNextPolicy {
+    case must
+    case cannot
+    case can
+}
+
+enum TestMode {
+    case practice
+    case exam
+}
+
 class ContentSection: Identifiable {
     let id = UUID()
     var name: String = ""

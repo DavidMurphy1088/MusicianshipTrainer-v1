@@ -86,8 +86,8 @@
 		7B5B14742A5CBB310076EE09 /* GoogleAPI_OLD.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B5B14732A5CBB310076EE09 /* GoogleAPI_OLD.plist */; };
 		7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F52A68F63B00EA088E /* Cache.swift */; };
 		7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */; };
-		7B8EF2FA2A6B904000EA088E /* Google_OAuth2_Keys.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F92A6B904000EA088E /* Google_OAuth2_Keys.json */; };
-		7B8EF2FC2A6BA0B800EA088E /* musicianshiptrainer-393523-e4fce11c1999.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2FB2A6BA0B800EA088E /* musicianshiptrainer-393523-e4fce11c1999.json */; };
+		7B8EF2FA2A6B904000EA088E /* Google_OAuth2_Keys_BAD.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F92A6B904000EA088E /* Google_OAuth2_Keys_BAD.json */; };
+		7B8EF2FC2A6BA0B800EA088E /* Google_OAuth2_Keys.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2FB2A6BA0B800EA088E /* Google_OAuth2_Keys.json */; };
 		7BAB37D62A5D027B004FA3AA /* Google_OAuth2_Keys_OLD.json in Resources */ = {isa = PBXBuildFile; fileRef = 7BAB37D52A5D027B004FA3AA /* Google_OAuth2_Keys_OLD.json */; };
 		7BB835462A5548750083C1C0 /* Firestore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB835452A5548750083C1C0 /* Firestore.swift */; };
 		7BB835492A5555130083C1C0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB835482A5555130083C1C0 /* FirebaseFirestore */; };
@@ -208,8 +208,8 @@
 		7B5B14732A5CBB310076EE09 /* GoogleAPI_OLD.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI_OLD.plist; sourceTree = "<group>"; };
 		7B8EF2F52A68F63B00EA088E /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
-		7B8EF2F92A6B904000EA088E /* Google_OAuth2_Keys.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Google_OAuth2_Keys.json; sourceTree = "<group>"; };
-		7B8EF2FB2A6BA0B800EA088E /* musicianshiptrainer-393523-e4fce11c1999.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "musicianshiptrainer-393523-e4fce11c1999.json"; sourceTree = "<group>"; };
+		7B8EF2F92A6B904000EA088E /* Google_OAuth2_Keys_BAD.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Google_OAuth2_Keys_BAD.json; sourceTree = "<group>"; };
+		7B8EF2FB2A6BA0B800EA088E /* Google_OAuth2_Keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Google_OAuth2_Keys.json; sourceTree = "<group>"; };
 		7BAB37D52A5D027B004FA3AA /* Google_OAuth2_Keys_OLD.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Google_OAuth2_Keys_OLD.json; sourceTree = "<group>"; };
 		7BB835452A5548750083C1C0 /* Firestore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore.swift; sourceTree = "<group>"; };
 		7BC42EB12A550F39004FE117 /* AudioNotes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AudioNotes; sourceTree = "<group>"; };
@@ -308,9 +308,9 @@
 			children = (
 				7BAB37D52A5D027B004FA3AA /* Google_OAuth2_Keys_OLD.json */,
 				7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */,
-				7B8EF2FB2A6BA0B800EA088E /* musicianshiptrainer-393523-e4fce11c1999.json */,
+				7B8EF2FB2A6BA0B800EA088E /* Google_OAuth2_Keys.json */,
 				7B5B14732A5CBB310076EE09 /* GoogleAPI_OLD.plist */,
-				7B8EF2F92A6B904000EA088E /* Google_OAuth2_Keys.json */,
+				7B8EF2F92A6B904000EA088E /* Google_OAuth2_Keys_BAD.json */,
 			);
 			path = Google;
 			sourceTree = "<group>";
@@ -625,9 +625,9 @@
 				7BFD93B02A5FA9E3002878D3 /* NameToTitleMap.plist in Resources */,
 				7B2807992A5508D300C70EF4 /* Mechanical metronome - High.aif in Resources */,
 				7B2807A22A5508D300C70EF4 /* simplemelodypiano.wav in Resources */,
-				7B8EF2FA2A6B904000EA088E /* Google_OAuth2_Keys.json in Resources */,
+				7B8EF2FA2A6B904000EA088E /* Google_OAuth2_Keys_BAD.json in Resources */,
 				7B0A64DC2A62B50C0091A24A /* marcato strings.sf2 in Resources */,
-				7B8EF2FC2A6BA0B800EA088E /* musicianshiptrainer-393523-e4fce11c1999.json in Resources */,
+				7B8EF2FC2A6BA0B800EA088E /* Google_OAuth2_Keys.json in Resources */,
 				7B28079E2A5508D300C70EF4 /* Playing.html in Resources */,
 				7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */,
 				7BAB37D62A5D027B004FA3AA /* Google_OAuth2_Keys_OLD.json in Resources */,

@@ -12,7 +12,8 @@ class UIGlobals {
     //static var backgroundColorHiliteBox = Color.blue.opacity(0.10) //0.04
     //static let backgroundColorLighter = Color.blue.opacity(0.03)
     
-    static let cornerRadius:CGFloat = 16
+    //static let cornerRadius:CGFloat = 16
+    static let cornerRadius:CGFloat = 8
     static let borderColor:CGColor = CGColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)
     static let borderLineWidth:CGFloat = 2
     static let buttonCornerRadius = 10.0
@@ -28,4 +29,21 @@ struct StandardButtonStyle: ButtonStyle {
             .cornerRadius(8)
     }
 }
+
+extension Text {
+    func defaultStyle() -> some View {
+        //let n = 0
+        self
+//            .foregroundColor(.red)
+//            .background(Color.yellow)
+//            .border(Color.black, width: 1)
+            .foregroundColor(.white)
+        //UIDevice.current.userInterfaceIdiom == .phone ? .zero : .
+            .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 8)
+            .background(.blue)
+            .cornerRadius(UIGlobals.cornerRadius)
+            //.padding()
+    }
+}
+
 

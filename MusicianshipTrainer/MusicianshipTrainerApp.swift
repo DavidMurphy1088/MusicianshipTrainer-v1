@@ -87,7 +87,7 @@ struct MusicianshipTrainerApp: App {
                     if exampleData.dataStatus == RequestStatus.success {
                         //if !MusicianshipTrainerApp.productionMode {
                             if UIDevice.current.userInterfaceIdiom == .pad {
-                                TestView()
+                                TestView().padding(.horizontal)
                             }
                         //}
 

@@ -193,18 +193,22 @@ struct ContentSectionView: View {
             else {
                 let path = contentSection.getPath()
                 let type = ExampleData.shared.getType(key: contentSection.loadedDictionaryKey)
+                let testMode = TestMode.practice
+                
                 if type == "Type.1" {
                    IntervalView(
-                        mode: QuestionMode.intervalVisual,
+                        questionType: QuestionType.intervalVisual,
                         contentSection: contentSection,
+                        testMode: testMode,
                         parent: self
                     )
                 }
                 if type == "Type.2" {
                     VStack {
                         ClapOrPlayView (
-                            mode: QuestionMode.rhythmVisualClap,
+                            questionType: QuestionType.rhythmVisualClap,
                             contentSection: contentSection,
+                            testMode: testMode,
                             parent: self
                         )
                     }
@@ -212,22 +216,25 @@ struct ContentSectionView: View {
                 }
                 if type == "Type.3" {
                     ClapOrPlayView (
-                        mode: QuestionMode.melodyPlay,
+                        questionType: QuestionType.melodyPlay,
                         contentSection: contentSection,
+                        testMode: testMode,
                         parent: self
                      )
                 }
                 if type == "Type.4" {
                    IntervalView(
-                        mode: QuestionMode.intervalAural,
+                        questionType: QuestionType.intervalAural,
                         contentSection: contentSection,
+                        testMode: testMode,
                         parent: self
                     )
                 }
                 if type == "Type.5" {
                     ClapOrPlayView (
-                        mode: QuestionMode.rhythmEchoClap,
+                        questionType: QuestionType.rhythmEchoClap,
                         contentSection: contentSection,
+                        testMode: testMode,
                         parent: self
                      )
                 }

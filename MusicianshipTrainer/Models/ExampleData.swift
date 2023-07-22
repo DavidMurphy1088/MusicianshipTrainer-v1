@@ -220,7 +220,7 @@ class ExampleData : ObservableObject {
                     let keyLevel = dictKey.components(separatedBy: ".").count
                     //Comment maybe but dont delete.
                     print("\n", String(repeating: " ", count: 4 * (keyLevel-1)),
-                          "ContentSection--> key:[\(loadedDictionaryKey)] \tname:[\(contentSection.name)]  \trow:\(loadedData?.row) type:\(loadedData?.type)") //\tdata:\(loadedData?.data)")
+                          "ContentSection--> key:[\(loadedDictionaryKey)] \tname:[\(contentSection.name)]  \trow:\(loadedData?.row) type:\(loadedData?.type) Row:\(loadedData?.row)") //\tdata:\(loadedData?.data)")
 
                 }
             }

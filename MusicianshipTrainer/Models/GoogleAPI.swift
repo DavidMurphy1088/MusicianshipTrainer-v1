@@ -134,7 +134,8 @@ class GoogleAPI {
     
     ///======================= OAuth Calls ======================
     ///OAuth calls require that first an access key is granted. OAuth calls do not use the API key.
-    ///OAuth authorization is managed be creating a Service Account in the Google Workspace
+    ///OAuth authorization is managed by creating a Service Account in the Google Workspace and then generating a key for it
+    ///The generated key is used to make the signed (by JWT) access token request
 
     func getDocumentByName(name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
         if let cachedData = self.dataCache[name] {
@@ -155,7 +156,7 @@ class GoogleAPI {
         getDataByID(request: request) { status, data in
             let fileId = self.getFileIDFromName(name:name, data: data) //{status, data  in
             guard let fileId = fileId else {
-                self.logger.reportError(self, "File name note found, name:[\(name)]")
+                self.logger.reportError(self, "File name not found, name:[\(name)]")
                 onDone(.failed, nil)
                 return
             }
@@ -206,6 +207,7 @@ class GoogleAPI {
                         onDone(.success, textContent)
                     }
                     catch let error {
+                        print(String(data: data, encoding: .utf8))
                         let str = String(data: data, encoding: .utf8)
                         self.logger.reportError(self, "Cannot parse \(name) \(error.localizedDescription) data:\(str ?? "")")
                         onDone(.failed, nil)
@@ -230,13 +232,16 @@ class GoogleAPI {
         }
         do {
             let filesData = try JSONDecoder().decode(FileSearch.self, from: data)
-            print ("FILES-")
             for f in filesData.files {
-                print(f.name, "\t", f.id)
                 if f.name == name {
                     return f.id
                 }
             }
+            self.logger.reportError(self, "File name \(name) not found in folder")
+//            for f in filesData.files.sorted{ $0.name < $1.name } {
+//                print("  ", f.name)
+//            }
+
         }
         catch {
             self.logger.log(self, "failed load")
@@ -276,8 +281,7 @@ class GoogleAPI {
         }
 
         var privateKey:String?
-        //let bundleName = "Google_OAuth2_Keys"
-        let bundleName = "musicianshiptrainer-393523-e4fce11c1999"
+        let bundleName = "Google_OAuth2_Keys"
         if let url = Bundle.main.url(forResource: bundleName, withExtension: "json") {
             do {
                 let data = try Data(contentsOf: url)
