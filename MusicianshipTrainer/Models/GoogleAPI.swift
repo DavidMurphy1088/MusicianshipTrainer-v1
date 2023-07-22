@@ -34,7 +34,6 @@ class GoogleAPI {
     let logger = Logger.logger
     
     private init() {
-        
     }
     
     private func getAPIBundleData(key:String) -> String? {
@@ -54,9 +53,8 @@ class GoogleAPI {
     
     func getExampleSheet(onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         self.dataCache = [:]
-        //let examplesSheetKey:String? = getAPIBundleData(key: "exampleSheetID")
-        let examplesSheetKey:String? = getAPIBundleData(key: "exampleSheetId1")
-
+        let examplesSheetKey:String? = getAPIBundleData(key: "ContentSheetID")
+        
         if let examplesSheetKey = examplesSheetKey {
             let request = DataRequest(callType: .file, id: examplesSheetKey, targetExampleKey: nil)
             var url:String
@@ -75,7 +73,7 @@ class GoogleAPI {
         }
     }
 
-    ///Call a Google Drive API (sheets, files etc) using an API key. Note that this does not require an oAuth2 token request.
+    ///Call a Google Drive API (sheets, files etc) using an API key. Note that this does not require an OAuth2 token request.
     ///Data accessed via an API key only is regarded as less senstive by Google than data in a Google doc that requires an OAuth token
     
     private func getByAPI(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
@@ -134,7 +132,9 @@ class GoogleAPI {
         task.resume()
     }
     
-    //======================= OAuth Calls ======================
+    ///======================= OAuth Calls ======================
+    ///OAuth calls require that first an access key is granted. OAuth calls do not use the API key.
+    ///OAuth authorization is managed be creating a Service Account in the Google Workspace
 
     func getDocumentByName(name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
         if let cachedData = self.dataCache[name] {
@@ -162,7 +162,7 @@ class GoogleAPI {
             //https://docs.google.com/document/d/1WMW0twPTy0GpKXhlpiFjo-LO2YkDNnmPyp2UYrvXItU/edit?usp=sharing
             let request = DataRequest(callType: .googleDoc, id: fileId, targetExampleKey: nil)
             self.getDataByID(request: request) { status, data in
-                print(status)
+                print("getDataByID", status)
                 if let data = data {
                     struct Document: Codable {
                         let body: Body
@@ -264,6 +264,7 @@ class GoogleAPI {
         }
 
         let myHeader = Header(typ: "JWT")
+        print("===============", projectEmail)
         let myClaims = GoogleClaims(iss: projectEmail,
                                     scope: "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/documents",
                                     aud: "https://oauth2.googleapis.com/token",
@@ -275,7 +276,9 @@ class GoogleAPI {
         }
 
         var privateKey:String?
-        if let url = Bundle.main.url(forResource: "Google_OAuth2_Keys", withExtension: "json") {
+        //let bundleName = "Google_OAuth2_Keys"
+        let bundleName = "musicianshiptrainer-393523-e4fce11c1999"
+        if let url = Bundle.main.url(forResource: bundleName, withExtension: "json") {
             do {
                 let data = try Data(contentsOf: url)
                 let decoder = JSONDecoder()
@@ -301,7 +304,9 @@ class GoogleAPI {
             return
         }
         
-        //==================== Exchange the JWT token for a Google OAuth2 access token: ===================
+        ///Request an OAUth2 token using the JWT signature
+        ///Exchange the JWT token for a Google OAuth2 access token:
+        ///The OAuth2 token is equired to access the API in the next step
             
         let headers: HTTPHeaders = ["Content-Type": "application/x-www-form-urlencoded"]
         
@@ -330,7 +335,7 @@ class GoogleAPI {
                         fetchGoogleResourceContent(request: request, onDone: onDone)
                     }
                     else {
-                        self.logger.reportError(self, "Cannot find access token")
+                        self.logger.reportError(self, "Cannot find access token: \(json)")
                     }
                 }
                 else {

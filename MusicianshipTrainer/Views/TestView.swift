@@ -19,18 +19,7 @@ struct TestView: View {
     
     var body: some View {
         VStack {
-            //Text("test")
-            //ToolsView(score: score)
-            //ScoreView(score: score).padding()
-            
-//            StaffView(score: score, staff: staff, staffLayoutSize: StaffLayoutSize(lineSpacing:20)).padding().border(Color.blue)
-            
-            //Text("Ts:: \(tagText())")
-//            
-//            StaffNotesView(score: score, staff: staff, lineSpacing: StaffLayoutSize(lineSpacing: 20))
-//                //.border(Color.indigo)
-//                .frame(width: 5 * Double(ts.notesLength ?? 0) + 200)
-                //Spacer()
+
             if logger.errorNo >= 0 {
                 Text("Error no \(logger.errorNo)")
             }
@@ -50,15 +39,24 @@ struct TestView: View {
                 }) {
                     Text("Induce Error").padding()
                 }
-
                 Button(action: {
                     //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
-                    //let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
-                    //let request = DataRequest(callType: .file, id: fileId, targetExampleKey: nil)
-                    //let name = "NZMEB.Grade 1.Intervals Visual.Instructions"
+                    let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
+                    let request = DataRequest(callType: .file, id: fileId, targetExampleKey: nil)
+                    
+                    googleAPI.getDataByID(request: request) {status, data in
+                        print(status)
+                        print(String(data: data!, encoding: .utf8) ?? "")
+                    }
+                }) {
+                    Text("Google File By ID").padding()
+                }
+                
+                Button(action: {
+                    //requires files parent folder id in plist GoogleDriveDataFolderID
                     let name = "TestTipsTricks"
                     googleAPI.getDocumentByName(name: name) {status,data in
-                        print(status, data ?? "")
+                        print("TESTVIEW getDocumentByName:", status, "data:", data ?? "")
                     }
                     
                 }) {
@@ -76,18 +74,7 @@ struct TestView: View {
 //                        }
 //                    }
 
-//                Button(action: {
-//                    //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
-//                    let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
-//                    let request = DataRequest(callType: .file, id: fileId, targetExampleKey: nil)
-//                    
-//                    googleAPI.getDataByID(request: request) {status, data in
-//                        print(status)
-//                        print(String(data: data!, encoding: .utf8) ?? "")
-//                    }
-//                }) {
-//                    Text("Google File By ID").padding()
-//                }
+
 //                
 //                Button(action: {
 //                    googleAPI.getExampleSheet() { status, data in

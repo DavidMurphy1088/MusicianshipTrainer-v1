@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "musicianshiptrainer-393523",
+  "private_key_id": "e4fce11c1999d973c2c38203a67da0291a8e19d6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCOPilK+EuSIsTT\ndBI5hLYCTvfxr7p4CbSCTdjYa+kHlbQentx1udzUmLLBQK/a46NeSLovubaTOapr\nHBaEwLQJDdxNYpBYgE+rmrqTp04cRk9ma9PuDGpSYEZBZtqciTb/sJePi49Ij2u0\nomOq98Z38YpQhcDbircny57lcjU98p7Ifgbu3ej4m/KIPSPQxM1ozreLD5FChUCX\n7uRddZJh3b127G1v1Ip31GvgOALVtrLKhlaJOtfclHMkGOzt3kcHjQj9lrupqM6g\nvbI0Rnf/+9ojRESEyEPftMiJfqSMpWkcUEfaLdj2fTGuZXGE7Zo7jLINCy8OgaFQ\nQISYinphAgMBAAECggEABmtNmqCVi/vx0xtXjHUVz+k7iSKZnRvOg6wi0WL+zGDk\nFNbtWup7KdS1ifE68mtQGsPYU6mrUK3zN/PXvBBUe51elBcy7YyGU+em3H2aEb52\nTDho4zL4HB00RHSxYEu0scGo2FF3cxJGXXuv2OYHRM/PorJDjaDPIs6Ojlsa5h+G\n882Ii/zhoEP1mZP3VLl9ynL4hIsoBq97O0SeAA3oLlfIs8NiIyATweKrN4yhKRgY\nuBYbTMTrUsYfgiYDmePPFKOrE77DciYhwK5wJlGh7DjtMM+6Wn/LUHlFTkqNRk7r\n47bkmph6JwOolMaO0yAjq3bmaYDYtKL9EV9pUnEgEQKBgQC/aFIYidNH3isPEmN+\nlNFU7fza5cNKDOERE7STjwLnUgalBtcMTA5BewygG2suFppN5eCYTHB+E22NXqqe\n23RkePS8+qQ9Pf/B5Xb2bkSBqrVxU9YEUHsYsyJrZ+zAXY4T6bqrMivriD66Vxez\nljSa8dK0CPzmqkqE/+U+U68kcQKBgQC+PoHdF5V9le4L5VSzWog6yRPrTh/n5sf6\noTi1FF98cfN4wDqFd1liSuZaUkJ2CzX3agmG6olDGKeL8EktWF2QWm7hxlaQq5DS\nc3iP5h4ovnHoJKjEC2lodJi+r+vJZUaLNArSS8i2hBFJG9DNp2bz6FDiSbDWHtVP\nRqXLcKHs8QKBgCGcO+47JXKVPJJk9Duh/jAfqir19ZjnMg5Bm4/dqPDdonUQAmsS\nX953sPvcVLG/HlFXcFzN72L0HmSYnvVOK94Ir1EP4g8u994gYQdczYLHaxz/T7Fq\nQHNR4VVi5lvREcXFYRX2tWeigQFPkcXjNlGO7STX/zCx7mv0U1jicPrBAoGAa/FJ\ne+oCvxQP0h4YFf+7JierLqrQPaNbOmC5rTzXBOQe8heX3NygEb5Pv1XHMfUgdLZs\nm2l94l0dy6/VxW3LALnfCimgOkuuS0qLUJKP8CxGsyIBw+J5t3PYqvFkRow5H4iy\nzymCw9RhfmrS6a0fJCtfoVWQiZ1LCMUcEzdgGPECgYEAhoJS3sGVmkbLehmrieyp\nRU9BgWUr3Sx5SjtO7SEaLNx2Rf0wKtqtiPRUVca7NPKwdADNzamTOxxM4X4xq5iN\nfF0LXOI03oqr0TP4SZPYolJITbAgFgByNL0CPHrCfcnfrCe03LEylz0A8TVkkckq\noX4RW9nIqfwGRveUIetfbuI=\n-----END PRIVATE KEY-----\n",
+  "client_email": "musicianshiptrainer@musicianshiptrainer-393523.iam.gserviceaccount.com",
+  "client_id": "112114620645189150753",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/musicianshiptrainer%40musicianshiptrainer-393523.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
