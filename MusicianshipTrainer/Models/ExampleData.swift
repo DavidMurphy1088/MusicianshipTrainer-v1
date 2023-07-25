@@ -153,9 +153,9 @@ class ExampleData : ObservableObject {
                 self.loadedDataDictionary[key] = ExampleDataRow(row: rowNum, type: rowType, data: rowData)
             }
         }
-        for k in self.loadedDataDictionary.keys.sorted() {
-            print("loadSheetData::", k)
-        }
+//        for k in self.loadedDataDictionary.keys.sorted() {
+//            print("loadSheetData::", k)
+//        }
         loadContentSections()
     }
     
@@ -212,6 +212,11 @@ class ExampleData : ObservableObject {
                     let sorted:[ContentSection] = parentSection.subSections.sorted { (c1, c2) -> Bool in
                         return c1.loadedRow < c2.loadedRow
                     }
+                    var index = 0
+                    for section in sorted {
+                        section.index = index
+                        index += 1
+                    }
                     parentSection.subSections = sorted
                     
                     let dictKey = "."+contentSection.getPath()
@@ -219,8 +224,8 @@ class ExampleData : ObservableObject {
                     
                     let keyLevel = dictKey.components(separatedBy: ".").count
                     //Comment maybe but dont delete.
-                    print("\n", String(repeating: " ", count: 4 * (keyLevel-1)),
-                          "ContentSection--> key:[\(loadedDictionaryKey)] \tname:[\(contentSection.name)]  \trow:\(loadedData?.row) type:\(loadedData?.type) Row:\(loadedData?.row)") //\tdata:\(loadedData?.data)")
+//                    print("\n", String(repeating: " ", count: 4 * (keyLevel-1)),
+//                          "ContentSection--> key:[\(loadedDictionaryKey)] \tname:[\(contentSection.name)]  \trow:\(loadedData?.row) type:\(loadedData?.type) Row:\(loadedData?.row) Index:\()") //\tdata:\(loadedData?.data)")
 
                 }
             }

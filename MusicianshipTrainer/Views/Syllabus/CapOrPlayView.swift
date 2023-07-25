@@ -64,8 +64,7 @@ struct PlayRecordingView: View {
                         metronome.stopPlayingScore()
                     }) {
                         Text("Stop Playing")
-                            //.font(.body)
-                            .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.cornerRadius).padding()
+                            .defaultStyle()
                         Image(systemName: "stop.circle")
                             .resizable()
                             .frame(width: 24, height: 24)
@@ -74,8 +73,7 @@ struct PlayRecordingView: View {
                 }
                 else {
                     Text(self.buttonLabel)
-                        //.font(.body)
-                        .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.cornerRadius).padding()
+                        .defaultStyle()
                 }
             }
             .padding()
@@ -83,7 +81,8 @@ struct PlayRecordingView: View {
     }
 }
 
-struct ClapOrPlayPresentView: View, QuestionPartProtocol {
+struct ClapOrPlayPresentView: View {//}, QuestionPartProtocol {
+    //@ObservedObject var answer:Answer
     @ObservedObject var answer:Answer
     @ObservedObject var audioRecorder = AudioRecorder.shared
     @ObservedObject var tapRecorder = TapRecorder.shared
@@ -108,10 +107,10 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
     static func onRefresh() {
     }
     
-    //static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, mode:QuestionMode) -> QuestionPartProtocol
-    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType) -> QuestionPartProtocol {
-        return ClapOrPlayPresentView(contentSection: contentSection, score:score, answer: answer, testMode:testMode, questionType: questionType, refresh: onRefresh)
-    }
+//    //static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, mode:QuestionMode) -> QuestionPartProtocol
+//    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType) -> QuestionPartProtocol {
+//        return ClapOrPlayPresentView(contentSection: contentSection, score:score, answer: answer, testMode:testMode, questionType: questionType, refresh: onRefresh)
+//    }
     
     init(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.answer = answer
@@ -281,7 +280,7 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
                                 }
                             }) {
                                 Text("Stop Recording")
-                                    .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.buttonCornerRadius)
+                                    .defaultStyle()
                             }//.padding()
                         }
 
@@ -293,29 +292,30 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
                         }
 
                         if answer.state == .recorded {
-                            PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                              score: questionType == .melodyPlay ? nil : getStudentScoreWithTempo(),
-                                              metronome: self.metronome,
-                                              onStart: ({
-                                                    if questionType != .melodyPlay {
-                                                        if let recordedTempo = getStudentScoreWithTempo().recordedTempo {
-                                                            metronome.setTempo(tempo: recordedTempo, context:"start hear student")
-                                                        }
-                                                    }
-                                                }),
-                                              onDone: ({
-                                                    //recording was played at the student's tempo and now reset metronome
-                                                    metronome.setTempo(tempo: self.questionTempo, context: "end hear student")
-                                                })
-                                              )
-
+                            if testMode.mode == .practice || answer.state == .notEverAnswered {
+                                PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
+                                                  score: questionType == .melodyPlay ? nil : getStudentScoreWithTempo(),
+                                                  metronome: self.metronome,
+                                                  onStart: ({
+                                    if questionType != .melodyPlay {
+                                        if let recordedTempo = getStudentScoreWithTempo().recordedTempo {
+                                            metronome.setTempo(tempo: recordedTempo, context:"start hear student")
+                                        }
+                                    }
+                                }),
+                                                  onDone: ({
+                                    //recording was played at the student's tempo and now reset metronome
+                                    metronome.setTempo(tempo: self.questionTempo, context: "end hear student")
+                                })
+                                )
+                            }
                             Button(action: {
                                 answer.setState(.submittedAnswer)
                                 score.setHiddenStaff(num: 1, isHidden: false)
                             }) {
                                 //Stop the UI jumping around when answer.state changes state
-                                Text(answer.state == .recorded ? "Check Your Answer" : "")
-                                    .foregroundColor(.white).padding().background(Color.blue).cornerRadius(UIGlobals.buttonCornerRadius)
+                                Text(answer.state == .recorded ? "\(testMode.mode == .exam ? "Submit" : "Check") Your Answer" : "")
+                                    .defaultStyle()
                             }
                             .padding()
                         }
@@ -342,7 +342,7 @@ struct ClapOrPlayPresentView: View, QuestionPartProtocol {
     }
 }
 
-struct ClapOrPlayAnswerView: View, QuestionPartProtocol {
+struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     @ObservedObject var tapRecorder = TapRecorder.shared
     @ObservedObject var answer:Answer
     var onRefresh:(()->Void)?
@@ -361,9 +361,9 @@ struct ClapOrPlayAnswerView: View, QuestionPartProtocol {
     let questionTempo = 90
     let testMode:TestMode
     
-    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType) -> QuestionPartProtocol {
-        return ClapOrPlayAnswerView(contentSection:contentSection, score:score, answer: answer, testMode:testMode, questionType: questionType)
-    }
+//    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType) -> QuestionPartProtocol {
+//        return ClapOrPlayAnswerView(contentSection:contentSection, score:score, answer: answer, testMode:testMode, questionType: questionType)
+//    }
     
     init(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.answer = answer
@@ -379,7 +379,6 @@ struct ClapOrPlayAnswerView: View, QuestionPartProtocol {
     func analyseStudentRhythm() {
         let rhythmAnalysis = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score)
         self.tappingScore = rhythmAnalysis
-        //print("===", tapRecorder.metronomeTempoAtRecordingStart)
         if let tappingScore = tappingScore {
             let errorsExist = score.markupStudentScore(questionTempo: self.questionTempo, recordedTempo: 0, metronomeTempo: 0,
                                                        metronomeTempoAtStartRecording: tapRecorder.metronomeTempoAtRecordingStart ?? 0,
@@ -437,10 +436,11 @@ struct ClapOrPlayAnswerView: View, QuestionPartProtocol {
                 }
                 
                 VStack {
+                    
                     PlayRecordingView(buttonLabel: "Hear The Given \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                       score: score,
                                       metronome: answerMetronome)
-
+                    
                     if questionType == .melodyPlay {
                         PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                           score: nil,
@@ -490,15 +490,16 @@ struct ClapOrPlayView: View {
     let id = UUID()
     var contentSection:ContentSection
     let parent:ContentSectionView
-    var testMode:TestMode
+    @ObservedObject var testMode:TestMode
 
     @State var refresh:Bool = false
     //WARNING - Making Score a @STATE makes instance #1 of this struct pass its Score to instance #2
     var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
     @ObservedObject var logger = Logger.logger
     @ObservedObject var answer: Answer = Answer()
-    var presentQuestionView:ClapOrPlayPresentView?
-    var answerQuestionView:ClapOrPlayAnswerView?
+    @State var  presentQuestionView:ClapOrPlayPresentView?
+    @State var  answerQuestionView:ClapOrPlayAnswerView?
+    var questionType:QuestionType
     
     func onRefresh() {
         self.answer.setState(.notEverAnswered)
@@ -511,28 +512,37 @@ struct ClapOrPlayView: View {
         self.contentSection = contentSection
         self.parent = parent
         self.testMode = testMode
-        
-        presentQuestionView = ClapOrPlayPresentView(contentSection: contentSection, score: score, answer: answer, testMode:testMode, questionType: questionType)
-        answerQuestionView = ClapOrPlayAnswerView(contentSection: contentSection, score: score, answer: answer, testMode:testMode, questionType: questionType, refresh: onRefresh)
+        self.questionType = questionType
     }
 
     var body: some View {
         VStack {
+            //Text("=============== \(testMode.mode == .exam ? "EXAM" : "PRACTICE") SUBMITTED STATE:\(answer.state == .submittedAnswer ? "YES" : "NOT")")
             if answer.state != .submittedAnswer {
                 presentQuestionView
             }
             else {
-                answerQuestionView
+                if testMode.mode == .practice {
+                    answerQuestionView
+                }
             }
-
-            Button(action: {
-                parent.nextContentSection()
-            }) {
-                Text("Go to Next Example")
+            if answer.state == .submittedAnswer {
+                VStack {
+                    Button(action: {
+                        parent.nextContentSection()
+                    }) {
+                        Text("Go to Next \(testMode.mode == .exam ? "Test" : "Example")").defaultStyle()
+                    }
+                }
+                .padding()
             }
-            .padding()
         }
         .background(UIGlobals.colorBackground)
+        .onAppear {
+            self.answer.setState(.notEverAnswered)
+            presentQuestionView = ClapOrPlayPresentView(contentSection: contentSection, score: score, answer: answer, testMode:testMode, questionType: questionType)
+            answerQuestionView = ClapOrPlayAnswerView(contentSection: contentSection, score: score, answer: answer, testMode:testMode, questionType: questionType, refresh: onRefresh)
+        }
     }
 
 }

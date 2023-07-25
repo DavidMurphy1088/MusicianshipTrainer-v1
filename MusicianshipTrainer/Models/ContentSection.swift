@@ -1,15 +1,24 @@
 import Foundation
 import AVFoundation
 
-enum ContentSectionNextPolicy {
-    case must
-    case cannot
-    case can
-}
-
-enum TestMode {
-    case practice
-    case exam
+/// The mode of the test and the navigation allowed from it
+class TestMode : ObservableObject {
+    enum Mode {
+        case practice
+        case exam
+    }
+//    enum ContentSectionNavigationPolicy {
+//        case must
+//        case cannot
+//        case can
+//    }
+    var mode:Mode
+    //var navigationPolicy:ContentSectionNavigationPolicy
+    
+    init(mode:Mode) {//}, navigationPolicy:ContentSectionNavigationPolicy) {
+        self.mode = mode
+        //self.navigationPolicy = navigationPolicy
+    }
 }
 
 class ContentSection: Identifiable {
@@ -24,7 +33,8 @@ class ContentSection: Identifiable {
     //var tipsAndTricks:String?
     var loadedDictionaryKey:String
     var loadedRow:Int
-
+    var index:Int
+    
     init(parent:ContentSection?, name:String, type:String, loadedDictionaryKey:String, loadedRow:Int, isActive:Bool = true) {
         self.parent = parent
         self.name = name
@@ -41,6 +51,7 @@ class ContentSection: Identifiable {
         self.level = level
         self.loadedDictionaryKey = loadedDictionaryKey
         self.loadedRow = loadedRow
+        self.index = 0
     }
     
     func getTitle() -> String {
@@ -112,6 +123,12 @@ class ContentSection: Identifiable {
             }
         }
         return nil
+    }
+    
+    func isExamMode() -> Bool {
+        let path:String = self.getPath()
+        let exam = path.uppercased().contains("EXAM MODE")
+        return exam
     }
 }
 

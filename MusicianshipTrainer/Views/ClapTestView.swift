@@ -33,7 +33,7 @@ struct ClapTestView: View {
         for v in voices {
             //print(v, v.language)
             if v.description == voice.description {
-                print(v)
+                //print(v)
                 break
             }
         }

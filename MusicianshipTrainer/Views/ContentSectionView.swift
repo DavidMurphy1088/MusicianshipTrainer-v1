@@ -139,7 +139,7 @@ struct ContentSectionView: View {
     var parentSection:ContentSection? // the parent of this section that describes the test type
     @Binding var parentsSelectedContentIndex: Int?
     @State private var selectedContentIndex: Int?
-
+    
     init(contentSection:ContentSection, parentsSelectedContentIndex:Binding<Int?>) {
         self.contentSection = contentSection
         _parentsSelectedContentIndex = parentsSelectedContentIndex
@@ -163,8 +163,20 @@ struct ContentSectionView: View {
     }
     
     func nextContentSection() {
-        print("======nextContentSection ", self.parentsSelectedContentIndex, "SubsectionCount", parentSection?.subSections.count)
+        //print("======nextContentSection ", self.parentsSelectedContentIndex, "SubsectionCount", parentSection?.subSections.count)
         self.parentsSelectedContentIndex! += 1
+    }
+    
+    func getImageName(contentSection: ContentSection) -> String? {
+        if contentSection.isExamMode()  {
+            if contentSection.index < 6 {
+                if contentSection.index == 2 || contentSection.index == 5 {
+                    return "grade_b"
+                }
+                return "grade_a"
+            }
+        }
+        return nil
     }
     
     var body: some View {
@@ -180,9 +192,17 @@ struct ContentSectionView: View {
                                                                        parentsSelectedContentIndex: $selectedContentIndex),
                                        tag: index,
                                        selection: $selectedContentIndex) {
-                            VStack {
+                            HStack {
                                 Text(contentSection.subSections[index].getTitle()).padding()
                                     .font(.title2)
+                                if let imageName = getImageName(contentSection: contentSection.subSections[index]) {
+                                    Spacer()
+                                    Image(imageName)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 40.0)
+                                    Text("          ")
+                                }
                             }
 
                         }
@@ -193,7 +213,7 @@ struct ContentSectionView: View {
             else {
                 let path = contentSection.getPath()
                 let type = ExampleData.shared.getType(key: contentSection.loadedDictionaryKey)
-                let testMode = TestMode.practice
+                let testMode = TestMode(mode: contentSection.isExamMode() ? .exam : .practice)
                 
                 if type == "Type.1" {
                    IntervalView(
@@ -238,12 +258,14 @@ struct ContentSectionView: View {
                         parent: self
                      )
                 }
+                if type == "Type.7" {
+                    ExamReviewView()
+                }
              }
         }
         .onAppear {
             //print("===========================================>", contentSection.name, contentSection.subSections.count, contentSection.loadedDictionaryKey)
         }
-
 
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
     }

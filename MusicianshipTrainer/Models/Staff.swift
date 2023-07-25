@@ -269,9 +269,7 @@ class Staff : ObservableObject {
     //Tell a note how to display itself
     //Note offset from middle of staff is dependendent on the staff
     func getNoteViewPlacement(note:Note) -> NoteStaffPlacement {
-        if note.midiNumber < 0 || note.midiNumber >= noteStaffPlacement.count {
-            print ("XXXX")
-        }
+
         let defaultPlacement = noteStaffPlacement[note.midiNumber]
         let placement = NoteStaffPlacement(midi: defaultPlacement.midi,
                                            offsetFroMidLine: defaultPlacement.offsetFromStaffMidline,

@@ -163,7 +163,6 @@ class GoogleAPI {
             //https://docs.google.com/document/d/1WMW0twPTy0GpKXhlpiFjo-LO2YkDNnmPyp2UYrvXItU/edit?usp=sharing
             let request = DataRequest(callType: .googleDoc, id: fileId, targetExampleKey: nil)
             self.getDataByID(request: request) { status, data in
-                print("getDataByID", status)
                 if let data = data {
                     struct Document: Codable {
                         let body: Body
@@ -207,7 +206,6 @@ class GoogleAPI {
                         onDone(.success, textContent)
                     }
                     catch let error {
-                        print(String(data: data, encoding: .utf8))
                         let str = String(data: data, encoding: .utf8)
                         self.logger.reportError(self, "Cannot parse \(name) \(error.localizedDescription) data:\(str ?? "")")
                         onDone(.failed, nil)
@@ -269,7 +267,6 @@ class GoogleAPI {
         }
 
         let myHeader = Header(typ: "JWT")
-        print("===============", projectEmail)
         let myClaims = GoogleClaims(iss: projectEmail,
                                     scope: "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/documents",
                                     aud: "https://oauth2.googleapis.com/token",
@@ -289,7 +286,9 @@ class GoogleAPI {
                 let decode = try decoder.decode(PrivateKey.self, from: data)
                 privateKey = decode.private_key
             } catch {
-                print("Error: \(error)")
+                self.logger.reportError(self, "Cannot find OAuth key")
+                //print("Error: \(error)")
+                return
             }
         }
         guard let privateKey = privateKey  else {

@@ -70,6 +70,7 @@ struct LaunchScreenView: View {
         print("LaunchScreenView ", "id:", id, "state:", launchScreenState.state, "opac:", opacity.imageOpacity, "dur:", durationSeconds, "id:")
     }
     
+    
     @ViewBuilder
     private var image: some View {  // Mark 3
         GeometryReader { geo in

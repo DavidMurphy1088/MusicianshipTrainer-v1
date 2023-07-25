@@ -31,18 +31,26 @@ struct StandardButtonStyle: ButtonStyle {
 }
 
 extension Text {
+    
     func defaultStyle() -> some View {
-        //let n = 0
         self
-//            .foregroundColor(.red)
-//            .background(Color.yellow)
-//            .border(Color.black, width: 1)
             .foregroundColor(.white)
         //UIDevice.current.userInterfaceIdiom == .phone ? .zero : .
-            .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 8)
+            .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
             .background(.blue)
             .cornerRadius(UIGlobals.cornerRadius)
             //.padding()
+    }
+    
+    func defaultContainer(selected:Bool) -> some View {
+        self
+            .background(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(selected ? Color.black : Color.clear, lineWidth: 1)
+                //.background(selectedIntervalIndex == index ? Color(.systemTeal) : Color.clear)
+                .background(selected ? UIGlobals.colorInstructions : Color.clear)
+        )
+
     }
 }
 
