@@ -1,6 +1,12 @@
 import SwiftUI
 import WebKit
 
+///A protocol that any view that instances a test view must comply with so that the user can navigate directly to the next test
+protocol NextNavigationView {
+    //var property: String { get set }
+    func navigateNext()
+}
+
 struct ContentSectionTipsView: UIViewRepresentable {
     //var contentSection:ContentSection
     //let exampleData = ExampleData.shared
@@ -134,7 +140,8 @@ struct ContentSectionHeaderView: View {
     }
 }
     
-struct ContentSectionView: View {
+struct ContentSectionView: View, NextNavigationView {
+    
     var contentSection:ContentSection
     var parentSection:ContentSection? // the parent of this section that describes the test type
     @Binding var parentsSelectedContentIndex: Int?
@@ -144,7 +151,14 @@ struct ContentSectionView: View {
         self.contentSection = contentSection
         _parentsSelectedContentIndex = parentsSelectedContentIndex
     }
-   
+    
+    func navigateNext() {
+        //print("======nextContentSection ", self.parentsSelectedContentIndex, "SubsectionCount", parentSection?.subSections.count)
+        if parentsSelectedContentIndex != nil {
+            parentsSelectedContentIndex! += 1
+        }
+    }
+
     func getContentIndexes() -> [Int] {
         var indexes:[Int] = []
         var i = 0
@@ -162,11 +176,6 @@ struct ContentSectionView: View {
         return indexes
     }
     
-    func nextContentSection() {
-        //print("======nextContentSection ", self.parentsSelectedContentIndex, "SubsectionCount", parentSection?.subSections.count)
-        self.parentsSelectedContentIndex! += 1
-    }
-    
     func getImageName(contentSection: ContentSection) -> String? {
         if contentSection.isExamMode()  {
             if contentSection.index < 6 {
@@ -179,94 +188,101 @@ struct ContentSectionView: View {
         return nil
     }
     
+    func questionTypeView() -> some View {
+        VStack {
+            let path = contentSection.getPath()
+            let type = ExampleData.shared.getType(key: contentSection.loadedDictionaryKey)
+            let testMode = TestMode(mode: contentSection.isExamMode() ? .exam : .practice)
+            
+            if type == "Type.1" {
+                IntervalView(
+                    questionType: QuestionType.intervalVisual,
+                    contentSection: contentSection,
+                    testMode: testMode,
+                    nextNavigationView: self,
+                    answer: Answer()
+                )
+            }
+            if type == "Type.2" {
+                VStack {
+                    ClapOrPlayView (
+                        questionType: QuestionType.rhythmVisualClap,
+                        contentSection: contentSection,
+                        testMode: testMode,
+                        nextNavigationView: self
+                        //answer: Answer()
+                    )
+                }
+                
+            }
+            if type == "Type.3" {
+                ClapOrPlayView (
+                    questionType: QuestionType.melodyPlay,
+                    contentSection: contentSection,
+                    testMode: testMode,
+                    nextNavigationView: self
+                    //answer: Answer()
+                )
+            }
+            if type == "Type.4" {
+                IntervalView(
+                    questionType: QuestionType.intervalAural,
+                    contentSection: contentSection,
+                    testMode: testMode,
+                    nextNavigationView: self,
+                    answer: Answer()
+                )
+            }
+            if type == "Type.5" {
+                ClapOrPlayView (
+                    questionType: QuestionType.rhythmEchoClap,
+                    contentSection: contentSection,
+                    testMode: testMode,
+                    nextNavigationView: self
+                    //answer: Answer()
+                )
+            }
+        }
+    }
+    
     var body: some View {
         VStack {
-            if contentSection.subSections.count > 0 {
-
-                ContentSectionHeaderView(contentSection: contentSection)
-                
-                VStack {
-
-                    List(getContentIndexes(), id: \.self) { index in
-                        NavigationLink(destination: ContentSectionView(contentSection: contentSection.subSections[index],
-                                                                       parentsSelectedContentIndex: $selectedContentIndex),
-                                       tag: index,
-                                       selection: $selectedContentIndex) {
-                            HStack {
-                                Text(contentSection.subSections[index].getTitle()).padding()
-                                    .font(.title2)
-                                if let imageName = getImageName(contentSection: contentSection.subSections[index]) {
-                                    Spacer()
-                                    Image(imageName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 40.0)
-                                    Text("          ")
+            if contentSection.type == "Type.7" {
+                ExamView(contentSection: contentSection)
+            }
+            else {
+                if contentSection.subSections.count > 0 {
+                    ContentSectionHeaderView(contentSection: contentSection)
+                    VStack {
+                        List(getContentIndexes(), id: \.self) { index in
+                            NavigationLink(destination: ContentSectionView(contentSection: contentSection.subSections[index],
+                                                                           parentsSelectedContentIndex: $selectedContentIndex),
+                                           tag: index,
+                                           selection: $selectedContentIndex) {
+                                HStack {
+                                    Text(contentSection.subSections[index].getTitle()).padding()
+                                        .font(.title2)
+                                    if let imageName = getImageName(contentSection: contentSection.subSections[index]) {
+                                        Spacer()
+                                        Image(imageName)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40.0)
+                                        Text("          ")
+                                    }
                                 }
                             }
-
                         }
                     }
                 }
-                //.border(Color.green)
+                else {
+                    questionTypeView()
+                }
             }
-            else {
-                let path = contentSection.getPath()
-                let type = ExampleData.shared.getType(key: contentSection.loadedDictionaryKey)
-                let testMode = TestMode(mode: contentSection.isExamMode() ? .exam : .practice)
-                
-                if type == "Type.1" {
-                   IntervalView(
-                        questionType: QuestionType.intervalVisual,
-                        contentSection: contentSection,
-                        testMode: testMode,
-                        parent: self
-                    )
-                }
-                if type == "Type.2" {
-                    VStack {
-                        ClapOrPlayView (
-                            questionType: QuestionType.rhythmVisualClap,
-                            contentSection: contentSection,
-                            testMode: testMode,
-                            parent: self
-                        )
-                    }
-
-                }
-                if type == "Type.3" {
-                    ClapOrPlayView (
-                        questionType: QuestionType.melodyPlay,
-                        contentSection: contentSection,
-                        testMode: testMode,
-                        parent: self
-                     )
-                }
-                if type == "Type.4" {
-                   IntervalView(
-                        questionType: QuestionType.intervalAural,
-                        contentSection: contentSection,
-                        testMode: testMode,
-                        parent: self
-                    )
-                }
-                if type == "Type.5" {
-                    ClapOrPlayView (
-                        questionType: QuestionType.rhythmEchoClap,
-                        contentSection: contentSection,
-                        testMode: testMode,
-                        parent: self
-                     )
-                }
-                if type == "Type.7" {
-                    ExamReviewView()
-                }
-             }
         }
         .onAppear {
             //print("===========================================>", contentSection.name, contentSection.subSections.count, contentSection.loadedDictionaryKey)
         }
-
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
     }
 

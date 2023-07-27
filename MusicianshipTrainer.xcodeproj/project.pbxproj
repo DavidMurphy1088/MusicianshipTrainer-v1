@@ -86,6 +86,7 @@
 		7B4F646C2A54DC6200727710 /* MusicianshipTrainerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */; };
 		7B4F646E2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */; };
 		7B73B7BC2A6FB7030097BAA8 /* ExamReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73B7BB2A6FB7030097BAA8 /* ExamReviewView.swift */; };
+		7B73B7BE2A7112E80097BAA8 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73B7BD2A7112E80097BAA8 /* Answer.swift */; };
 		7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F52A68F63B00EA088E /* Cache.swift */; };
 		7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */; };
 		7BB835462A5548750083C1C0 /* Firestore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB835452A5548750083C1C0 /* Firestore.swift */; };
@@ -207,6 +208,7 @@
 		7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITests.swift; sourceTree = "<group>"; };
 		7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		7B73B7BB2A6FB7030097BAA8 /* ExamReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExamReviewView.swift; sourceTree = "<group>"; };
+		7B73B7BD2A7112E80097BAA8 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
 		7B8EF2F52A68F63B00EA088E /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
 		7BB835452A5548750083C1C0 /* Firestore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore.swift; sourceTree = "<group>"; };
@@ -314,7 +316,9 @@
 		7B40B7D02A54DF8F00CA7FC4 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				7B73B7BD2A7112E80097BAA8 /* Answer.swift */,
 				7B40B7DA2A54DF8F00CA7FC4 /* Audio */,
+				7B8EF2F52A68F63B00EA088E /* Cache.swift */,
 				7B40B7D82A54DF8F00CA7FC4 /* Chord.swift */,
 				7B40B7D72A54DF8F00CA7FC4 /* ContentSection.swift */,
 				7B40B7D22A54DF8F00CA7FC4 /* ExampleData.swift */,
@@ -329,15 +333,14 @@
 				7B40B7E92A54DF8F00CA7FC4 /* PianoKeyboard.swift */,
 				7B40B7ED2A54DF8F00CA7FC4 /* Scale.swift */,
 				7B40B7D32A54DF8F00CA7FC4 /* Score.swift */,
+				7B0A64CE2A61562B0091A24A /* Settings.swift */,
 				7B40B7EC2A54DF8F00CA7FC4 /* SoundGenerator.swift */,
 				7B40B7EE2A54DF8F00CA7FC4 /* SpeechSynth.swift */,
 				7B40B7D62A54DF8F00CA7FC4 /* Staff.swift */,
+				7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */,
 				7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */,
 				7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */,
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,
-				7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */,
-				7B0A64CE2A61562B0091A24A /* Settings.swift */,
-				7B8EF2F52A68F63B00EA088E /* Cache.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -789,6 +792,7 @@
 				7B40B8392A54E52A00CA7FC4 /* CapOrPlayView.swift in Sources */,
 				7BD1E5B82A5671AC009AD7E8 /* GoogleAPI.swift in Sources */,
 				7B40B8082A54DF9000CA7FC4 /* KeySignature.swift in Sources */,
+				7B73B7BE2A7112E80097BAA8 /* Answer.swift in Sources */,
 				7B40B7F22A54DF9000CA7FC4 /* TimeSlice.swift in Sources */,
 				7B40B8332A54E52A00CA7FC4 /* StaffNotesView.swift in Sources */,
 				7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */,

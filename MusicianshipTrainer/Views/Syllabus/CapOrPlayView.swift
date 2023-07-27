@@ -249,7 +249,8 @@ struct ClapOrPlayPresentView: View {//}, QuestionPartProtocol {
                             //.background(UIGlobals.backgroundColorHiliteBox)
 
                             Button(action: {
-                                answer.setState(.recording)
+                                answer.setState(ctx1: "clap", .recording)
+                                
                                 metronome.stopTicking()
                                 if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
                                     self.isTapping = true
@@ -269,7 +270,7 @@ struct ClapOrPlayPresentView: View {//}, QuestionPartProtocol {
                                                     
                         if answer.state == .recording {
                             Button(action: {
-                                answer.setState(.recorded)
+                                answer.setState(ctx1: "clap", .recorded)
                                 if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
                                     self.isTapping = false
                                     self.tapRecorder.stopRecording()
@@ -310,7 +311,7 @@ struct ClapOrPlayPresentView: View {//}, QuestionPartProtocol {
                                 )
                             }
                             Button(action: {
-                                answer.setState(.submittedAnswer)
+                                answer.setState(ctx1: "clap", .submittedAnswer)
                                 score.setHiddenStaff(num: 1, isHidden: false)
                             }) {
                                 //Stop the UI jumping around when answer.state changes state
@@ -489,10 +490,11 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
 struct ClapOrPlayView: View {
     let id = UUID()
     var contentSection:ContentSection
-    let parent:ContentSectionView
+    let nextNavigationView:NextNavigationView
+    
     @ObservedObject var testMode:TestMode
-
     @State var refresh:Bool = false
+    
     //WARNING - Making Score a @STATE makes instance #1 of this struct pass its Score to instance #2
     var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
     @ObservedObject var logger = Logger.logger
@@ -502,15 +504,15 @@ struct ClapOrPlayView: View {
     var questionType:QuestionType
     
     func onRefresh() {
-        self.answer.setState(.notEverAnswered)
+        self.answer.setState(ctx1: "clap", .notEverAnswered)
         DispatchQueue.main.async {
             self.refresh.toggle()
         }
     }
 
-    init(questionType:QuestionType, contentSection:ContentSection, testMode:TestMode, parent:ContentSectionView) {
+    init(questionType:QuestionType, contentSection:ContentSection, testMode:TestMode, nextNavigationView:NextNavigationView) {
         self.contentSection = contentSection
-        self.parent = parent
+        self.nextNavigationView = nextNavigationView
         self.testMode = testMode
         self.questionType = questionType
     }
@@ -529,7 +531,7 @@ struct ClapOrPlayView: View {
             if answer.state == .submittedAnswer {
                 VStack {
                     Button(action: {
-                        parent.nextContentSection()
+                        nextNavigationView.navigateNext()
                     }) {
                         Text("Go to Next \(testMode.mode == .exam ? "Test" : "Example")").defaultStyle()
                     }
@@ -539,7 +541,7 @@ struct ClapOrPlayView: View {
         }
         .background(UIGlobals.colorBackground)
         .onAppear {
-            self.answer.setState(.notEverAnswered)
+            self.answer.setState(ctx1: "clap", .notEverAnswered)
             presentQuestionView = ClapOrPlayPresentView(contentSection: contentSection, score: score, answer: answer, testMode:testMode, questionType: questionType)
             answerQuestionView = ClapOrPlayAnswerView(contentSection: contentSection, score: score, answer: answer, testMode:testMode, questionType: questionType, refresh: onRefresh)
         }

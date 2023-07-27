@@ -59,7 +59,8 @@ class StaffLayoutSize: ObservableObject {
 }
 
 class Score : ObservableObject {
-    let id = UUID()
+    let id:UUID
+    //static var shared = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
     var timeSignature:TimeSignature
     let ledgerLineCount =  2 //3//4 is required to represent low E
     
@@ -85,8 +86,10 @@ class Score : ObservableObject {
     var label:String? = nil
     
     init(timeSignature:TimeSignature, linesPerStaff:Int) {
+        self.id = UUID()
         self.timeSignature = timeSignature
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
+        print ("============= Score init()", id.uuidString.suffix((4)))
     }
     
     func getTotalStaffLineCount() -> Int {
@@ -217,11 +220,12 @@ class Score : ObservableObject {
     }
     
     func setKey(key:Key) {
-        self.key = key
+        //self.key = key
         DispatchQueue.main.async {
             self.key = key
+            self.updateStaffs()
         }
-        updateStaffs()
+        
     }
     
     func addTimeSlice() -> TimeSlice {

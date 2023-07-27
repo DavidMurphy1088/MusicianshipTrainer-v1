@@ -30,7 +30,7 @@ struct GradeIntroView: View {
 struct ContentNavigationView: View {
     let contentSection:ContentSection
     @State private var isShowingConfiguration = false
-    @State private var selectedContentIndex: Int? = 0
+    @State private var selectedContentIndex: Int? = 0 //has to be optional for the case nothing is selected
 
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
