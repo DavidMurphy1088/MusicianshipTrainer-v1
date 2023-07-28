@@ -47,13 +47,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct MusicianshipTrainerApp: App {
     @StateObject var launchScreenState = LaunchScreenStateManager()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @ObservedObject var exampleData = ExampleData.shared
     @ObservedObject var logger = Logger.logger
     static let productionMode = true
+    @ObservedObject var exampleData = ExampleData.shared1
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Musicianship")
     //product licensed by grade 14Jun23
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
-    static let root:ContentSection = ContentSection(parent: nil, name: "", type: "", loadedDictionaryKey: "", loadedRow: 0)
+    static let root:ContentSection = ContentSection(parent: nil, name: "", type: "")
     static let settings:Settings = Settings.shared
     var launchTimeSecs = 2.5
 

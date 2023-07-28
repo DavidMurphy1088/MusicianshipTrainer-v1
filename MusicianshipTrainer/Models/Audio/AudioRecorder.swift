@@ -8,8 +8,10 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     static let shared = AudioRecorder()
     var recordingSession: AVAudioSession!
     var audioRecorder: AVAudioRecorder!
-    var audioPlayer: AVAudioPlayer!
+    var audioPlayer: AVAudioPlayer! //best for playing smaller local content
     var audioFilename:URL?
+    var avPlayer: AVPlayer? //best for playing remote content, support streaming etc
+    
     @Published var status:String = ""
     
     func setStatus(_ msg:String) {
@@ -109,6 +111,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
             Logger.logger.reportError(self, "At Playback, start playing error", error)
         }
     }
+    
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         setStatus("Playback stopped, status:\(flag ? "OK" : "Error")")
     }
@@ -121,6 +124,18 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
 //            print("getDocumentsDirectory", p)
 //        }
         return paths[0]
+    }
+    
+    func playAudioFromURL(urlString: String) {
+        guard let url = URL(string: urlString) else {
+            print("Invalid URL")
+            return
+        }
+
+        avPlayer = AVPlayer(url: url)
+        if let avPlayer = avPlayer {
+            avPlayer.play()
+        }
     }
 }
 

@@ -5,12 +5,10 @@ import WebKit
 protocol NextNavigationView {
     //var property: String { get set }
     func navigateNext()
+    func hasNextPage() -> Bool
 }
 
 struct ContentSectionTipsView: UIViewRepresentable {
-    //var contentSection:ContentSection
-    //let exampleData = ExampleData.shared
-    //let googleAPI = GoogleAPI.shared
     var htmlDocument:String
     
     func makeUIView(context: Context) -> WKWebView {
@@ -61,8 +59,8 @@ struct ContentSectionHeaderView: View {
     func getInstructions()  {
         let instructionContent = contentSection.getChildSectionByType(type: "Ins")
         if let instructionContent = instructionContent {
-            let filename = ExampleData.shared.getFirstCol(key: instructionContent.loadedDictionaryKey)
-            if let filename = filename {
+            if instructionContent.contentSectionData.data.count > 0 {
+                let filename = instructionContent.contentSectionData.data[0]
                 googleAPI.getDocumentByName(name: filename) {status,document in
                     if status == .success {
                         self.instructions = document
@@ -75,8 +73,8 @@ struct ContentSectionHeaderView: View {
     func getTipsAndTricks()  {
         let tipsAndTricksContent = contentSection.getChildSectionByType(type: "T&T")
         if let tipsAndTricksContent = tipsAndTricksContent {
-            let filename = ExampleData.shared.getFirstCol(key: tipsAndTricksContent.loadedDictionaryKey)
-            if let filename = filename {
+            if tipsAndTricksContent.contentSectionData.data.count > 0 {
+                let filename = tipsAndTricksContent.contentSectionData.data[0]
                 googleAPI.getDocumentByName(name: filename) {status,document in
                     if status == .success {
                         self.tipsAndTricksExists = true
@@ -158,24 +156,17 @@ struct ContentSectionView: View, NextNavigationView {
             parentsSelectedContentIndex! += 1
         }
     }
-
-    func getContentIndexes() -> [Int] {
-        var indexes:[Int] = []
-        var i = 0
-        for section in contentSection.subSections {
-            if section.type.isEmpty {
-                indexes.append(i)
-            }
-            else {
-                if section.type.hasPrefix("Type.") {
-                    indexes.append(i)
-                }
-            }
-            i += 1
-        }
-        return indexes
-    }
     
+    func hasNextPage() -> Bool {
+        if let parentSection = parentSection {
+            if let parentsSelectedContentIndex = parentsSelectedContentIndex {
+                return parentsSelectedContentIndex < parentSection.subSections.count - 1
+            }
+            return true
+        }
+        return false
+    }
+        
     func getImageName(contentSection: ContentSection) -> String? {
         if contentSection.isExamMode()  {
             if contentSection.index < 6 {
@@ -188,13 +179,22 @@ struct ContentSectionView: View, NextNavigationView {
         return nil
     }
     
+    func getStatus(contentSection: ContentSection) -> String {
+        if contentSection.isExamMode()  {
+            if contentSection.index < 6 {
+                return "Completed"
+            }
+        }
+        return ""
+    }
+
     func questionTypeView() -> some View {
         VStack {
-            let path = contentSection.getPath()
-            let type = ExampleData.shared.getType(key: contentSection.loadedDictionaryKey)
+            //let path = contentSection.getPath()
+            let type = contentSection.type
             let testMode = TestMode(mode: contentSection.isExamMode() ? .exam : .practice)
             
-            if type == "Type.1" {
+            if type == "Type_1" {
                 IntervalView(
                     questionType: QuestionType.intervalVisual,
                     contentSection: contentSection,
@@ -203,28 +203,27 @@ struct ContentSectionView: View, NextNavigationView {
                     answer: Answer()
                 )
             }
-            if type == "Type.2" {
+            if type == "Type_2" {
                 VStack {
                     ClapOrPlayView (
                         questionType: QuestionType.rhythmVisualClap,
                         contentSection: contentSection,
                         testMode: testMode,
-                        nextNavigationView: self
-                        //answer: Answer()
+                        nextNavigationView: self,
+                        answer: Answer()
                     )
-                }
-                
+                }                
             }
-            if type == "Type.3" {
+            if type == "Type_3" {
                 ClapOrPlayView (
                     questionType: QuestionType.melodyPlay,
                     contentSection: contentSection,
                     testMode: testMode,
-                    nextNavigationView: self
-                    //answer: Answer()
+                    nextNavigationView: self,
+                    answer: Answer()
                 )
             }
-            if type == "Type.4" {
+            if type == "Type_4" {
                 IntervalView(
                     questionType: QuestionType.intervalAural,
                     contentSection: contentSection,
@@ -233,13 +232,13 @@ struct ContentSectionView: View, NextNavigationView {
                     answer: Answer()
                 )
             }
-            if type == "Type.5" {
+            if type == "Type_5" {
                 ClapOrPlayView (
                     questionType: QuestionType.rhythmEchoClap,
                     contentSection: contentSection,
                     testMode: testMode,
-                    nextNavigationView: self
-                    //answer: Answer()
+                    nextNavigationView: self,
+                    answer: Answer()
                 )
             }
         }
@@ -247,28 +246,35 @@ struct ContentSectionView: View, NextNavigationView {
     
     var body: some View {
         VStack {
-            if contentSection.type == "Type.7" {
+            if contentSection.type == "Type_7" {
                 ExamView(contentSection: contentSection)
             }
             else {
-                if contentSection.subSections.count > 0 {
+                let childSections = contentSection.getNavigableChildSections()
+                if childSections.count > 0 {
                     ContentSectionHeaderView(contentSection: contentSection)
                     VStack {
-                        List(getContentIndexes(), id: \.self) { index in
-                            NavigationLink(destination: ContentSectionView(contentSection: contentSection.subSections[index],
+                        List(Array(childSections.indices), id: \.self) { index in
+                            NavigationLink(destination: ContentSectionView(contentSection: childSections[index],
                                                                            parentsSelectedContentIndex: $selectedContentIndex),
                                            tag: index,
                                            selection: $selectedContentIndex) {
+
                                 HStack {
-                                    Text(contentSection.subSections[index].getTitle()).padding()
-                                        .font(.title2)
-                                    if let imageName = getImageName(contentSection: contentSection.subSections[index]) {
+                                    Text(childSections[index].getTitle()).padding().font(.title2)
+                                    Spacer()
+                                    HStack {
                                         Spacer()
-                                        Image(imageName)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 40.0)
-                                        Text("          ")
+                                        Text(self.getStatus(contentSection: childSections[index])).padding().font(.title2)
+                                        
+                                        if let imageName = getImageName(contentSection: childSections[index]) {
+                                            Spacer()
+                                            Image(imageName)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 40.0)
+                                            Text("    ")
+                                        }
                                     }
                                 }
                             }
@@ -281,7 +287,7 @@ struct ContentSectionView: View, NextNavigationView {
             }
         }
         .onAppear {
-            //print("===========================================>", contentSection.name, contentSection.subSections.count, contentSection.loadedDictionaryKey)
+            //print("COntent section view ====>", self.contentSection.level, contentSection.name, "type:[\(contentSection.type)]")
         }
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
     }

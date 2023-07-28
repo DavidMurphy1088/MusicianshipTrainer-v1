@@ -1,20 +1,9 @@
 import Foundation
 
-class ExampleDataRow {
-    var type:String
-    var data:[String]
-    var row:Int
-    init(row:Int, type:String, data:[String]) {
-        self.row = row
-        self.type = type
-        self.data = data
-    }
-}
-
 class ExampleData : ObservableObject {
-    static var shared = ExampleData()
+    static var shared1 = ExampleData()
     var logger = Logger.logger
-    private var loadedDataDictionary:[String: ExampleDataRow ] = [:]
+    private var loadedDataDictionary:[String: ContentSectionData ] = [:]
     private let googleAPI = GoogleAPI.shared
     
     @Published var dataStatus:RequestStatus = .waiting
@@ -38,6 +27,7 @@ class ExampleData : ObservableObject {
                         let jsonData = try JSONDecoder().decode(JSONSheet.self, from: data)
                         let sheetRows = jsonData.values
                         self.loadSheetData(sheetRows: sheetRows)
+                        MusicianshipTrainerApp.root.debug()
                         self.setDataReady(way: status)
                         self.logger.log(self, "loaded \(self.loadedDataDictionary.count) example rows")
                     }
@@ -60,13 +50,12 @@ class ExampleData : ObservableObject {
     func loadSheetData(sheetRows:[[String]]) {
 
         ///set according to the format of the examples Sheet
-        let keyStart = 1 //start column of key
-        //let keyStartLicense = 3 //start column of key to keep for this license
-        let keyEnd = 5 //
+        let keyStart = 1
+        let keyEnd = 5
         var keyPathParts:[String] = Array(repeating: "", count: keyEnd - keyStart + 1)
 
-        let typeColumnStart = keyEnd + 2
-        let dataOffsetStart = keyEnd + 4   //start of data
+        let typeColumnStart = 7
+        let dataOffsetStart = 9   //start of data
         var rowNum = 0
         
         for rowCells in sheetRows {
@@ -74,8 +63,8 @@ class ExampleData : ObservableObject {
             if rowCells.count == 0 {
                 continue
             }
-            let type = rowCells[0]
-            if type.hasPrefix("//")  {
+
+            if rowCells[0].hasPrefix("//")  {
                 continue
             }
 
@@ -83,25 +72,24 @@ class ExampleData : ObservableObject {
             var rowType:String = ""
             var rowIsBlank = true
             var rowHasData = false
-            //print ("===>", rowNum, keyPathParts)
-            
+
             for i in 0..<rowCells.count {
                 if i<keyStart {
                     continue
                 }
                 
                 let cell = rowCells[i]
-                let cellData = cell.replacingOccurrences(of: " ", with: "")
+                let cellData = cell.trimmingCharacters(in: .whitespaces)
+                
                 if !cellData.isEmpty {
                     rowIsBlank = false
                 }
-                if cell == "Exam Mode" {
-                    let xx = 1
-                }
 
                 if i >= keyStart && i <= keyEnd {
-                    if !cell.isEmpty {
-                        keyPathParts[i - keyStart] = cell                        
+                    if !cellData.isEmpty {
+                        //periods in data confuse the key structure navigation :(
+                        let keyData = cellData.replacingOccurrences(of: ".", with: "_")
+                        keyPathParts[i - keyStart] = keyData
                         //clear the key to the right
                         for j in i - keyStart+1..<keyPathParts.count {
                             keyPathParts[j] = ""
@@ -110,9 +98,13 @@ class ExampleData : ObservableObject {
                 }
                 
                 if i == typeColumnStart {
+                    if rowNum == 234 || rowNum == 235 {
+                        print("")
+                    }
+
                     rowType = cell
                 }
-                
+
                 if i >= dataOffsetStart {
                     //let cellData = cell
                     rowData.append("\(cell)")
@@ -131,10 +123,11 @@ class ExampleData : ObservableObject {
                     return
                 }
             }
-
-            var key:String? = ""
+            
+            //remove unlicensed keys
+            var key:String? = nil
             for i in 0..<keyPathParts.count {
-                let path = keyPathParts[i]
+                let path = keyPathParts[i].trimmingCharacters(in: .whitespaces)
                 if i==0 && path != "NZMEB" {
                     key = nil
                     break
@@ -143,18 +136,31 @@ class ExampleData : ObservableObject {
                     key = nil
                     break
                 }
-                key! += path
-                if i < keyPathParts.count - 1 {
-                    key! += "."
+                //remove unlicensed content
+                if i >= 2 {
+                    if !path.isEmpty {
+                        if key == nil {
+                            key = ""
+                        }
+                        else {
+                            key! += "."
+                        }
+                        key! += path
+                    }
                 }
             }
             
-            if let key = key {
-                self.loadedDataDictionary[key] = ExampleDataRow(row: rowNum, type: rowType, data: rowData)
+            if var key = key {
+                //hack - unless types for instrucion and T&T have unqiue keys the dictionary can only store one of them
+                if !rowType.isEmpty && !rowType.hasPrefix("Type_") {
+                    key += ".__" + rowType + "__"
+                }
+
+                self.loadedDataDictionary[key] = ContentSectionData(row: rowNum, type: rowType, data: rowData)
             }
         }
 //        for k in self.loadedDataDictionary.keys.sorted() {
-//            print("loadSheetData::", k)
+//            print("loadSheetData::", k, "\ttype:[\(loadedDataDictionary[k]?.type)]")
 //        }
         loadContentSections()
     }
@@ -162,7 +168,10 @@ class ExampleData : ObservableObject {
     func arrayToKeyStr(_ parts:[String]) -> String {
         var str = ""
         for p in parts {
-            str += "." + p
+            if !str.isEmpty {
+                str += "."
+            }
+            str += p
         }
         return str
     }
@@ -172,16 +181,22 @@ class ExampleData : ObservableObject {
         var parents:[String : ContentSection] = [:]
         
         for loadedDictionaryKey in self.loadedDataDictionary.keys.sorted() {
-            
-            //discard the content for the unlicensed parts of the key
-            var allKeyParts = loadedDictionaryKey.split(separator: ".")
+
+            let allKeyParts = loadedDictionaryKey.split(separator: ".")
             var keyParts:[String] = []
-            for i in 2..<allKeyParts.count {
-                keyParts.append(String(allKeyParts[i]))
+            for i in 0..<allKeyParts.count {
+                let part = String(allKeyParts[i]).trimmingCharacters(in: .whitespaces)
+                keyParts.append(part)
             }
-            
-            //print(keyParts)
+            if loadedDictionaryKey.contains("David_Test_Exam_1") {
+                print("")
+            }
             for i in 0..<keyParts.count {
+                //A blank key part designates the end of the content structure
+//                if keyParts[i] == "" {
+//                    break
+//                }
+                //Find the key's parent
                 var parentSection:ContentSection
                 if i == 0 {
                     parentSection = MusicianshipTrainerApp.root
@@ -201,16 +216,23 @@ class ExampleData : ObservableObject {
                         break
                     }
                 }
+                
+                //The the parent does not have this subsection, add it
                 if !hasSubsection {
                     let loadedData = self.loadedDataDictionary[loadedDictionaryKey]
-                    let contentSection = ContentSection(parent: parentSection, name: keyParts[i],
+                    let sectionName = keyParts[i]
+                    let contentSection = ContentSection(parent: parentSection,
+                                                        name: sectionName,
                                                         type: loadedData!.type,
-                                                        loadedDictionaryKey: loadedDictionaryKey,
-                                                        loadedRow: loadedData!.row)
+                                                        data: loadedData!
+                                                        //loadedDictionaryKey: loadedDictionaryKey,
+                                                        //loadedRow: loadedData!.row
+                    )
                     parentSection.subSections.append(contentSection)
                     //present the sections in the order in which they were loaded from the Sheet (not alpahbetically...)
                     let sorted:[ContentSection] = parentSection.subSections.sorted { (c1, c2) -> Bool in
-                        return c1.loadedRow < c2.loadedRow
+                        //return c1.loadedRow < c2.loadedRow
+                        return c1.contentSectionData.row < c2.contentSectionData.row
                     }
                     var index = 0
                     for section in sorted {
@@ -219,13 +241,13 @@ class ExampleData : ObservableObject {
                     }
                     parentSection.subSections = sorted
                     
-                    let dictKey = "."+contentSection.getPath()
+                    let dictKey = contentSection.getPath()
                     parents[dictKey] = contentSection
                     
                     let keyLevel = dictKey.components(separatedBy: ".").count
                     //Comment maybe but dont delete.
-                    print("\n", String(repeating: " ", count: 4 * (keyLevel-1)),
-                          "ContentSection--> key:[\(loadedDictionaryKey)] \tname:[\(contentSection.name)]  \trow:\(loadedData?.row) type:\(loadedData?.type) Row:\(loadedData?.row) \tdata:\(loadedData?.data)")
+//                    print("\n", String(repeating: " ", count: 4 * (keyLevel-1)),
+//                          "ContentSection--> key:[\(loadedDictionaryKey)] \tname:[\(contentSection.name)]  \trow:\(loadedData?.row) type:\(loadedData?.type) Row:\(loadedData?.row) \tdata:\(loadedData?.data)")
 
                 }
             }
@@ -238,12 +260,7 @@ class ExampleData : ObservableObject {
         }
     }
     
-    func get(contentSection:ContentSection) -> [Any]! {
-
-        return getData(key: contentSection.loadedDictionaryKey, type: contentSection.type)
-    }
-    
-    func getType(key:String) -> String? {
+    func getTypeOld(key:String) -> String? {
         let data = self.loadedDataDictionary[key]
         guard data != nil else {
             Logger.logger.reportError(self, "No type for key:[\(key)]")
@@ -252,7 +269,7 @@ class ExampleData : ObservableObject {
         return data!.type
     }
     
-    func getFirstCol(key:String) -> String? {
+    func getFirstColOld(key:String) -> String? {
         let data = self.loadedDataDictionary[key]
         guard data != nil else {
             Logger.logger.reportError(self, "No first col for key:[\(key)]")
@@ -268,86 +285,5 @@ class ExampleData : ObservableObject {
         }
     }
 
-    func getData(key:String, type:String, warnNotFound:Bool=true) -> [Any]! {
-        let data = self.loadedDataDictionary[key]
-        guard data != nil else {
-            if warnNotFound {
-                Logger.logger.reportError(self, "No data for key:[\(key)]")
-            }
-            return nil
-        }
-        //let tuples:[String] = data!
-        let tuples:[String] = data!.data
-        
-        if type == "I" {
-            return [tuples[0]]
-        }
-
-        var result:[Any] = []
-        
-        for i in 0..<tuples.count {
-            var tuple = tuples[i].replacingOccurrences(of: "(", with: "")
-            tuple = tuple.replacingOccurrences(of: ")", with: "")
-            let parts = tuple.components(separatedBy: ",")
-            
-            //Fixed
-            
-            if i == 0 {
-                result.append(KeySignature(type: .sharp, count: parts[0] == "C" ? 0 : 1))
-                continue
-            }
-            if i == 1 {
-                if parts.count == 1 {
-                    let ts = TimeSignature(top: 4, bottom: 4)
-                    ts.isCommonTime = true
-                    result.append(ts)
-                    continue
-                }
-
-                if parts.count == 2 {
-                    result.append(TimeSignature(top: Int(parts[0]) ?? 0, bottom: Int(parts[1]) ?? 0))
-                    continue
-                }
-                Logger.logger.reportError(self, "Unknown time signature tuple at \(i) :  \(key) \(tuple)")
-                continue
-            }
-            if i == 2 {
-                if parts.count == 1 {
-                    if let lines = Int(parts[0]) {
-                        result.append(StaffCharacteristics(lines: lines))
-                        continue
-                    }
-                }
-                Logger.logger.reportError(self, "Unknown staff line tuple at \(i) :  \(key) tuple:[\(tuple)]")
-                continue
-            }
-            
-            // Repeating
-            
-            if parts.count == 1  {
-                if parts[0] == "B" {
-                    result.append(BarLine())
-                }
-                continue
-            }
-            
-            if parts.count == 2 || parts.count == 3  {
-                let notePitch:Int? = Int(parts[0])
-                if let notePitch = notePitch {
-                    let value = Double(parts[1]) ?? 1
-                    var accidental:Int?
-                    if parts.count == 3 {
-                        if let acc = Int(parts[2]) {
-                            accidental = acc
-                        }
-                    }
-                    result.append(Note(num: notePitch, value: value, accidental: accidental))
-                }
-                continue
-            }
-            Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(key) \(tuple)")
-        }
-        return result
-    }
 
 }

@@ -19,16 +19,14 @@ struct SoundAnalyseView: View {
     
     //typically 10-50 milliseconds.
     @State private var segmentLengthSecondsMilliSec: Double = 0.5
-    //@State private var noteOnsetSliceWidthPercent: Double = 0.005
     @State private var noteOnsetSliceMilliSecs: Double = 20.0
     @State private var FFTWindowSize: Double = 4096.0
     @State private var FFTWindowOffset: Double = 1024.0
     @State private var amplitudeFilter: Double = 0.4
 
     init () {
-        let data = ExampleData.shared
-        let exampleData = data.get(contentSection: ContentSection(parent: nil, name: "test", type: "",
-                                                                  loadedDictionaryKey: "", loadedRow:0))
+        //let data = ExampleData.shared
+        //let exampleData = data.get(contentSection: ContentSection(parent: nil, name: "test", type: ""))
 
         let staff1 = Staff(score: score1, type: .treble, staffNum: 0, linesInStaff: 5)
         let staff1B = Staff(score: score1, type: .bass, staffNum: 1, linesInStaff: 5)
@@ -40,36 +38,32 @@ struct SoundAnalyseView: View {
 
         self.score2.setStaff(num: 0, staff: staff2)
         
-        if let entries = exampleData {
-            for entry in entries {
-                if entry is Note {
-                    let timeSlice = self.score1.addTimeSlice()
-                    let note = entry as! Note
-                    if note.midiNumber == Note.MIDDLE_C {
-                        note.staffNum = 1
-                    }
-                    note.isOnlyRhythmNote = true
-                    timeSlice.addNote(n: note)
-                    
-//                    var timeSlice2 = self.score2.addTimeSlice()
-//                    var n = Note(num:72, value: note.value)
-//                    //n.isOnlyRhythmNote = true
-//                    timeSlice2.addNote(n: n)
-
-                }
-                if entry is TimeSignature {
-                    let ts = entry as! TimeSignature
-                    score1.timeSignature = ts
-                }
-                if entry is BarLine {
-                    //let bl = entry as! BarLine
-                    score1.addBarLine()
-                }
-                if score1.scoreEntries.count > 200 {
-                    break
-                }
-            }
-        }
+//        if let entries = exampleData {
+//            for entry in entries {
+//                if entry is Note {
+//                    let timeSlice = self.score1.addTimeSlice()
+//                    let note = entry as! Note
+//                    if note.midiNumber == Note.MIDDLE_C {
+//                        note.staffNum = 1
+//                    }
+//                    note.isOnlyRhythmNote = true
+//                    timeSlice.addNote(n: note)
+//                    
+//
+//                }
+//                if entry is TimeSignature {
+//                    let ts = entry as! TimeSignature
+//                    score1.timeSignature = ts
+//                }
+//                if entry is BarLine {
+//                    //let bl = entry as! BarLine
+//                    score1.addBarLine()
+//                }
+//                if score1.scoreEntries.count > 200 {
+//                    break
+//                }
+//            }
+//        }
 
 //        var ts = self.score1.addTimeSlice()
 //        ts.addNote(n: Note(num: 48, value: 3.0))

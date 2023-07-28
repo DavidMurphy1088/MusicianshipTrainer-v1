@@ -28,7 +28,7 @@ struct TestView: View {
             
             HStack {
                 Button(action: {
-                    ExampleData.shared.loadData()
+                    ExampleData.shared1.loadData()
                 }) {
                     Text("Refresh Content").padding()
                 }.padding()

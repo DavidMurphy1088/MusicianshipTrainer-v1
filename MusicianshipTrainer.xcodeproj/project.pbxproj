@@ -85,7 +85,7 @@
 		7B4F64622A54DC6200727710 /* MusicianshipTrainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F64612A54DC6200727710 /* MusicianshipTrainerTests.swift */; };
 		7B4F646C2A54DC6200727710 /* MusicianshipTrainerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */; };
 		7B4F646E2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */; };
-		7B73B7BC2A6FB7030097BAA8 /* ExamReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73B7BB2A6FB7030097BAA8 /* ExamReviewView.swift */; };
+		7B73B7BC2A6FB7030097BAA8 /* ExamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73B7BB2A6FB7030097BAA8 /* ExamView.swift */; };
 		7B73B7BE2A7112E80097BAA8 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73B7BD2A7112E80097BAA8 /* Answer.swift */; };
 		7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F52A68F63B00EA088E /* Cache.swift */; };
 		7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */; };
@@ -207,7 +207,7 @@
 		7B4F64672A54DC6200727710 /* MusicianshipTrainerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MusicianshipTrainerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITests.swift; sourceTree = "<group>"; };
 		7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		7B73B7BB2A6FB7030097BAA8 /* ExamReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExamReviewView.swift; sourceTree = "<group>"; };
+		7B73B7BB2A6FB7030097BAA8 /* ExamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExamView.swift; sourceTree = "<group>"; };
 		7B73B7BD2A7112E80097BAA8 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
 		7B8EF2F52A68F63B00EA088E /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
@@ -394,7 +394,7 @@
 				7B40B8232A54E52A00CA7FC4 /* ViewProtocol.swift */,
 				7B40B8242A54E52A00CA7FC4 /* CapOrPlayView.swift */,
 				7B40B8252A54E52A00CA7FC4 /* HelpView.swift */,
-				7B73B7BB2A6FB7030097BAA8 /* ExamReviewView.swift */,
+				7B73B7BB2A6FB7030097BAA8 /* ExamView.swift */,
 				7B40B8262A54E52A00CA7FC4 /* IntervalsView.swift */,
 			);
 			path = Syllabus;
@@ -765,7 +765,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B73B7BC2A6FB7030097BAA8 /* ExamReviewView.swift in Sources */,
+				7B73B7BC2A6FB7030097BAA8 /* ExamView.swift in Sources */,
 				7B40B83E2A54E52A00CA7FC4 /* LaunchScreen.swift in Sources */,
 				7B40B8092A54DF9000CA7FC4 /* SoundGenerator.swift in Sources */,
 				7B40B8012A54DF9000CA7FC4 /* TunerView.swift in Sources */,

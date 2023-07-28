@@ -18,7 +18,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @ObservedObject var testMode: TestMode
     let questionType:QuestionType
 
-    let exampleData = ExampleData.shared
     @State var intervalNotes:[Note] = []
     @ObservedObject private var logger = Logger.logger
     @State private var selectedIntervalIndex:Int = 10//? = nil
@@ -43,8 +42,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     init(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.answer = answer
-        print("========== IntervalPresentView INIT", "score", score.id.uuidString.suffix((4)), "answer:", answer.id.uuidString.suffix((4)))
-
         self.score = score
         self.questionType = questionType
         self.testMode = testMode
@@ -74,13 +71,12 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     }
     
     func initScore() {
-        let exampleData = exampleData.get(contentSection: contentSection) //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
+        let exampleData = contentSection.parseData() //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
         
         let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5)
         self.score.setStaff(num: 0, staff: staff)
         let chord:Chord = Chord()
         if let entries = exampleData {
-            
             for entry in entries {
                 if entry is KeySignature {
                     let keySignature = entry as! KeySignature
@@ -217,9 +213,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 Spacer()
             }
             .onAppear {
-                print("========== IntervalPresentView ON_APPEAR")
                 self.initScore()
-                //self.answer.setState(ctx1 : "Int View PRESENT ON_APPEAR", .notEverAnswered)
             }
         )
     }
@@ -287,42 +281,44 @@ struct IntervalAnswerView: View { //}, QuestionPartProtocol {
 
 struct IntervalView: View {
     let id = UUID()
-    
     let questionType:QuestionType
     let contentSection:ContentSection
     let testMode:TestMode
     let nextNavigationView:NextNavigationView
-    @State var answer: Answer
-    @ObservedObject var partsAnswer: Answer
-
-    let exampleData = ExampleData.shared
-
+    @ObservedObject var answer: Answer
     var score:Score
-    
     @ObservedObject var logger = Logger.logger
-    //@State var presentQuestionView:IntervalPresentView?
-    //@State var answerQuestionView:IntervalAnswerView?
     
     init(questionType:QuestionType, contentSection:ContentSection, testMode:TestMode, nextNavigationView:NextNavigationView, answer:Answer) {
-        print("========== IntervalView INIT", "answer:", answer.id.uuidString.suffix((4)))
         self.questionType = questionType
         self.contentSection = contentSection
         self.testMode = testMode
         self.nextNavigationView = nextNavigationView
-        _answer = State(initialValue: answer)
-        self.partsAnswer = Answer()
-        
+        self.answer = answer
         self.score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
-//        self.presentQuestionView = nil
+    }
+    
+    func getNavigationDescription() -> String {
+        if testMode.mode == .exam {
+            if nextNavigationView.hasNextPage() {
+                return "Go to the Next Test Question"
+            }
+            else {
+                return "End of Test"
+            }
+        }
+        else {
+            return "Go to the Next Example"
+        }
     }
     
     var body: some View {
         VStack {
-            Text("=============== \(testMode.mode == .exam ? "EXAM" : "PRACTICE") Answer STATE:\(partsAnswer.toString())")
-            if partsAnswer.state != .submittedAnswer {
+            //Text("=============== \(testMode.mode == .exam ? "EXAM" : "PRACTICE") Answer STATE:\(answer.toString())")
+            if answer.state != .submittedAnswer {
                 IntervalPresentView(contentSection: contentSection,
                                                           score: self.score,
-                                                          answer: partsAnswer,
+                                                          answer: answer,
                                                           testMode:testMode,
                                                           questionType:questionType)
 
@@ -331,17 +327,18 @@ struct IntervalView: View {
                 if testMode.mode == .practice {
                     IntervalAnswerView(contentSection: contentSection,
                                                             score: self.score,
-                                                            answer: partsAnswer,
+                                                            answer: answer,
                                                             testMode:testMode,
                                                             questionType:questionType)
                 }
             }
-            if partsAnswer.state == .submittedAnswer {
+            if answer.state == .submittedAnswer {
+                
                 VStack {
                     Button(action: {
                         nextNavigationView.navigateNext()
                     }) {
-                        Text("==>Go to Next \(testMode.mode == .exam ? "Test" : "Example")").defaultStyle()
+                        Text(getNavigationDescription()).defaultStyle()
                     }
                 }
                 .padding()
@@ -349,26 +346,8 @@ struct IntervalView: View {
         }
         .background(UIGlobals.colorBackground)
         .onAppear {
-            print("========== IntervalView ON_APPEAR")
             answer.setState(ctx1: "Int view INIT", .notEverAnswered)
-            partsAnswer.setState(ctx1: "Int view INIT", .notEverAnswered)
-            
-//            presentQuestionView = IntervalPresentView(contentSection: contentSection,
-//                                                      score: self.score,
-//                                                      answer: partsAnswer,
-//                                                      testMode:testMode,
-//                                                      questionType:questionType)
-//
-//            answerQuestionView = IntervalAnswerView(contentSection: contentSection,
-//                                                    score: self.score,
-//                                                    answer: partsAnswer,
-//                                                    testMode:testMode,
-//                                                    questionType:questionType)
-
-
         }
-
     }
-
 }
 

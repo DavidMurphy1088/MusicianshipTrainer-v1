@@ -51,3 +51,14 @@ Band-pass filter: Passes a specific range of frequencies and attenuates others. 
 =====================
 
 My XCode Swift ios application needs to be able to read documents from my Google Drive account using the Google Docs API. A user using my ios application cannot be required to authenticate to Google with their own credentials. So the ios applcation cannnot use an OAuth 2.0 Client ID. Therefore, authentication must be done using a Google Service Account. (Also the Google Docs API does not support authentication by API keys.). What is the recommmend set of Swift libraries to use in my ioS application to provide authentication for the Google Docs API? Please also list where these libraries can be installed from and how they should be installed into my XCode application project. Please also supply some simpe example Swift code that shows how to call teh Google Docs API using a Google Service account.
+
+
+=================
+I have an iOS app in the App Store teaching music theory that will have possibly 1000's of users. There will also be a Goole Play app using the same information. For each user the app needs to store informaton about their account and their repsonses to each test question. The repsonse will include audio files of their music playing.
+Which service should I use to store all this user information.
+
+>>Google Cloud Platform (GCP): Google's Firebase is a mobile and web app development platform that provides a suite of services, including Cloud Firestore for storing structured data, and Google Cloud Storage for storing unstructured data like audio files. Firebase also provides user authentication services that could be useful for managing user accounts. Firebase's integration with other Google services, including Google Analytics, can be beneficial if you're already invested in the Google ecosystem. The Cloud Storage for Firebase SDKs are also cross-platform, so you can use the same service for both your iOS and Android applications.
+
+=============
+My ios app needs to access audio and video files from html running inside a WKWebView inside the app. Which service should I use to store these audio video files
+Which specific services within Google Cloud Storage should I use to be able to provide URLs to HTML links running inside WKWebView. These linkes use <video> abd <audio> tags

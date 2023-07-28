@@ -81,47 +81,46 @@ struct PlayRecordingView: View {
     }
 }
 
-struct ClapOrPlayPresentView: View {//}, QuestionPartProtocol {
-    //@ObservedObject var answer:Answer
+struct ClapOrPlayPresentView: View {
+    let contentSection:ContentSection
+    @ObservedObject var score:Score
     @ObservedObject var answer:Answer
+    let testMode:TestMode
+    var questionType:QuestionType
+
     @ObservedObject var audioRecorder = AudioRecorder.shared
     @ObservedObject var tapRecorder = TapRecorder.shared
     @ObservedObject private var logger = Logger.logger
     @ObservedObject private var metronome:Metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "ClapOrPlayPresentView init @ObservedObject")
-
     @State var tappingView:TappingView? = nil
-
-    //@State var showBaseCleff = false
     @State private var helpPopup = false
     @State var isTapping = false
     @State var rhythmHeard:Bool
-    let testMode:TestMode
-    //WARNING - Making Score a @STATE makes instance #1 of this struct pass its Score to instance #2
-    var score:Score
-    let exampleData = ExampleData.shared
-    var contentSection:ContentSection
-    var questionType:QuestionType
-    var onRefresh: (() -> Void)? = nil
+    //let exampleData = ExampleData.shared
+    //var onRefresh: (() -> Void)? = nil
     let questionTempo = 90
     
-    static func onRefresh() {
-    }
-    
+//    static func onRefresh() {
+//    }
 //    //static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, mode:QuestionMode) -> QuestionPartProtocol
 //    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType) -> QuestionPartProtocol {
 //        return ClapOrPlayPresentView(contentSection: contentSection, score:score, answer: answer, testMode:testMode, questionType: questionType, refresh: onRefresh)
 //    }
     
-    init(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType, refresh:(() -> Void)? = nil) {
-        self.answer = answer
-        self.score = score
+    init(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType, refresh_unused:(() -> Void)? = nil) {
         self.contentSection = contentSection
+        self.score = score
+        self.answer = answer
         self.questionType = questionType
-        
-        let exampleData = exampleData.get(contentSection: contentSection) //(contentSection.parent!.name, contentSection.name)
+        self.testMode = testMode
+        self.questionType = questionType
+        self.rhythmHeard = false
+    }
+    
+    func initScore() {
+        let exampleData = contentSection.parseData()
         self.rhythmHeard = self.questionType == .rhythmVisualClap ? true : false
         var staff:Staff?
-        self.testMode = testMode
         
         if let entries = exampleData {
             for entry in entries {
@@ -328,6 +327,7 @@ struct ClapOrPlayPresentView: View {//}, QuestionPartProtocol {
 //                    }
                 }
                 .onAppear() {
+                    self.initScore()
                     score.setHiddenStaff(num: 1, isHidden: true)
                     metronome.setTempo(tempo: 90, context: "View init")
                     if questionType == .rhythmEchoClap || questionType == .melodyPlay {
@@ -346,7 +346,6 @@ struct ClapOrPlayPresentView: View {//}, QuestionPartProtocol {
 struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     @ObservedObject var tapRecorder = TapRecorder.shared
     @ObservedObject var answer:Answer
-    var onRefresh:(()->Void)?
     
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
@@ -361,6 +360,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     private var questionType:QuestionType
     let questionTempo = 90
     let testMode:TestMode
+    var onRefresh: (() -> Void)? = nil
     
 //    static func createInstance(contentSection:ContentSection, score:Score, answer:Answer, testMode:TestMode, questionType:QuestionType) -> QuestionPartProtocol {
 //        return ClapOrPlayAnswerView(contentSection:contentSection, score:score, answer: answer, testMode:testMode, questionType: questionType)
@@ -489,20 +489,18 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
 
 struct ClapOrPlayView: View {
     let id = UUID()
-    var contentSection:ContentSection
+    let questionType:QuestionType
+    let contentSection:ContentSection
     let nextNavigationView:NextNavigationView
+    let testMode:TestMode
     
-    @ObservedObject var testMode:TestMode
     @State var refresh:Bool = false
     
     //WARNING - Making Score a @STATE makes instance #1 of this struct pass its Score to instance #2
-    var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
+    var score:Score
     @ObservedObject var logger = Logger.logger
-    @ObservedObject var answer: Answer = Answer()
-    @State var  presentQuestionView:ClapOrPlayPresentView?
-    @State var  answerQuestionView:ClapOrPlayAnswerView?
-    var questionType:QuestionType
-    
+    @ObservedObject var answer: Answer
+   
     func onRefresh() {
         self.answer.setState(ctx1: "clap", .notEverAnswered)
         DispatchQueue.main.async {
@@ -510,22 +508,49 @@ struct ClapOrPlayView: View {
         }
     }
 
-    init(questionType:QuestionType, contentSection:ContentSection, testMode:TestMode, nextNavigationView:NextNavigationView) {
+    init(questionType:QuestionType, contentSection:ContentSection, testMode:TestMode, nextNavigationView:NextNavigationView, answer:Answer) {
+        self.questionType = questionType
         self.contentSection = contentSection
         self.nextNavigationView = nextNavigationView
         self.testMode = testMode
-        self.questionType = questionType
+        self.answer = answer
+        self.score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
+     }
+    
+    func getNavigationDescription() -> String {
+        if testMode.mode == .exam {
+            if nextNavigationView.hasNextPage() {
+                return "Go to the Next Test Question"
+            }
+            else {
+                return "End of Test"
+            }
+        }
+        else {
+            return "Go to the Next Example"
+        }
     }
-
+ 
     var body: some View {
         VStack {
             //Text("=============== \(testMode.mode == .exam ? "EXAM" : "PRACTICE") SUBMITTED STATE:\(answer.state == .submittedAnswer ? "YES" : "NOT")")
             if answer.state != .submittedAnswer {
-                presentQuestionView
+                ClapOrPlayPresentView(
+                    contentSection: contentSection,
+                    score: score,
+                    answer: answer,
+                    testMode:testMode,
+                    questionType: questionType)
+
             }
             else {
                 if testMode.mode == .practice {
-                    answerQuestionView
+                    ClapOrPlayAnswerView(contentSection: contentSection,
+                                         score: score,
+                                         answer: answer,
+                                         testMode:testMode,
+                                         questionType: questionType,
+                                         refresh: onRefresh)
                 }
             }
             if answer.state == .submittedAnswer {
@@ -533,7 +558,7 @@ struct ClapOrPlayView: View {
                     Button(action: {
                         nextNavigationView.navigateNext()
                     }) {
-                        Text("Go to Next \(testMode.mode == .exam ? "Test" : "Example")").defaultStyle()
+                        Text(self.getNavigationDescription()).defaultStyle()
                     }
                 }
                 .padding()
@@ -542,8 +567,6 @@ struct ClapOrPlayView: View {
         .background(UIGlobals.colorBackground)
         .onAppear {
             self.answer.setState(ctx1: "clap", .notEverAnswered)
-            presentQuestionView = ClapOrPlayPresentView(contentSection: contentSection, score: score, answer: answer, testMode:testMode, questionType: questionType)
-            answerQuestionView = ClapOrPlayAnswerView(contentSection: contentSection, score: score, answer: answer, testMode:testMode, questionType: questionType, refresh: onRefresh)
         }
     }
 

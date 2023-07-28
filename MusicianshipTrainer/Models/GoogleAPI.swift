@@ -73,7 +73,7 @@ class GoogleAPI {
         }
     }
 
-    ///Call a Google Drive API (sheets, files etc) using an API key. Note that this does not require an OAuth2 token request.
+    ///Call a Google Drive API (sheets etc) using an API key. Note that this does not require an OAuth2 token request.
     ///Data accessed via an API key only is regarded as less senstive by Google than data in a Google doc that requires an OAuth token
     
     private func getByAPI(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
