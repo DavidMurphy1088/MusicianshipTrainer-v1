@@ -15,21 +15,6 @@ struct ContentSectionTipsView: UIViewRepresentable {
         return WKWebView()
     }
     
-//    func updateUIView(_ uiView: WKWebView, context: Context) {
-//        let key = contentSection.getPath() + "." + "TipsAndTricks".
-//        let array = exampleData.getData(key: key, type: "I")
-//        if let array = array {
-//            let file:String = array[0] as! String
-//            googleAPI.getDocumentByName(name: file) {status,document in
-//                if status == .success {
-//                    if let document = document {
-//                        let htmlDocument:String = document
-//                        uiView.loadHTMLString(htmlDocument, baseURL: nil)
-//                    }
-//                }
-//            }
-//        }
-//    }
     func updateUIView(_ uiView: WKWebView, context: Context) {
         uiView.loadHTMLString(htmlDocument, baseURL: nil)
     }
@@ -48,6 +33,7 @@ struct ContentSectionInstructionsView: UIViewRepresentable {
     }
 }
 
+
 struct ContentSectionHeaderView: View {
     var contentSection:ContentSection
     let googleAPI = GoogleAPI.shared
@@ -55,6 +41,7 @@ struct ContentSectionHeaderView: View {
     @State private var instructions:String? = nil
     @State private var tipsAndTricksExists = false
     @State private var tipsAndTricksData:String?=nil
+    @State private var audioInstructionsFileName:String? = nil
 
     func getInstructions()  {
         let instructionContent = contentSection.getChildSectionByType(type: "Ins")
@@ -84,6 +71,16 @@ struct ContentSectionHeaderView: View {
             }
         }
     }
+    
+    func getAudio()  {
+        let audioContent = contentSection.getChildSectionByType(type: "Audio")
+        if let audioContent = audioContent {
+            if audioContent.contentSectionData.data.count > 0 {
+                audioInstructionsFileName = audioContent.contentSectionData.data[0]
+                
+            }
+        }
+    }
 
     func getParagraphCount(html:String) -> Int {
         let p = html.components(separatedBy: "<p>").count
@@ -96,6 +93,15 @@ struct ContentSectionHeaderView: View {
                 .fontWeight(.bold)
             
             VStack {
+                if let audioInstructionsFileName = audioInstructionsFileName {
+                    Button(action: {
+                        AudioRecorder.shared.playAudioFromURL(urlString: audioInstructionsFileName)
+                    }) {
+                        Text("Aural Instructions").defaultStyle()
+                    }
+                    .padding()
+                }
+
                 if let instructions = self.instructions {
                     HStack {
                         //Spacer()
@@ -107,10 +113,6 @@ struct ContentSectionHeaderView: View {
                         //Spacer()
                     }
                 }
-            }
-            .onAppear() {
-                getInstructions()
-                getTipsAndTricks()
             }
                    
             if tipsAndTricksExists {
@@ -135,16 +137,24 @@ struct ContentSectionHeaderView: View {
                 }
             }
         }
+        .onAppear() {
+            getAudio()
+            getInstructions()
+            getTipsAndTricks()
+        }
     }
 }
     
 struct ContentSectionView: View, NextNavigationView {
-    
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+
+    let id = UUID()
     var contentSection:ContentSection
     var parentSection:ContentSection? // the parent of this section that describes the test type
     @Binding var parentsSelectedContentIndex: Int?
     @State private var selectedContentIndex: Int?
-    
+    @State private var examSectionIndex: Int = 0
+
     init(contentSection:ContentSection, parentsSelectedContentIndex:Binding<Int?>) {
         self.contentSection = contentSection
         _parentsSelectedContentIndex = parentsSelectedContentIndex
@@ -152,9 +162,17 @@ struct ContentSectionView: View, NextNavigationView {
     
     func navigateNext() {
         //print("======nextContentSection ", self.parentsSelectedContentIndex, "SubsectionCount", parentSection?.subSections.count)
+        
         if parentsSelectedContentIndex != nil {
-            parentsSelectedContentIndex! += 1
+            //if parentsSelectedContentIndex
+            DispatchQueue.main.async {
+                //sleep(3)
+                self.presentationMode.wrappedValue.dismiss()
+            }
+            //parentsSelectedContentIndex! += 1
         }
+        print("Content view:: navigate next parentsSelectedContentIndex::id:", self.id.uuidString.prefix(8), parentsSelectedContentIndex)
+
     }
     
     func hasNextPage() -> Bool {
@@ -187,10 +205,101 @@ struct ContentSectionView: View, NextNavigationView {
         }
         return ""
     }
-
-    func questionTypeView() -> some View {
+    
+    func examView(childSections:[ContentSection]) -> some View {
         VStack {
-            //let path = contentSection.getPath()
+            Button(action: {
+                self.examSectionIndex += 1
+            }) {
+                Text("__NEXT__")
+            }
+            questionTypeView(contentSection: childSections[examSectionIndex])
+        }
+    }
+
+    var body: some View {
+        VStack {
+            let childSections = contentSection.getNavigableChildSections()
+            if childSections.count > 0 {
+                
+                ContentSectionHeaderView(contentSection: contentSection)
+                    .layoutPriority(1)
+                if contentSection.type == "Exam" {
+                    examView(childSections: childSections)
+                }
+                else {
+                    sectionsView(childSections: childSections)
+                }
+            }
+            else {
+                questionTypeView(contentSection: self.contentSection)
+            }
+            
+        }
+//        .onAppear {
+//            let old = selectedContentIndex
+//            if contentSection.type == "Exam" {
+//                //very problematic - sometimes setting the selectedContentIndex does not work and the view just lists all its children
+//                //rather than navigating to the first
+//                if selectedContentIndex == nil {
+////                    selectedContentIndex = 0
+////                    DispatchQueue.main.async {
+////                        //sleep(1)
+////                        ussleep(500,000)
+////                        selectedContentIndex = 0
+////                    }
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//                        // this code will be executed after 0.5 seconds without blocking the current thread
+//                        print("End")
+//                        selectedContentIndex = 0
+//                    }
+//                }
+//                print("========== Content sec view OnAppear \(contentSection.name) type:\(contentSection.type)", "old:\(String(describing: old))", "new:\(selectedContentIndex)", "id:", self.id.uuidString.prefix(8))
+//
+//            }
+        //}
+        .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
+    }
+    
+    func sectionsView(childSections:[ContentSection]) -> some View {
+        VStack {
+//            Button(action: {
+//                self.presentationMode.wrappedValue.dismiss()
+//            }) {
+//                Text("BACK")
+//            }
+//
+            List(Array(childSections.indices), id: \.self) { index in
+                ///- selection: A bound variable that causes the link to present `destination` when `selection` becomes equal to `tag`.
+                NavigationLink(destination: ContentSectionView(contentSection: childSections[index],
+                                                               parentsSelectedContentIndex: $selectedContentIndex),
+                               tag: index,
+                               selection: $selectedContentIndex) {
+
+                    HStack {
+                        Text(childSections[index].getTitle()).padding().font(.title2)
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Text(self.getStatus(contentSection: childSections[index])).padding().font(.title2)
+                            
+                            if let imageName = getImageName(contentSection: childSections[index]) {
+                                Spacer()
+                                Image(imageName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 40.0)
+                                Text("    ")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func questionTypeView(contentSection:ContentSection) -> some View {
+        VStack {
             let type = contentSection.type
             let testMode = TestMode(mode: contentSection.isExamMode() ? .exam : .practice)
             
@@ -212,7 +321,7 @@ struct ContentSectionView: View, NextNavigationView {
                         nextNavigationView: self,
                         answer: Answer()
                     )
-                }                
+                }
             }
             if type == "Type_3" {
                 ClapOrPlayView (
@@ -244,54 +353,6 @@ struct ContentSectionView: View, NextNavigationView {
         }
     }
     
-    var body: some View {
-        VStack {
-            if contentSection.type == "Type_7" {
-                ExamView(contentSection: contentSection)
-            }
-            else {
-                let childSections = contentSection.getNavigableChildSections()
-                if childSections.count > 0 {
-                    ContentSectionHeaderView(contentSection: contentSection)
-                    VStack {
-                        List(Array(childSections.indices), id: \.self) { index in
-                            NavigationLink(destination: ContentSectionView(contentSection: childSections[index],
-                                                                           parentsSelectedContentIndex: $selectedContentIndex),
-                                           tag: index,
-                                           selection: $selectedContentIndex) {
-
-                                HStack {
-                                    Text(childSections[index].getTitle()).padding().font(.title2)
-                                    Spacer()
-                                    HStack {
-                                        Spacer()
-                                        Text(self.getStatus(contentSection: childSections[index])).padding().font(.title2)
-                                        
-                                        if let imageName = getImageName(contentSection: childSections[index]) {
-                                            Spacer()
-                                            Image(imageName)
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 40.0)
-                                            Text("    ")
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
-                    questionTypeView()
-                }
-            }
-        }
-        .onAppear {
-            //print("COntent section view ====>", self.contentSection.level, contentSection.name, "type:[\(contentSection.type)]")
-        }
-        .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
-    }
-
 }
 
 

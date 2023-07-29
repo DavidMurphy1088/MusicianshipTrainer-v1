@@ -280,6 +280,8 @@ struct IntervalAnswerView: View { //}, QuestionPartProtocol {
 }
 
 struct IntervalView: View {
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+
     let id = UUID()
     let questionType:QuestionType
     let contentSection:ContentSection
@@ -311,7 +313,12 @@ struct IntervalView: View {
             return "Go to the Next Example"
         }
     }
-    
+    var body1: some View {
+        VStack {
+            Text("Interval View")
+        }
+    }
+
     var body: some View {
         VStack {
             //Text("=============== \(testMode.mode == .exam ? "EXAM" : "PRACTICE") Answer STATE:\(answer.toString())")
@@ -333,10 +340,10 @@ struct IntervalView: View {
                 }
             }
             if answer.state == .submittedAnswer {
-                
                 VStack {
                     Button(action: {
-                        nextNavigationView.navigateNext()
+                        self.presentationMode.wrappedValue.dismiss()
+                        //nextNavigationView.navigateNext()
                     }) {
                         Text(getNavigationDescription()).defaultStyle()
                     }

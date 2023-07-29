@@ -11,7 +11,6 @@ class Answer : ObservableObject, Identifiable {
     
     init() {
         id = UUID()
-        print("-------->       Anser init", id.uuidString.suffix((4)))
     }
     enum AnswerState {
         case notEverAnswered

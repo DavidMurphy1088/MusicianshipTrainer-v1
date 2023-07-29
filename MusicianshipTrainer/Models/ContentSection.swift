@@ -71,16 +71,19 @@ class ContentSection: Identifiable {
     func debug() {
         let spacer = String(repeating: " ", count: 4 * (level))
         print(spacer, "--->", "path:[\(self.getPath())]", "\tname:", self.name, "\ttype:[\(self.type)]")
-        let sorted:[ContentSection] = subSections.sorted { (c1, c2) -> Bool in
-            //return c1.loadedRow < c2.loadedRow
-            return c1.name < c2.name
-        }
-        for s in sorted {
+//        let sorted:[ContentSection] = subSections.sorted { (c1, c2) -> Bool in
+//            //return c1.loadedRow < c2.loadedRow
+//            return c1.name < c2.name
+//        }
+        for s in self.subSections {
             s.debug()
         }
     }
     
     func isQuestionType() -> Bool {
+        if type.first == "_" {
+            return false
+        }
         let components = self.type.split(separator: "_")
         if components.count != 2 {
             return false
@@ -107,7 +110,16 @@ class ContentSection: Identifiable {
         var sections:[ContentSection] = []
         for section in self.subSections {
             if section.subSections.count > 0 {
-                sections.append(section)
+                var sectionHasQuestions = false
+                for s in section.subSections {
+                    if s.isQuestionType() {
+                        sectionHasQuestions = true
+                        break
+                    }
+                }
+                if sectionHasQuestions {
+                    sections.append(section)
+                }
             }
             else {
                 if section.isQuestionType() {
@@ -115,6 +127,7 @@ class ContentSection: Identifiable {
                 }
             }
         }
+
         return sections
     }
     
@@ -181,9 +194,15 @@ class ContentSection: Identifiable {
     }
 
     func getChildSectionByType(type: String) -> ContentSection? {
-        for child in self.subSections {
-            if child.type == type {
-                return child
+        if self.type == type {
+            return self
+        }
+        else {
+            for child in self.subSections {
+                var found = child.getChildSectionByType(type: type)
+                if let found = found {
+                    return found
+                }
             }
         }
         return nil

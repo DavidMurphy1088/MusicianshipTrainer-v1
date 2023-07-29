@@ -89,7 +89,6 @@ class Score : ObservableObject {
         self.id = UUID()
         self.timeSignature = timeSignature
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
-        print ("============= Score init()", id.uuidString.suffix((4)))
     }
     
     func getTotalStaffLineCount() -> Int {

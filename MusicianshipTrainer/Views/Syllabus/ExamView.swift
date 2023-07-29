@@ -120,6 +120,11 @@ struct ExamView: View, NextNavigationView {
 
     var body: some View {
         VStack {
+            Text("Exam view...")
+        }
+    }
+    var body1: some View {
+        VStack {
             if self.testIndex == nil {
                 examBeginView()
             }

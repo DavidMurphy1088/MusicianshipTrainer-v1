@@ -45,3 +45,8 @@ Next Ideas
 - check open source Sonic Visualizer for pitch detection https://www.sonicvisualiser.org/doc/reference/4.5.2/en/
 - SV does do correct pitch determination using Pane-Peak Freq spectrum
 - If we knw the pitch of the first note in the example can we use that to pick right freuency of all the freqs for the next note. in Ex1 pitch jumps are small
+
+======= TestFlight ============
+- set prod mode one
+- change sheet to use production data
+
