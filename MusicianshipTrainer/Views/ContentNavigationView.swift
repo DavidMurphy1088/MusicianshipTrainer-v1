@@ -40,8 +40,8 @@ struct ContentNavigationView: View {
                     //The 2nd NavigationView below (for iPhone without split nav) will present the topics on the first screen the user sees
                     if false {
                         List(contentSection.subSections) { contentSection in
-                            NavigationLink(destination: ContentSectionView(contentSection: contentSection,
-                                                                           parentsSelectedContentIndex: $selectedContentIndex)) {
+                            NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
+                                                                           //parentsSelectedContentIndex: $selectedContentIndex)) {
                                 Text(contentSection.getTitle())
                                     .font(.title2)
                             }
@@ -52,8 +52,8 @@ struct ContentNavigationView: View {
                     GradeIntroView()
                     
                     List(contentSection.subSections) { contentSection in
-                        NavigationLink(destination: ContentSectionView(contentSection: contentSection,
-                                                                       parentsSelectedContentIndex: $selectedContentIndex)) {
+                        NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
+                                                                       //parentsSelectedContentIndex: $selectedContentIndex)) {
                             VStack(alignment: .center) {
                                 Text(contentSection.getTitle()).padding()
                                     .font(.title2)
@@ -91,7 +91,7 @@ struct ContentNavigationView: View {
         else {
             NavigationView {
                 List(contentSection.subSections) { contentSection in
-                    NavigationLink(destination: ContentSectionView(contentSection: contentSection, parentsSelectedContentIndex: $selectedContentIndex)) {
+                    NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {//}, parentsSelectedContentIndex: $selectedContentIndex)) {
                         VStack {
                             Text(contentSection.getTitle())
                                 .font(.title2)

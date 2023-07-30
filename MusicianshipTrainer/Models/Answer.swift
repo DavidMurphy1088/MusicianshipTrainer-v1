@@ -1,5 +1,14 @@
 import Foundation
 
+enum AnswerState {
+    case notEverAnswered
+    case notRecorded
+    case recorded
+    case recording
+    case answered
+    case submittedAnswer
+}
+
 ///The answer a student gives to a question
 class Answer : ObservableObject, Identifiable {
     var id:UUID
@@ -8,30 +17,19 @@ class Answer : ObservableObject, Identifiable {
     var correctIntervalName = ""
     var explanation = ""
     var selectedInterval:Int? = nil
-    
-    init() {
-        id = UUID()
-    }
-    enum AnswerState {
-        case notEverAnswered
-        case notRecorded
-        case recorded
-        case recording
-        case answered
-        case submittedAnswer
-    }
-    
     @Published var state:AnswerState = .notEverAnswered
 
-    func setState(ctx1:String, _ state:AnswerState) {
-        DispatchQueue.main.async {
-            //print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> answer set state, before:", ctx1, self.toString())
-            self.state = state
-            //print("                               >>>>> answer set state,  after:", ctx1, self.toString())
-
-        }
+    init(ctx:String) {
+        id = UUID()
+        //print("\n----------------------------->>>>> answer INIT::", "context:[\(ctx)]", "Self[:\(self.toString())]")
     }
     
+    func setState(_ newState:AnswerState) {
+        DispatchQueue.main.async {
+            self.state = newState
+        }
+    }
+
 //    public var state: AnswerState {
 //        get {
 //            return internalState

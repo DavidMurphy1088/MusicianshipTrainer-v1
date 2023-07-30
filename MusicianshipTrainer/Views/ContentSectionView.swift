@@ -4,8 +4,9 @@ import WebKit
 ///A protocol that any view that instances a test view must comply with so that the user can navigate directly to the next test
 protocol NextNavigationView {
     //var property: String { get set }
-    func navigateNext()
-    func hasNextPage() -> Bool
+    //func navigateNext()
+    //func hasNextPage() -> Bool
+    func enableNextNavigation() -> Bool
 }
 
 struct ContentSectionTipsView: UIViewRepresentable {
@@ -146,45 +147,38 @@ struct ContentSectionHeaderView: View {
 }
     
 struct ContentSectionView: View, NextNavigationView {
+    
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @State private var selectedContentIndex: Int?
+    @State private var examSectionIndex: Int = 0
+    @State private var showNextNavigation: Bool = true
 
     let id = UUID()
     var contentSection:ContentSection
-    var parentSection:ContentSection? // the parent of this section that describes the test type
-    @Binding var parentsSelectedContentIndex: Int?
-    @State private var selectedContentIndex: Int?
-    @State private var examSectionIndex: Int = 0
 
-    init(contentSection:ContentSection, parentsSelectedContentIndex:Binding<Int?>) {
+    init(contentSection:ContentSection) {
         self.contentSection = contentSection
-        _parentsSelectedContentIndex = parentsSelectedContentIndex
+        examSectionIndex = 0
+        //_parentsSelectedContentIndex1 = parentsSelectedContentIndex
     }
-    
-    func navigateNext() {
-        //print("======nextContentSection ", self.parentsSelectedContentIndex, "SubsectionCount", parentSection?.subSections.count)
         
-        if parentsSelectedContentIndex != nil {
-            //if parentsSelectedContentIndex
+    func enableNextNavigation() -> Bool {
+        if self.examSectionIndex < contentSection.getNavigableChildSections().count - 1 {
             DispatchQueue.main.async {
-                //sleep(3)
-                self.presentationMode.wrappedValue.dismiss()
+                ///Keep this 2nd check in this thread (or else wait for last call to complete). It appears this func can be called rapidly in succession
+                if self.examSectionIndex < contentSection.getNavigableChildSections().count - 1 {
+                    showNextNavigation = true
+                    self.examSectionIndex += 1
+                    print("_________________ enableNextNavigation::", self.examSectionIndex, "count:", contentSection.getNavigableChildSections().count)
+                }
+                else {
+                    self.examSectionIndex = 0
+                }
             }
-            //parentsSelectedContentIndex! += 1
         }
-        print("Content view:: navigate next parentsSelectedContentIndex::id:", self.id.uuidString.prefix(8), parentsSelectedContentIndex)
+        return showNextNavigation
+    }
 
-    }
-    
-    func hasNextPage() -> Bool {
-        if let parentSection = parentSection {
-            if let parentsSelectedContentIndex = parentsSelectedContentIndex {
-                return parentsSelectedContentIndex < parentSection.subSections.count - 1
-            }
-            return true
-        }
-        return false
-    }
-        
     func getImageName(contentSection: ContentSection) -> String? {
         if contentSection.isExamMode()  {
             if contentSection.index < 6 {
@@ -206,24 +200,48 @@ struct ContentSectionView: View, NextNavigationView {
         return ""
     }
     
+    func log() -> Bool {
+        print("===============>>>>>>>", examSectionIndex)
+        return true
+    }
+    
     func examView(childSections:[ContentSection]) -> some View {
+        ///Force an .onAppear for the next view to ensure it initializes with the new data from the next content section.
+        ///This is required if two consecutive views are for the same content type (but different data) - on .onAppear must be forced ...
         VStack {
-            Button(action: {
-                self.examSectionIndex += 1
-            }) {
-                Text("__NEXT__")
+            Text("===examView=== Index::\(examSectionIndex) Sections::\(childSections.count)")
+            if self.showNextNavigation {
+                if examSectionIndex < childSections.count {
+                    Text("Section \(childSections[examSectionIndex].name)").padding()
+                    Text("Section \(examSectionIndex+1) of \(childSections.count) sections").padding()
+                    Button(action: {
+                        self.showNextNavigation = false
+                    }) {
+                        //Text("---- GO TO NEXT--- name:\(contentSection.name) index:\(examSectionIndex) childs:\(childSections.count)")
+                        Text("Start Section \(childSections[examSectionIndex].name)").padding()
+                    }
+                }
+                else {
+                    Text("===examView INDEX ERROR === Index::\(examSectionIndex) Sections::\(childSections.count)")
+                }
             }
-            questionTypeView(contentSection: childSections[examSectionIndex])
+            else {
+                if log() {
+                    questionTypeView(contentSection: childSections[examSectionIndex])
+                }
+            }
         }
+        //.onAppear {
+        //}
     }
 
     var body: some View {
         VStack {
             let childSections = contentSection.getNavigableChildSections()
             if childSections.count > 0 {
-                
+
                 ContentSectionHeaderView(contentSection: contentSection)
-                    .layoutPriority(1)
+
                 if contentSection.type == "Exam" {
                     examView(childSections: childSections)
                 }
@@ -236,43 +254,20 @@ struct ContentSectionView: View, NextNavigationView {
             }
             
         }
-//        .onAppear {
-//            let old = selectedContentIndex
-//            if contentSection.type == "Exam" {
-//                //very problematic - sometimes setting the selectedContentIndex does not work and the view just lists all its children
-//                //rather than navigating to the first
-//                if selectedContentIndex == nil {
-////                    selectedContentIndex = 0
-////                    DispatchQueue.main.async {
-////                        //sleep(1)
-////                        ussleep(500,000)
-////                        selectedContentIndex = 0
-////                    }
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//                        // this code will be executed after 0.5 seconds without blocking the current thread
-//                        print("End")
-//                        selectedContentIndex = 0
-//                    }
-//                }
-//                print("========== Content sec view OnAppear \(contentSection.name) type:\(contentSection.type)", "old:\(String(describing: old))", "new:\(selectedContentIndex)", "id:", self.id.uuidString.prefix(8))
-//
-//            }
-        //}
+        .onAppear {
+            //self.childSections = contentSection.getNavigableChildSections()
+        }
+
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
     }
     
     func sectionsView(childSections:[ContentSection]) -> some View {
         VStack {
-//            Button(action: {
-//                self.presentationMode.wrappedValue.dismiss()
-//            }) {
-//                Text("BACK")
-//            }
-//
+
             List(Array(childSections.indices), id: \.self) { index in
                 ///- selection: A bound variable that causes the link to present `destination` when `selection` becomes equal to `tag`.
-                NavigationLink(destination: ContentSectionView(contentSection: childSections[index],
-                                                               parentsSelectedContentIndex: $selectedContentIndex),
+                NavigationLink(destination: ContentSectionView(contentSection: childSections[index]),
+                                                               //parentsSelectedContentIndex: $selectedContentIndex),
                                tag: index,
                                selection: $selectedContentIndex) {
 
@@ -282,7 +277,6 @@ struct ContentSectionView: View, NextNavigationView {
                         HStack {
                             Spacer()
                             Text(self.getStatus(contentSection: childSections[index])).padding().font(.title2)
-                            
                             if let imageName = getImageName(contentSection: childSections[index]) {
                                 Spacer()
                                 Image(imageName)
@@ -295,21 +289,20 @@ struct ContentSectionView: View, NextNavigationView {
                     }
                 }
             }
+//            if showNextNavigation {
+//            }
         }
     }
     
     func questionTypeView(contentSection:ContentSection) -> some View {
         VStack {
             let type = contentSection.type
-            let testMode = TestMode(mode: contentSection.isExamMode() ? .exam : .practice)
-            
+           
             if type == "Type_1" {
                 IntervalView(
                     questionType: QuestionType.intervalVisual,
                     contentSection: contentSection,
-                    testMode: testMode,
-                    nextNavigationView: self,
-                    answer: Answer()
+                    nextNavigationView: self
                 )
             }
             if type == "Type_2" {
@@ -317,9 +310,7 @@ struct ContentSectionView: View, NextNavigationView {
                     ClapOrPlayView (
                         questionType: QuestionType.rhythmVisualClap,
                         contentSection: contentSection,
-                        testMode: testMode,
-                        nextNavigationView: self,
-                        answer: Answer()
+                        nextNavigationView: self
                     )
                 }
             }
@@ -327,32 +318,60 @@ struct ContentSectionView: View, NextNavigationView {
                 ClapOrPlayView (
                     questionType: QuestionType.melodyPlay,
                     contentSection: contentSection,
-                    testMode: testMode,
-                    nextNavigationView: self,
-                    answer: Answer()
+                    nextNavigationView: self
                 )
             }
             if type == "Type_4" {
                 IntervalView(
                     questionType: QuestionType.intervalAural,
                     contentSection: contentSection,
-                    testMode: testMode,
-                    nextNavigationView: self,
-                    answer: Answer()
+                    nextNavigationView: self
                 )
             }
             if type == "Type_5" {
                 ClapOrPlayView (
                     questionType: QuestionType.rhythmEchoClap,
                     contentSection: contentSection,
-                    testMode: testMode,
-                    nextNavigationView: self,
-                    answer: Answer()
+                    nextNavigationView: self
                 )
             }
+        }
+        .onAppear {
+            contentSection.setAnswerState(ctx: "ContentView", .notEverAnswered)
         }
     }
     
 }
 
 
+//    func navigateNext() {
+//        guard let parent = contentSection.parent else {
+//            return
+//        }
+//        let childSections = parent.getNavigableChildSections()
+//
+//        print("======nextContentSection \(contentSection.name)", "index:\(selectedContentIndex)", "SubsectionCount", childSections.count)
+//        if parentsSelectedContentIndex == nil {
+//            if childSections.count > 0 {
+//                parentsSelectedContentIndex = 0
+//            }
+//        }
+//        else {
+//            if parentsSelectedContentIndex! < childSections.count {
+//                parentsSelectedContentIndex! += 1
+//            }
+//            else {
+//                parentsSelectedContentIndex = nil;
+//            }
+//        }
+//    }
+//    func hasNextPage() -> Bool {
+//        if let parentSection = contentSection.parent {
+//            if let parentsSelectedContentIndex = parentsSelectedContentIndex {
+//                return parentsSelectedContentIndex < parentSection.getQuestionCount() - 1
+//            }
+//            return true
+//        }
+//        return false
+//    }
+        

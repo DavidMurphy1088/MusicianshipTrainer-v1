@@ -32,7 +32,12 @@ class ContentSectionData {
     }
 }
 
-class ContentSection: Identifiable {
+class ContentSection: ObservableObject, Identifiable {
+    @Published var answer:Answer
+    ///use a change in this var to tell observers the answer state changed
+    ///Otherwise the state change inside Answer does not appear to publish to observers.
+    @Published var answerCount:Int = 0
+
     let id = UUID()
     var parent:ContentSection?
     var name: String
@@ -42,7 +47,7 @@ class ContentSection: Identifiable {
     var isActive:Bool
     var level:Int
     var index:Int
-    
+
     init(parent:ContentSection?, name:String, type:String, data:ContentSectionData? = nil, isActive:Bool = true) {
         self.parent = parent
         self.name = name
@@ -63,11 +68,36 @@ class ContentSection: Identifiable {
             par = par!.parent
         }
         self.level = level
-        //self.loadedDictionaryKey = loadedDictionaryKey
-        //self.loadedRow = loadedRow
         self.index = 0
+        self.answer = Answer(ctx : "ContentSection")
     }
     
+    func answerStateToString() -> String {
+        var s = ""
+        switch self.answer.state {
+        case .notEverAnswered:
+            s = "notEverAnswered"
+        case .answered:
+            s = "answered"
+        case .submittedAnswer:
+            s = "submittedAnswer"
+        default:
+            s = "other..."
+        }
+        let id = id.uuidString.suffix((4))
+        return id + " " + s
+    }
+    
+    func setAnswerState(ctx:String, _ newState:AnswerState) {
+        DispatchQueue.main.async {
+            self.answerCount += 1
+            let prev = self.answer.state
+            //prev.state = self.state
+            self.answer.setState(newState)
+            //print("\n----------------------------->>>>> answer SET STATE::", "context:[\(ctx)]", "Prev:[\(prev)]", "New[:\(self.answerStateToString())]")
+        }
+    }
+
     func debug() {
         let spacer = String(repeating: " ", count: 4 * (level))
         print(spacer, "--->", "path:[\(self.getPath())]", "\tname:", self.name, "\ttype:[\(self.type)]")
@@ -298,6 +328,7 @@ class ContentSection: Identifiable {
 
 }
 
-class Syllabus {
-    static public let shared = Syllabus()
-}
+//
+//class Syllabus {
+//    static public let shared = Syllabus()
+//}
