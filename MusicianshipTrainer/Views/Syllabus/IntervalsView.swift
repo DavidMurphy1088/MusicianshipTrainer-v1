@@ -20,14 +20,17 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @State private var selectedOption: String? = nil
     @State private var scoreWasPlayed = false
     @State var intervals:[IntervalName] = []
+    //@State
+    @Binding var answerState:Int
 
     let questionType:QuestionType
     let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"IntervalPresentView")
     
-    init(contentSection:ContentSection, score:Score, questionType:QuestionType, refresh:(() -> Void)? = nil) {
+    init(contentSection:ContentSection, score:Score, answer:Binding<Int>, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.score = score
         self.questionType = questionType
+        _answerState = answer
     }
 
     class IntervalName : Hashable, Comparable {
@@ -197,6 +200,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                         Button(action: {
                             self.buildAnser()
                             contentSection.setAnswerState(ctx:"Int View Present SUBMIT", .submittedAnswer)
+                            answerState = 1
                         }) {
                             Text("\(contentSection.isExamMode() ? "Submit" : "Check") Your Answer").defaultStyle()
                         }
@@ -276,6 +280,7 @@ struct IntervalView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @ObservedObject var contentSection:ContentSection
     @ObservedObject var logger = Logger.logger
+    @Binding var answerState:Int
     
     @State var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5) //neds to be @state to pass it around
 
@@ -283,10 +288,11 @@ struct IntervalView: View {
     let questionType:QuestionType
     let nextNavigationView:NextNavigationView
     
-    init(questionType:QuestionType, contentSection:ContentSection, nextNavigationView:NextNavigationView) {
+    init(questionType:QuestionType, contentSection:ContentSection, answerState:Binding<Int>, nextNavigationView:NextNavigationView) {
         self.questionType = questionType
         self.contentSection = contentSection
         self.nextNavigationView = nextNavigationView
+        _answerState = answerState
     }
     
 //    func getNavigationDescription() -> String {
@@ -311,8 +317,9 @@ struct IntervalView: View {
             Text("\n===============Interval View:: \(contentSection.type) Answer STATE:\(contentSection.answerStateToString())")
             if contentSection.answer.state  == .notEverAnswered || contentSection.answer.state  == .answered{
                 IntervalPresentView(contentSection: contentSection,
-                                                          score: self.score,
-                                                          questionType:questionType)
+                                    score: self.score,
+                                    answer: $answerState,
+                                    questionType:questionType)
 
             }
             else {
@@ -323,9 +330,9 @@ struct IntervalView: View {
                                            questionType:questionType)
                     }
                 }
-                if nextNavigationView.enableNextNavigation() {
-                    
-                }
+//                if nextNavigationView.enableNextNavigation() {
+//                    
+//                }
             }
 //            if contentSection.answer.state  == .submittedAnswer {
 //                VStack {

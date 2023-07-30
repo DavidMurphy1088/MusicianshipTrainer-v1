@@ -147,36 +147,31 @@ struct ContentSectionHeaderView: View {
 }
     
 struct ContentSectionView: View, NextNavigationView {
-    
+
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State private var selectedContentIndex: Int?
-    @State private var examSectionIndex: Int = 0
     @State private var showNextNavigation: Bool = true
-
+    @State private var endOfSection: Bool = false
+    @State var answerState:Int = 0
+    
     let id = UUID()
-    var contentSection:ContentSection
+    @ObservedObject var contentSection:ContentSection
 
     init(contentSection:ContentSection) {
         self.contentSection = contentSection
-        examSectionIndex = 0
-        //_parentsSelectedContentIndex1 = parentsSelectedContentIndex
     }
         
     func enableNextNavigation() -> Bool {
-        if self.examSectionIndex < contentSection.getNavigableChildSections().count - 1 {
-            DispatchQueue.main.async {
-                ///Keep this 2nd check in this thread (or else wait for last call to complete). It appears this func can be called rapidly in succession
-                if self.examSectionIndex < contentSection.getNavigableChildSections().count - 1 {
-                    showNextNavigation = true
-                    self.examSectionIndex += 1
-                    print("_________________ enableNextNavigation::", self.examSectionIndex, "count:", contentSection.getNavigableChildSections().count)
-                }
-                else {
-                    self.examSectionIndex = 0
-                }
+        DispatchQueue.main.async {
+            if contentSection.bumpViewIndex() {
+                showNextNavigation = true
             }
+            else {
+                endOfSection = true
+            }
+            print("===========enableNextNavigation", showNextNavigation , endOfSection)
         }
-        return showNextNavigation
+        return false
     }
 
     func getImageName(contentSection: ContentSection) -> String? {
@@ -200,35 +195,63 @@ struct ContentSectionView: View, NextNavigationView {
         return ""
     }
     
-    func log() -> Bool {
-        print("===============>>>>>>>", examSectionIndex)
-        return true
-    }
+//    func log() -> Bool {
+//        print("===============>>>>>>>", examSectionIndex)
+//        return true
+//    }
     
     func examView(childSections:[ContentSection]) -> some View {
+        VStack {
+            questionTypeView(contentSection: childSections[contentSection.viewIndex])
+            Text("SELF  state  Index:[\(contentSection.viewIndex)]")
+            Text("Child state \(childSections[contentSection.viewIndex].answerStateToString())")
+            if self.answerState == 1 {
+                Text("++++++++++ Submitted ++++++++++")
+                Text("++++++++++ Submitted ++++++++++")
+                Text("++++++++++ Submitted ++++++++++")
+                Text("++++++++++ Submitted ++++++++++")
+                Text("++++++++++ Submitted ++++++++++")
+            }
+            Button(action: {
+                answerState = 0
+                contentSection.bumpViewIndex()
+            }) {
+                Text("NAV \(contentSection.name) \(contentSection.viewIndex) --  child:\(childSections[contentSection.viewIndex].name) \(childSections[contentSection.viewIndex].viewIndex)").padding()
+            }
+        }
+    }
+    
+    func examView1(childSections:[ContentSection]) -> some View {
         ///Force an .onAppear for the next view to ensure it initializes with the new data from the next content section.
         ///This is required if two consecutive views are for the same content type (but different data) - on .onAppear must be forced ...
         VStack {
-            Text("===examView=== Index::\(examSectionIndex) Sections::\(childSections.count)")
+            Text("===examView=== Index::\(contentSection.viewIndex) Sections::\(childSections.count)")
             if self.showNextNavigation {
-                if examSectionIndex < childSections.count {
-                    Text("Section \(childSections[examSectionIndex].name)").padding()
-                    Text("Section \(examSectionIndex+1) of \(childSections.count) sections").padding()
-                    Button(action: {
-                        self.showNextNavigation = false
-                    }) {
-                        //Text("---- GO TO NEXT--- name:\(contentSection.name) index:\(examSectionIndex) childs:\(childSections.count)")
-                        Text("Start Section \(childSections[examSectionIndex].name)").padding()
+                if contentSection.viewIndex < childSections.count {
+
+                    if !endOfSection {
+                    //if contentSection.viewIndex < childSections.count - 1 {
+                        Text("Section \(childSections[contentSection.viewIndex].name)").padding()
+                        Text("Section \(contentSection.viewIndex+1) of \(childSections.count) sections").padding()
+                        Button(action: {
+                            self.showNextNavigation = false
+                        }) {
+                            //Text("---- GO TO NEXT--- name:\(contentSection.name) index:\(examSectionIndex) childs:\(childSections.count)")
+                            Text("Start Section \(childSections[contentSection.viewIndex].name)").padding()
+                        }
+                    }
+                    else {
+                        Text("-----(END OF EXAM)-------")
                     }
                 }
                 else {
-                    Text("===examView INDEX ERROR === Index::\(examSectionIndex) Sections::\(childSections.count)")
+                    Text("===examView INDEX ERROR === Index::\(contentSection.viewIndex) Sections::\(childSections.count)")
                 }
             }
             else {
-                if log() {
-                    questionTypeView(contentSection: childSections[examSectionIndex])
-                }
+                //if log() {
+                    questionTypeView(contentSection: childSections[contentSection.viewIndex])
+                //}
             }
         }
         //.onAppear {
@@ -302,6 +325,7 @@ struct ContentSectionView: View, NextNavigationView {
                 IntervalView(
                     questionType: QuestionType.intervalVisual,
                     contentSection: contentSection,
+                    answerState: $answerState,
                     nextNavigationView: self
                 )
             }
@@ -325,6 +349,7 @@ struct ContentSectionView: View, NextNavigationView {
                 IntervalView(
                     questionType: QuestionType.intervalAural,
                     contentSection: contentSection,
+                    answerState: $answerState,
                     nextNavigationView: self
                 )
             }

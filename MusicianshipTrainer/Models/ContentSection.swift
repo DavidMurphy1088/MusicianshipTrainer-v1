@@ -37,6 +37,7 @@ class ContentSection: ObservableObject, Identifiable {
     ///use a change in this var to tell observers the answer state changed
     ///Otherwise the state change inside Answer does not appear to publish to observers.
     @Published var answerCount:Int = 0
+    @Published var viewIndex: Int = 0
 
     let id = UUID()
     var parent:ContentSection?
@@ -72,6 +73,20 @@ class ContentSection: ObservableObject, Identifiable {
         self.answer = Answer(ctx : "ContentSection")
     }
     
+    func bumpViewIndex() -> Bool {
+        if viewIndex < getNavigableChildSections().count - 1 {
+            DispatchQueue.main.async {
+                ///Keep this 2nd check in this thread (or else wait for last call to complete). It appears this func can be called rapidly in succession
+                //if self.viewIndex < self.getNavigableChildSections().count - 1 {
+                self.viewIndex += 1
+                print("_________________ enableNextNavigation::", self.viewIndex, "count:", self.getNavigableChildSections().count)
+                //}
+            }
+            return true
+        }
+        return false
+    }
+
     func answerStateToString() -> String {
         var s = ""
         switch self.answer.state {
