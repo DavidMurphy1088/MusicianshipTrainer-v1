@@ -1,23 +1,33 @@
 import Foundation
 import AVFoundation
 
-/// The mode of the test and the navigation allowed from it
-class TestMode : ObservableObject {
-    enum Mode {
-        case practice
-        case exam
-    }
-//    enum ContentSectionNavigationPolicy {
-//        case must
-//        case cannot
-//        case can
+//class QuestionMode : ObservableObject {
+//    enum Mode {
+//        case practice
+//        case examTake
+//        case examReview
 //    }
-    var mode:Mode
-    //var navigationPolicy:ContentSectionNavigationPolicy
-    
-    init(mode:Mode) {//}, navigationPolicy:ContentSectionNavigationPolicy) {
-        self.mode = mode
-        //self.navigationPolicy = navigationPolicy
+//    var mode:Mode
+//    init(_ mode:Mode) {
+//        self.mode = mode
+//    }
+//}
+
+enum QuestionMode {
+    case practice
+    case examTake
+    case examReview
+}
+
+class QuestionStatus: ObservableObject {
+    @Published var status:Int = 0
+    init(_ i:Int) {
+        self.status = i
+    }
+    func setStatus(_ i:Int) {
+        DispatchQueue.main.async {
+            self.status = i
+        }
     }
 }
 
@@ -32,13 +42,7 @@ class ContentSectionData {
     }
 }
 
-class ContentSection: ObservableObject, Identifiable {
-    @Published var answer:Answer
-    ///use a change in this var to tell observers the answer state changed
-    ///Otherwise the state change inside Answer does not appear to publish to observers.
-    @Published var answerCount:Int = 0
-    @Published var viewIndex: Int = 0
-
+class ContentSection: Identifiable {
     let id = UUID()
     var parent:ContentSection?
     var name: String
@@ -48,7 +52,9 @@ class ContentSection: ObservableObject, Identifiable {
     var isActive:Bool
     var level:Int
     var index:Int
-
+    var answer11:Answer?
+    var questionStatus = QuestionStatus(0)
+    
     init(parent:ContentSection?, name:String, type:String, data:ContentSectionData? = nil, isActive:Bool = true) {
         self.parent = parent
         self.name = name
@@ -70,47 +76,14 @@ class ContentSection: ObservableObject, Identifiable {
         }
         self.level = level
         self.index = 0
-        self.answer = Answer(ctx : "ContentSection")
     }
     
-    func bumpViewIndex() -> Bool {
-        if viewIndex < getNavigableChildSections().count - 1 {
-            DispatchQueue.main.async {
-                ///Keep this 2nd check in this thread (or else wait for last call to complete). It appears this func can be called rapidly in succession
-                //if self.viewIndex < self.getNavigableChildSections().count - 1 {
-                self.viewIndex += 1
-                print("_________________ enableNextNavigation::", self.viewIndex, "count:", self.getNavigableChildSections().count)
-                //}
-            }
+    func isExamTypeContentSection() -> Bool {
+        //return false
+        if type == "Exam" {
             return true
         }
         return false
-    }
-
-    func answerStateToString() -> String {
-        var s = ""
-        switch self.answer.state {
-        case .notEverAnswered:
-            s = "notEverAnswered"
-        case .answered:
-            s = "answered"
-        case .submittedAnswer:
-            s = "submittedAnswer"
-        default:
-            s = "other..."
-        }
-        let id = id.uuidString.suffix((4))
-        return id + " " + s
-    }
-    
-    func setAnswerState(ctx:String, _ newState:AnswerState) {
-        DispatchQueue.main.async {
-            self.answerCount += 1
-            let prev = self.answer.state
-            //prev.state = self.state
-            self.answer.setState(newState)
-            //print("\n----------------------------->>>>> answer SET STATE::", "context:[\(ctx)]", "Prev:[\(prev)]", "New[:\(self.answerStateToString())]")
-        }
     }
 
     func debug() {
@@ -253,10 +226,13 @@ class ContentSection: ObservableObject, Identifiable {
         return nil
     }
     
-    func isExamMode() -> Bool {
-        let path:String = self.getPath()
-        let exam = path.uppercased().contains("EXAM MODE")
-        return exam
+    func hasNoAnswers() -> Bool {
+        for section in self.subSections {
+            if section.answer11 != nil {
+                return false
+            }
+        }
+        return true
     }
     
     func parseData(warnNotFound:Bool=true) -> [Any]! {
@@ -343,7 +319,3 @@ class ContentSection: ObservableObject, Identifiable {
 
 }
 
-//
-//class Syllabus {
-//    static public let shared = Syllabus()
-//}

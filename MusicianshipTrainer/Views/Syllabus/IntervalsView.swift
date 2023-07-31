@@ -11,7 +11,7 @@ struct ScoreSpacerView: View {
 }
 
 struct IntervalPresentView: View { //}, QuestionPartProtocol {
-    @ObservedObject var contentSection:ContentSection
+    let contentSection:ContentSection
     @ObservedObject var score:Score
     @ObservedObject private var logger = Logger.logger
 
@@ -20,17 +20,18 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @State private var selectedOption: String? = nil
     @State private var scoreWasPlayed = false
     @State var intervals:[IntervalName] = []
-    //@State
-    @Binding var answerState:Int
+    @Binding var answerState:AnswerState
+    @Binding var answer:Answer
 
     let questionType:QuestionType
     let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"IntervalPresentView")
     
-    init(contentSection:ContentSection, score:Score, answer:Binding<Int>, questionType:QuestionType, refresh:(() -> Void)? = nil) {
+    init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.score = score
         self.questionType = questionType
-        _answerState = answer
+        _answerState = answerState
+        _answer = answer
     }
 
     class IntervalName : Hashable, Comparable {
@@ -120,20 +121,20 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         }
         let interval = abs((intervalNotes[1].midiNumber - intervalNotes[0].midiNumber))
         let range = interval...interval+1
-        print (contentSection.answer.selectedInterval)
-        if contentSection.answer.selectedInterval != nil && range.contains(contentSection.answer.selectedInterval!) {
-            contentSection.answer.correct = true
-            contentSection.answer.correctInterval = interval
+        //print (contentSection.answer.selectedInterval)
+        if answer.selectedInterval != nil && range.contains(answer.selectedInterval!) {
+            answer.correct = true
+            answer.correctInterval = interval
         }
         else {
-            contentSection.answer.correct = false
-            contentSection.answer.correctInterval = interval
+            answer.correct = false
+            answer.correctInterval = interval
         }
-        let name = intervals.first(where: { $0.interval == contentSection.answer.correctInterval})
+        let name = intervals.first(where: { $0.interval == answer.correctInterval})
         if name != nil {
-            contentSection.answer.correctIntervalName = name!.name
+            answer.correctIntervalName = name!.name
             let noteIsSpace = [Note.MIDDLE_C + 5, Note.MIDDLE_C + 9, Note.MIDDLE_C + 12, Note.MIDDLE_C + 16].contains(intervalNotes[0].midiNumber)
-            contentSection.answer.explanation = name!.explanation[noteIsSpace ? 1 : 0]
+            answer.explanation = name!.explanation[noteIsSpace ? 1 : 0]
         }
     }
 
@@ -143,8 +144,8 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 if interval.isIncluded {
                     Button(action: {
                         selectedIntervalIndex = index
-                        contentSection.setAnswerState(ctx: "Int View Present Select", .answered)
-                        contentSection.answer.selectedInterval = intervals[index].interval
+                        answerState = .answered
+                        answer.selectedInterval = intervals[index].interval
                     }) {
                         Text(interval.name)
                             .defaultStyle()
@@ -195,14 +196,14 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                     .padding()
                 }
                 .disabled(questionType == .intervalAural && scoreWasPlayed == false)
-                if contentSection.answer.state == .answered {
+                if answerState == .answered {
                     VStack {
                         Button(action: {
                             self.buildAnser()
-                            contentSection.setAnswerState(ctx:"Int View Present SUBMIT", .submittedAnswer)
-                            answerState = 1
+                            //contentSection.setAnswerState(ctx:"Int View Present SUBMIT", .submittedAnswer)
+                            answerState = .submittedAnswer
                         }) {
-                            Text("\(contentSection.isExamMode() ? "Submit" : "Check") Your Answer").defaultStyle()
+                            Text("\(answer.questionMode == .examTake ? "Submit" : "Check") Your Answer").defaultStyle()
                         }
                         //.disabled(answer.state != .answered)
                         .padding()
@@ -211,29 +212,29 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 Spacer()
             }
             .onAppear {
+                print("==========================Interval Present View On Appear")
                 self.initView()
             }
-
         )
     }
-    
 }
 
-struct IntervalAnswerView: View { //}, QuestionPartProtocol {
-    @ObservedObject var contentSection:ContentSection
+struct IntervalAnswerView: View {
+    let contentSection:ContentSection
     private var questionType:QuestionType
-
     private var score:Score
     private let imageSize = Double(32)
     private let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"Interval answer View")
     private var noteIsSpace:Bool
+    private var answer:Answer
     
-    init(contentSection:ContentSection, score:Score, questionType:QuestionType, refresh:(() -> Void)? = nil) {
+    init(contentSection:ContentSection, score:Score, answer:Answer, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.score = score
         self.noteIsSpace = true //[Note.MIDDLE_C + 5, Note.MIDDLE_C + 9, Note.MIDDLE_C + 12, Note.MIDDLE_C + 16].contains(intervalNotes[0].midiNumber)
         metronome.speechEnabled = false
         self.questionType = questionType
+        self.answer = answer
     }
     
     var body: AnyView {
@@ -245,7 +246,7 @@ struct IntervalAnswerView: View { //}, QuestionPartProtocol {
                 ScoreSpacerView()
                 
                 HStack {
-                    if contentSection.answer.correct {
+                    if answer.correct {
                         Image(systemName: "checkmark.circle").resizable().frame(width: imageSize, height: imageSize).foregroundColor(.green)
                         Text("Correct - Good Job")
                     }
@@ -256,9 +257,9 @@ struct IntervalAnswerView: View { //}, QuestionPartProtocol {
                 }
                 .padding()
                 
-                Text("The interval is a \(contentSection.answer.correctIntervalName)").padding()
+                Text("The interval is a \(answer.correctIntervalName)").padding()
                 if questionType == .intervalVisual {
-                    Text(contentSection.answer.explanation).italic().fixedSize(horizontal: false, vertical: true).padding()
+                    Text(answer.explanation).italic().fixedSize(horizontal: false, vertical: true).padding()
                 }
                 
                 if questionType == .intervalAural {
@@ -278,73 +279,47 @@ struct IntervalAnswerView: View { //}, QuestionPartProtocol {
 
 struct IntervalView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @ObservedObject var contentSection:ContentSection
+    let contentSection:ContentSection
     @ObservedObject var logger = Logger.logger
-    @Binding var answerState:Int
-    
+    @Binding var answerState:AnswerState
+    @Binding var answer:Answer 
+
     @State var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5) //neds to be @state to pass it around
 
     let id = UUID()
     let questionType:QuestionType
-    let nextNavigationView:NextNavigationView
     
-    init(questionType:QuestionType, contentSection:ContentSection, answerState:Binding<Int>, nextNavigationView:NextNavigationView) {
+    init(questionType:QuestionType, contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>) {
         self.questionType = questionType
         self.contentSection = contentSection
-        self.nextNavigationView = nextNavigationView
         _answerState = answerState
+        _answer = answer
+        //print("==========================Interval View INIT()))))")
     }
     
-//    func getNavigationDescription() -> String {
-//        var str = ""
-//        if nextNavigationView.hasNextPage() {
-//            str = "Go to the Next "
-//            if contentSection.isExamMode() {
-//                str += "Test Question"
-//            }
-//            else {
-//                str += "Example"
-//            }
-//        }
-//        else {
-//            str = "Back to Menu"
-//        }
-//        return str
-//    }
-
     var body: some View {
         VStack {
-            Text("\n===============Interval View:: \(contentSection.type) Answer STATE:\(contentSection.answerStateToString())")
-            if contentSection.answer.state  == .notEverAnswered || contentSection.answer.state  == .answered{
+            if answerState  == .notEverAnswered || answerState  == .answered {
                 IntervalPresentView(contentSection: contentSection,
                                     score: self.score,
-                                    answer: $answerState,
+                                    answerState: $answerState,
+                                    answer: $answer,
                                     questionType:questionType)
 
             }
             else {
-                if !contentSection.isExamMode() {
-                    if contentSection.answer.state  == .submittedAnswer {
+                if !contentSection.isExamTypeContentSection() {
+                    if answerState  == .submittedAnswer {
                         IntervalAnswerView(contentSection: contentSection,
                                            score: self.score,
+                                           answer: answer,
                                            questionType:questionType)
                     }
                 }
-//                if nextNavigationView.enableNextNavigation() {
-//                    
-//                }
             }
-//            if contentSection.answer.state  == .submittedAnswer {
-//                VStack {
-//                    Button(action: {
-//                        //self.presentationMode.wrappedValue.dismiss()
-//                        nextNavigationView.navigateNext()
-//                    }) {
-//                        Text(getNavigationDescription()).defaultStyle()
-//                    }
-//                }
-//                .padding()
-//            }
+        }
+        .onAppear() {
+            print("==========================Interval View On Appear")
         }
         .background(UIGlobals.colorBackground)
     }
