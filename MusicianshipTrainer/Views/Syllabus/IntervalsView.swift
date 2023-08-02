@@ -164,17 +164,31 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         .padding()
     }
 
+    func isTakingExam() -> Bool {
+        guard let parent = contentSection.parent else {
+            return false
+        }
+        if parent.isExamTypeContentSection() && contentSection.answer11 == nil {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
     var body: some View {
         AnyView(
             VStack {
-                if questionType == .intervalVisual {
+                //if questionType == .intervalVisual {
                     ScoreSpacerView()
                     ScoreSpacerView()
-                    ScoreView(score: score).padding()
+                    if questionType == .intervalVisual {
+                        ScoreView(score: score).padding()
+                    }
                     ScoreSpacerView()
                     ScoreSpacerView()
                     ScoreSpacerView()
-                }
+                //}
                 
                 HStack {
                     if questionType != .intervalVisual {
@@ -203,7 +217,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                             //contentSection.setAnswerState(ctx:"Int View Present SUBMIT", .submittedAnswer)
                             answerState = .submittedAnswer
                         }) {
-                            Text("\(answer.questionMode == .examTake ? "Submit" : "Check") Your Answer").defaultStyle()
+                            Text("\(self.isTakingExam() ? "Submit" : "Check") Your Answer").defaultStyle()
                         }
                         //.disabled(answer.state != .answered)
                         .padding()
@@ -294,9 +308,30 @@ struct IntervalView: View {
         self.contentSection = contentSection
         _answerState = answerState
         _answer = answer
-        //print("==========================Interval View INIT()))))")
     }
     
+    func shouldShowAnswer() -> Bool {
+        if let parent = contentSection.parent {
+            if parent.isExamTypeContentSection() {
+                if answerState  == .submittedAnswer {
+                    //Only show answer for exam questions in exam review mode
+                    if contentSection.answer11 == nil {
+                        return false
+                    }
+                    else {
+                        return true
+                    }
+                } else {
+                    return false
+                }
+            }
+            return true
+        }
+        else {
+            return true
+        }
+    }
+            
     var body: some View {
         VStack {
             if answerState  == .notEverAnswered || answerState  == .answered {
@@ -308,18 +343,16 @@ struct IntervalView: View {
 
             }
             else {
-                if !contentSection.isExamTypeContentSection() {
-                    if answerState  == .submittedAnswer {
-                        IntervalAnswerView(contentSection: contentSection,
-                                           score: self.score,
-                                           answer: answer,
-                                           questionType:questionType)
-                    }
+                if shouldShowAnswer() {
+                    IntervalAnswerView(contentSection: contentSection,
+                                       score: self.score,
+                                       answer: answer,
+                                       questionType:questionType)
                 }
             }
         }
         .onAppear() {
-            print("==========================Interval View On Appear")
+            print("==========================Interval View On Appear State:", answerState, "answer", answer.correctInterval, answer.selectedInterval)
         }
         .background(UIGlobals.colorBackground)
     }

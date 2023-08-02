@@ -12,17 +12,34 @@ enum AnswerState {
 ///The answer a student gives to a question
 class Answer : Identifiable {
     var id:UUID
+    //var questionMode: QuestionMode
     var correct: Bool = false
+    var explanation = ""
+
+    ///Intervals
     var correctInterval = 0
     var correctIntervalName = ""
-    var explanation = ""
     var selectedInterval:Int? = nil
-    var questionMode: QuestionMode
     
-    init(ctx:String, questionMode:QuestionMode) {
+    ///Rhythm
+    //var tempo:Int?
+    var values:[Double]?
+    
+    init(ctx:String) { //}, questionMode:QuestionMode) {
         id = UUID()
-        self.questionMode = questionMode
+        //self.questionMode = questionMode
     }
     
+    func copyAnwser() -> Answer {
+        let a = Answer(ctx: "copy") //, questionMode: self.questionMode)
+        a.correct = self.correct
+        a.selectedInterval = self.selectedInterval
+        a.correctInterval = self.correctInterval
+        a.correctIntervalName = self.correctIntervalName
+        a.explanation = self.explanation
+        a.values = self.values
+        return a
+    }
+
 }
 

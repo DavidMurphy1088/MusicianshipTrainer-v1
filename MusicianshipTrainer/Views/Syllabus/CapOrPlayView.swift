@@ -174,18 +174,20 @@ struct ClapOrPlayPresentView: View {
             //result += "\n\nWhen you have finished, stop the recording."
             result += " When you have finished, stop the recording."
 
-//        case :
-//            result += "tap your rhythm on the drum. Remember to tap rather than hold your finger firmly down."
-            
         default:
             result = ""
         }
         return result
     }
     
-    func getStudentScoreWithTempo() -> Score {
-        let rhythmAnalysis = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score)
-        return rhythmAnalysis
+    func getStudentRecordedScoreWithTempo() -> Score? {
+        if let values = self.answer.values {
+            let rhythmAnalysisScore = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score, tapValues: values)
+            return rhythmAnalysisScore
+        }
+        else {
+            return nil
+        }
     }
     
     func helpMetronome() -> String {
@@ -197,16 +199,60 @@ struct ClapOrPlayPresentView: View {
         return practiceText
     }
     
+    func rhythmIsCorrect() -> Bool {
+        guard let tapValues = answer.values else {
+            return false
+        }
+        let tappingScore = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
+        let errorsExist = score.markupStudentScore(questionTempo: self.questionTempo,
+                                                   //recordedTempo: 0,
+                                                   metronomeTempoAtStartRecording: tapRecorder.metronomeTempoAtRecordingStart ?? 0,
+                                                   scoreToCompare: tappingScore, allowTempoVariation: questionType != .rhythmEchoClap)
+        print("============Rhythm Correct Errors:", errorsExist, "Tempo", self.questionTempo, "tap Metro tempo", tapRecorder.metronomeTempoAtRecordingStart ?? 0)
+        return !errorsExist
+    }
+         
+    func replayRecordingAllowed() -> Bool {
+        guard let parent = contentSection.parent else {
+            return true
+        }
+        if parent.isExamTypeContentSection() {
+            //|| answerState == .notEverAnswered {
+            ///Only allowed when section is exam but student is in exam review mode
+            if contentSection.answer11 == nil {
+                return false
+            }
+            else {
+                return true
+            }
+        }
+        return true
+    }
+    
+    func isTakingExam() -> Bool {
+        guard let parent = contentSection.parent else {
+            return false
+        }
+        if parent.isExamTypeContentSection() && contentSection.answer11 == nil {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+
     var body: AnyView {
         AnyView(
             VStack  {
                 VStack {
-                    if UIDevice.current.userInterfaceIdiom != .phone {
-                        if questionType == .melodyPlay || questionType == .rhythmEchoClap {
-                            ToolsView(score: score, helpMetronome: helpMetronome())
-                        }
-                        else {
-                            Text(" ")
+                    if !self.isTakingExam() {
+                        if UIDevice.current.userInterfaceIdiom != .phone {
+                            if questionType == .melodyPlay || questionType == .rhythmEchoClap {
+                                ToolsView(score: score, helpMetronome: helpMetronome())
+                            }
+                            else {
+                                Text(" ")
+                            }
                         }
                     }
 
@@ -265,16 +311,15 @@ struct ClapOrPlayPresentView: View {
                                 answerState = .recorded
                                 if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
                                     self.isTapping = false
-                                    self.tapRecorder.stopRecording()
+                                    answer.values = self.tapRecorder.stopRecording(score:score)
                                     isTapping = false
                                 }
                                 else {
                                     audioRecorder.stopRecording()
                                 }
                             }) {
-                                Text("Stop Recording")
-                                    .defaultStyle()
-                            }//.padding()
+                                Text("Stop Recording").defaultStyle()
+                            }
                         }
 
                         if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
@@ -285,30 +330,35 @@ struct ClapOrPlayPresentView: View {
                         }
 
                         if answerState == .recorded {
-                            if !contentSection.isExamTypeContentSection() || answerState == .notEverAnswered {
+                            
+                            if replayRecordingAllowed() {
                                 PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                                  score: questionType == .melodyPlay ? nil : getStudentScoreWithTempo(),
+                                                  score: questionType == .melodyPlay ? nil : getStudentRecordedScoreWithTempo(),
                                                   metronome: self.metronome,
                                                   onStart: ({
                                     if questionType != .melodyPlay {
-                                        if let recordedTempo = getStudentScoreWithTempo().recordedTempo {
-                                            metronome.setTempo(tempo: recordedTempo, context:"start hear student")
+                                        if let recordedScore = getStudentRecordedScoreWithTempo() {
+                                            if let recordedtempo = recordedScore.recordedTempo {
+                                                metronome.setTempo(tempo: recordedtempo, context:"start hear student")
+                                            }
                                         }
                                     }
                                 }),
-                                                  onDone: ({
+                                onDone: ({
                                     //recording was played at the student's tempo and now reset metronome
                                     metronome.setTempo(tempo: self.questionTempo, context: "end hear student")
                                 })
                                 )
                             }
+                            
                             Button(action: {
                                 //contentSection.setAnswerState(ctx: "clap", .submittedAnswer)
                                 answerState = .submittedAnswer
+                                answer.correct = rhythmIsCorrect()
                                 score.setHiddenStaff(num: 1, isHidden: false)
                             }) {
                                 //Stop the UI jumping around when answer.state changes state
-                                Text(answerState == .recorded ? "\(answer.questionMode == .examTake ? "Submit" : "Check") Your Answer" : "")
+                                Text(answerState == .recorded ? "\(self.isTakingExam() ? "Submit" : "Check") Your Answer" : "")
                                     .defaultStyle()
                             }
                             .padding()
@@ -348,32 +398,38 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     @State var playingStudent = false
     @State var speechEnabled = false
     @State var tappingScore:Score?
-    @State var answerWasCorrect1:Bool = false
     
     private var score:Score
     private var questionType:QuestionType
+    private var answer:Answer
+    
     let questionTempo = 90
     var onRefresh: (() -> Void)? = nil
     
-    init(contentSection:ContentSection, score:Score, questionType:QuestionType, refresh:(() -> Void)? = nil) {
+    init(contentSection:ContentSection, score:Score, answer:Answer, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.score = score
         self.questionType = questionType
         self.answerMetronome = Metronome.getMetronomeWithCurrentSettings(ctx:"ClapOrPlayAnswerView")
         //print(Metronome.getMetronomeWithCurrentSettings(ctx: "TEST").tempo)
         self.onRefresh = refresh
+        self.answer = answer
         answerMetronome.setSpeechEnabled(enabled: self.speechEnabled)
-
     }
     
     func analyseStudentRhythm() {
-        let rhythmAnalysis = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score)
+        guard let tapValues = answer.values else {
+            return
+        }
+        let rhythmAnalysis = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
         self.tappingScore = rhythmAnalysis
         if let tappingScore = tappingScore {
-            let errorsExist = score.markupStudentScore(questionTempo: self.questionTempo, recordedTempo: 0, metronomeTempo: 0,
+            let errorsExist = score.markupStudentScore(questionTempo: self.questionTempo,
+                                                       //recordedTempo: 0, metronomeTempo: 0,
                                                        metronomeTempoAtStartRecording: tapRecorder.metronomeTempoAtRecordingStart ?? 0,
                                                        scoreToCompare: tappingScore, allowTempoVariation: questionType != .rhythmEchoClap)
-            self.answerWasCorrect1 = !errorsExist
+            //self.answerWasCorrect1 = !errorsExist
+            print("============analyseStudentRhythm errors:", errorsExist, "Tempo", self.questionTempo, "tap Metro tempo", tapRecorder.metronomeTempoAtRecordingStart ?? 0)
             if errorsExist {
                 //self.metronome.setTempo(tempo: self.questionTempo, context: "Analyse Student - failed")
                 self.answerMetronome.setAllowTempoChange(allow: false)
@@ -491,7 +547,6 @@ struct ClapOrPlayView: View {
     @State var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
    
     func onRefresh() {
-        //contentSection.setAnswer(ctx: "clap", .notEverAnswered)
         DispatchQueue.main.async {
             self.refresh.toggle()
         }
@@ -502,11 +557,31 @@ struct ClapOrPlayView: View {
         self.contentSection = contentSection
         _answerState = answerState
         _answer = answer
-        //self.nextNavigationView = nextNavigationView
-        //self.testMode = testMode
-        //self.score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
-     }
+    }
     
+    func shouldShowAnswer() -> Bool {
+        if let parent = contentSection.parent {
+            if parent.isExamTypeContentSection() {
+                if answerState  == .submittedAnswer {
+                    //Only show answer for exam questions in exam review mode
+                    if contentSection.answer11 == nil {
+                        return false
+                    }
+                    else {
+                        print("====>show answer", parent.name, contentSection.name, contentSection.answer11?.correct)
+                        return true
+                    }
+                } else {
+                    return false
+                }
+            }
+            return true
+        }
+        else {
+            return true
+        }
+    }
+
      var body: some View {
         VStack {
             if answerState  != .submittedAnswer {
@@ -519,9 +594,10 @@ struct ClapOrPlayView: View {
 
             }
             else {
-                if !contentSection.isExamTypeContentSection() {
+                if shouldShowAnswer() {
                     ClapOrPlayAnswerView(contentSection: contentSection,
                                          score: score,
+                                         answer: answer,
                                          questionType: questionType,
                                          refresh: onRefresh)
                 }

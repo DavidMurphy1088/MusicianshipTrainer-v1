@@ -28,9 +28,39 @@ class DataRequest {
     }
 }
 
+class DataCache {
+    private var dataCache:[String:Data?] = [:]
+    
+    enum CachedType {
+        case fromMemory
+        case fromDefaults
+    }
+    
+    func getData(key: String) -> (CachedType, Data?) {
+        if let data = self.dataCache[key] {
+            return (.fromMemory, data)
+        }
+        else {
+            let data = UserDefaults.standard.data(forKey: key)
+            if let data = data {
+                return (.fromDefaults, data)
+            }
+            else {
+                return (.fromDefaults, nil)
+            }
+        }
+    }
+    
+    func setData(key:String, data:Data) {
+        self.dataCache[key] = data
+        UserDefaults.standard.set(data, forKey: key)
+    }
+}
+
 class GoogleAPI {
     static let shared = GoogleAPI()
-    private var dataCache:[String:Data?] = [:]
+    let dataCache = DataCache()
+    
     let logger = Logger.logger
     
     private init() {
@@ -52,7 +82,7 @@ class GoogleAPI {
     }
     
     func getExampleSheet(onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
-        self.dataCache = [:]
+        //self.dataCache = [:]
         //let examplesSheetKey:String? = getAPIBundleData(key: "ContentSheetID")
         let examplesSheetKey:String? = getAPIBundleData(key: "ContentSheetID_TEST")
         
@@ -80,9 +110,16 @@ class GoogleAPI {
     private func getByAPI(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         
         if let key = request.targetExampleKey {
-            if let cachedData = self.dataCache[key] {
+            let (cachedType, cachedData) = dataCache.getData(key: key)
+            if let data = cachedData {
                 onDone(.success, cachedData)
-                return
+                if cachedType == .fromMemory {
+                    
+                    return
+                }
+                else {
+                    //continue loading below to reload memory cache if data changed in cloud
+                }
             }
         }
         
@@ -114,7 +151,7 @@ class GoogleAPI {
                             return
                         }
                         if let key = request.targetExampleKey {
-                            self.dataCache[key] = data
+                            self.dataCache.setData(key: key, data: data)
                         }
                         onDone(.success, data)
                     }
@@ -139,12 +176,16 @@ class GoogleAPI {
     ///The generated key is used to make the signed (by JWT) access token request
 
     func getDocumentByName(name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
-        if let cachedData = self.dataCache[name] {
-            if let document = String(data: cachedData!, encoding: .utf8) {
+        let (cachedType, data) = dataCache.getData(key: name)
+        if let data = data {
+            if let document = String(data: data, encoding: .utf8) {
                 onDone(.success, document)
-                return
+                if cachedType == .fromMemory {
+                    return
+                }
             }
         }
+        
 
         let folderId = getAPIBundleData(key: "GoogleDriveDataFolderID")
         guard let folderId = folderId else {
@@ -202,7 +243,8 @@ class GoogleAPI {
                         }
                         let data = textContent.data(using: .utf8)
                         if let data = data {
-                            self.dataCache[name] = data
+                            self.dataCache.setData(key: name, data: data)
+                            //self.dataCache[name] = data
                         }
                         onDone(.success, textContent)
                     }

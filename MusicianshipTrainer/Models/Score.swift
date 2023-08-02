@@ -395,8 +395,12 @@ class Score : ObservableObject {
         return feedback
     }
     
-    //analyse the student's score against this score. Markup dfferences. Return false if there are errors
-    func markupStudentScore(questionTempo: Int, recordedTempo:Int, metronomeTempo:Int, metronomeTempoAtStartRecording: Int, scoreToCompare:Score, allowTempoVariation:Bool) -> Bool {
+    //analyse the student's score against the question score. Markup dfferences. Return false if there are errors
+    func markupStudentScore(questionTempo: Int,
+                            //recordedTempo:Int,
+                            metronomeTempoAtStartRecording: Int,
+                            scoreToCompare:Score,
+                            allowTempoVariation:Bool) -> Bool {
         var errorsExist = false
         let difference = getFirstDifferentTimeSlice(compareScore: scoreToCompare)
         if let difference = difference {

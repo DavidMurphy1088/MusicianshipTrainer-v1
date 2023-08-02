@@ -13,11 +13,11 @@ import AVFoundation
 //    }
 //}
 
-enum QuestionMode {
-    case practice
-    case examTake
-    case examReview
-}
+//enum QuestionMode {
+//    case practice
+//    case examTake
+//    case examReview
+//}
 
 class QuestionStatus: ObservableObject {
     @Published var status:Int = 0
@@ -86,6 +86,40 @@ class ContentSection: Identifiable {
         return false
     }
 
+    func hasExamModeChildren() -> Bool {
+        for s in self.subSections {
+            if s.isExamTypeContentSection() {
+                return true
+            }
+        }
+        return false
+    }
+    
+    func getChildOfType(_ type:String) -> ContentSection? {
+        for s in self.subSections {
+            if s.type == type {
+                return s
+            }
+        }
+        return nil
+    }
+
+    func parentWithInstructions() -> ContentSection? {
+        var section = self
+        while section != nil {
+            if section.getChildOfType("Ins") != nil {
+                return section
+            }
+            if let parent = section.parent {
+                section = parent
+            }
+            else {
+                break
+            }
+        }
+        return nil
+    }
+    
     func debug() {
         let spacer = String(repeating: " ", count: 4 * (level))
         print(spacer, "--->", "path:[\(self.getPath())]", "\tname:", self.name, "\ttype:[\(self.type)]")
@@ -212,14 +246,16 @@ class ContentSection: Identifiable {
     }
 
     func getChildSectionByType(type: String) -> ContentSection? {
+        //print("getChildSectionByType", name, type)
         if self.type == type {
             return self
         }
         else {
             for child in self.subSections {
-                var found = child.getChildSectionByType(type: type)
-                if let found = found {
-                    return found
+                //not beyond next level...
+                //var found = child.getChildSectionByType(type: type)
+                if child.type == type {
+                    return child
                 }
             }
         }

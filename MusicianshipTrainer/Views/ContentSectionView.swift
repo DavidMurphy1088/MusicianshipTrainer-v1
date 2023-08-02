@@ -1,19 +1,25 @@
 import SwiftUI
 import WebKit
 
-///A protocol that any view that instances a test view must comply with so that the user can navigate directly to the next test
-//protocol NextNavigationView {
-//    //var property: String { get set }
-//    //func navigateNext()
-//    //func hasNextPage() -> Bool
-//    func enableNextNavigation() -> Bool
-//}
-
 struct ContentTypeView: View {
 
     let contentSection:ContentSection
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
+    
+    func isNavigationHidden() -> Bool {
+        if let parent = contentSection.parent {
+            if parent.isExamTypeContentSection() && contentSection.answer11 == nil {
+                return true
+            }
+            else {
+                return false
+            }
+        }
+        else {
+            return false
+        }
+    }
     
     var body: some View {
         VStack {
@@ -61,6 +67,7 @@ struct ContentTypeView: View {
                 )
             }
         }
+        .navigationBarHidden(isNavigationHidden())
     }
 }
 
@@ -156,20 +163,24 @@ struct ContentSectionHeaderView: View {
                     }
                     .padding()
                 }
-
+                
                 if let instructions = self.instructions {
                     HStack {
-                        //Spacer()
                         ContentSectionInstructionsView(htmlDocument: instructions)
-                            .padding(.horizontal)
-                            //.border(Color.black)
-                            .padding(.horizontal)
-                            .frame(height: getParagraphCount(html: instructions) < 2 ? 100 : 300)
-                        //Spacer()
+                            .frame(height: CGFloat(getParagraphCount(html: instructions)) * 150.0)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                            )
+                            .padding()
                     }
                 }
             }
-                   
+            .overlay(
+                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+            )
+            .background(UIGlobals.colorScore)
+            .padding(.horizontal)
+               
             if tipsAndTricksExists {
                 Button(action: {
                     isHelpPresented.toggle()
@@ -289,11 +300,13 @@ struct SectionsNavigationView:View {
 }
 
 struct ExamView: View {
+    @Environment(\.presentationMode) var presentationMode
     let contentSection:ContentSection
     let contentSections:[ContentSection]
     @State var sectionIndex = 0
+    @State var examBeginning = true
     @State var answerState:AnswerState = .notEverAnswered
-    @State var answer = Answer(ctx: "ExamView", questionMode: .examTake)
+    @State var answer = Answer(ctx: "ExamView")//, questionMode: .examTake)
     
     init(contentSection:ContentSection, contentSections:[ContentSection]) {
         self.contentSection = contentSection
@@ -305,51 +318,64 @@ struct ExamView: View {
         return answer.correct ? 1 : 0
     }
     
-    func copyAnwser(_ ans:Answer) -> Answer {
-        var a = Answer(ctx: "copy", questionMode: ans.questionMode)
-        a.correct = ans.correct
-        a.selectedInterval = ans.selectedInterval
-        a.correctInterval = ans.correctInterval
-        a.correctIntervalName = ans.correctIntervalName
-        a.explanation = ans.explanation
-        return a
+    func isNavigationHidden() -> Bool {
+        if examBeginning {
+            return false
+        }
+        else {
+            return contentSection.isExamTypeContentSection()
+        }
     }
-    
+
     var body: some View {
         VStack {
-
-            if self.answerState == .submittedAnswer {
-                Spacer()
-                Text("++++++++++ Submitted ++++++++++ \(showAnswer())").font(.title)
-                Spacer()
-                if sectionIndex < contentSections.count - 1 {
-                    Button(action: {
-                        answerState = .notEverAnswered
-                        contentSections[sectionIndex].answer11 = copyAnwser(answer)
-                        sectionIndex += 1
-                    }) {
-                        Text("Go to next Exam Question Index:\(sectionIndex) count:\(contentSections.count)").font(.title)
-                    }
-                }
-                else {
+            if examBeginning {
+                if let parent = contentSection.parentWithInstructions() {
+                    ContentSectionHeaderView(contentSection: parent)
                     Spacer()
-                    Text("+++++++++++ END OF EXAM ++++++++++++++")
                     Button(action: {
-                        contentSections[sectionIndex].answer11 = copyAnwser(answer)
-                        contentSection.questionStatus.setStatus(1)
-
+                        self.examBeginning = false
                     }) {
-                        Text("END EXAM ....").font(.title)
+                        Text("Start the Exam").defaultStyle()
                     }
-
                     Spacer()
                 }
-                Spacer()
             }
             else {
-                ContentTypeView(contentSection: contentSections[sectionIndex], answerState: $answerState, answer: $answer)
+                if self.answerState == .submittedAnswer {
+                    Spacer()
+                    if sectionIndex < contentSections.count - 1 {
+                        Text("Completed question \(sectionIndex+1) of \(contentSections.count)").padding()
+                        Button(action: {
+                            answerState = .notEverAnswered
+                            contentSections[sectionIndex].answer11 = answer.copyAnwser()
+                            sectionIndex += 1
+                        }) {
+                            VStack {
+                                Text("Go to the next exam question").defaultStyle().padding()
+                            }
+                        }
+                    }
+                    else {
+                        Spacer()
+                        Button(action: {
+                            contentSections[sectionIndex].answer11 = answer.copyAnwser()
+                            contentSection.questionStatus.setStatus(1)
+                            presentationMode.wrappedValue.dismiss()
+                        }) {
+                            Text("End of Exam").defaultStyle()
+                            
+                        }
+                        Spacer()
+                    }
+                    Spacer()
+                }
+                else {
+                    ContentTypeView(contentSection: contentSections[sectionIndex], answerState: $answerState, answer: $answer)
+                }
             }
         }
+        .navigationBarHidden(isNavigationHidden())
         .onAppear() {
             self.sectionIndex = 0            
         }
@@ -357,31 +383,42 @@ struct ExamView: View {
 }
 
 struct ContentSectionView: View {
+    let contentSection:ContentSection
     @State private var selectedContentIndex: Int?
     @State private var showNextNavigation: Bool = true
     @State private var endOfSection: Bool = false
     @State var answerState:AnswerState = .notEverAnswered
-    @State var answer:Answer = Answer(ctx: "ContentSectionView", questionMode: .practice)
+    @State var answer:Answer = Answer(ctx: "ContentSectionView")//, questionMode: .practice)
     @State var sectionIndex:Int = 0
     
     let id = UUID()
-    let contentSection:ContentSection
-
-//    init(contentSection:ContentSection) {
-//        self.contentSection = contentSection
-//    }
-//
+    
+    init (contentSection:ContentSection) {
+        self.contentSection = contentSection
+        //self.selectedContentIndex = selectedContentIndex
+    }
+    
     var body: some View {
         VStack {
             let childSections = contentSection.getNavigableChildSections()
             if childSections.count > 0 {
-                
-                ContentSectionHeaderView(contentSection: contentSection)
-                
-                if contentSection.isExamTypeContentSection() && contentSection.hasNoAnswers() {
-                    ExamView(contentSection: contentSection, contentSections: childSections)
+                if contentSection.isExamTypeContentSection() {
+                    //No ContentSectionHeaderView in any exam mode content section except the exam start
+                    if contentSection.hasExamModeChildren() {
+                        SectionsNavigationView(contentSections: childSections)
+                    }
+                    else {
+                        if contentSection.hasNoAnswers() {
+                            ExamView(contentSection: contentSection, contentSections: childSections)
+                        }
+                        else {
+                            //Exam was taken
+                            SectionsNavigationView(contentSections: childSections)
+                        }
+                    }
                 }
                 else {
+                    ContentSectionHeaderView(contentSection: contentSection)
                     SectionsNavigationView(contentSections: childSections)
                 }
             }
@@ -391,6 +428,15 @@ struct ContentSectionView: View {
             
         }
         .onAppear {
+            if contentSection.answer11 != nil {
+                print("ContentSectionView ==== did set answer submitted", answerState)
+                self.answerState = .submittedAnswer
+                self.answer = contentSection.answer11!
+            }
+            else {
+                print("ContentSectionView ==== did NOT set answer submitted", answerState)
+            }
+            
         }
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
     }
