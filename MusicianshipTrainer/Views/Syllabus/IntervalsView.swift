@@ -9,6 +9,55 @@ struct ScoreSpacerView: View {
         }
     }
 }
+struct PlayExampleMelody : View {
+    let score:Score
+    @State private var showExamplePopover = false
+    @State var melodyName: String = ""
+    let player = AudioSamplerPlayer.shared
+
+    var body : some View {
+        Button(action: {
+            showExamplePopover = true
+            var secondNote:Note?
+            var firstNote:Note?
+            for timeSlice in score.getAllTimeSlices() {
+                let notes = timeSlice.notes
+                if notes.count > 0 {
+                    let note = notes[0]
+                    if firstNote == nil {
+                        firstNote = note
+                    }
+                    else {
+                        if secondNote == nil {
+                            secondNote = note
+                        }
+                    }
+                }
+            }
+            if let firstNote = firstNote {
+                if let secondNote = secondNote {
+                    let songs = Songs()
+                    let base = firstNote
+                    let interval = secondNote.midiNumber - firstNote.midiNumber
+                    let (melodyName, notes) = songs.song(base: base, interval: interval)
+                    if let melodyName = melodyName {
+                        self.melodyName = melodyName
+                    }
+                    player.playNotes(notes: notes)
+                }
+            }
+        }) {
+            //UIHiliteText(text: "Play Example", answerMode: 1)
+            Text("Play An Example").defaultStyle()
+        }
+        .alert(isPresented: $showExamplePopover) {
+            Alert(title: Text("Example"),
+                  //message: Text(songName).font(.title),
+                  message: Text(self.melodyName).font(.title),
+                  dismissButton: .default(Text("OK")))
+        }
+    }
+}
 
 struct IntervalPresentView: View { //}, QuestionPartProtocol {
     let contentSection:ContentSection
@@ -168,7 +217,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         guard let parent = contentSection.parent else {
             return false
         }
-        if parent.isExamTypeContentSection() && contentSection.answer11 == nil {
+        if parent.isExamTypeContentSection() && contentSection.answer111 == nil {
             return true
         }
         else {
@@ -179,32 +228,39 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     var body: some View {
         AnyView(
             VStack {
-                //if questionType == .intervalVisual {
+                VStack {
                     ScoreSpacerView()
                     ScoreSpacerView()
                     if questionType == .intervalVisual {
                         ScoreView(score: score).padding()
+                        ScoreSpacerView()
+                        ScoreSpacerView()
+                        ScoreSpacerView()
                     }
-                    ScoreSpacerView()
-                    ScoreSpacerView()
-                    ScoreSpacerView()
-                //}
-                
-                HStack {
-                    if questionType != .intervalVisual {
-                        Button(action: {
-                            metronome.playScore(score: score, onDone: {
+                    else {
+                        VStack {
+                            Text("").padding()
+                            Button(action: {
+                                metronome.playScore(score: score, onDone: {
+                                    self.scoreWasPlayed = true
+                                })
                                 self.scoreWasPlayed = true
-                            })
-                            self.scoreWasPlayed = true
-                        }) {
-                            Text("Hear Interval").defaultStyle()
+                            }) {
+                                Text("Hear The Interval").defaultStyle()
+                            }
+                            .padding()
+                            Text("").padding()
                         }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                        )
+                        .background(UIGlobals.colorScore)
                     }
                 }
-                VStack {
+                                
+                 VStack {
                     Text("Is the interval a second or a third?").padding()
-                    VStack {
+                    HStack {
                         selectIntervalView.padding()
                     }
                     .padding()
@@ -214,19 +270,16 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                     VStack {
                         Button(action: {
                             self.buildAnser()
-                            //contentSection.setAnswerState(ctx:"Int View Present SUBMIT", .submittedAnswer)
                             answerState = .submittedAnswer
                         }) {
                             Text("\(self.isTakingExam() ? "Submit" : "Check") Your Answer").defaultStyle()
                         }
-                        //.disabled(answer.state != .answered)
                         .padding()
                     }
                 }
                 Spacer()
             }
             .onAppear {
-                print("==========================Interval Present View On Appear")
                 self.initView()
             }
         )
@@ -276,13 +329,18 @@ struct IntervalAnswerView: View {
                     Text(answer.explanation).italic().fixedSize(horizontal: false, vertical: true).padding()
                 }
                 
-                if questionType == .intervalAural {
+                HStack {
+                    //if questionType == .intervalAural {
                     Button(action: {
+                        //metronome.setTempo(tempo: 200, context: "Intervals Viz")
                         metronome.playScore(score: score)
                     }) {
                         Text("Hear Interval").defaultStyle()
                     }
                     .padding()
+                    //}
+                    
+                    PlayExampleMelody(score: score).padding()
                 }
                 
                 Spacer()
@@ -315,7 +373,7 @@ struct IntervalView: View {
             if parent.isExamTypeContentSection() {
                 if answerState  == .submittedAnswer {
                     //Only show answer for exam questions in exam review mode
-                    if contentSection.answer11 == nil {
+                    if contentSection.answer111 == nil {
                         return false
                     }
                     else {
@@ -352,7 +410,7 @@ struct IntervalView: View {
             }
         }
         .onAppear() {
-            print("==========================Interval View On Appear State:", answerState, "answer", answer.correctInterval, answer.selectedInterval)
+            //print("==========================Interval View On Appear State:", answerState, "answer", answer.correctInterval, answer.selectedInterval)
         }
         .background(UIGlobals.colorBackground)
     }

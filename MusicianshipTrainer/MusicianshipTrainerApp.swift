@@ -1,8 +1,6 @@
 import SwiftUI
 import FirebaseCore
 import AVFoundation
-//import GoogleSignIn
-//import GoogleAPIClientForREST
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -58,6 +56,21 @@ struct MusicianshipTrainerApp: App {
     var launchTimeSecs = 2.5
 
     init() {
+//        for (key, value) in UserDefaults.standard.dictionaryRepresentation() {
+//            print("\(key) = \(value) \n")
+//        }
+//        let fileManager = FileManager.default
+//        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//
+//        do {
+//            let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL,
+//                                                            includingPropertiesForKeys: nil)
+//            for fileURL in fileURLs {
+//                print(fileURL)
+//            }
+//        } catch {
+//            print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
+//        }
     }
     
     func getStartContentSection() -> ContentSection {
@@ -70,16 +83,7 @@ struct MusicianshipTrainerApp: App {
         }
         return cs
     }
-//
-//    var body: some Scene {
-//        WindowGroup {
-//            VStack {
-//                Text("XXXX")
-//                ParentView()
-//            }
-//        }
-//    }
-//
+    
     var body: some Scene {
         WindowGroup {
             VStack {
@@ -142,61 +146,3 @@ struct MusicianshipTrainerApp: App {
     }
 }
 
-//struct ParentView: View {
-//    let numbers = Array(0..<10)
-//    @State private var selectedNumber: Int? 
-//
-//    func inc() {
-//        selectedNumber! += 1
-//    }
-//
-//    var body: some View {
-//        NavigationView {
-//            List(numbers.indices, id: \.self) { index in
-//                NavigationLink(destination: ChildView(parent: self, number: numbers[index],
-//                                                     selectedNumber: $selectedNumber,
-//                                                     maxNumber: numbers.count - 1),
-//                               tag: index,
-//                               selection: $selectedNumber) {
-//                    Text("Go to Child View \(numbers[index])")
-//                }
-//            }
-//            .navigationTitle("Numbers")
-//        }
-//        .onAppear {
-//            if selectedNumber == nil {
-//                selectedNumber = 0
-//            }
-//        }
-//
-//    }
-//}
-//
-//struct ChildView: View {
-//    let parent:ParentView
-//    let number: Int
-//    @Binding var selectedNumber: Int?
-//    let maxNumber: Int
-//
-//    func x() -> String {
-//        if let n = selectedNumber {
-//            return String(n)
-//        }
-//        return "X"
-//    }
-//    var body: some View {
-//        VStack {
-//            Text("Child View \(number)")
-//
-//            if number < maxNumber {
-//                Button(action: {
-//                    //selectedNumber = number + 1
-//                    parent.inc()
-//                    print("===", selectedNumber)
-//                }) {
-//                    Text("Go to Next Child View")
-//                }
-//            }
-//        }
-//    }
-//}

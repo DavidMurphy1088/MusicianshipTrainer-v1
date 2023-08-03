@@ -38,16 +38,16 @@ struct ContentNavigationView: View {
                 VStack {
                     //This is the list placed in the split navigation screen.
                     //The 2nd NavigationView below (for iPhone without split nav) will present the topics on the first screen the user sees
-                    if false {
-                        List(contentSection.subSections) { contentSection in
-                            NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
-                                                                           //parentsSelectedContentIndex: $selectedContentIndex)) {
-                                Text(contentSection.getTitle())
-                                    .font(.title2)
-                            }
-                            .disabled(!contentSection.isActive)
-                        }
-                    }
+//                    if false {
+//                        List(contentSection.subSections) { contentSection in
+//                            NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
+//                                                                           //parentsSelectedContentIndex: $selectedContentIndex)) {
+//                                Text(contentSection.getTitle())
+//                                    .font(.title2)
+//                            }
+//                            .disabled(!contentSection.isActive)
+//                        }
+//                    }
                     
                     GradeIntroView()
                     

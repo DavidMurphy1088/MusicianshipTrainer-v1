@@ -1,77 +1,119 @@
 import Foundation
-import Accelerate
+import AVKit
 import AVFoundation
 
-enum TickType {
-    case metronome
-    case handclap
-}
+//class MusicPlayer : ObservableObject {
+//    private let audioEngine = AVAudioEngine()
+//    private let sampler = AVAudioUnitSampler()
+//
+//    func play (notes: [Note]) {
+//        DispatchQueue.global(qos: .userInitiated).async { [self] in
+//            let playTempo = 3.0
+//            let pitchAdjust = 5
+//            var n = 0
+//            for note in notes {
+//                var dynamic:Double = 127
+////                if n < 3 {
+////                    dynamic *= 1.3
+////                }
+//                n += 1
+//                //Score.sampler.startNote(UInt8(note.num + 12 + pitchAdjust), withVelocity:UInt8(dynamic), onChannel:0)
+//                //player.startNote(UInt8(note.midiNumber + 12 + pitchAdjust), withVelocity:UInt8(dynamic), onChannel:0)
+//                //player.startNote(72, withVelocity:UInt8(dynamic), onChannel:0)
+//                let wait = playTempo * 50000.0 * Double(note.getValue())
+//                usleep(useconds_t(wait))
+//            }
+//        }
+//    }
+//}
 
-// Provide sampled audio as ticks for metronome
+import AVFoundation
 
 class AudioSamplerPlayer {
-    private var timeSignature:TimeSignature
-    
-    //Use an array so that sound n+1 can start before n finishes. Required for faster tempos and short note values.
-    private var audioPlayersLow:[AVAudioPlayer] = []
-    private var audioPlayersHigh:[AVAudioPlayer] = []
-    private var numAudioPlayers = 16
-    private var nextPlayer = 0
-    private var duration = 0.0
-    private var newBar = true
-    
-    init(timeSignature: TimeSignature, tickStyle:Bool) {
-        self.timeSignature = timeSignature
-        //https://samplefocus.com/samples/short-ambient-clap-one-shot
-        if tickStyle {
-            audioPlayersLow = loadAudioPlayer(name: "Mechanical metronome - Low", ext: "aif")
-            audioPlayersHigh = loadAudioPlayer(name: "Mechanical metronome - Low", ext: "aif")
+    static let shared = AudioSamplerPlayer()
+    private let audioEngine = AVAudioEngine()
+    let sampler = AVAudioUnitSampler()
+    //must be instance of Metronome lifetime
+    //let midiNoteEngine = AVAudioEngine()
+
+    private init() {
+        audioEngine.attach(sampler)
+        let output = audioEngine.outputNode
+        let outputFormat = output.inputFormat(forBus: 0)
+        audioEngine.connect(sampler, to: output, format: outputFormat)
+        do {
+            try audioEngine.start()
+        } catch {
+            print("Could not start the audio engine: \(error)")
+        }
+        loadSoundFont()
+    }
+
+    //func getMidiAudioSampler() -> AVAudioUnitSampler {
+    private func loadSoundFont() {
+        
+        //https://www.rockhoppertech.com/blog/the-great-avaudiounitsampler-workout/#soundfont
+        //https://sites.google.com/site/soundfonts4u/
+        let soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
+        //let soundFontNames = [("Piano", "marcato strings"), ("Guitar", "GuitarAcoustic")]
+        //var soundFontNames = [("Piano", "Dore Mark's (SF) Fazioli-v2.5.sf2"), ("Guitar", "GuitarAcoustic")]
+        let samplerFileName = soundFontNames[0].1
+        
+        AppDelegate.startAVAudioSession(category: .playback)
+//        midiSampler = AVAudioUnitSampler()
+//        audioEngine.attach(midiSampler)
+//        audioEngine.connect(midiSampler, to:audioEngine.mainMixerNode, format:audioEngine.mainMixerNode.outputFormat(forBus: 0))
+        //18May23 -For some unknown reason and after hours of investiagtion this loadSoundbank must oocur before every play, not jut at init time
+        
+        if let url = Bundle.main.url(forResource:samplerFileName, withExtension:"sf2") {
+            let ins = 0
+            for instrumentProgramNumber in ins..<256 {
+                do {
+                    try sampler.loadSoundBankInstrument(at: url, program: UInt8(instrumentProgramNumber), bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB), bankLSB: UInt8(kAUSampler_DefaultBankLSB))
+
+                    print("SF2", instrumentProgramNumber)
+                    //Metronome.nextInstrument += 1
+                    break
+                }
+                catch {
+                }
+                
+            }
         }
         else {
-            audioPlayersLow = loadAudioPlayer(name: "clap-single-inspectorj", ext: "wav")
-            audioPlayersHigh = loadAudioPlayer(name: "clap-single-inspectorj", ext: "wav")
+            Logger.logger.reportError(self, "Cannot loadSoundBankInstrument \(samplerFileName)")
+        }
+        
+        do {
+            try audioEngine.start()
+        }
+        catch let error {
+            Logger.logger.reportError(self, "Cant create MIDI sampler \(error.localizedDescription)")
         }
     }
-    
-    func loadAudioPlayer(name:String, ext:String) -> [AVAudioPlayer] {
-        var audioPlayers:[AVAudioPlayer] = []
-        let clapURL:URL?
-        clapURL = Bundle.main.url(forResource: name, withExtension: ext)
 
-        if clapURL == nil {
-            Logger.logger.reportError(self, "Cannot load resource \(name)")
-        }
-        for _ in 0..<numAudioPlayers {
-            do {
-                let audioPlayer = try AVAudioPlayer(contentsOf: clapURL!)
-                //if audioPlayer != nil {
-                    audioPlayers.append(audioPlayer)
-                    audioPlayer.prepareToPlay()
-                    audioPlayer.volume = 1.0 // Set the volume to full
-                    audioPlayer.rate = 2.0
-                //}
-            }
-            catch  {
-                Logger.logger.reportError(self, "Cannot prepare AVAudioPlayer")
-            }
-        }
-        return audioPlayers
+    func play(note: UInt8) {
+        sampler.startNote(note, withVelocity: 127, onChannel: 0)
+    }
+
+    func stop(note: UInt8) {
+        sampler.stopNote(note, onChannel: 0)
     }
     
-    func play(noteValue:Double?=nil) {
-        let nextAudioPlayer = newBar ? audioPlayersHigh[nextPlayer] : audioPlayersLow[nextPlayer]
-        nextAudioPlayer.volume = newBar ? 1.0 : 0.33
-        nextAudioPlayer.play()
-        nextPlayer += 1
-        if nextPlayer > numAudioPlayers - 1 {
-            nextPlayer = 0
-        }
-        if let noteValue = noteValue {
-            duration += noteValue
-            newBar = duration >= Double(timeSignature.top)
-            if newBar {
-                duration = 0
+    func playNotes(notes: [Note]) {
+        DispatchQueue.global(qos: .userInitiated).async { [self] in
+            let playTempo = 4.0
+            let pitchAdjust = 0
+            var n = 0
+            for note in notes {
+                var dynamic:Double = 48
+                n += 1
+                sampler.startNote(UInt8(note.midiNumber + pitchAdjust), withVelocity:UInt8(dynamic), onChannel:0)
+                let wait = playTempo * 50000.0 * Double(note.getValue())
+                usleep(useconds_t(wait))
             }
         }
     }
+
 }
+

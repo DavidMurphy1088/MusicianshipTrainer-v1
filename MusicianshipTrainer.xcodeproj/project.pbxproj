@@ -12,6 +12,8 @@
 		7B0659CC2A6C9967007A71CA /* Google_OAuth2_Keys.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B0659CB2A6C9967007A71CA /* Google_OAuth2_Keys.json */; };
 		7B0A64CF2A61562B0091A24A /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0A64CE2A61562B0091A24A /* Settings.swift */; };
 		7B0A64DC2A62B50C0091A24A /* marcato strings.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7B0A64DB2A62B50C0091A24A /* marcato strings.sf2 */; };
+		7B12C3832A7B2B3800B4D430 /* Songs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B12C3822A7B2B3800B4D430 /* Songs.swift */; };
+		7B12C3852A7B2F6B00B4D430 /* AudioSamplerPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B12C3842A7B2F6B00B4D430 /* AudioSamplerPlayer.swift */; };
 		7B2807992A5508D300C70EF4 /* Mechanical metronome - High.aif in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */; };
 		7B28079A2A5508D300C70EF4 /* Intervals Visual.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078D2A5508D200C70EF4 /* Intervals Visual.html */; };
 		7B28079B2A5508D300C70EF4 /* Ex1_Sine_Short.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */; };
@@ -33,17 +35,9 @@
 		7B40B7F52A54DF9000CA7FC4 /* ContentSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D72A54DF8F00CA7FC4 /* ContentSection.swift */; };
 		7B40B7F62A54DF9000CA7FC4 /* Chord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D82A54DF8F00CA7FC4 /* Chord.swift */; };
 		7B40B7F72A54DF9000CA7FC4 /* Metronome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D92A54DF8F00CA7FC4 /* Metronome.swift */; };
-		7B40B7F82A54DF9000CA7FC4 /* FFTTap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7DB2A54DF8F00CA7FC4 /* FFTTap.swift */; };
-		7B40B7F92A54DF9000CA7FC4 /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7DC2A54DF8F00CA7FC4 /* Test.swift */; };
-		7B40B7FA2A54DF9000CA7FC4 /* SoundAnalyseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7DD2A54DF8F00CA7FC4 /* SoundAnalyseView.swift */; };
-		7B40B7FB2A54DF9000CA7FC4 /* LineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7DE2A54DF8F00CA7FC4 /* LineChartView.swift */; };
-		7B40B7FC2A54DF9000CA7FC4 /* AudioSamplerPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7DF2A54DF8F00CA7FC4 /* AudioSamplerPlayer.swift */; };
-		7B40B7FD2A54DF9000CA7FC4 /* NoteOnsetAnalyser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E02A54DF8F00CA7FC4 /* NoteOnsetAnalyser.swift */; };
-		7B40B7FE2A54DF9000CA7FC4 /* AudioPlayerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E12A54DF8F00CA7FC4 /* AudioPlayerTest.swift */; };
+		7B40B7FC2A54DF9000CA7FC4 /* AudioTicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7DF2A54DF8F00CA7FC4 /* AudioTicker.swift */; };
 		7B40B7FF2A54DF9000CA7FC4 /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E22A54DF8F00CA7FC4 /* AudioRecorder.swift */; };
 		7B40B8002A54DF9000CA7FC4 /* ClapRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E32A54DF8F00CA7FC4 /* ClapRecorder.swift */; };
-		7B40B8012A54DF9000CA7FC4 /* TunerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E42A54DF8F00CA7FC4 /* TunerView.swift */; };
-		7B40B8022A54DF9000CA7FC4 /* NoteOnsetDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E52A54DF8F00CA7FC4 /* NoteOnsetDetector.swift */; };
 		7B40B8032A54DF9000CA7FC4 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E62A54DF8F00CA7FC4 /* Note.swift */; };
 		7B40B8042A54DF9000CA7FC4 /* Key.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E72A54DF8F00CA7FC4 /* Key.swift */; };
 		7B40B8052A54DF9000CA7FC4 /* NotePositions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E82A54DF8F00CA7FC4 /* NotePositions.swift */; };
@@ -133,6 +127,8 @@
 		7B0659CB2A6C9967007A71CA /* Google_OAuth2_Keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Google_OAuth2_Keys.json; sourceTree = "<group>"; };
 		7B0A64CE2A61562B0091A24A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		7B0A64DB2A62B50C0091A24A /* marcato strings.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "marcato strings.sf2"; sourceTree = "<group>"; };
+		7B12C3822A7B2B3800B4D430 /* Songs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Songs.swift; sourceTree = "<group>"; };
+		7B12C3842A7B2F6B00B4D430 /* AudioSamplerPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSamplerPlayer.swift; sourceTree = "<group>"; };
 		7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mechanical metronome - High.aif"; sourceTree = "<group>"; };
 		7B28078D2A5508D200C70EF4 /* Intervals Visual.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "Intervals Visual.html"; sourceTree = "<group>"; };
 		7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Ex1_Sine_Short.wav; sourceTree = "<group>"; };
@@ -154,17 +150,9 @@
 		7B40B7D72A54DF8F00CA7FC4 /* ContentSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentSection.swift; sourceTree = "<group>"; };
 		7B40B7D82A54DF8F00CA7FC4 /* Chord.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Chord.swift; sourceTree = "<group>"; };
 		7B40B7D92A54DF8F00CA7FC4 /* Metronome.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Metronome.swift; sourceTree = "<group>"; };
-		7B40B7DB2A54DF8F00CA7FC4 /* FFTTap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FFTTap.swift; sourceTree = "<group>"; };
-		7B40B7DC2A54DF8F00CA7FC4 /* Test.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
-		7B40B7DD2A54DF8F00CA7FC4 /* SoundAnalyseView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundAnalyseView.swift; sourceTree = "<group>"; };
-		7B40B7DE2A54DF8F00CA7FC4 /* LineChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
-		7B40B7DF2A54DF8F00CA7FC4 /* AudioSamplerPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioSamplerPlayer.swift; sourceTree = "<group>"; };
-		7B40B7E02A54DF8F00CA7FC4 /* NoteOnsetAnalyser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteOnsetAnalyser.swift; sourceTree = "<group>"; };
-		7B40B7E12A54DF8F00CA7FC4 /* AudioPlayerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioPlayerTest.swift; sourceTree = "<group>"; };
+		7B40B7DF2A54DF8F00CA7FC4 /* AudioTicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioTicker.swift; sourceTree = "<group>"; };
 		7B40B7E22A54DF8F00CA7FC4 /* AudioRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		7B40B7E32A54DF8F00CA7FC4 /* ClapRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClapRecorder.swift; sourceTree = "<group>"; };
-		7B40B7E42A54DF8F00CA7FC4 /* TunerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunerView.swift; sourceTree = "<group>"; };
-		7B40B7E52A54DF8F00CA7FC4 /* NoteOnsetDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteOnsetDetector.swift; sourceTree = "<group>"; };
 		7B40B7E62A54DF8F00CA7FC4 /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		7B40B7E72A54DF8F00CA7FC4 /* Key.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Key.swift; sourceTree = "<group>"; };
 		7B40B7E82A54DF8F00CA7FC4 /* NotePositions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotePositions.swift; sourceTree = "<group>"; };
@@ -341,6 +329,7 @@
 				7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */,
 				7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */,
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,
+				7B12C3822A7B2B3800B4D430 /* Songs.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -348,17 +337,10 @@
 		7B40B7DA2A54DF8F00CA7FC4 /* Audio */ = {
 			isa = PBXGroup;
 			children = (
-				7B40B7DB2A54DF8F00CA7FC4 /* FFTTap.swift */,
-				7B40B7DC2A54DF8F00CA7FC4 /* Test.swift */,
-				7B40B7DD2A54DF8F00CA7FC4 /* SoundAnalyseView.swift */,
-				7B40B7DE2A54DF8F00CA7FC4 /* LineChartView.swift */,
-				7B40B7DF2A54DF8F00CA7FC4 /* AudioSamplerPlayer.swift */,
-				7B40B7E02A54DF8F00CA7FC4 /* NoteOnsetAnalyser.swift */,
-				7B40B7E12A54DF8F00CA7FC4 /* AudioPlayerTest.swift */,
 				7B40B7E22A54DF8F00CA7FC4 /* AudioRecorder.swift */,
+				7B40B7DF2A54DF8F00CA7FC4 /* AudioTicker.swift */,
 				7B40B7E32A54DF8F00CA7FC4 /* ClapRecorder.swift */,
-				7B40B7E42A54DF8F00CA7FC4 /* TunerView.swift */,
-				7B40B7E52A54DF8F00CA7FC4 /* NoteOnsetDetector.swift */,
+				7B12C3842A7B2F6B00B4D430 /* AudioSamplerPlayer.swift */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -768,19 +750,14 @@
 				7B73B7BC2A6FB7030097BAA8 /* ExamView.swift in Sources */,
 				7B40B83E2A54E52A00CA7FC4 /* LaunchScreen.swift in Sources */,
 				7B40B8092A54DF9000CA7FC4 /* SoundGenerator.swift in Sources */,
-				7B40B8012A54DF9000CA7FC4 /* TunerView.swift in Sources */,
 				7B40B8362A54E52A00CA7FC4 /* ToolsView.swift in Sources */,
-				7B40B7FD2A54DF9000CA7FC4 /* NoteOnsetAnalyser.swift in Sources */,
 				7BB835462A5548750083C1C0 /* Firestore.swift in Sources */,
 				7B40B8002A54DF9000CA7FC4 /* ClapRecorder.swift in Sources */,
 				7B40B82C2A54E52A00CA7FC4 /* ContentNavigationView.swift in Sources */,
 				7B40B8042A54DF9000CA7FC4 /* Key.swift in Sources */,
-				7B40B7F82A54DF9000CA7FC4 /* FFTTap.swift in Sources */,
 				7B40B82F2A54E52A00CA7FC4 /* TappingView.swift in Sources */,
 				7B40B83B2A54E52A00CA7FC4 /* IntervalsView.swift in Sources */,
 				7B40B7F52A54DF9000CA7FC4 /* ContentSection.swift in Sources */,
-				7B40B7FA2A54DF9000CA7FC4 /* SoundAnalyseView.swift in Sources */,
-				7B40B7F92A54DF9000CA7FC4 /* Test.swift in Sources */,
 				7B40B7F42A54DF9000CA7FC4 /* Staff.swift in Sources */,
 				7B40B83A2A54E52A00CA7FC4 /* HelpView.swift in Sources */,
 				7B40B8372A54E52A00CA7FC4 /* IndexView.swift in Sources */,
@@ -797,28 +774,27 @@
 				7B40B8332A54E52A00CA7FC4 /* StaffNotesView.swift in Sources */,
 				7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */,
 				7B40B8032A54DF9000CA7FC4 /* Note.swift in Sources */,
+				7B12C3832A7B2B3800B4D430 /* Songs.swift in Sources */,
 				7B40B80A2A54DF9000CA7FC4 /* Scale.swift in Sources */,
 				7B40B7F72A54DF9000CA7FC4 /* Metronome.swift in Sources */,
 				7B40B8342A54E52A00CA7FC4 /* UIGlobals.swift in Sources */,
-				7B40B8022A54DF9000CA7FC4 /* NoteOnsetDetector.swift in Sources */,
 				7B4F64572A54DC6100727710 /* MusicianshipTrainer.xcdatamodeld in Sources */,
 				7B40B8072A54DF9000CA7FC4 /* TimeSignature.swift in Sources */,
-				7B40B7FB2A54DF9000CA7FC4 /* LineChartView.swift in Sources */,
 				7B40B8302A54E52A00CA7FC4 /* MetronomeView.swift in Sources */,
 				7B40B80B2A54DF9000CA7FC4 /* SpeechSynth.swift in Sources */,
 				7BD1E5BA2A57D088009AD7E8 /* StaffCharacteristics.swift in Sources */,
 				7B4F64542A54DC6100727710 /* Persistence.swift in Sources */,
 				7B40B7F62A54DF9000CA7FC4 /* Chord.swift in Sources */,
 				7B40B8322A54E52A00CA7FC4 /* VoiceCounter.swift in Sources */,
+				7B12C3852A7B2F6B00B4D430 /* AudioSamplerPlayer.swift in Sources */,
 				7B40B8382A54E52A00CA7FC4 /* ViewProtocol.swift in Sources */,
-				7B40B7FC2A54DF9000CA7FC4 /* AudioSamplerPlayer.swift in Sources */,
+				7B40B7FC2A54DF9000CA7FC4 /* AudioTicker.swift in Sources */,
 				7B40B82E2A54E52A00CA7FC4 /* NoteView.swift in Sources */,
 				7B40B8352A54E52A00CA7FC4 /* TestView.swift in Sources */,
 				7B40B7F32A54DF9000CA7FC4 /* Logger.swift in Sources */,
 				7B40B7FF2A54DF9000CA7FC4 /* AudioRecorder.swift in Sources */,
 				7B40B8312A54E52A00CA7FC4 /* PianoView.swift in Sources */,
 				7B40B83C2A54E52A00CA7FC4 /* ContentSectionView.swift in Sources */,
-				7B40B7FE2A54DF9000CA7FC4 /* AudioPlayerTest.swift in Sources */,
 				7B40B8402A54E52A00CA7FC4 /* ScoreView.swift in Sources */,
 				7B40B8062A54DF9000CA7FC4 /* PianoKeyboard.swift in Sources */,
 				7B40B7F02A54DF9000CA7FC4 /* ExampleData.swift in Sources */,
@@ -982,7 +958,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;
@@ -1016,7 +992,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;

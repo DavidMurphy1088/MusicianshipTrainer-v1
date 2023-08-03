@@ -34,10 +34,12 @@ struct PlayRecordingView: View {
     var buttonLabel:String
     @State var score:Score?
     @State var metronome:Metronome
+    let fileName:String
     @ObservedObject var audioRecorder = AudioRecorder.shared
     @State private var playingScore:Bool = false
     var onStart: (()->Void)?
     var onDone: (()->Void)?
+    
 
     var body: some View {
         VStack {
@@ -55,7 +57,7 @@ struct PlayRecordingView: View {
                     playingScore = true
                 }
                 else {
-                    audioRecorder.playRecording()
+                    audioRecorder.playRecording(fileName: fileName)
                 }
             }) {
                 if playingScore {
@@ -219,7 +221,7 @@ struct ClapOrPlayPresentView: View {
         if parent.isExamTypeContentSection() {
             //|| answerState == .notEverAnswered {
             ///Only allowed when section is exam but student is in exam review mode
-            if contentSection.answer11 == nil {
+            if contentSection.answer111 == nil {
                 return false
             }
             else {
@@ -233,7 +235,7 @@ struct ClapOrPlayPresentView: View {
         guard let parent = contentSection.parent else {
             return false
         }
-        if parent.isExamTypeContentSection() && contentSection.answer11 == nil {
+        if parent.isExamTypeContentSection() && contentSection.answer111 == nil {
             return true
         }
         else {
@@ -268,6 +270,7 @@ struct ClapOrPlayPresentView: View {
                         PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
                                           score: score,
                                           metronome: metronome,
+                                          fileName: contentSection.name,
                                           onDone: {rhythmHeard = true})
                         
                     }
@@ -293,7 +296,7 @@ struct ClapOrPlayPresentView: View {
                                     self.isTapping = true
                                     tapRecorder.startRecording(metronomeLeadIn: false, metronomeTempoAtRecordingStart: metronome.tempo)
                                 } else {
-                                    audioRecorder.startRecording(outputFileName: contentSection.name)
+                                    audioRecorder.startRecording(fileName: contentSection.name)
                                 }
                             }) {
                                 Text(answerState == .notEverAnswered ? "Start Recording" : "Redo Recording")
@@ -316,6 +319,7 @@ struct ClapOrPlayPresentView: View {
                                 }
                                 else {
                                     audioRecorder.stopRecording()
+                                    answer.recordedData = self.audioRecorder.getRecordedAudio(fileName: contentSection.name)
                                 }
                             }) {
                                 Text("Stop Recording").defaultStyle()
@@ -335,6 +339,7 @@ struct ClapOrPlayPresentView: View {
                                 PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                                   score: questionType == .melodyPlay ? nil : getStudentRecordedScoreWithTempo(),
                                                   metronome: self.metronome,
+                                                  fileName: contentSection.name,
                                                   onStart: ({
                                     if questionType != .melodyPlay {
                                         if let recordedScore = getStudentRecordedScoreWithTempo() {
@@ -353,8 +358,18 @@ struct ClapOrPlayPresentView: View {
                             
                             Button(action: {
                                 //contentSection.setAnswerState(ctx: "clap", .submittedAnswer)
+//                                if let parent = contentSection.parent {
+//                                    if parent.isExamTypeContentSection() {
+//                                        contentSection.answer111 = answer
+//                                    }
+//                                }
                                 answerState = .submittedAnswer
-                                answer.correct = rhythmIsCorrect()
+                                if questionType == .melodyPlay {
+                                    answer.correct = true
+                                }
+                                else {
+                                    answer.correct = rhythmIsCorrect()
+                                }
                                 score.setHiddenStaff(num: 1, isHidden: false)
                             }) {
                                 //Stop the UI jumping around when answer.state changes state
@@ -485,18 +500,21 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                     
                     PlayRecordingView(buttonLabel: "Hear The Given \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                       score: score,
-                                      metronome: answerMetronome)
+                                      metronome: answerMetronome,
+                                      fileName: contentSection.name)
                     
                     if questionType == .melodyPlay {
                         PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                           score: nil,
-                                          metronome: answerMetronome)
+                                          metronome: answerMetronome,
+                                          fileName: contentSection.name)
                     }
                     else {
                         if let tappingScore = self.tappingScore {
                             PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                               score: tappingScore,
-                                              metronome: answerMetronome)
+                                              metronome: answerMetronome,
+                                              fileName: contentSection.name)
                         }
                     }
                     
@@ -564,11 +582,11 @@ struct ClapOrPlayView: View {
             if parent.isExamTypeContentSection() {
                 if answerState  == .submittedAnswer {
                     //Only show answer for exam questions in exam review mode
-                    if contentSection.answer11 == nil {
+                    if contentSection.answer111 == nil {
                         return false
                     }
                     else {
-                        print("====>show answer", parent.name, contentSection.name, contentSection.answer11?.correct)
+                        //print("====>show answer", parent.name, contentSection.name, contentSection.answer111?.correct)
                         return true
                     }
                 } else {

@@ -15,9 +15,6 @@ class Metronome: ObservableObject {
     @Published var tickingIsActive = false
     @Published var speechEnabled = false
 
-    //must be instance of Metronome lifetime
-    let midiNoteEngine = AVAudioEngine()
-
     let tempoMinimumSetting = 60
     let tempoMaximumSetting = 120
     var setCtr = 0
@@ -62,7 +59,7 @@ class Metronome: ObservableObject {
     }
     
     func startTicking(score:Score) {
-        let audioSamplerMIDI = getMidiAudioSampler()
+        let audioSamplerMIDI = AudioSamplerPlayer.shared.sampler //getMidiAudioSampler()
         //let audioTicker:AudioSamplerPlayer = AudioSamplerPlayer(timeSignature: score.timeSignature)
         //setTempo(tempo: self.tempo)
         DispatchQueue.main.async {
@@ -157,7 +154,7 @@ class Metronome: ObservableObject {
     }
     
     func playScore(score:Score, rhythmNotesOnly:Bool=false, onDone: (()->Void)? = nil) {
-        let audioSamplerMIDI = getMidiAudioSampler()
+        let audioSamplerMIDI = AudioSamplerPlayer.shared.sampler //getMidiAudioSampler()
 
         //find the first note to play
         nextScoreIndex = 0
@@ -185,7 +182,8 @@ class Metronome: ObservableObject {
     func stopPlayingScore() {
         DispatchQueue.main.async {
             self.score = nil
-            let audioUnitSampler:AVAudioUnitSampler = self.getMidiAudioSampler()
+            //let audioUnitSampler:AVAudioUnitSampler = self.getMidiAudioSampler()
+            let audioUnitSampler = AudioSamplerPlayer.shared.sampler
             for m in 58...74 {
                 audioUnitSampler.stopNote(UInt8(m), onChannel: UInt8(0))
             }
@@ -199,8 +197,8 @@ class Metronome: ObservableObject {
     private func startThreadRunning(timeSignature:TimeSignature, audioSamplerPlayerMIDI:AVAudioUnitSampler?) {
         self.isThreadRunning = true
         
-        let audioTickerMetronomeTick:AudioSamplerPlayer = AudioSamplerPlayer(timeSignature: timeSignature, tickStyle: true)
-        let audioClapper:AudioSamplerPlayer = AudioSamplerPlayer(timeSignature: timeSignature, tickStyle: false)
+        let audioTickerMetronomeTick:AudioTicker = AudioTicker(timeSignature: timeSignature, tickStyle: true)
+        let audioClapper:AudioTicker = AudioTicker(timeSignature: timeSignature, tickStyle: false)
 
         DispatchQueue.global(qos: .userInitiated).async { [self] in
             var loopCtr = 0
@@ -220,7 +218,7 @@ class Metronome: ObservableObject {
                 if loopCtr % 2 == 0 {
                     if self.tickingIsActive {
                         //if let ticker = audioTicker {
-                        audioTickerMetronomeTick.play()
+                        audioTickerMetronomeTick.soundTick()
                         //}
                         ticksPlayed += 1
                     }
@@ -246,7 +244,7 @@ class Metronome: ObservableObject {
                                     note.setHilite(hilite: false)
                                 }
                                 if note.isOnlyRhythmNote  {
-                                    audioClapper.play(noteValue: note.getValue())
+                                    audioClapper.soundTick(noteValue: note.getValue())
                                 }
                                 else {
                                     //print(" --- Score play note", loopCtr, "next score time slice", nextScoreTimeSlice)
@@ -357,48 +355,5 @@ class Metronome: ObservableObject {
         return word
     }
     
-    func getMidiAudioSampler() -> AVAudioUnitSampler {
-        let midiSampler:AVAudioUnitSampler
-        
-        //https://www.rockhoppertech.com/blog/the-great-avaudiounitsampler-workout/#soundfont
-        //https://sites.google.com/site/soundfonts4u/
-        let soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
-        //let soundFontNames = [("Piano", "marcato strings"), ("Guitar", "GuitarAcoustic")]
-        //var soundFontNames = [("Piano", "Dore Mark's (SF) Fazioli-v2.5.sf2"), ("Guitar", "GuitarAcoustic")]
-        let samplerFileName = soundFontNames[0].1
-        
-        AppDelegate.startAVAudioSession(category: .playback)
-        midiSampler = AVAudioUnitSampler()
-        midiNoteEngine.attach(midiSampler)
-        midiNoteEngine.connect(midiSampler, to:midiNoteEngine.mainMixerNode, format:midiNoteEngine.mainMixerNode.outputFormat(forBus: 0))
-        //18May23 -For some unknown reason and after hours of investiagtion this loadSoundbank must oocur before every play, not jut at init time
-        
-        if let url = Bundle.main.url(forResource:samplerFileName, withExtension:"sf2") {
-            let ins = 0
-            for instrumentProgramNumber in ins..<256 {
-                do {
-                    try midiSampler.loadSoundBankInstrument(at: url, program: UInt8(instrumentProgramNumber), bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB), bankLSB: UInt8(kAUSampler_DefaultBankLSB))
-
-                    print("SF2", instrumentProgramNumber)
-                    //Metronome.nextInstrument += 1
-                    break
-                }
-                catch {
-                }
-                
-            }
-        }
-        else {
-            Logger.logger.reportError(self, "Cannot loadSoundBankInstrument \(samplerFileName)")
-        }
-        
-        do {
-            try midiNoteEngine.start()
-        }
-        catch let error {
-            Logger.logger.reportError(self, "Cant create MIDI sampler \(error.localizedDescription)")
-        }
-        return midiSampler
-    }
 }
 

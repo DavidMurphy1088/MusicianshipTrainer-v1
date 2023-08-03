@@ -65,6 +65,7 @@ struct NoteView: View {
     }
     
     struct LedgerLine:Hashable {
+        var id = UUID()
         var offsetVertical:Double
     }
     
@@ -149,7 +150,7 @@ struct NoteView: View {
                     
                     if !note.isOnlyRhythmNote {
                         if staff.type == .treble {
-                            ForEach(getLedgerLines(note: note, noteWidth: noteWidth, lineSpacing: lineSpacing), id: \.self) { line in
+                            ForEach(getLedgerLines(note: note, noteWidth: noteWidth, lineSpacing: lineSpacing), id: \.id) { line in
                                 let y = geometry.size.height/2.0 + line.offsetVertical
                                 let x = noteFrameWidth/2 - noteWidth
                                 Path { path in

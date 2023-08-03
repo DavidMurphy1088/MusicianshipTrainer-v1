@@ -6,10 +6,21 @@ struct ContentTypeView: View {
     let contentSection:ContentSection
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
+    //@Binding var parentSelectionIndex: Int?
     
+//    init(contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>) {
+//        _someBinding = someBinding
+//    }
+//
+//    // When no binding is passed, use a constant false value
+//    init() {
+//        _someBinding = .constant(false)
+//    }
+
     func isNavigationHidden() -> Bool {
+        ///No exit navigation in exam mode
         if let parent = contentSection.parent {
-            if parent.isExamTypeContentSection() && contentSection.answer11 == nil {
+            if parent.isExamTypeContentSection() && contentSection.answer111 == nil {
                 return true
             }
             else {
@@ -157,7 +168,7 @@ struct ContentSectionHeaderView: View {
             VStack {
                 if let audioInstructionsFileName = audioInstructionsFileName {
                     Button(action: {
-                        AudioRecorder.shared.playAudioFromURL(urlString: audioInstructionsFileName)
+                        AudioRecorder.shared.playAudioFromCloudURL(urlString: audioInstructionsFileName)
                     }) {
                         Text("Aural Instructions").defaultStyle()
                     }
@@ -217,7 +228,11 @@ struct SectionsNavigationView:View {
 
     func getGradeImageName(contentSection: ContentSection) -> String? {
         if contentSection.isExamTypeContentSection() {
-            if contentSection.questionStatus.status == 1 {
+            //test section group header
+            if contentSection.hasNoAnswers() {
+                return nil
+            }
+            else {
                 if getScore(contentSection: contentSection) == contentSection.getNavigableChildSections().count {
                     return "grade_a"
                 }
@@ -225,12 +240,10 @@ struct SectionsNavigationView:View {
                     return "grade_b"
                 }
             }
-            else {
-                return nil
-            }
         }
         else {
-            if let answer = contentSection.answer11 {
+            //individual tests
+            if let answer = contentSection.answer111 {
                 if answer.correct {
                     return "grade_a"
                 }
@@ -247,7 +260,7 @@ struct SectionsNavigationView:View {
     func getScore(contentSection: ContentSection) -> Int {
         var score = 0
         for s in contentSection.getNavigableChildSections() {
-            if let answer = s.answer11 {
+            if let answer = s.answer111 {
                 if answer.correct {
                     score += 1
                 }
@@ -258,11 +271,11 @@ struct SectionsNavigationView:View {
     
     func getExamCompleteStatus(contentSection: ContentSection) -> String {
         if contentSection.isExamTypeContentSection() {
-            if contentSection.questionStatus.status == 1 {
-                return "Completed - \(getScore(contentSection: contentSection)) out of \(contentSection.getNavigableChildSections().count)"
+            if contentSection.hasNoAnswers() {
+                return "Not Started"
             }
             else {
-                return "Not Started"
+                return "Completed - \(getScore(contentSection: contentSection)) out of \(contentSection.getNavigableChildSections().count)"
             }
         }
         return ""
@@ -272,7 +285,8 @@ struct SectionsNavigationView:View {
         VStack {
             List(Array(contentSections.indices), id: \.self) { index in
                 ///- selection: A bound variable that causes the link to present `destination` when `selection` becomes equal to `tag`.
-                NavigationLink(destination: ContentSectionView(contentSection: contentSections[index]),
+                NavigationLink(destination:
+                                ContentSectionView(contentSection: contentSections[index], parentSelectionIndex: $sectionIndex),
                                tag: index,
                                selection: $sectionIndex) {
 
@@ -307,6 +321,7 @@ struct ExamView: View {
     @State var examBeginning = true
     @State var answerState:AnswerState = .notEverAnswered
     @State var answer = Answer(ctx: "ExamView")//, questionMode: .examTake)
+    @State private var showingConfirm = false
     
     init(contentSection:ContentSection, contentSections:[ContentSection]) {
         self.contentSection = contentSection
@@ -314,7 +329,6 @@ struct ExamView: View {
     }
     
     func showAnswer() -> Int {
-        print ("Ans====", answer.correct)
         return answer.correct ? 1 : 0
     }
     
@@ -336,7 +350,10 @@ struct ExamView: View {
                     Button(action: {
                         self.examBeginning = false
                     }) {
-                        Text("Start the Exam").defaultStyle()
+                        VStack {
+                            Text("The exam has \(contentSections.count) questions").padding()
+                            Text("Start the Exam").defaultStyle()
+                        }
                     }
                     Spacer()
                 }
@@ -347,36 +364,71 @@ struct ExamView: View {
                     if sectionIndex < contentSections.count - 1 {
                         Text("Completed question \(sectionIndex+1) of \(contentSections.count)").padding()
                         Button(action: {
+                            contentSections[sectionIndex].answer111 = answer.copyAnwser()
+                            contentSections[sectionIndex].storeAnswer(answer: answer.copyAnwser())
                             answerState = .notEverAnswered
-                            contentSections[sectionIndex].answer11 = answer.copyAnwser()
                             sectionIndex += 1
                         }) {
                             VStack {
-                                Text("Go to the next exam question").defaultStyle().padding()
+                                Text("Next Exam Question").defaultStyle().padding()
                             }
                         }
+                        .padding()
+                        Spacer()
+                        Button(action: {
+                            //contentSections[sectionIndex].saveAnswer(answer: answer.copyAnwser())
+                            //contentSection.questionStatus.setStatus(1)
+                            //presentationMode.wrappedValue.dismiss()
+                            showingConfirm = true
+                        }) {
+                            VStack {
+                                Text("Exit Exam").defaultStyle().padding()
+                            }
+                        }
+                        .alert(isPresented: $showingConfirm) {
+                            Alert(title: Text("Are you sure?"),
+                                  message: Text("You cannot restart an exam you exit from"), primaryButton: .destructive(Text("Yes, I'm sure")) {
+                                for s in contentSections {
+                                    //if s.answer111 == nil {
+                                        let answer = Answer(ctx: "cancelled")
+                                        s.answer111 = answer
+                                        s.storeAnswer(answer: answer)
+                                    //}
+                                }
+                                presentationMode.wrappedValue.dismiss()
+                            }, secondaryButton: .cancel())
+                        }
+                        .padding()
+
                     }
                     else {
                         Spacer()
                         Button(action: {
-                            contentSections[sectionIndex].answer11 = answer.copyAnwser()
+                            contentSections[sectionIndex].answer111 = answer.copyAnwser()
+                            contentSections[sectionIndex].storeAnswer(answer: answer.copyAnwser())
+                            //Force the parent view to refresh the test lines status
                             contentSection.questionStatus.setStatus(1)
                             presentationMode.wrappedValue.dismiss()
                         }) {
                             Text("End of Exam").defaultStyle()
-                            
                         }
                         Spacer()
                     }
                     Spacer()
                 }
                 else {
-                    ContentTypeView(contentSection: contentSections[sectionIndex], answerState: $answerState, answer: $answer)
+                    ContentTypeView(contentSection: contentSections[sectionIndex],
+                                    answerState: $answerState,
+                                    answer: $answer
+                                    //parentSelectionIndex: $sectionIndex
+                    )
                 }
             }
         }
         .navigationBarHidden(isNavigationHidden())
         .onAppear() {
+            
+
             self.sectionIndex = 0            
         }
     }
@@ -390,18 +442,24 @@ struct ContentSectionView: View {
     @State var answerState:AnswerState = .notEverAnswered
     @State var answer:Answer = Answer(ctx: "ContentSectionView")//, questionMode: .practice)
     @State var sectionIndex:Int = 0
+    @Binding var parentSelectionIndex:Int?
     
     let id = UUID()
     
+    init (contentSection:ContentSection, parentSelectionIndex:Binding<Int?>) {
+        self.contentSection = contentSection
+        _parentSelectionIndex = parentSelectionIndex
+    }
     init (contentSection:ContentSection) {
         self.contentSection = contentSection
-        //self.selectedContentIndex = selectedContentIndex
+        _parentSelectionIndex = .constant(nil)
     }
-    
+
     var body: some View {
         VStack {
             let childSections = contentSection.getNavigableChildSections()
             if childSections.count > 0 {
+                //Text("==========---------\(contentSection.name) STATUS:\(contentSection.questionStatus.status) \(contentSection.hasNoAnswers() ? "NONE" : "HAS")")
                 if contentSection.isExamTypeContentSection() {
                     //No ContentSectionHeaderView in any exam mode content section except the exam start
                     if contentSection.hasExamModeChildren() {
@@ -423,15 +481,29 @@ struct ContentSectionView: View {
                 }
             }
             else {
-                ContentTypeView(contentSection: self.contentSection, answerState: $answerState, answer: $answer)
+                ContentTypeView(contentSection: self.contentSection,
+                                answerState: $answerState,
+                                answer: $answer)
+                                //parentSelectionIndex: $selectedContentIndex)
             }
-            
+            if contentSection.subSections.count == 0 {
+                ///Tell the parent to navigate to the next section
+                Button("Next Example") {
+                    if self.parentSelectionIndex == nil {
+                        self.parentSelectionIndex = 0
+                    }
+                    else {
+                        self.parentSelectionIndex! += 1
+                    }
+                }
+                .padding()
+            }
         }
-        .onAppear {
-            if contentSection.answer11 != nil {
+        .onAppear {           
+            if contentSection.answer111 != nil {
                 print("ContentSectionView ==== did set answer submitted", answerState)
                 self.answerState = .submittedAnswer
-                self.answer = contentSection.answer11!
+                self.answer = contentSection.answer111!
             }
             else {
                 print("ContentSectionView ==== did NOT set answer submitted", answerState)

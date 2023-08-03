@@ -25,7 +25,6 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         self.tapTimes = []
         if metronomeLeadIn {
             self.enableRecordingLight = false
-            //metronome.startTicking(numberOfTicks: timeSignature.top * 2, onDone: endMetronomePrefix)
         }
         else {
             self.enableRecordingLight = true

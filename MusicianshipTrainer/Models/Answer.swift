@@ -10,7 +10,7 @@ enum AnswerState {
 }
 
 ///The answer a student gives to a question
-class Answer : Identifiable {
+class Answer : Codable,Identifiable {
     var id:UUID
     //var questionMode: QuestionMode
     var correct: Bool = false
@@ -25,6 +25,9 @@ class Answer : Identifiable {
     //var tempo:Int?
     var values:[Double]?
     
+    ///Recording
+    var recordedData: Data?
+    
     init(ctx:String) { //}, questionMode:QuestionMode) {
         id = UUID()
         //self.questionMode = questionMode
@@ -38,6 +41,7 @@ class Answer : Identifiable {
         a.correctIntervalName = self.correctIntervalName
         a.explanation = self.explanation
         a.values = self.values
+        a.recordedData = self.recordedData
         return a
     }
 

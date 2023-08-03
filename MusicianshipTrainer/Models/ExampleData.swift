@@ -123,6 +123,11 @@ class ExampleData : ObservableObject {
                         if rowHasAKey {
                             lastContentSectionDepth = cellIndex
                         }
+                        if let parent = contentSection.parent {
+                            if parent.isExamTypeContentSection() {
+                                contentSection.loadAnswer()
+                            }
+                        }
                         //print("\nRow:", rowNum, "Index:", cellIndex, rowCells)
                         //MusicianshipTrainerApp.root.debug()
                     }

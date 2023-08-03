@@ -9,21 +9,23 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     var recordingSession: AVAudioSession!
     var audioRecorder: AVAudioRecorder!
     var audioPlayer: AVAudioPlayer! //best for playing smaller local content
-    var audioFilename:URL?
+    
+    ///use the same name for all recordings.
+    var audioFilenameStatic = "Audio_Recording"
     var avPlayer: AVPlayer? //best for playing remote content, support streaming etc
     
     @Published var status:String = ""
     
     func setStatus(_ msg:String) {
-        //print("AudioRecorder::status", msg)
         DispatchQueue.main.async {
             self.status = "AudioRecorder::"+msg
         }
     }
     
-    func startRecording(outputFileName:String)  {
+    func startRecording(fileName:String)  {
         recordingSession = AVAudioSession.sharedInstance()
-        audioFilename = getDocumentsDirectory().appendingPathComponent("\(outputFileName).wav")
+        let outputFileName = audioFilenameStatic
+        let audioFilename = getDocumentsDirectory().appendingPathComponent("\(outputFileName).wav")
         //print("RECORDING TO file:", audioFilename ?? "")
 
         AppDelegate.startAVAudioSession(category: .record)
@@ -38,7 +40,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
         ]
         
         do {
-            audioRecorder = try AVAudioRecorder(url: audioFilename!, settings: settings)
+            audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
             if audioRecorder == nil {
                 Logger.logger.reportError(self, "Recording, audio record is nil")
             }
@@ -81,24 +83,39 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
             AppDelegate.startAVAudioSession(category: .playback)
         }
     }
+    
+    func getRecordedAudio(fileName:String) -> Data? {
+        let audioFilename = audioFilenameStatic
+        let url = getDocumentsDirectory().appendingPathComponent("\(audioFilename).wav")
+        do {
+            let data = try Data(contentsOf: url)
+            return data
+        } catch let error {
+            Logger.logger.reportError(self, "Cant read data for file \(String(describing: audioFilename))", error)
+            return nil
+        }
+    }
 
-    func playRecording() {
+    func playRecording(fileName:String) {
         //Logger.logger.log(self, "Playback starting")
         AppDelegate.startAVAudioSession(category: .playback)
-        guard let url = audioFilename else {
-            Logger.logger.reportError(self, "At playback, file URL is nil")
-            return
-        }
+//        guard let url = audioFilename else {
+//            Logger.logger.reportError(self, "At playback, file URL is nil")
+//            return
+//        }
         let fileManager = FileManager.default
         //print("PLAYING FROM:", audioFilename)
-        if !fileManager.fileExists(atPath: url.path) {
-            Logger.logger.reportError(self, "At playback, file does not exist \(url.path)")
-            return
-        }
+//        if !fileManager.fileExists(atPath: audioFilename.path) {
+//            Logger.logger.reportError(self, "At playback, file does not exist \(audioFilename.path)")
+//            return
+//        }
+        let audioFilename = self.audioFilenameStatic
+        let url = getDocumentsDirectory().appendingPathComponent("\(audioFilename).wav")
         do {
-            self.audioPlayer = try AVAudioPlayer(contentsOf: audioFilename!)
+            self.audioPlayer = try AVAudioPlayer(contentsOf: url)
+            //self.audioPlayer = try AVAudioPlayer(url: audioFilename)
             if self.audioPlayer == nil {
-                Logger.logger.reportError(self, "At playback, cannot create audio player for \(url.path)")
+                Logger.logger.reportError(self, "At playback, cannot create audio player for \(url)")
                 return
             }
             //var msg = "playback started, still recording? \(audioRecorder.isRecording)"
@@ -118,15 +135,10 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     
     func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        //let paths = FileManager.default.urls(for: .sharedPublicDirectory, in: .userDomainMask)
-        
-//        for p in paths {
-//            print("getDocumentsDirectory", p)
-//        }
         return paths[0]
     }
     
-    func playAudioFromURL(urlString: String) {
+    func playAudioFromCloudURL(urlString: String) {
         guard let url = URL(string: urlString) else {
             print("Invalid URL")
             return

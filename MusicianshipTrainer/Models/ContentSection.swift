@@ -1,26 +1,10 @@
 import Foundation
 import AVFoundation
+import Combine
 
-//class QuestionMode : ObservableObject {
-//    enum Mode {
-//        case practice
-//        case examTake
-//        case examReview
-//    }
-//    var mode:Mode
-//    init(_ mode:Mode) {
-//        self.mode = mode
-//    }
-//}
-
-//enum QuestionMode {
-//    case practice
-//    case examTake
-//    case examReview
-//}
-
-class QuestionStatus: ObservableObject {
-    @Published var status:Int = 0
+class QuestionStatus: Codable, ObservableObject {
+    //@Published
+    var status:Int = 0
     init(_ i:Int) {
         self.status = i
     }
@@ -31,7 +15,7 @@ class QuestionStatus: ObservableObject {
     }
 }
 
-class ContentSectionData {
+class ContentSectionData: Codable {
     var type:String
     var data:[String]
     var row:Int
@@ -42,8 +26,8 @@ class ContentSectionData {
     }
 }
 
-class ContentSection: Identifiable {
-    let id = UUID()
+class ContentSection: Codable, Identifiable {
+    var id = UUID()
     var parent:ContentSection?
     var name: String
     var type:String
@@ -52,7 +36,7 @@ class ContentSection: Identifiable {
     var isActive:Bool
     var level:Int
     var index:Int
-    var answer11:Answer?
+    var answer111:Answer?
     var questionStatus = QuestionStatus(0)
     
     init(parent:ContentSection?, name:String, type:String, data:ContentSectionData? = nil, isActive:Bool = true) {
@@ -78,8 +62,57 @@ class ContentSection: Identifiable {
         self.index = 0
     }
     
+    func storeAnswer(answer: Answer) {
+        print("===========>Store Anser", self.name, "Correct?", self.answer111?.correct)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        do {
+            let jsonData = try encoder.encode(answer)
+            let jsonString = String(data: jsonData, encoding: .utf8)
+            //let fileManager =
+            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            if let documentsURL = documentsURL {
+                let fileName = self.getPath() + ".txt"
+                let fileURL = documentsURL.appendingPathComponent(fileName)
+                let content = jsonString // "This is an example."
+                if let content = content {
+                    let data = content.data(using: .utf8)
+                    try data?.write(to: fileURL, options: .atomic)
+                }
+                
+            } else {
+                Logger.logger.reportError(self, "Failed answer save, no document URL")
+            }
+        } catch {
+            Logger.logger.reportError(self, "Failed answer save \(error)")
+        }
+    }
+    
+    func loadAnswer() {
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
+        let decoder = JSONDecoder()
+        if let documentsURL = documentsURL {
+            let fileName = self.getPath() + ".txt"
+            let fileURL = documentsURL.appendingPathComponent(fileName)
+            do {
+                let data = try Data(contentsOf: fileURL)
+                let answer = try decoder.decode(Answer.self, from: data)
+                self.answer111 = answer
+                print("===========>LOAD Anser", self.name, "Correct?", self.answer111?.correct)
+
+            }
+            catch {
+                //print("Failed to read answer JSON: \(error)")
+            }
+        }
+        else {
+            Logger.logger.reportError(self, "Failed answer read, no document URL")
+            print("Failed to read answer")
+        }
+    }
+    
     func isExamTypeContentSection() -> Bool {
-        //return false
         if type == "Exam" {
             return true
         }
@@ -264,7 +297,7 @@ class ContentSection: Identifiable {
     
     func hasNoAnswers() -> Bool {
         for section in self.subSections {
-            if section.answer11 != nil {
+            if section.answer111 != nil {
                 return false
             }
         }
