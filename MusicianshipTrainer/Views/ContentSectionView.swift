@@ -157,7 +157,8 @@ struct ContentSectionHeaderView: View {
 
     func getParagraphCount(html:String) -> Int {
         let p = html.components(separatedBy: "<p>").count
-        return p - 1
+        //return p - 1
+        return p
     }
     
     var body: some View {

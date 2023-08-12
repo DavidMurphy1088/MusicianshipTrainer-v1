@@ -28,6 +28,7 @@ struct TestView: View {
             
             HStack {
                 Button(action: {
+                    Cache.shared.clearCache()
                     ExampleData.shared1.loadData()
                 }) {
                     Text("Refresh Content").padding()
@@ -41,7 +42,7 @@ struct TestView: View {
                 Button(action: {
                     //let fileId = "1U6KbcXardwnRzW7nuLbD2XCWXTqo5Vad"
                     let fileId = "1Eg9zeF7fsPFNxXwMQQWKCQjOa3cZCgRb" //NZMEB.Grade 1.Intervals Visual.Instructions
-                    let request = DataRequest(callType: .file, id: fileId, targetExampleKey: nil)
+                    let request = DataRequest(callType: .file, id: fileId, context: "TestView.byId", targetExampleKey: nil)
                     
                     googleAPI.getDataByID(request: request) {status, data in
                         print(status)

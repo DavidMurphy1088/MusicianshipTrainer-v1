@@ -62,3 +62,19 @@ Which service should I use to store all this user information.
 =============
 My ios app needs to access audio and video files from html running inside a WKWebView inside the app. Which service should I use to store these audio video files
 Which specific services within Google Cloud Storage should I use to be able to provide URLs to HTML links running inside WKWebView. These linkes use <video> abd <audio> tags
+
+===========
+Librosa
+brian.mcfee@nyu.edu
+===========
+using librosa input a short 10 second .wav file of a student playing a simple melody on a piano.
+
+Detect the location of each note onset. Tweak the algorithm to ensure that adjoining note onsets area always at least 0.25 second apart.
+for each each onset print the time in seconds of the onset and the the length of time in seconds since the last note onset
+
+For each note onset calculate the frequency spectogragh of the note onset.
+
+Calulate the frequency spectogragh as it would be heard by a human.
+Then calculate 2 most dominant frequencies at each note onset.
+Print the results showing the number of each note onset, the time difference in seconds since the last note onset and the 2 most dominant frequencies in hertz at each note onset
+

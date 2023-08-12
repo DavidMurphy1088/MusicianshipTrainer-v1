@@ -17,4 +17,8 @@ class Cache {
         //return UserDefaults.standard.data(forKey: key)
         return cache[key]
     }
+    
+    func clearCache() {
+        cache = [:]
+    }
 }

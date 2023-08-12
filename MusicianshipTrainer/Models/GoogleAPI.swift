@@ -20,16 +20,19 @@ class DataRequest {
     var targetExampleKey: String?
     var url:String?
     var accessToken:String?
+    var context:String
     
-    init(callType:OAuthCallType, id:String, targetExampleKey:String?) {
+    init(callType:OAuthCallType, id:String, context:String, targetExampleKey:String?) {
         self.callType = callType
         self.id = id
         self.targetExampleKey = targetExampleKey
+        self.context = context
     }
 }
 
 class DataCache {
     private var dataCache:[String:Data?] = [:]
+    private let enabled = false
     
     enum CachedType {
         case fromMemory
@@ -37,16 +40,21 @@ class DataCache {
     }
     
     func getData(key: String) -> (CachedType, Data?) {
-        if let data = self.dataCache[key] {
-            return (.fromMemory, data)
+        if !enabled {
+            return (.fromDefaults, nil)
         }
         else {
-            let data = UserDefaults.standard.data(forKey: key)
-            if let data = data {
-                return (.fromDefaults, data)
+            if let data = self.dataCache[key] {
+                return (.fromMemory, data)
             }
             else {
-                return (.fromDefaults, nil)
+                let data = UserDefaults.standard.data(forKey: key)
+                if let data = data {
+                    return (.fromDefaults, data)
+                }
+                else {
+                    return (.fromDefaults, nil)
+                }
             }
         }
     }
@@ -86,7 +94,7 @@ class GoogleAPI {
         //let examplesSheetKey:String? = getAPIBundleData(key: "ContentSheetID_TEST")
         
         if let examplesSheetKey = examplesSheetKey {
-            let request = DataRequest(callType: .file, id: examplesSheetKey, targetExampleKey: nil)
+            let request = DataRequest(callType: .file, id: examplesSheetKey, context: "getExampleSheet", targetExampleKey: nil)
             var url:String
             url = "https://sheets.googleapis.com/v4/spreadsheets/"
             url +=  request.id
@@ -192,7 +200,7 @@ class GoogleAPI {
             return
         }
         
-        let request = DataRequest(callType: .filesInFolder, id: folderId, targetExampleKey: nil)
+        let request = DataRequest(callType: .filesInFolder, id: folderId, context: "getDocumentByName.filesInFolder:\(name)", targetExampleKey: nil)
         
         getDataByID(request: request) { status, data in
             let fileId = self.getFileIDFromName(name:name, data: data) //{status, data  in
@@ -202,7 +210,7 @@ class GoogleAPI {
                 return
             }
             //https://docs.google.com/document/d/1WMW0twPTy0GpKXhlpiFjo-LO2YkDNnmPyp2UYrvXItU/edit?usp=sharing
-            let request = DataRequest(callType: .googleDoc, id: fileId, targetExampleKey: nil)
+            let request = DataRequest(callType: .googleDoc, id: fileId, context: "getDocumentByName.readDocument:\(name)", targetExampleKey: nil)
             self.getDataByID(request: request) { status, data in
                 if let data = data {
                     struct Document: Codable {
@@ -256,7 +264,7 @@ class GoogleAPI {
             }
         }
     }
-        
+            
     func getFileIDFromName(name:String, data:Data?) -> String? {
         guard let data = data else {
             self.logger.reportError(self, "No data for file list")
@@ -265,6 +273,7 @@ class GoogleAPI {
         struct GoogleFile : Codable {
             let name: String
             let id: String
+            let parents: [String]?
         }
         struct FileSearch : Codable {
             let kind:String
@@ -272,6 +281,9 @@ class GoogleAPI {
         }
         do {
             let filesData = try JSONDecoder().decode(FileSearch.self, from: data)
+            for f in filesData.files {
+                print(f.name, f.parents, filesData.kind)
+            }
             for f in filesData.files {
                 if f.name == name {
                     return f.id
@@ -289,12 +301,15 @@ class GoogleAPI {
         return nil
     }
 
+    func getDataByID(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
+        getAccessToken()
+    }
+    
     ///Get a Google Drive resource (file, list of files etc) by its id
     ///First get an OAuth token by issuing a signed request for the required scopes (read). The request is packaged a JWT and signed by the private key of the service account.
     ///Then use that OAuth token to authenticate the call to the Google API
 
-    func getDataByID(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
-
+    func getDataByID1(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         struct GoogleClaims: Claims {
             let iss: String
             let scope: String
