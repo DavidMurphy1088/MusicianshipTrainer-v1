@@ -7,30 +7,44 @@ struct ConfigurationView: View {
     @State var colorScore:Color
     @State var colorBackground:Color
     @State var colorInstructions:Color// = Color.white
+    @State private var selectedOption: Int? = nil
+    let options = ["5-10", "11Plus"]
 
     var body: some View {
         //GeometryReader { geo in //CAUSES ALL CHILDS LEft ALIGNED???
             VStack(alignment: .center) {
                 
-//                HStack(alignment: .center) {
-//                    Image("nzmeb_logo_transparent")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 64)
-                    Text("Your Preferences").font(.title).padding()
+                Text("Your Configuration").font(.title).padding()
+
+//                VStack {
+//                    Text("Select Your Instrument")
+//                    ConfigSelectInstrument()
 //                }
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-//                )
-//                .background(UIGlobals.backgroundColorHiliteBox)
-//                //.padding()
+//                .frame(width: 100, height: 100)
+                
+                // =================== Age Mode ===================
+                
                 
                 VStack {
-                    Text("Select Your Instrument")
-                    ConfigSelectInstrument()
+                    Text("Licensed Age Group").padding()
+                    HStack(spacing: 20) {
+                        ForEach(0..<options.count, id: \.self) { index in
+                            Button(action: {
+                                self.selectedOption = index
+                            }) {
+                                Text(options[index])
+                                    .padding()
+                                    .font(.title)
+                                    .background(self.selectedOption == index ? Color.blue : Color.clear)
+                                    .foregroundColor(self.selectedOption == index ? .white : .blue)
+                                    .cornerRadius(8)
+                            
+                            }
+                        }
+                    }
                 }
-                .frame(width: 100, height: 100)
-                
+                border(Color.black, width: 1)
+
                 // =================== Colors ===================
                 
                 HStack {

@@ -121,9 +121,12 @@ struct ContentSectionHeaderView: View {
         if let instructionContent = instructionContent {
             if instructionContent.contentSectionData.data.count > 0 {
                 let filename = instructionContent.contentSectionData.data[0]
-                googleAPI.getDocumentByName(name: filename) {status,document in
+                googleAPI.getDocumentByName(contentSection: self.contentSection, name: filename) {status,document in
                     if status == .success {
                         self.instructions = document
+                    }
+                    else {
+                        self.instructions = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
                     }
                 }
             }
@@ -132,10 +135,10 @@ struct ContentSectionHeaderView: View {
     
     func getTipsAndTricks()  {
         let tipsAndTricksContent = contentSection.getChildSectionByType(type: "T&T")
-        if let tipsAndTricksContent = tipsAndTricksContent {
+        if let tipsAndTricksContent = tipsAndTricksContent { 
             if tipsAndTricksContent.contentSectionData.data.count > 0 {
                 let filename = tipsAndTricksContent.contentSectionData.data[0]
-                googleAPI.getDocumentByName(name: filename) {status,document in
+                googleAPI.getDocumentByName(contentSection: self.contentSection, name: filename) {status,document in
                     if status == .success {
                         self.tipsAndTricksExists = true
                         self.tipsAndTricksData = document
@@ -187,11 +190,11 @@ struct ContentSectionHeaderView: View {
                     }
                 }
             }
-            .overlay(
-                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-            )
-            .background(UIGlobals.colorScore)
-            .padding(.horizontal)
+//            .overlay(
+//                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+//            )
+//            .background(UIGlobals.colorScore)
+//            .padding(.horizontal)
                
             if tipsAndTricksExists {
                 Button(action: {
@@ -460,7 +463,7 @@ struct ContentSectionView: View {
         VStack {
             let childSections = contentSection.getNavigableChildSections()
             if childSections.count > 0 {
-                //Text("==========---------\(contentSection.name) STATUS:\(contentSection.questionStatus.status) \(contentSection.hasNoAnswers() ? "NONE" : "HAS")")
+//                Text("==========---------\(contentSection.name) STATUS:\(contentSection.questionStatus.status) \(contentSection.hasNoAnswers() ? "NONE" : "HAS")")
                 if contentSection.isExamTypeContentSection() {
                     //No ContentSectionHeaderView in any exam mode content section except the exam start
                     if contentSection.hasExamModeChildren() {

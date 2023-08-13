@@ -3,6 +3,7 @@ import Foundation
 class ExampleData : ObservableObject {
     static var shared1 = ExampleData()
     var logger = Logger.logger
+    //private var loadedDataDictionary:[String: ContentSectionData ] = [:]
     private let googleAPI = GoogleAPI.shared
     
     @Published var dataStatus:RequestStatus = .waiting
@@ -47,8 +48,8 @@ class ExampleData : ObservableObject {
     
     func loadSheetData(sheetRows:[[String]]) {
         var rowNum = 0
-        let keyStart = 3
-        let keyLength = 3
+        let keyStart = 2
+        let keyLength = 4
         let typeIndex = 7
         let dataStart = typeIndex + 2
         var contentSectionCount = 0
@@ -57,6 +58,7 @@ class ExampleData : ObservableObject {
         var levelContents:[ContentSection?] = Array(repeating: nil, count: keyLength)
         
         for rowCells in sheetRows {
+
             rowNum += 1
             if rowCells.count > 0 {
                 if rowCells[0].hasPrefix("//")  {
@@ -76,10 +78,13 @@ class ExampleData : ObservableObject {
                 }
             }
             
-            if rowNum == 42 {
-                print("")
+            if rowCells.count > 3 {
+                let grade = rowCells[3]
+                if grade != "" {
+                    print("====", grade)
+                }
             }
-
+                
             for cellIndex in keyStart..<keyStart + keyLength {
                 var keyData:String? = nil
                 if cellIndex < rowCells.count {

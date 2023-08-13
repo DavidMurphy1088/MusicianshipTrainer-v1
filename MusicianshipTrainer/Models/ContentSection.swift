@@ -137,6 +137,22 @@ class ContentSection: Codable, Identifiable {
         return nil
     }
 
+    ///Recursivly search all children with a true test supplied by the caller
+    func deepSearch(testCondition:(_ section:ContentSection)->Bool) -> Bool {
+        if testCondition(self) {
+            return true
+        }
+        for section in self.subSections {
+            if testCondition(section) {
+                return true
+            }
+            if section.deepSearch(testCondition: testCondition) {
+                return true
+            }
+        }
+        return false
+    }
+    
     func parentWithInstructions() -> ContentSection? {
         var section = self
         while section != nil {
@@ -192,29 +208,44 @@ class ContentSection: Codable, Identifiable {
     }
     
     func getNavigableChildSections() -> [ContentSection] {
-        var sections:[ContentSection] = []
+        var navSections:[ContentSection] = []
         for section in self.subSections {
-            if section.subSections.count > 0 {
-                var sectionHasQuestions = false
-                for s in section.subSections {
-                    if s.isQuestionType() {
-                        sectionHasQuestions = true
-                        break
-                    }
-                }
-                if sectionHasQuestions {
-                    sections.append(section)
-                }
-            }
-            else {
-                if section.isQuestionType() {
-                    sections.append(section)
-                }
+            if section.deepSearch(testCondition: {
+                section in
+                return section.isQuestionType()}
+            )
+            {
+                navSections.append(section)
             }
         }
-
-        return sections
+        return navSections
     }
+    
+//    func getNavigableChildSectionsOld() -> [ContentSection] {
+//        var sections:[ContentSection] = []
+//        for section in self.subSections {
+//            if section.subSections.count > 0 {
+//                section.getChildOfType(<#T##type: String##String#>)
+//                var sectionHasQuestions = false
+//                for s in section.subSections {
+//                    if s.isQuestionType() {
+//                        sectionHasQuestions = true
+//                        break
+//                    }
+//                }
+//                if sectionHasQuestions {
+//                    sections.append(section)
+//                }
+//            }
+//            else {
+//                if section.isQuestionType() {
+//                    sections.append(section)
+//                }
+//            }
+//        }
+//
+//        return sections
+//    }
     
     func getTitle() -> String {
         if let path = Bundle.main.path(forResource: "NameToTitleMap", ofType: "plist"),
@@ -251,7 +282,7 @@ class ContentSection: Codable, Identifiable {
                 section = parent
                 if parent.parent != nil {
                     path = "." + path
-                }                
+                }
             }
             else {
                 break
@@ -260,6 +291,24 @@ class ContentSection: Codable, Identifiable {
         return path
     }
     
+    func getPathAsArray() -> [String] {
+        var path:[String] = []
+        var section = self
+        while true {
+            path.append(section.name)
+            if let parent = section.parent {
+                section = parent
+//                if parent.parent != nil {
+//                    path = "." + path
+//                }
+            }
+            else {
+                break
+            }
+        }
+        return path
+    }
+
     func getPathTitle() -> String {
         var title = ""
         var section = self
