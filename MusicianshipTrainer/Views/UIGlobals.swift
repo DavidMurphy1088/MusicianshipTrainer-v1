@@ -1,6 +1,11 @@
 import SwiftUI
 import CoreData
 
+//enum Animal: Int {
+enum AgeGroup: Int {
+    case Group_5To10 = 0
+    case Group_11Plus = 1
+}
 class UIGlobals {
     static var colorDefault = Color.blue.opacity(0.10)
     static var colorBackgroundDefault = Color.white
@@ -18,6 +23,8 @@ class UIGlobals {
     static let borderLineWidth:CGFloat = 2
     static let buttonCornerRadius = 10.0
     static let practiceTipsColor = Color.blue.opacity(0.08) //UIColor(red: 200/255, green: 255/255, blue: 200/255, alpha: 1) //paleGreen
+    
+    static var ageGroup:AgeGroup = .Group_11Plus
 }
 
 struct StandardButtonStyle: ButtonStyle {

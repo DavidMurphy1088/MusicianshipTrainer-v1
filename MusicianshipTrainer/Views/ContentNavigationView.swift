@@ -68,7 +68,8 @@ struct ContentNavigationView: View {
                         ConfigurationView(isPresented: $isShowingConfiguration,
                                           colorScore: UIGlobals.colorScore,
                                           colorBackground: UIGlobals.colorBackground,
-                                          colorInstructions: UIGlobals.colorInstructions)
+                                          colorInstructions: UIGlobals.colorInstructions,
+                                          ageGroup: UIGlobals.ageGroup)
                     }
                 }
                 //.navigationTitle(topic.name) ?? ignored??
@@ -104,7 +105,8 @@ struct ContentNavigationView: View {
                     ConfigurationView(isPresented: $isShowingConfiguration,
                                       colorScore: UIGlobals.colorScore,
                                       colorBackground: UIGlobals.colorBackground,
-                                      colorInstructions: UIGlobals.colorInstructions
+                                      colorInstructions: UIGlobals.colorInstructions,
+                                      ageGroup: UIGlobals.ageGroup
                                     )
                 }
                 //.navigationTitle(topic.name)

@@ -185,7 +185,11 @@ class GoogleAPI {
     }
     
     func getDocumentByName(contentSection:ContentSection, name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
-        let cacheKey = contentSection.getPath() + "." + name
+        var ageGroupPath:[String] = contentSection.getPathAsArray()
+        let ageGroup = UIGlobals.ageGroup == .Group_11Plus ? "11Plus" : "5-10" //TODO ???
+        ageGroupPath.insert(ageGroup, at: 0)
+        
+        let cacheKey = contentSection.getPath() + ".\(ageGroup)." + name
         let (cachedType, data) = dataCache.getData(key: cacheKey)
         if let data = data {
             if let document = String(data: data, encoding: .utf8) {
@@ -207,10 +211,10 @@ class GoogleAPI {
         for path in reversed {
             paths.append(path.trimmingCharacters(in: .whitespacesAndNewlines))
         }
-        paths.append("11Plus") //TODO ???
-        print(paths)
+        paths.append(ageGroup)
         var pathIndex = 1
-        
+        print(UIGlobals.ageGroup, ageGroupPath, paths)
+
         var folderId = rootFolderId
         DispatchQueue.global(qos: .background).async {
             while pathIndex < paths.count + 1 {

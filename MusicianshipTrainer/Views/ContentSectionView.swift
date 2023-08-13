@@ -159,15 +159,17 @@ struct ContentSectionHeaderView: View {
     }
 
     func getParagraphCount(html:String) -> Int {
-        let p = html.components(separatedBy: "<p>").count
-        //return p - 1
+        var p = html.components(separatedBy: "<p>").count
+        if p > 4 {
+            p = 4
+        }
         return p
     }
     
     var body: some View {
         VStack {
-            Text("\(contentSection.getTitle())").font(.title)
-                .fontWeight(.bold)
+//            Text("\(contentSection.getTitle())").font(.title)
+//                .fontWeight(.bold)
             
             VStack {
                 if let audioInstructionsFileName = audioInstructionsFileName {
@@ -230,7 +232,8 @@ struct SectionsNavigationView:View {
     let contentSections:[ContentSection]
     @State private var sectionIndex: Int?
 
-    func getGradeImageName(contentSection: ContentSection) -> String? {
+    func getGradeImage(contentSection: ContentSection) -> Image? {
+        var name = ""
         if contentSection.isExamTypeContentSection() {
             //test section group header
             if contentSection.hasNoAnswers() {
@@ -238,10 +241,10 @@ struct SectionsNavigationView:View {
             }
             else {
                 if getScore(contentSection: contentSection) == contentSection.getNavigableChildSections().count {
-                    return "grade_a"
+                    name = "checkmark_ok" //grade_a"
                 }
                 else {
-                    return "grade_b"
+                    name = "checkmark_ok" //grade_b"
                 }
             }
         }
@@ -249,16 +252,27 @@ struct SectionsNavigationView:View {
             //individual tests
             if let answer = contentSection.answer111 {
                 if answer.correct {
-                    return "grade_a"
+                    name = "grade_a"
                 }
                 else {
-                    return "grade_b"
+                    name = "grade_b"
                 }
             }
             else {
                 return nil
             }
         }
+        var image:Image
+//        if name == "checkmark.circle" {
+//            image = Image(systemName: name)
+//
+//            //image
+//            //Color(.green)
+//        }
+//        else {
+           image = Image(name)
+        //}
+        return image
     }
     
     func getScore(contentSection: ContentSection) -> Int {
@@ -299,14 +313,15 @@ struct SectionsNavigationView:View {
                         Spacer()
                         HStack {
                             Spacer()
-                            Text(self.getExamCompleteStatus(contentSection: contentSections[index])).padding().font(.title2)
+                            //Text(self.getExamCompleteStatus(contentSection: contentSections[index])).padding().font(.title2)
                             //Text("Status:[\(contentSections[index].questionStatus.status)]")
-                            if let imageName = getGradeImageName(contentSection: contentSections[index]) {
+                            if let rowImage = getGradeImage(contentSection: contentSections[index]) {
                                 Spacer()
-                                Image(imageName)
+                                rowImage
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 40.0)
+                                
                                 Text("    ")
                             }
                         }

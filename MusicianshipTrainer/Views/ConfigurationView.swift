@@ -8,7 +8,9 @@ struct ConfigurationView: View {
     @State var colorBackground:Color
     @State var colorInstructions:Color// = Color.white
     @State private var selectedOption: Int? = nil
-    let options = ["5-10", "11Plus"]
+    @State var ageGroup:AgeGroup
+    @State var selectedAge:Int = 0
+    let ages = ["5-10", "11Plus"]
 
     var body: some View {
         //GeometryReader { geo in //CAUSES ALL CHILDS LEft ALIGNED???
@@ -24,27 +26,24 @@ struct ConfigurationView: View {
                 
                 // =================== Age Mode ===================
                 
-                
                 VStack {
-                    Text("Licensed Age Group").padding()
-                    HStack(spacing: 20) {
-                        ForEach(0..<options.count, id: \.self) { index in
-                            Button(action: {
-                                self.selectedOption = index
-                            }) {
-                                Text(options[index])
-                                    .padding()
-                                    .font(.title)
-                                    .background(self.selectedOption == index ? Color.blue : Color.clear)
-                                    .foregroundColor(self.selectedOption == index ? .white : .blue)
-                                    .cornerRadius(8)
-                            
-                            }
-                        }
-                    }
+                    Text("Select Your Age Group").font(.title)
+                    ConfigSelectAgeMode(selectedIndex: $selectedAge, items: ages)
                 }
-                border(Color.black, width: 1)
-
+                //.frame(width: 300, height: 100)
+                //.padding()
+                .border(Color.black, width: 1)
+                .padding()
+                .onAppear {
+                    if ageGroup == .Group_5To10 {
+                        selectedAge = 0
+                    }
+                    else {
+                        selectedAge = 1
+                    }
+                    print("OnAppear", selectedAge)
+                }
+                
                 // =================== Colors ===================
                 
                 HStack {
@@ -97,7 +96,10 @@ struct ConfigurationView: View {
                         UIGlobals.colorScore = colorScore
                         UIGlobals.colorInstructions = colorInstructions
                         UIGlobals.colorBackground = colorBackground
-                        Settings.shared.saveColours()
+                        
+                        UIGlobals.ageGroup = selectedAge == 0 ? .Group_5To10 : .Group_11Plus
+                        print("Save Config", selectedAge, UIGlobals.ageGroup)
+                        Settings.shared.saveConfig()
                         isPresented = false
                     }
                     .padding()
@@ -117,24 +119,36 @@ struct ConfigurationView: View {
             }
         //}
     }
-}
-
-struct ConfigSelectInstrument: View {
-    let options = ["Piano", "Vocal", "Violin", "Guitar"]
-    @State private var selectedOption: String?
     
+}
+//
+//struct ConfigSelectInstrument: View {
+//    @Binding var selectedIndex: Int
+//    let items: [String]
+//
+//    var body: some View {
+//        Picker("Select your Age", selection: $selectedIndex) {
+//            ForEach(0..<items.count) { index in
+//                Text(items[index]).tag(index)
+//            }
+//        }
+//        .pickerStyle(DefaultPickerStyle())
+//    }
+//
+//}
+
+struct ConfigSelectAgeMode: View {
+    @Binding var selectedIndex: Int
+    let items: [String]
+
     var body: some View {
-        VStack {
-            VStack {
-                Picker("Select an option", selection: $selectedOption) {
-                    ForEach(options, id: \.self) { option in
-                        Text(option)
-                    }
-                }
-                .pickerStyle(.wheel)
-                
+        Picker("Select your Age", selection: $selectedIndex) {
+            ForEach(0..<items.count) { index in
+                Text(items[index]).tag(index).font(.title)
             }
         }
+        //.pickerStyle(DefaultPickerStyle())
+        .pickerStyle(InlinePickerStyle())
     }
 }
 

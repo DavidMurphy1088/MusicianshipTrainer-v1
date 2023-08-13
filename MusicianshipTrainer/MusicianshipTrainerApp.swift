@@ -13,7 +13,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
         Logger.logger.log(self, "Version.Build \(appVersion).\(buildNumber)")
         let settings:Settings = Settings.shared
-        print(settings.id)
+        
+        //Make navigation titles at top larger font
+        let appearance = UINavigationBarAppearance()
+        appearance.titleTextAttributes = [.font : UIFont.systemFont(ofSize: 24, weight: .bold)]
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        UINavigationBar.appearance().standardAppearance = appearance
+        
         return true
     }
     
@@ -75,12 +81,12 @@ struct MusicianshipTrainerApp: App {
     
     func getStartContentSection() -> ContentSection {
         var cs:ContentSection
-        if MusicianshipTrainerApp.productionMode {
+        //if MusicianshipTrainerApp.productionMode {
             cs = MusicianshipTrainerApp.root//.subSections[1].subSections[0] //NZMEB, Grade 1
-        }
-        else {
-            cs = MusicianshipTrainerApp.root.subSections[1].subSections[0].subSections[0] //NZMEB, Grade 1, practice
-        }
+        //}
+        //else {
+            //cs = MusicianshipTrainerApp.root.subSections[1].subSections[0].subSections[0] //NZMEB, Grade 1, practice
+        //}
         return cs
     }
     
@@ -89,11 +95,11 @@ struct MusicianshipTrainerApp: App {
             VStack {
                 if launchScreenState.state == .finished {
                     if exampleData.dataStatus == RequestStatus.success {
-                        //if !MusicianshipTrainerApp.productionMode {
+                        if !MusicianshipTrainerApp.productionMode {
                             if UIDevice.current.userInterfaceIdiom == .pad {
                                 TestView().padding(.horizontal)
                             }
-                        //}
+                        }
 
                         ContentNavigationView(contentSection: getStartContentSection())
                             .tabItem {Label("Exercises", image: "music.note")}
