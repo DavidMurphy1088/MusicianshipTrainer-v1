@@ -223,8 +223,7 @@ class Score : ObservableObject {
         DispatchQueue.main.async {
             self.key = key
             self.updateStaffs()
-        }
-        
+        }        
     }
     
     func addTimeSlice() -> TimeSlice {

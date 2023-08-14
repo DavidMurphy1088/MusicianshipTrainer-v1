@@ -63,7 +63,6 @@ class ContentSection: Codable, Identifiable {
     }
     
     func storeAnswer(answer: Answer) {
-        print("===========>Store Anser", self.name, "Correct?", self.answer111?.correct)
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         do {
@@ -99,8 +98,6 @@ class ContentSection: Codable, Identifiable {
                 let data = try Data(contentsOf: fileURL)
                 let answer = try decoder.decode(Answer.self, from: data)
                 self.answer111 = answer
-                print("===========>LOAD Anser", self.name, "Correct?", self.answer111?.correct)
-
             }
             catch {
                 //print("Failed to read answer JSON: \(error)")

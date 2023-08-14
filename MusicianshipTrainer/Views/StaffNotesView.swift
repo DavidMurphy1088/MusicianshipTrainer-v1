@@ -37,17 +37,16 @@ struct StemView: View {
     @State var score: Score
     @State var staff: Staff
     @State var notePositionLayout: NoteLayoutPositions
-    @State var note: Note
+    @State var notes: [Note]
     @State var offsetFromStaffMiddle: Int
     @ObservedObject var lineSpacing:StaffLayoutSize
-    //@State var noteWidth:Double
     
     func stemDirection(note:Note) -> Double {
         if note.isOnlyRhythmNote {
             return -1.0
         }
         else {
-            return note.midiNumber < 71 ? -1.0 : 1.0
+            return note.midiNumber < 70 ? -1.0 : 1.0 //1 => stem down. below or at B flat
         }
     }
     func getStemLength() -> Double {
@@ -63,8 +62,8 @@ struct StemView: View {
     var body: some View {
         GeometryReader { geo in
             VStack {
-                let startNote = note.getBeamStartNote(score: score, np: notePositionLayout)
-                let inErrorAjdust = note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
+                let startNote = notes[0].getBeamStartNote(score: score, np: notePositionLayout)
+                let inErrorAjdust = notes[0].noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
                 if startNote.getValue() != Note.VALUE_WHOLE {
                     //Note this code eventually has to go adjust the stem length for notes under a quaver beam
                     //3.5 lines is a full length stem
@@ -77,7 +76,7 @@ struct StemView: View {
                         path.move(to: CGPoint(x: midX, y: midY - offsetY))
                         path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
                     }
-                    .stroke(note.getColor(staff: staff), lineWidth: 1)
+                    .stroke(notes[0].getColor(staff: staff), lineWidth: 1)
                 }
             }
         }
@@ -245,7 +244,8 @@ struct StaffNotesView: View {
                                     //render the note in both staffs to ensure all entries (stems, bar lines etc ) in both staffs line up vertically
                                     GeometryReader { geo in
                                         ZStack {
-                                            NoteView(staff: staff, note: note,
+                                            NoteView(staff: staff,
+                                                     note: note,
                                                      noteWidth: noteWidth, lineSpacing: staffLayoutSize.lineSpacing,
                                                      offsetFromStaffMiddle: noteOffsetFromMiddle(staff: staff, note: note))
                                             .background(GeometryReader { geometry in
@@ -261,15 +261,15 @@ struct StaffNotesView: View {
                                                         }
                                                     }
                                             })
-
-                                            StemView(score:score, staff:staff,
-                                                     notePositionLayout: noteLayoutPositions,
-                                                     note: note,
-                                                     offsetFromStaffMiddle: noteOffsetFromMiddle(staff: staff, note: note).offsetFromStaffMidline,
-                                                     lineSpacing: staffLayoutSize)
                                         }
                                     }
                                 }
+                                StemView(score:score, staff:staff,
+                                         notePositionLayout: noteLayoutPositions,
+                                         notes: getNotes(entry: entry),
+                                         offsetFromStaffMiddle: 0, //noteOffsetFromMiddle(staff: staff, note: note).offsetFromStaffMidline,
+                                         lineSpacing: staffLayoutSize)
+
                                 TimeSliceLabelView(score:score, staff:staff, timeSlice: entry as! TimeSlice)
                                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
                             }

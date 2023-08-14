@@ -41,7 +41,6 @@ class NoteStaffPlacement {
     var midi:Int
     var offsetFromStaffMidline:Int
     var accidental: Int?
-    //var ledgerLines:[Int] = []
     
     init(midi:Int, offsetFroMidLine:Int, accidental:Int?=nil) {
         self.midi = midi

@@ -29,7 +29,6 @@ class ExampleData : ObservableObject {
                         self.loadSheetData(sheetRows: sheetRows)
                         MusicianshipTrainerApp.root.debug()
                         self.setDataReady(way: status)
-                        //self.logger.log(self, "loaded \(self.loadedDataDictionary.count) example rows")
                     }
                     catch {
                         self.logger.log(self, "Cannot parse JSON content")
@@ -60,6 +59,9 @@ class ExampleData : ObservableObject {
         for rowCells in sheetRows {
 
             rowNum += 1
+            if rowNum == 123 {
+                print("+++")
+            }
             if rowCells.count > 0 {
                 if rowCells[0].hasPrefix("//")  {
                     continue
@@ -80,9 +82,9 @@ class ExampleData : ObservableObject {
             
             if rowCells.count > 3 {
                 let grade = rowCells[3]
-                if grade != "" {
-                    print("====", grade)
-                }
+//                if grade != "" {
+//                    print("====", grade)
+//                }
             }
                 
             for cellIndex in keyStart..<keyStart + keyLength {
@@ -118,9 +120,11 @@ class ExampleData : ObservableObject {
 
                         let contentSection = ContentSection(
                             parent: parent,
-                            name: keyData,
-                            type: contentType,
-                            data: ContentSectionData(row: rowNum, type: contentType, data: contentData))
+                            name: keyData.trimmingCharacters(in: .whitespacesAndNewlines),
+                            type: contentType.trimmingCharacters(in: .whitespacesAndNewlines),
+                            data: ContentSectionData(row: rowNum,
+                                                     type: contentType.trimmingCharacters(in: .whitespacesAndNewlines),
+                                                     data: contentData))
                         contentSectionCount += 1
                         levelContents[keyLevel] = contentSection
                         parent?.subSections.append(contentSection)

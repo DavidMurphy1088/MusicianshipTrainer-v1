@@ -120,7 +120,8 @@ struct ClapOrPlayPresentView: View {
             for entry in entries {
                 if entry is KeySignature {
                     let keySignature = entry as! KeySignature
-                    score.setKey(key: Key(type: .major, keySig: keySignature))
+                    score.key = Key(type: .major, keySig: keySignature)
+                    //score.setKey(key: )
                 }
                 if entry is TimeSignature {
                     let ts = entry as! TimeSignature
@@ -210,7 +211,7 @@ struct ClapOrPlayPresentView: View {
                                                    //recordedTempo: 0,
                                                    metronomeTempoAtStartRecording: tapRecorder.metronomeTempoAtRecordingStart ?? 0,
                                                    scoreToCompare: tappingScore, allowTempoVariation: questionType != .rhythmEchoClap)
-        print("============Rhythm Correct Errors:", errorsExist, "Tempo", self.questionTempo, "tap Metro tempo", tapRecorder.metronomeTempoAtRecordingStart ?? 0)
+        //print("============Rhythm Correct Errors:", errorsExist, "Tempo", self.questionTempo, "tap Metro tempo", tapRecorder.metronomeTempoAtRecordingStart ?? 0)
         return !errorsExist
     }
          
@@ -444,7 +445,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                                                        metronomeTempoAtStartRecording: tapRecorder.metronomeTempoAtRecordingStart ?? 0,
                                                        scoreToCompare: tappingScore, allowTempoVariation: questionType != .rhythmEchoClap)
             //self.answerWasCorrect1 = !errorsExist
-            print("============analyseStudentRhythm errors:", errorsExist, "Tempo", self.questionTempo, "tap Metro tempo", tapRecorder.metronomeTempoAtRecordingStart ?? 0)
+            //print("============analyseStudentRhythm errors:", errorsExist, "Tempo", self.questionTempo, "tap Metro tempo", tapRecorder.metronomeTempoAtRecordingStart ?? 0)
             if errorsExist {
                 //self.metronome.setTempo(tempo: self.questionTempo, context: "Analyse Student - failed")
                 self.answerMetronome.setAllowTempoChange(allow: false)

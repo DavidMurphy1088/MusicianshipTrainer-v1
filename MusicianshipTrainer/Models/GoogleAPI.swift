@@ -184,6 +184,115 @@ class GoogleAPI {
         task.resume()
     }
     
+    // ======================= OAuth Calls ======================
+    
+    ///A request for an OAuth2.0 access token is first required. The access token is sent along with all subsequent API calls
+    ///The access token has an expiry - what is it??
+    
+    ///OAuth calls require that first an access key is granted. OAuth calls do not use the API key.
+    ///OAuth authorization is managed by creating a Service Account in the Google Workspace and then generating a key for it
+    ///The generated key is used to make the signed (by JWT) access token request
+
+    func getAccessToken(onDone: @escaping (_ accessToken:String?) -> Void) {
+        if self.accessToken != nil {
+            onDone(accessToken)
+            return
+        }
+        struct GoogleClaims: Claims {
+            let iss: String
+            let scope: String
+            let aud: String
+            let exp: Date
+            let iat: Date
+        }
+        
+        guard let projectEmail = self.getAPIBundleData(key: "projectEmail") else {
+            self.logger.reportError(self, "No project email")
+            return
+        }
+
+        let myHeader = Header(typ: "JWT")
+        let myClaims = GoogleClaims(iss: projectEmail,
+                                    scope: "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/documents",
+                                    aud: "https://oauth2.googleapis.com/token",
+                                    exp: Date(timeIntervalSinceNow: 3600),
+                                    iat: Date())
+        var jwt = JWT(header: myHeader, claims: myClaims)
+        struct PrivateKey: Codable {
+            let private_key: String
+        }
+
+        var privateKey:String?
+        let bundleName = "Google_OAuth2_Keys"
+        if let url = Bundle.main.url(forResource: bundleName, withExtension: "json") {
+            do {
+                let data = try Data(contentsOf: url)
+                let decoder = JSONDecoder()
+                let decode = try decoder.decode(PrivateKey.self, from: data)
+                privateKey = decode.private_key
+            } catch {
+                self.logger.reportError(self, "Cannot find OAuth key")
+                //print("Error: \(error)")
+                return
+            }
+        }
+        guard let privateKey = privateKey  else {
+            self.logger.reportError(self, "No private key")
+            return
+        }
+        guard let privateKeyData = privateKey.data(using: .utf8) else {
+            self.logger.reportError(self, "No private key data")
+            return
+        }
+        var signedJWT = ""
+        do {
+            signedJWT = try jwt.sign(using: .rs256(privateKey: privateKeyData))
+        } catch  {
+            self.logger.reportError(self, "Cannot sign JWT \(error)")
+            return
+        }
+        
+        ///Request an OAUth2 token using the JWT signature
+        ///Exchange the JWT token for a Google OAuth2 access token:
+        ///The OAuth2 token is equired to access the API in the next step
+            
+        let headers: HTTPHeaders = ["Content-Type": "application/x-www-form-urlencoded"]
+        
+        let params: Parameters = [
+            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            "assertion": signedJWT,
+        ]
+        
+        let auth_url = "https://oauth2.googleapis.com/token"
+     
+        AF.request(auth_url,
+                   method: .post,
+                   parameters: params,
+                   encoding: URLEncoding.httpBody,
+                   headers: headers).responseJSON
+        {response in
+            
+            switch response.result {
+            case .success(let value):
+                let json = value as? [String: Any]
+                if let json = json {
+                    let accessToken = json["access_token"] as? String
+                    if let accessToken = accessToken {
+                        onDone(accessToken)
+                    }
+                    else {
+                        self.logger.reportError(self, "Cannot find access token: \(json)")
+                    }
+                }
+                else {
+                    self.logger.reportError(self, "Cannot load JSON")
+                }
+            case .failure(let error):
+                self.logger.reportError(self, "Error getting access token: \(error)")
+            }
+        }
+    }
+
     func getDocumentByName(contentSection:ContentSection, name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
         var ageGroupPath:[String] = contentSection.getPathAsArray()
         let ageGroup = UIGlobals.ageGroup == .Group_11Plus ? "11Plus" : "5-10" //TODO ???
@@ -267,7 +376,7 @@ class GoogleAPI {
                     let decoder = JSONDecoder()
                     let document = try decoder.decode(FileSearch.self, from: data)
                     for file in document.files {
-                        if file.name == name {
+                        if file.name.trimmingCharacters(in: .whitespacesAndNewlines) == name.trimmingCharacters(in: .whitespacesAndNewlines) {
                             //print("  -->getFileInFolder end OK", name, file.name)
                             onDone(.success, file)
                             return
@@ -392,112 +501,6 @@ class GoogleAPI {
         return nil
     }
 
-    ///A request for an OAuth2.0 access token is first required. The access token is sent along with all subsequent API calls
-    ///The access token has an expiry - what is it??
-    ///======================= OAuth Calls ======================
-    ///OAuth calls require that first an access key is granted. OAuth calls do not use the API key.
-    ///OAuth authorization is managed by creating a Service Account in the Google Workspace and then generating a key for it
-    ///The generated key is used to make the signed (by JWT) access token request
-
-    func getAccessToken(onDone: @escaping (_ accessToken:String?) -> Void) {
-        if self.accessToken != nil {
-            onDone(accessToken)
-            return
-        }
-        struct GoogleClaims: Claims {
-            let iss: String
-            let scope: String
-            let aud: String
-            let exp: Date
-            let iat: Date
-        }
-        
-        guard let projectEmail = self.getAPIBundleData(key: "projectEmail") else {
-            self.logger.reportError(self, "No project email")
-            return
-        }
-
-        let myHeader = Header(typ: "JWT")
-        let myClaims = GoogleClaims(iss: projectEmail,
-                                    scope: "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/documents",
-                                    aud: "https://oauth2.googleapis.com/token",
-                                    exp: Date(timeIntervalSinceNow: 3600),
-                                    iat: Date())
-        var jwt = JWT(header: myHeader, claims: myClaims)
-        struct PrivateKey: Codable {
-            let private_key: String
-        }
-
-        var privateKey:String?
-        let bundleName = "Google_OAuth2_Keys"
-        if let url = Bundle.main.url(forResource: bundleName, withExtension: "json") {
-            do {
-                let data = try Data(contentsOf: url)
-                let decoder = JSONDecoder()
-                let decode = try decoder.decode(PrivateKey.self, from: data)
-                privateKey = decode.private_key
-            } catch {
-                self.logger.reportError(self, "Cannot find OAuth key")
-                //print("Error: \(error)")
-                return
-            }
-        }
-        guard let privateKey = privateKey  else {
-            self.logger.reportError(self, "No private key")
-            return
-        }
-        guard let privateKeyData = privateKey.data(using: .utf8) else {
-            self.logger.reportError(self, "No private key data")
-            return
-        }
-        var signedJWT = ""
-        do {
-            signedJWT = try jwt.sign(using: .rs256(privateKey: privateKeyData))
-        } catch  {
-            self.logger.reportError(self, "Cannot sign JWT \(error)")
-            return
-        }
-        
-        ///Request an OAUth2 token using the JWT signature
-        ///Exchange the JWT token for a Google OAuth2 access token:
-        ///The OAuth2 token is equired to access the API in the next step
-            
-        let headers: HTTPHeaders = ["Content-Type": "application/x-www-form-urlencoded"]
-        
-        let params: Parameters = [
-            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
-            "assertion": signedJWT,
-        ]
-        
-        let auth_url = "https://oauth2.googleapis.com/token"
-     
-        AF.request(auth_url,
-                   method: .post,
-                   parameters: params,
-                   encoding: URLEncoding.httpBody,
-                   headers: headers).responseJSON
-        {response in
-            
-            switch response.result {
-            case .success(let value):
-                let json = value as? [String: Any]
-                if let json = json {
-                    let accessToken = json["access_token"] as? String
-                    if let accessToken = accessToken {
-                        onDone(accessToken)
-                    }
-                    else {
-                        self.logger.reportError(self, "Cannot find access token: \(json)")
-                    }
-                }
-                else {
-                    self.logger.reportError(self, "Cannot load JSON")
-                }
-            case .failure(let error):
-                self.logger.reportError(self, "Error getting access token: \(error)")
-            }
-        }
-    }
     
     func getDataByID(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         getAccessToken() { accessToken in
