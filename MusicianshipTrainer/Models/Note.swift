@@ -25,6 +25,19 @@ enum NoteTag {
     case hilightExpected //hilight the correct note that was expected
 }
 
+class NoteStaffPlacement {
+    var midi:Int
+    var offsetFromStaffMidline:Int
+    var accidental: Int?
+    
+    init(midi:Int, offsetFroMidLine:Int, accidental:Int?=nil) {
+        self.midi = midi
+        self.offsetFromStaffMidline = offsetFroMidLine
+        self.accidental = accidental
+        //self.name = name
+    }
+}
+
 class Note : Hashable, Comparable, ObservableObject {
     @Published var hilite = false
     @Published var noteTag:NoteTag = .noTag
@@ -231,5 +244,39 @@ class Note : Hashable, Comparable, ObservableObject {
         }
         return Color(staffNum == staff.staffNum ? .black : .clear)
     }
-
+    
+    ///The note has a default accidental determined by which key the score is in but can be overidden by content specifying a written accidental
+    ///The written accidental must overide the default accidental and the note's offset adjusted accordingly.
+    ///When a written accidental is specified this code checks the note offset positions for this staff (coming from the score's key) and decides how the note should move from its
+    ///default staff offset based on the written accidental. e.g. a note at MIDI 75 would be defaulted to show as E ♭ in C major but may be speciifed to show as D# by a written
+    ///accidentail. In that case the note must shift down 1 unit of offset.
+    ///
+    func noteOffsetFromMiddle(staff:Staff) -> NoteStaffPlacement {
+        let defaultNoteData = staff.getNoteViewPlacement(note: self)
+        var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
+        var offsetAccidental:Int? = nil
+        
+        if self.isOnlyRhythmNote {
+            offsetFromMiddle = 0
+        }
+        if let writtenAccidental = self.accidental {
+            offsetAccidental = writtenAccidental
+            if writtenAccidental != defaultNoteData.accidental {
+                let defaultNoteStaffPlacement = staff.noteStaffPlacement[self.midiNumber]
+                let targetOffsetIndex = self.midiNumber - writtenAccidental
+                let targetNoteStaffPlacement = staff.noteStaffPlacement[targetOffsetIndex]
+                let adjustOffset = defaultNoteStaffPlacement.offsetFromStaffMidline - targetNoteStaffPlacement.offsetFromStaffMidline
+                offsetFromMiddle -= adjustOffset
+//                print("===>Adjust note:", note.midiNumber, "adjOffset:", adjustOffset,
+//                      "defaultOffset:", defaultNoteData.offsetFromStaffMidline, "newOffset:", offsetFromMiddle)
+            }
+        }
+        else {
+            if let defaultAccidental = defaultNoteData.accidental {
+                offsetAccidental = defaultAccidental
+            }
+        }
+        let placement = NoteStaffPlacement(midi: defaultNoteData.midi, offsetFroMidLine: offsetFromMiddle, accidental: offsetAccidental)
+        return placement
+    }
 }

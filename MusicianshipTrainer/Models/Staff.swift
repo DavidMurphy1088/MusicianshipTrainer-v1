@@ -37,19 +37,6 @@ enum StaffType {
     case bass
 }
 
-class NoteStaffPlacement {
-    var midi:Int
-    var offsetFromStaffMidline:Int
-    var accidental: Int?
-    
-    init(midi:Int, offsetFroMidLine:Int, accidental:Int?=nil) {
-        self.midi = midi
-        self.offsetFromStaffMidline = offsetFroMidLine
-        self.accidental = accidental
-        //self.name = name
-    }
-}
-
 class StaffPlacementsByKey {
     var staffPlacement:[NoteStaffPlacement] = []
 }

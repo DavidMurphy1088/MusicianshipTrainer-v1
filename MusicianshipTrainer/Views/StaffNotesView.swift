@@ -38,7 +38,6 @@ struct StemView: View {
     @State var staff: Staff
     @State var notePositionLayout: NoteLayoutPositions
     @State var notes: [Note]
-    @State var offsetFromStaffMiddle: Int
     @ObservedObject var lineSpacing:StaffLayoutSize
     
     func stemDirection(note:Note) -> Double {
@@ -49,9 +48,11 @@ struct StemView: View {
             return note.midiNumber < 70 ? -1.0 : 1.0 //1 => stem down. below or at B flat
         }
     }
+    
     func getStemLength() -> Double {
-        //print("      StemView:: spacing", lineSpacing.value)
-        return lineSpacing.lineSpacing * 3.5
+        let len = lineSpacing.lineSpacing * 3.5
+        //print(s, "      StemView:: length:", len, lineSpacing.lineSpacing)
+        return len
     }
     
     func getNoteWidth() -> Double {
@@ -59,24 +60,63 @@ struct StemView: View {
         return lineSpacing.lineSpacing * 1.2
     }
 
+    func getFurthestFromMidline(noteArray:[Note]) -> Note {
+        var furthest:Note = Note(num: 0)
+        var maxDist = 0
+        for note in noteArray {
+            let distance = abs(note.noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline)
+            if distance > maxDist {
+                maxDist = distance
+                furthest = note
+            }
+        }
+        return furthest
+    }
+    
+    func log(note:Note) -> Bool {
+        print(self.notes.count, note.midiNumber, self.lineSpacing.lineSpacing, "offset", notes[0].noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline)
+        return true
+    }
+    
     var body: some View {
         GeometryReader { geo in
             VStack {
-                let startNote = notes[0].getBeamStartNote(score: score, np: notePositionLayout)
-                let inErrorAjdust = notes[0].noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
-                if startNote.getValue() != Note.VALUE_WHOLE {
-                    //Note this code eventually has to go adjust the stem length for notes under a quaver beam
-                    //3.5 lines is a full length stem
-                    let stemDirection = stemDirection(note: startNote)
-                    //let midX = geo.size.width / 2.0 + (stemDirection * -1.0 * noteWidth / 2.0)
+                //Chords never hav stem lines (I hope...)
+                if notes.count < 2 {
+                    let startNote = notes[0].getBeamStartNote(score: score, np: notePositionLayout)
+                    let inErrorAjdust = notes[0].noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
+                    if startNote.getValue() != Note.VALUE_WHOLE {
+                        //Note this code eventually has to go adjust the stem length for notes under a quaver beam
+                        //3.5 lines is a full length stem
+                        let stemDirection = stemDirection(note: startNote)
+                        //let midX = geo.size.width / 2.0 + (stemDirection * -1.0 * noteWidth / 2.0)
+                        let midX = (geo.size.width + (stemDirection * -1.0 * getNoteWidth())) / 2.0
+                        let midY = geo.size.height / 2.0
+                        //let offsetY = Double(offsetFromStaffMiddle) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                        let offsetY = CGFloat(notes[0].noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                        Path { path in
+                            path.move(to: CGPoint(x: midX, y: midY - offsetY))
+                            path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
+                        }
+                        .stroke(notes[0].getColor(staff: staff), lineWidth: 1)
+                    }
+                }
+                else {
+                    let furthestFromMidline = self.getFurthestFromMidline(noteArray: self.notes)
+                    let stemDirection = stemDirection(note: furthestFromMidline)
                     let midX = (geo.size.width + (stemDirection * -1.0 * getNoteWidth())) / 2.0
                     let midY = geo.size.height / 2.0
-                    let offsetY = Double(offsetFromStaffMiddle) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
-                    Path { path in
-                        path.move(to: CGPoint(x: midX, y: midY - offsetY))
-                        path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
+                    let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
+                    ZStack {
+                        ForEach(notes, id: \.self) { note in
+                            let offsetY = CGFloat(note.noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                            Path { path in
+                                path.move(to: CGPoint(x: midX, y: midY - offsetY))
+                                path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
+                            }
+                            .stroke(notes[0].getColor(staff: staff), lineWidth: 1)
+                        }
                     }
-                    .stroke(notes[0].getColor(staff: staff), lineWidth: 1)
                 }
             }
         }
@@ -124,41 +164,6 @@ struct StaffNotesView: View {
         return nil
     }
     
-    ///The note has a default accidental determined by which key the score is in but can be overidden by content specifying a written accidental
-    ///The written accidental must overide the default accidental and the note's offset adjusted accordingly.
-    ///When a written accidental is specified this code checks the note offset positions for this staff (coming from the score's key) and decides how the note should move from its
-    ///default staff offset based on the written accidental. e.g. a note at MIDI 75 would be defaulted to show as E ♭ in C major but may be speciifed to show as D# by a written
-    ///accidentail. In that case the note must shift down 1 unit of offset.
-    ///
-    func noteOffsetFromMiddle(staff:Staff, note:Note) -> NoteStaffPlacement {
-        let defaultNoteData = staff.getNoteViewPlacement(note: note)
-        var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
-        var offsetAccidental:Int? = nil
-        
-        if note.isOnlyRhythmNote {
-            offsetFromMiddle = 0
-        }
-        if let writtenAccidental = note.accidental {
-            offsetAccidental = writtenAccidental
-            if writtenAccidental != defaultNoteData.accidental {
-                let defaultNoteStaffPlacement = staff.noteStaffPlacement[note.midiNumber]
-                let targetOffsetIndex = note.midiNumber - writtenAccidental
-                let targetNoteStaffPlacement = staff.noteStaffPlacement[targetOffsetIndex]
-                let adjustOffset = defaultNoteStaffPlacement.offsetFromStaffMidline - targetNoteStaffPlacement.offsetFromStaffMidline
-                offsetFromMiddle -= adjustOffset
-//                print("===>Adjust note:", note.midiNumber, "adjOffset:", adjustOffset,
-//                      "defaultOffset:", defaultNoteData.offsetFromStaffMidline, "newOffset:", offsetFromMiddle)
-            }
-        }
-        else {
-            if let defaultAccidental = defaultNoteData.accidental {
-                offsetAccidental = defaultAccidental
-            }
-        }
-        let placement = NoteStaffPlacement(midi: defaultNoteData.midi, offsetFroMidLine: offsetFromMiddle, accidental: offsetAccidental)
-        return placement
-    }
-        
     func getBeamLine(endNote:Note, noteWidth:Double, startNote:Note, stemLength:Double) -> (CGPoint, CGPoint)? {
         var stemDirection:Double // = startNote.midiNumber < 71 ? -1.0 : 1.0
         if endNote.isOnlyRhythmNote {
@@ -173,7 +178,7 @@ struct StaffNotesView: View {
             let xEndMid = endNotePos.origin.x + endNotePos.size.width / 2.0 + (noteWidth / 2.0 * stemDirection * -1.0)
             let yEndMid = endNotePos.origin.y + endNotePos.size.height / 2.0
             
-            let endPitchOffset = noteOffsetFromMiddle(staff: staff, note: endNote).offsetFromStaffMidline
+            let endPitchOffset = endNote.noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline
             let yEndNoteMiddle:Double = yEndMid + (Double(endPitchOffset) * getLineSpacing() * -0.5)
             let yEndNoteStemTip = yEndNoteMiddle + stemLength * stemDirection
             
@@ -182,7 +187,7 @@ struct StaffNotesView: View {
             if let startNotePos = startNotePos {
                 let xStartMid = startNotePos.origin.x + startNotePos.size.width / 2.0 + (noteWidth / 2.0 * stemDirection * -1.0)
                 let yStartMid = startNotePos.origin.y + startNotePos.size.height / 2.0
-                let startPitchOffset = noteOffsetFromMiddle(staff: staff, note: startNote).offsetFromStaffMidline
+                let startPitchOffset = startNote.noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline
                 let yStartNoteMiddle:Double = yStartMid + (Double(startPitchOffset) * getLineSpacing() * -0.5)
                 let yStartNoteStemTip = yStartNoteMiddle + stemLength * stemDirection
                 let p1 = CGPoint(x:xEndMid, y: yEndNoteStemTip)
@@ -246,8 +251,9 @@ struct StaffNotesView: View {
                                         ZStack {
                                             NoteView(staff: staff,
                                                      note: note,
-                                                     noteWidth: noteWidth, lineSpacing: staffLayoutSize.lineSpacing,
-                                                     offsetFromStaffMiddle: noteOffsetFromMiddle(staff: staff, note: note))
+                                                     noteWidth: noteWidth,
+                                                     lineSpacing: staffLayoutSize.lineSpacing,
+                                                     offsetFromStaffMiddle: note.noteOffsetFromMiddle(staff: staff))
                                             .background(GeometryReader { geometry in
                                                 Color.clear
                                                     .onAppear {
@@ -267,7 +273,6 @@ struct StaffNotesView: View {
                                 StemView(score:score, staff:staff,
                                          notePositionLayout: noteLayoutPositions,
                                          notes: getNotes(entry: entry),
-                                         offsetFromStaffMiddle: 0, //noteOffsetFromMiddle(staff: staff, note: note).offsetFromStaffMidline,
                                          lineSpacing: staffLayoutSize)
 
                                 TimeSliceLabelView(score:score, staff:staff, timeSlice: entry as! TimeSlice)
@@ -321,12 +326,9 @@ struct StaffNotesView: View {
             }
         }
         .coordinateSpace(name: "ZStack0")
-//<<<<<<< HEAD
         .onAppear() {
             //print("StaffNotesView .onAppear: num:", viewNum, "\tlineSpacing:", staffLayoutSize.lineSpacing)
         }
-//=======
-//>>>>>>> main
         .onDisappear() {
            // NoteLayoutPositions.reset()
         }
