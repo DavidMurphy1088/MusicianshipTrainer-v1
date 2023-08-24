@@ -39,8 +39,8 @@ class NoteStaffPlacement {
 }
 
 class Note : Hashable, Comparable, ObservableObject {
-    @Published var hilite = false
     @Published var noteTag:NoteTag = .noTag
+    @Published var hilite = false
     static let MIDDLE_C = 60 //Midi pitch for C4
     static let OCTAVE = 12
     static let noteNames:[Character] = ["A", "B", "C", "D", "E", "F", "G"]
@@ -89,6 +89,12 @@ class Note : Hashable, Comparable, ObservableObject {
         }
     }
     
+    func setHilite(hilite: Bool) {
+        DispatchQueue.main.async {
+            self.hilite = hilite
+        }
+    }
+
     func getValue() -> Double {
         return self.value
     }
@@ -103,12 +109,6 @@ class Note : Hashable, Comparable, ObservableObject {
     func setNoteTag(_ tag: NoteTag) {
         DispatchQueue.main.async {
             self.noteTag = tag
-        }
-    }
-
-    func setHilite(hilite: Bool) {
-        DispatchQueue.main.async {
-            self.hilite = hilite
         }
     }
     
@@ -251,7 +251,7 @@ class Note : Hashable, Comparable, ObservableObject {
     ///default staff offset based on the written accidental. e.g. a note at MIDI 75 would be defaulted to show as E ♭ in C major but may be speciifed to show as D# by a written
     ///accidentail. In that case the note must shift down 1 unit of offset.
     ///
-    func noteOffsetFromMiddle(staff:Staff) -> NoteStaffPlacement {
+    func getNotePlacement(staff:Staff) -> NoteStaffPlacement {
         let defaultNoteData = staff.getNoteViewPlacement(note: self)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
         var offsetAccidental:Int? = nil

@@ -2,9 +2,10 @@ import Foundation
 import AVKit
 import AVFoundation
 
-class ScoreEntry : Hashable {
+class ScoreEntry : ObservableObject, Hashable {
     let id = UUID()
     var sequence:Int = 0
+
     static func == (lhs: ScoreEntry, rhs: ScoreEntry) -> Bool {
         return lhs.id == rhs.id
     }
@@ -20,6 +21,7 @@ class ScoreEntry : Hashable {
         }
         return nil
     }
+    
 }
 
 class BarLine : ScoreEntry {
@@ -68,6 +70,7 @@ class Score : ObservableObject {
     @Published var showNotes = true
     @Published var showFootnotes = false
     @Published var studentFeedback:StudentFeedback? = nil
+    @Published var scoreEntries:[ScoreEntry] = []
     
     var staffs:[Staff] = []
     
@@ -82,7 +85,6 @@ class Score : ObservableObject {
     static var accSharp = "\u{266f}"
     static var accNatural = "\u{266e}"
     static var accFlat = "\u{266d}"
-    var scoreEntries:[ScoreEntry] = []
     var label:String? = nil
     
     init(timeSignature:TimeSignature, linesPerStaff:Int) {

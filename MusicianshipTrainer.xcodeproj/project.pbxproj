@@ -52,7 +52,7 @@
 		7B40B8142A54E18100CA7FC4 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 7B40B8132A54E18100CA7FC4 /* FirebaseDatabase */; };
 		7B40B82C2A54E52A00CA7FC4 /* ContentNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8162A54E52A00CA7FC4 /* ContentNavigationView.swift */; };
 		7B40B82D2A54E52A00CA7FC4 /* StaffView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8172A54E52A00CA7FC4 /* StaffView.swift */; };
-		7B40B82E2A54E52A00CA7FC4 /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8182A54E52A00CA7FC4 /* NoteView.swift */; };
+		7B40B82E2A54E52A00CA7FC4 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8182A54E52A00CA7FC4 /* NotesView.swift */; };
 		7B40B82F2A54E52A00CA7FC4 /* TappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B8192A54E52A00CA7FC4 /* TappingView.swift */; };
 		7B40B8302A54E52A00CA7FC4 /* MetronomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B81A2A54E52A00CA7FC4 /* MetronomeView.swift */; };
 		7B40B8312A54E52A00CA7FC4 /* PianoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B81B2A54E52A00CA7FC4 /* PianoView.swift */; };
@@ -164,7 +164,7 @@
 		7B40B7EE2A54DF8F00CA7FC4 /* SpeechSynth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechSynth.swift; sourceTree = "<group>"; };
 		7B40B8162A54E52A00CA7FC4 /* ContentNavigationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentNavigationView.swift; sourceTree = "<group>"; };
 		7B40B8172A54E52A00CA7FC4 /* StaffView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaffView.swift; sourceTree = "<group>"; };
-		7B40B8182A54E52A00CA7FC4 /* NoteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
+		7B40B8182A54E52A00CA7FC4 /* NotesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		7B40B8192A54E52A00CA7FC4 /* TappingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TappingView.swift; sourceTree = "<group>"; };
 		7B40B81A2A54E52A00CA7FC4 /* MetronomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetronomeView.swift; sourceTree = "<group>"; };
 		7B40B81B2A54E52A00CA7FC4 /* PianoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PianoView.swift; sourceTree = "<group>"; };
@@ -354,7 +354,7 @@
 				7B40B8212A54E52A00CA7FC4 /* IndexView.swift */,
 				7B40B8292A54E52A00CA7FC4 /* LaunchScreen.swift */,
 				7B40B81A2A54E52A00CA7FC4 /* MetronomeView.swift */,
-				7B40B8182A54E52A00CA7FC4 /* NoteView.swift */,
+				7B40B8182A54E52A00CA7FC4 /* NotesView.swift */,
 				7B40B81B2A54E52A00CA7FC4 /* PianoView.swift */,
 				7B40B82B2A54E52A00CA7FC4 /* ScoreView.swift */,
 				7B40B81D2A54E52A00CA7FC4 /* StaffNotesView.swift */,
@@ -789,7 +789,7 @@
 				7B12C3852A7B2F6B00B4D430 /* AudioSamplerPlayer.swift in Sources */,
 				7B40B8382A54E52A00CA7FC4 /* ViewProtocol.swift in Sources */,
 				7B40B7FC2A54DF9000CA7FC4 /* AudioTicker.swift in Sources */,
-				7B40B82E2A54E52A00CA7FC4 /* NoteView.swift in Sources */,
+				7B40B82E2A54E52A00CA7FC4 /* NotesView.swift in Sources */,
 				7B40B8352A54E52A00CA7FC4 /* TestView.swift in Sources */,
 				7B40B7F32A54DF9000CA7FC4 /* Logger.swift in Sources */,
 				7B40B7FF2A54DF9000CA7FC4 /* AudioRecorder.swift in Sources */,

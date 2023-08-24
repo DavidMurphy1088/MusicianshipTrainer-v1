@@ -37,7 +37,7 @@ struct StemView: View {
     @State var score: Score
     @State var staff: Staff
     @State var notePositionLayout: NoteLayoutPositions
-    @State var notes: [Note]
+    @State var notes: TimeSlice
     @ObservedObject var lineSpacing:StaffLayoutSize
     
     func stemDirection(note:Note) -> Double {
@@ -64,7 +64,7 @@ struct StemView: View {
         var furthest:Note = Note(num: 0)
         var maxDist = 0
         for note in noteArray {
-            let distance = abs(note.noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline)
+            let distance = abs(note.getNotePlacement(staff: staff).offsetFromStaffMidline)
             if distance > maxDist {
                 maxDist = distance
                 furthest = note
@@ -74,47 +74,68 @@ struct StemView: View {
     }
     
     func log(note:Note) -> Bool {
-        print(self.notes.count, note.midiNumber, self.lineSpacing.lineSpacing, "offset", notes[0].noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline)
+//        print(self.notes.count, note.midiNumber, self.lineSpacing.lineSpacing, "offset", notes[0].noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline)
         return true
     }
     
+    func midPointXOffset(notes:TimeSlice, staff:Staff, stemDirection:Double) -> Double {
+        if notes.anyNotesRotated() {
+            for n in notes.notes {
+                if n.rotated {
+                    if n.midiNumber < staff.middleNoteValue {
+                        ///Normally the up stem goes to the right of the note. But if there is a left rotated note we want the stem to go thru the middle of the two notes
+                        return -1.0 * getNoteWidth()
+                    }
+                }
+            }
+            return (stemDirection * -1.0 * getNoteWidth())
+        }
+        else {
+            return (stemDirection * -1.0 * getNoteWidth())
+        }
+    }
+
     var body: some View {
         GeometryReader { geo in
             VStack {
-                //Chords never hav stem lines (I hope...)
-                if notes.count < 2 {
-                    let startNote = notes[0].getBeamStartNote(score: score, np: notePositionLayout)
-                    let inErrorAjdust = notes[0].noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
+                if notes.notes.count < 2 {
+                    ///Draw in the stem lines for all notes under the current stem line if this is one.
+                    ///For a group of notes under a quaver beam the the stem direction (and later length...) is determined by only one note in the group
+                    let startNote = notes.notes[0].getBeamStartNote(score: score, np: notePositionLayout)
+                    let inErrorAjdust = notes.notes[0].noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
                     if startNote.getValue() != Note.VALUE_WHOLE {
                         //Note this code eventually has to go adjust the stem length for notes under a quaver beam
                         //3.5 lines is a full length stem
                         let stemDirection = stemDirection(note: startNote)
                         //let midX = geo.size.width / 2.0 + (stemDirection * -1.0 * noteWidth / 2.0)
-                        let midX = (geo.size.width + (stemDirection * -1.0 * getNoteWidth())) / 2.0
+                        let midX = (geo.size.width + (midPointXOffset(notes: notes, staff: staff, stemDirection: stemDirection))) / 2.0
                         let midY = geo.size.height / 2.0
                         //let offsetY = Double(offsetFromStaffMiddle) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
-                        let offsetY = CGFloat(notes[0].noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                        let offsetY = CGFloat(notes.notes[0].getNotePlacement(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
                         Path { path in
                             path.move(to: CGPoint(x: midX, y: midY - offsetY))
                             path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
                         }
-                        .stroke(notes[0].getColor(staff: staff), lineWidth: 1)
+                        .stroke(notes.notes[0].getColor(staff: staff), lineWidth: 1)
                     }
                 }
                 else {
-                    let furthestFromMidline = self.getFurthestFromMidline(noteArray: self.notes)
+                    ///This code assumes the stem for a chord wont (yet) be under a quaver beam
+                    let furthestFromMidline = self.getFurthestFromMidline(noteArray: self.notes.notes)
                     let stemDirection = stemDirection(note: furthestFromMidline)
-                    let midX = (geo.size.width + (stemDirection * -1.0 * getNoteWidth())) / 2.0
+                    let midX:Double = (geo.size.width + (midPointXOffset(notes: notes, staff: staff, stemDirection: stemDirection))) / 2.0
                     let midY = geo.size.height / 2.0
                     let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
                     ZStack {
-                        ForEach(notes, id: \.self) { note in
-                            let offsetY = CGFloat(note.noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
-                            Path { path in
-                                path.move(to: CGPoint(x: midX, y: midY - offsetY))
-                                path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
+                        ForEach(notes.notes, id: \.self) { note in
+                            if note.getValue() != Note.VALUE_WHOLE {
+                                let offsetY = CGFloat(note.getNotePlacement(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                                Path { path in
+                                    path.move(to: CGPoint(x: midX, y: midY - offsetY))
+                                    path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
+                                }
+                                .stroke(notes.notes[0].getColor(staff: staff), lineWidth: 1)
                             }
-                            .stroke(notes[0].getColor(staff: staff), lineWidth: 1)
                         }
                     }
                 }
@@ -128,31 +149,20 @@ struct StaffNotesView: View {
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
     @ObservedObject var staffLayoutSize:StaffLayoutSize
+    
     static var viewNum:Int = 0
     let noteOffsetsInStaffByKey = NoteOffsetsInStaffByKey()
     let viewNum:Int
     
     init(score:Score, staff:Staff, lineSpacing:StaffLayoutSize) {
-        self.score = score
+        self.score = score        
         self.staff = staff
-        //self.staffHeight = staffHeight
         self.staffLayoutSize = lineSpacing
         self.noteLayoutPositions = staff.noteLayoutPositions
         StaffNotesView.viewNum += 1
         self.viewNum = StaffNotesView.viewNum
     }
-    
-    func getNotes(entry:ScoreEntry) -> [Note] {
-        if entry is TimeSlice {
-            let ts = entry as! TimeSlice
-            return ts.notes
-        }
-        else {
-            let n:[Note] = []
-            return n
-        }
-    }
-    
+        
     func getNote(entry:ScoreEntry) -> Note? {
         if entry is TimeSlice {
             if let notes = entry.getNotes() {
@@ -178,7 +188,7 @@ struct StaffNotesView: View {
             let xEndMid = endNotePos.origin.x + endNotePos.size.width / 2.0 + (noteWidth / 2.0 * stemDirection * -1.0)
             let yEndMid = endNotePos.origin.y + endNotePos.size.height / 2.0
             
-            let endPitchOffset = endNote.noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline
+            let endPitchOffset = endNote.getNotePlacement(staff: staff).offsetFromStaffMidline
             let yEndNoteMiddle:Double = yEndMid + (Double(endPitchOffset) * getLineSpacing() * -0.5)
             let yEndNoteStemTip = yEndNoteMiddle + stemLength * stemDirection
             
@@ -187,7 +197,7 @@ struct StaffNotesView: View {
             if let startNotePos = startNotePos {
                 let xStartMid = startNotePos.origin.x + startNotePos.size.width / 2.0 + (noteWidth / 2.0 * stemDirection * -1.0)
                 let yStartMid = startNotePos.origin.y + startNotePos.size.height / 2.0
-                let startPitchOffset = startNote.noteOffsetFromMiddle(staff: staff).offsetFromStaffMidline
+                let startPitchOffset = startNote.getNotePlacement(staff: staff).offsetFromStaffMidline
                 let yStartNoteMiddle:Double = yStartMid + (Double(startPitchOffset) * getLineSpacing() * -0.5)
                 let yStartNoteStemTip = yStartNoteMiddle + stemLength * stemDirection
                 let p1 = CGPoint(x:xEndMid, y: yEndNoteStemTip)
@@ -244,35 +254,32 @@ struct StaffNotesView: View {
                 ForEach(score.scoreEntries, id: \.self) { entry in
                     VStack { //VStack - required in forEach closure
                         if entry is TimeSlice {
-                            ZStack { // Each note frame in the timeslice shares the same same space
-                                ForEach(getNotes(entry: entry), id: \.self) { note in
-                                    //render the note in both staffs to ensure all entries (stems, bar lines etc ) in both staffs line up vertically
-                                    GeometryReader { geo in
-                                        ZStack {
-                                            NoteView(staff: staff,
-                                                     note: note,
-                                                     noteWidth: noteWidth,
-                                                     lineSpacing: staffLayoutSize.lineSpacing,
-                                                     offsetFromStaffMiddle: note.noteOffsetFromMiddle(staff: staff))
-                                            .background(GeometryReader { geometry in
-                                                Color.clear
-                                                    .onAppear {
-                                                        if staff.staffNum == 0 {
-                                                            noteLayoutPositions.storePosition(note: note,rect: geometry.frame(in: .named("HStack")), cord: "HStack")
-                                                        }
-                                                    }
-                                                    .onChange(of: staffLayoutSize.lineSpacing) { newValue in
-                                                         if staff.staffNum == 0 {
-                                                            noteLayoutPositions.storePosition(note: note,rect: geometry.frame(in: .named("HStack")), cord: "HStack")
-                                                        }
-                                                    }
-                                            })
+                            let notes = entry as! TimeSlice
+                            ZStack { // Each note frame in the timeslice shares the same same vertical space
+                                //let notes = getNotes(entry: entry)
+                                NotesView(staff: staff,
+                                         notes: notes,
+                                         noteWidth: noteWidth,
+                                         lineSpacing: staffLayoutSize.lineSpacing)
+                                .background(GeometryReader { geometry in
+                                    ///record and store the note's postion so we can later draw its stems which maybe dependent on the note being in a quaver group with a quaver beam
+                                    Color.clear
+                                        .onAppear {
+                                            if staff.staffNum == 0 {
+                                                noteLayoutPositions.storePosition(note: notes.notes[0],rect: geometry.frame(in: .named("HStack")), cord: "HStack")
+                                            }
                                         }
-                                    }
-                                }
-                                StemView(score:score, staff:staff,
+                                        .onChange(of: staffLayoutSize.lineSpacing) { newValue in
+                                             if staff.staffNum == 0 {
+                                                 noteLayoutPositions.storePosition(note: notes.notes[0],rect: geometry.frame(in: .named("HStack")), cord: "HStack")
+                                            }
+                                        }
+                                })
+                                
+                                StemView(score:score,
+                                         staff:staff,
                                          notePositionLayout: noteLayoutPositions,
-                                         notes: getNotes(entry: entry),
+                                         notes: notes,
                                          lineSpacing: staffLayoutSize)
 
                                 TimeSliceLabelView(score:score, staff:staff, timeSlice: entry as! TimeSlice)
@@ -287,8 +294,6 @@ struct StaffNotesView: View {
                     }
                     .coordinateSpace(name: "VStack")
                     //IMPORTANT - keep this since the quaver beam code needs to know exactly the note view width
-                    //UPDATE - code now updated to allow variable length note views. now note requied :)
-                    //.frame(width: frameWidth)
                 }
                 .coordinateSpace(name: "ForEach")
             }

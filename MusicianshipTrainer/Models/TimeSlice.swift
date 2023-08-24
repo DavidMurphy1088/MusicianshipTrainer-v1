@@ -1,6 +1,6 @@
 import Foundation
 
-class TimeSlice : ScoreEntry, ObservableObject {
+class TimeSlice : ScoreEntry {
     @Published var notes:[Note]
     @Published var tagHigh:String?
     @Published var tagLow:String?
@@ -66,5 +66,14 @@ class TimeSlice : ScoreEntry, ObservableObject {
             addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE + 7, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
         }
 
+    }
+    
+    func anyNotesRotated() -> Bool {
+        for n in notes {
+            if n.rotated {
+                return true
+            }
+        }
+        return false
     }
 }

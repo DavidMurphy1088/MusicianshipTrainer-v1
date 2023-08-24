@@ -233,31 +233,34 @@ class Metronome: ObservableObject {
                         if let timeSlice = nextScoreTimeSlice {
                             //let channelx = 0
                             var noteInChordNum = 0
-                            for note in timeSlice.notes {
-                                if currentNoteDuration < note.getValue() {
-                                    //note only plays once even though it might spans > 1 tick
-                                    continue
-                                }
-                                note.setHilite(hilite: true)
-                                DispatchQueue.global(qos: .background).async {
-                                    Thread.sleep(forTimeInterval: 0.5)
-                                    note.setHilite(hilite: false)
-                                }
-                                if note.isOnlyRhythmNote  {
-                                    audioClapper.soundTick(noteValue: note.getValue())
-                                }
-                                else {
-                                    //print(" --- Score play note", loopCtr, "next score time slice", nextScoreTimeSlice)
-                                    if let audioPlayer = audioSamplerPlayerMIDI {
-                                        audioPlayer.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
+
+                            if timeSlice.notes.count > 0 {
+                                let topNote = timeSlice.notes[0]
+                                if currentNoteDuration >= topNote.getValue() {
+                                    for note in timeSlice.notes {
+                                        if note.isOnlyRhythmNote  {
+                                            audioClapper.soundTick(noteValue: note.getValue())
+                                        }
+                                        else {
+                                            //print(" --- Score play note", loopCtr, "next score time slice", nextScoreTimeSlice)
+                                            if let audioPlayer = audioSamplerPlayerMIDI {
+                                                audioPlayer.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
+                                            }
+                                        }
+                                        if noteInChordNum == 0 && note.getValue() < 1.0 {
+                                            noteValueSpeechWord = "and"
+                                        }
+                                        noteInChordNum += 1
+                                    }
+                                    
+                                    topNote.setHilite(hilite: true)
+                                    DispatchQueue.global(qos: .background).async {
+                                        Thread.sleep(forTimeInterval: 0.5)
+                                        topNote.setHilite(hilite: false)
                                     }
                                 }
-                                if noteInChordNum == 0 && note.getValue() < 1.0 {
-                                    noteValueSpeechWord = "and"
-                                }
-
-                                noteInChordNum += 1
                             }
+
                             
                             //determine what time slice comes on the next tick. e.g. possibly for a long note the current time slice needs > 1 tick
                             currentNoteDuration -= self.shortestNoteValue
