@@ -24,7 +24,7 @@ class Metronome: ObservableObject {
     private var score:Score?
     private var nextScoreIndex = 0
     private var nextScoreTimeSlice:TimeSlice?
-    private var currentNoteDuration = 0.0
+    private var currentNoteTimeToLive = 0.0
 
     //the shortest note value which is used to set the metronome's thread firing frequency
     private let shortestNoteValue = Note.VALUE_QUAVER
@@ -164,7 +164,7 @@ class Metronome: ObservableObject {
                 if next.notes.count > 0 {
                     self.score = score
                     self.nextScoreTimeSlice = next
-                    self.currentNoteDuration = nextScoreTimeSlice!.notes[0].getValue()
+                    self.currentNoteTimeToLive = nextScoreTimeSlice!.notes[0].getValue()
                     self.onDoneFunction = onDone
                 }
             }
@@ -192,8 +192,6 @@ class Metronome: ObservableObject {
 
     }
 
-    //private func startThreadRunning(audioTicker:AudioSamplerPlayer?, audioSamplerPlayerMIDI:AVAudioUnitSampler?, numberOfTicks:Int? = nil, onDone: (()->Void)? = nil) {
-    
     private func startThreadRunning(timeSignature:TimeSignature, audioSamplerPlayerMIDI:AVAudioUnitSampler?) {
         self.isThreadRunning = true
         
@@ -207,6 +205,7 @@ class Metronome: ObservableObject {
             var noteValueSpeechWord:String? = nil
             var ticksPlayed = 0
             var firstNote = true
+            var currentRestTimeToLive = 0.0
             
             while keepRunning {
                 noteValueSpeechWord = nil
@@ -217,9 +216,7 @@ class Metronome: ObservableObject {
 
                 if loopCtr % 2 == 0 {
                     if self.tickingIsActive {
-                        //if let ticker = audioTicker {
                         audioTickerMetronomeTick.soundTick()
-                        //}
                         ticksPlayed += 1
                     }
                 }
@@ -227,16 +224,14 @@ class Metronome: ObservableObject {
                 //sound the next note
 
                 if (firstNote && loopCtr % 2 == 0) || (!firstNote) {
-                   
+                    //just process rests like notes but dont sound them. But adjust sound tick's counting'
                     if let score = score {
                         firstNote = false
                         if let timeSlice = nextScoreTimeSlice {
-                            //let channelx = 0
                             var noteInChordNum = 0
-
                             if timeSlice.notes.count > 0 {
                                 let topNote = timeSlice.notes[0]
-                                if currentNoteDuration >= topNote.getValue() {
+                                if currentNoteTimeToLive >= topNote.getValue() {
                                     for note in timeSlice.notes {
                                         if note.isOnlyRhythmNote  {
                                             audioClapper.soundTick(noteValue: note.getValue())
@@ -263,8 +258,14 @@ class Metronome: ObservableObject {
 
                             
                             //determine what time slice comes on the next tick. e.g. possibly for a long note the current time slice needs > 1 tick
-                            currentNoteDuration -= self.shortestNoteValue
-                            if currentNoteDuration <= 0 {
+                            //print("============", nextScoreIndex, currentNoteTimeToLive, currentRestTimeToLive, "idx")
+                            currentNoteTimeToLive -= self.shortestNoteValue
+//                            if currentNoteTimeToLive <= 0 {
+//                                currentRestTimeToLive -= self.shortestNoteValue
+//                            }
+                            
+                            if currentNoteTimeToLive <= 0 {
+                                //look for the next note to play
                                 nextScoreTimeSlice = nil
                                 while nextScoreIndex < score.scoreEntries.count {
                                     let entry = score.scoreEntries[nextScoreIndex]
@@ -272,7 +273,14 @@ class Metronome: ObservableObject {
                                         nextScoreTimeSlice = entry as! TimeSlice
                                         if nextScoreTimeSlice!.notes.count > 0 {
                                             nextScoreIndex += 1
-                                            currentNoteDuration = nextScoreTimeSlice!.notes[0].getValue()
+                                            currentNoteTimeToLive = nextScoreTimeSlice!.notes[0].getValue()
+                                            if nextScoreIndex < score.scoreEntries.count {
+                                                let x = score.scoreEntries[nextScoreIndex]
+                                                if x is Rest {
+                                                    let rest = x as! Rest
+                                                    currentRestTimeToLive = rest.value
+                                                }
+                                            }
                                             break
                                         }
                                         else {
@@ -282,6 +290,7 @@ class Metronome: ObservableObject {
                                             }
                                         }
                                     }
+                                    
                                     nextScoreIndex += 1
                                 }
                             }

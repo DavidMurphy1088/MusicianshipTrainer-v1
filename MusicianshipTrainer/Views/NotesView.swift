@@ -16,21 +16,23 @@ struct BarLineView: View {
                 
         }
         .frame(maxWidth: Double(staffLayoutSize.lineSpacing)  * 1.0)
-        //.border(Color.red)
+        .border(Color.red)
     }
 }
 
 struct RestView: View {
-    var lineSpacingSize: Double
+    var height:Double
 
     var body: some View {
         VStack {
                 Image("rest_quarter")
                     .resizable()
                     .scaledToFit()
-                    //.frame(width: CGFloat(lineSpacingSize) * 0.5)
+                    .frame(height: CGFloat(height  * 0.30))
+                    .padding()
+                    
         }
-        //.frame(maxWidth: Double(staffLayoutSize.lineSpacing)  * 1.0)
+        //.frame(maxWidth: CGFloat(staffLayoutSize.lineSpacing  * 1.0))
         .border(Color.red)
     }
 }

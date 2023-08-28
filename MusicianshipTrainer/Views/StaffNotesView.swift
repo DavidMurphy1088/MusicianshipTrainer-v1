@@ -261,6 +261,7 @@ struct StaffNotesView: View {
                                          notes: notes,
                                          noteWidth: noteWidth,
                                          lineSpacing: staffLayoutSize.lineSpacing)
+                                .border(Color.green)
                                 .background(GeometryReader { geometry in
                                     ///record and store the note's postion so we can later draw its stems which maybe dependent on the note being in a quaver group with a quaver beam
                                     Color.clear
@@ -291,7 +292,7 @@ struct StaffNotesView: View {
                                 .frame(height: staffLayoutSize.getStaffHeight(score: score))
                         }
                         if entry is Rest {
-                            RestView(lineSpacingSize: staffLayoutSize.lineSpacing)
+                            RestView(height: staffLayoutSize.getStaffHeight(score: score))
                                 //.frame(height: staffLayoutSize.getStaffHeight(score: score))
                                 //.border(Color.green)
                         }

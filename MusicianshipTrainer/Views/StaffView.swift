@@ -131,12 +131,9 @@ struct KeySignatureView: View {
 }
 
 struct StaffView: View {
-    //let id = UUID()
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
-    //var staffHeight:Double
     @ObservedObject var staffLayoutSize:StaffLayoutSize = StaffLayoutSize(lineSpacing: 0)
-    //@ObservedObject var noteLayoutPositions:NoteLayoutPositions
 
     @State private var rotationId: UUID = UUID()
     @Environment(\.verticalSizeClass) private var verticalSizeClass
