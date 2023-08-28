@@ -289,6 +289,10 @@ struct StaffNotesView: View {
                         if entry is BarLine {
                             BarLineView(entry: entry, staff: staff, staffLayoutSize: staffLayoutSize)
                                 .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                        }
+                        if entry is Rest {
+                            RestView(lineSpacingSize: staffLayoutSize.lineSpacing)
+                                //.frame(height: staffLayoutSize.getStaffHeight(score: score))
                                 //.border(Color.green)
                         }
                     }

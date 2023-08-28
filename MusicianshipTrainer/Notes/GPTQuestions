@@ -78,3 +78,9 @@ Calulate the frequency spectogragh as it would be heard by a human.
 Then calculate 2 most dominant frequencies at each note onset.
 Print the results showing the number of each note onset, the time difference in seconds since the last note onset and the 2 most dominant frequencies in hertz at each note onset
 
+========== Licensing ========
+We have a music education app in the Apple appstore that we license individually. i.e. people pay $50 to download a licensed version of the app.
+
+But now we have been asked by a school offering music classes that the students (about 20) in each class can use our app. How can we license the app so the school buys a class license that provides the app free to students in the class. But stops students making the app freely available to their friends.
+
+would a backend system that generates activation codes be compliant with Apple's app store licensing agreemnet. We ask since Apple would received no money from this type of activation code licensing.

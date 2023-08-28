@@ -413,6 +413,15 @@ class ContentSection: Codable, Identifiable {
                 continue
             }
             
+            if parts.count == 2  {
+                if parts[0] == "R" {
+                    let restValue = Double(parts[1]) ?? 1
+                    result.append(Rest(value: restValue))
+                    continue
+                }
+                
+            }
+
             if parts.count == 2 || parts.count == 3  {
                 let notePitch:Int? = Int(parts[0])
                 if let notePitch = notePitch {

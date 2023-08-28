@@ -27,6 +27,13 @@ class ScoreEntry : ObservableObject, Hashable {
 class BarLine : ScoreEntry {
 }
 
+class Rest : ScoreEntry {
+    let value:Double
+    init(value:Double) {
+        self.value = value
+    }
+}
+
 class StudentFeedback { //}: ObservableObject {
     var correct:Bool = false
     var indexInError:Int? = nil
@@ -235,10 +242,14 @@ class Score : ObservableObject {
         return ts
     }
     
-    func addBarLine() { //atScoreEnd:Bool? = false) {
+    func addBarLine() {
         let barLine = BarLine()
         barLine.sequence = self.scoreEntries.count
         self.scoreEntries.append(barLine)
+    }
+    
+    func addRest(rest: Rest) {
+        self.scoreEntries.append(rest)
     }
 
     func clear() {

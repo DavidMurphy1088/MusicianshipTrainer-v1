@@ -121,7 +121,6 @@ struct ClapOrPlayPresentView: View {
                 if entry is KeySignature {
                     let keySignature = entry as! KeySignature
                     score.key = Key(type: .major, keySig: keySignature)
-                    //score.setKey(key: )
                 }
                 if entry is TimeSignature {
                     let ts = entry as! TimeSignature
@@ -140,6 +139,9 @@ struct ClapOrPlayPresentView: View {
                 }
                 if entry is BarLine {
                     score.addBarLine()
+                }
+                if entry is Rest {
+                    score.addRest(rest: entry as! Rest)
                 }
             }
         }

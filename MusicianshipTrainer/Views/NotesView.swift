@@ -20,6 +20,21 @@ struct BarLineView: View {
     }
 }
 
+struct RestView: View {
+    var lineSpacingSize: Double
+
+    var body: some View {
+        VStack {
+                Image("rest_quarter")
+                    .resizable()
+                    .scaledToFit()
+                    //.frame(width: CGFloat(lineSpacingSize) * 0.5)
+        }
+        //.frame(maxWidth: Double(staffLayoutSize.lineSpacing)  * 1.0)
+        .border(Color.red)
+    }
+}
+
 struct NoteHiliteView: View {
     @ObservedObject var note:Note
     var x:CGFloat
