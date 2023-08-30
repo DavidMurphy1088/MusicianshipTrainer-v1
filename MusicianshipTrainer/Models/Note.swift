@@ -38,7 +38,7 @@ class NoteStaffPlacement {
     }
 }
 
-class Note : Hashable, Comparable, ObservableObject {
+class Note : TimeSliceEntry, Hashable, Comparable, ObservableObject {
     @Published var noteTag:NoteTag = .noTag
     @Published var hilite = false
     static let MIDDLE_C = 60 //Midi pitch for C4

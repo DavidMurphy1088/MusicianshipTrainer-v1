@@ -1,7 +1,11 @@
 import Foundation
 
+class TimeSliceEntry {
+    
+}
+
 class TimeSlice : ScoreEntry {
-    @Published var notes:[Note]
+    @Published var entries:[TimeSliceEntry]
     @Published var tagHigh:String?
     @Published var tagLow:String?
     @Published var notesLength:Int?
