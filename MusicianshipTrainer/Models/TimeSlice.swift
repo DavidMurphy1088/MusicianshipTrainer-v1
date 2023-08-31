@@ -1,34 +1,34 @@
 import Foundation
 
-class TimeSliceEntry {
-    
-}
-
 class TimeSlice : ScoreEntry {
     @Published var entries:[TimeSliceEntry]
     @Published var tagHigh:String?
     @Published var tagLow:String?
     @Published var notesLength:Int?
-    
-    var score:Score?
+    var score:Score
+
     var footnote:String?
     var barLine:Int = 0
     private static var idIndex = 0
     
-    init(score:Score?) {
+    init(score:Score) {
         self.score = score
-        self.notes = []
+        self.entries = []
         TimeSlice.idIndex += 1
     }
     
     func addNote(n:Note) {
-        self.notes.append(n)
-        if let score = self.score {
-            score.updateStaffs()
-            score.addStemCharaceteristics()
-        }
+        self.entries.append(n)
+        score.updateStaffs()
+        score.addStemCharaceteristics()
     }
     
+    func addRest(rest:Rest) {
+        self.entries.append(rest)
+        score.updateStaffs()
+        score.addStemCharaceteristics()
+    }
+
     func setTags(high:String, low:String) {
         DispatchQueue.main.async {
             self.tagHigh = high
@@ -38,11 +38,9 @@ class TimeSlice : ScoreEntry {
     
     func addChord(c:Chord) {
         for n in c.getNotes() {
-            self.notes.append(n)
+            self.entries.append(n)
         }
-        if let score = score {
-            score.updateStaffs()
-        }
+        score.updateStaffs()
     }
     
     static func == (lhs: TimeSlice, rhs: TimeSlice) -> Bool {
@@ -50,32 +48,36 @@ class TimeSlice : ScoreEntry {
     }
         
     func addTonicChord() {
-        guard let score = score else {
+        if getTimeSlices().count == 0 {
             return
         }
-        if getNotes()?.count == 0 {
-            return
-        }
-        let lastNote = getNotes()![0]
+        let lastNote = getTimeSlices()[0]
         let isDotted = lastNote.isDotted
         
-        if score.key.keySig.accidentalCount > 0 { //G Major
+        if score.key.keySig.accidentalCount == 2 { //D Major
+            addNote(n: Note(num: Note.MIDDLE_C + 2 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
+            addNote(n: Note(num: Note.MIDDLE_C + 6 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
+            addNote(n: Note(num: Note.MIDDLE_C + 9 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
+        }
+        if score.key.keySig.accidentalCount == 1 { //G Major
             addNote(n: Note(num: Note.MIDDLE_C - 5 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
             addNote(n: Note(num: Note.MIDDLE_C - 1 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
             addNote(n: Note(num: Note.MIDDLE_C + 2 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
         }
-        else {
+        if score.key.keySig.accidentalCount == 0 {
             addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
             addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE + 4, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
             addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE + 7, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
         }
-
     }
     
     func anyNotesRotated() -> Bool {
-        for n in notes {
-            if n.rotated {
-                return true
+        for n in entries {
+            if n is Note {
+                let note:Note = n as! Note
+                if note.rotated {
+                    return true
+                }
             }
         }
         return false

@@ -1,6 +1,49 @@
 import Foundation
 import SwiftUI
 
+class TimeSliceEntry : ObservableObject, Equatable, Hashable {
+    @Published var hilite = false
+
+    let id = UUID()
+    var staffNum:Int? //Narrow the display of the note to just one staff
+    var isDotted:Bool = false
+    var sequence:Int = 0 //the note's sequence position
+
+    fileprivate var value:Double = Note.VALUE_QUARTER
+
+    init(value:Double) {
+        self.value = value
+    }
+    static func == (lhs: TimeSliceEntry, rhs: TimeSliceEntry) -> Bool {
+        //return lhs.midiNumber == rhs.midiNumber
+        return lhs.id == rhs.id
+    }
+    func getValue() -> Double {
+        return self.value
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    func setHilite(hilite: Bool) {
+        DispatchQueue.main.async {
+            self.hilite = hilite
+        }
+    }
+
+}
+
+class BarLine : ScoreEntry {
+}
+
+class Rest : TimeSliceEntry {
+    
+    override init(value:Double) {
+        super.init(value: value)
+        //self.value = value
+    }
+}
+
 enum AccidentalType {
     case sharp
     case flat
@@ -38,9 +81,9 @@ class NoteStaffPlacement {
     }
 }
 
-class Note : TimeSliceEntry, Hashable, Comparable, ObservableObject {
+class Note : TimeSliceEntry, Comparable {
     @Published var noteTag:NoteTag = .noTag
-    @Published var hilite = false
+    
     static let MIDDLE_C = 60 //Midi pitch for C4
     static let OCTAVE = 12
     static let noteNames:[Character] = ["A", "B", "C", "D", "E", "F", "G"]
@@ -50,26 +93,15 @@ class Note : TimeSliceEntry, Hashable, Comparable, ObservableObject {
     static let VALUE_HALF = 2.0
     static let VALUE_WHOLE = 4.0
 
-    let id = UUID()
     var midiNumber:Int
-    var staffNum:Int? //Narrow the display of the note to just one staff
-    
-    private var value:Double = Note.VALUE_QUARTER
-    var isDotted:Bool = false
     var isOnlyRhythmNote = false
-    var accidental:Int? = nil //< 0 = flat, ==0 natural, > 0 sharp
-    
-    var sequence:Int = 0 //the note's sequence position 
+    var accidental:Int? = nil //< 0 = flat, ==0 natural, > 0 sharp    
     var rotated:Bool = false //true if note must be displayed vertically rotated due to closeness to a neighbor.
     
     var beamType:QuaverBeamType = .none
     //the note where the quaver beam for this note ends
     var beamEndNote:Note? = nil
     
-    static func == (lhs: Note, rhs: Note) -> Bool {
-        //return lhs.midiNumber == rhs.midiNumber
-        return lhs.id == rhs.id
-    }
     static func < (lhs: Note, rhs: Note) -> Bool {
         return lhs.midiNumber < rhs.midiNumber
     }
@@ -80,23 +112,14 @@ class Note : TimeSliceEntry, Hashable, Comparable, ObservableObject {
     
     init(num:Int, value:Double = Note.VALUE_QUARTER, accidental:Int?=nil, staffNum:Int? = nil, isDotted:Bool = false) {
         self.midiNumber = num
+        super.init(value: value)
+
         self.staffNum = staffNum
-        self.value = value
         self.isDotted = isDotted
         self.accidental = accidental
         if value == 3.0 {
             self.isDotted = true
         }
-    }
-    
-    func setHilite(hilite: Bool) {
-        DispatchQueue.main.async {
-            self.hilite = hilite
-        }
-    }
-
-    func getValue() -> Double {
-        return self.value
     }
     
     func setValue(value:Double) {
@@ -136,10 +159,7 @@ class Note : TimeSliceEntry, Hashable, Comparable, ObservableObject {
         }
         
     }
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(midiNumber)
-    }
-    
+
     static func staffNoteName(idx:Int) -> Character {
         if idx >= 0 {
             return self.noteNames[idx % noteNames.count]
@@ -196,8 +216,8 @@ class Note : TimeSliceEntry, Hashable, Comparable, ObservableObject {
         while idx>=0 {
             let ts = score.scoreEntries[idx]
             if ts is TimeSlice {
-                let notes = ts.getNotes()
-                if let notes = notes {
+                let notes = ts.getTimeSlices()
+                //if let notes = notes {
                     if notes.count > 0 {
                         let note = notes[0]
                         if note.sequence == endNote.sequence {
@@ -210,7 +230,7 @@ class Note : TimeSliceEntry, Hashable, Comparable, ObservableObject {
                             }
                         }
                     }
-                }
+                //}
             }
             if ts is BarLine {
             }

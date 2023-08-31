@@ -95,8 +95,8 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         let lastQuestionTimeslice = questionScore.getLastTimeSlice()
         var lastQuestionNote:Note?
         if let ts = lastQuestionTimeslice {
-            if ts.notes.count > 0 {
-                lastQuestionNote = ts.notes[0]
+            if ts.getTimeSlices().count > 0 {
+                lastQuestionNote = ts.getTimeSlices()[0]
             }
         }
         
@@ -137,7 +137,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
     //From the recording of the first tick, calculate the tempo the rhythm was tapped at
     func getTempoFromRecordingStart(tapValues:[Double], questionScore: Score) -> Int {
         let scoreTimeSlices = questionScore.getAllTimeSlices()
-        let firstNoteValue = scoreTimeSlices[0].notes[0].getValue()
+        let firstNoteValue = scoreTimeSlices[0].getTimeSlices()[0].getValue()
         if self.tappedValues.count == 0 {
             return 60
         }

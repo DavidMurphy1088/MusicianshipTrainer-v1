@@ -58,10 +58,12 @@ class AudioTicker {
         return audioPlayers
     }
     
-    func soundTick(noteValue:Double?=nil) {
+    func soundTick(noteValue:Double?=nil, silent:Bool) {
         let nextAudioPlayer = newBar ? audioPlayersHigh[nextPlayer] : audioPlayersLow[nextPlayer]
         nextAudioPlayer.volume = newBar ? 1.0 : 0.33
-        nextAudioPlayer.play()
+        if !silent {
+            nextAudioPlayer.play()
+        }
         nextPlayer += 1
         if nextPlayer > numAudioPlayers - 1 {
             nextPlayer = 0

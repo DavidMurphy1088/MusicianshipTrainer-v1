@@ -155,22 +155,22 @@ class Metronome: ObservableObject {
     
     func playScore(score:Score, rhythmNotesOnly:Bool=false, onDone: (()->Void)? = nil) {
         let audioSamplerMIDI = AudioSamplerPlayer.shared.sampler //getMidiAudioSampler()
+//        guard self.nextScoreTimeSlice != nil else {
+//            return
+//        }
 
         //find the first note to play
         nextScoreIndex = 0
         if score.scoreEntries.count > 0 {
             if score.scoreEntries[0] is TimeSlice {
                 let next = score.scoreEntries[0] as! TimeSlice
-                if next.notes.count > 0 {
+                if next.getTimeSlices().count > 0 {
                     self.score = score
                     self.nextScoreTimeSlice = next
-                    self.currentNoteTimeToLive = nextScoreTimeSlice!.notes[0].getValue()
+                    self.currentNoteTimeToLive = nextScoreTimeSlice!.getTimeSlices()[0].getValue()
                     self.onDoneFunction = onDone
                 }
             }
-        }
-        if self.nextScoreTimeSlice == nil {
-            return
         }
         nextScoreIndex = 1
         if !self.isThreadRunning {
@@ -205,7 +205,6 @@ class Metronome: ObservableObject {
             var noteValueSpeechWord:String? = nil
             var ticksPlayed = 0
             var firstNote = true
-            var currentRestTimeToLive = 0.0
             
             while keepRunning {
                 noteValueSpeechWord = nil
@@ -216,7 +215,7 @@ class Metronome: ObservableObject {
 
                 if loopCtr % 2 == 0 {
                     if self.tickingIsActive {
-                        audioTickerMetronomeTick.soundTick()
+                        audioTickerMetronomeTick.soundTick(silent: false)
                         ticksPlayed += 1
                     }
                 }
@@ -224,34 +223,39 @@ class Metronome: ObservableObject {
                 //sound the next note
 
                 if (firstNote && loopCtr % 2 == 0) || (!firstNote) {
-                    //just process rests like notes but dont sound them. But adjust sound tick's counting'
                     if let score = score {
                         firstNote = false
                         if let timeSlice = nextScoreTimeSlice {
                             var noteInChordNum = 0
-                            if timeSlice.notes.count > 0 {
-                                let topNote = timeSlice.notes[0]
-                                if currentNoteTimeToLive >= topNote.getValue() {
-                                    for note in timeSlice.notes {
-                                        if note.isOnlyRhythmNote  {
-                                            audioClapper.soundTick(noteValue: note.getValue())
-                                        }
-                                        else {
-                                            //print(" --- Score play note", loopCtr, "next score time slice", nextScoreTimeSlice)
-                                            if let audioPlayer = audioSamplerPlayerMIDI {
-                                                audioPlayer.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
+                            let entry = timeSlice.entries[0]
+                            if timeSlice.entries.count > 0 {
+                                let entry = timeSlice.entries[0]
+                                if currentNoteTimeToLive >= entry.getValue() {
+                                    if entry is Rest {
+                                        audioClapper.soundTick(noteValue: entry.getValue(), silent: true)
+                                    }
+                                    else {
+                                        for note in timeSlice.getTimeSlices() {
+                                            if note.isOnlyRhythmNote  {
+                                                audioClapper.soundTick(noteValue: note.getValue(), silent: false)
                                             }
+                                            else {
+                                                //print(" --- Score play note", loopCtr, "next score time slice", nextScoreTimeSlice)
+                                                if let audioPlayer = audioSamplerPlayerMIDI {
+                                                    audioPlayer.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
+                                                }
+                                            }
+                                            if noteInChordNum == 0 && note.getValue() < 1.0 {
+                                                noteValueSpeechWord = "and"
+                                            }
+                                            noteInChordNum += 1
                                         }
-                                        if noteInChordNum == 0 && note.getValue() < 1.0 {
-                                            noteValueSpeechWord = "and"
-                                        }
-                                        noteInChordNum += 1
                                     }
                                     
-                                    topNote.setHilite(hilite: true)
+                                    entry.setHilite(hilite: true)
                                     DispatchQueue.global(qos: .background).async {
                                         Thread.sleep(forTimeInterval: 0.5)
-                                        topNote.setHilite(hilite: false)
+                                        entry.setHilite(hilite: false)
                                     }
                                 }
                             }
@@ -260,37 +264,26 @@ class Metronome: ObservableObject {
                             //determine what time slice comes on the next tick. e.g. possibly for a long note the current time slice needs > 1 tick
                             //print("============", nextScoreIndex, currentNoteTimeToLive, currentRestTimeToLive, "idx")
                             currentNoteTimeToLive -= self.shortestNoteValue
-//                            if currentNoteTimeToLive <= 0 {
-//                                currentRestTimeToLive -= self.shortestNoteValue
-//                            }
-                            
                             if currentNoteTimeToLive <= 0 {
-                                //look for the next note to play
+                                //look for the next note (or rest) to play
                                 nextScoreTimeSlice = nil
                                 while nextScoreIndex < score.scoreEntries.count {
                                     let entry = score.scoreEntries[nextScoreIndex]
                                     if entry is TimeSlice {
                                         nextScoreTimeSlice = entry as! TimeSlice
-                                        if nextScoreTimeSlice!.notes.count > 0 {
+                                        if nextScoreTimeSlice!.entries.count > 0 {
                                             nextScoreIndex += 1
-                                            currentNoteTimeToLive = nextScoreTimeSlice!.notes[0].getValue()
-                                            if nextScoreIndex < score.scoreEntries.count {
-                                                let x = score.scoreEntries[nextScoreIndex]
-                                                if x is Rest {
-                                                    let rest = x as! Rest
-                                                    currentRestTimeToLive = rest.value
-                                                }
-                                            }
+                                            //currentNoteTimeToLive = nextScoreTimeSlice!.getNotes()[0].getValue()
+                                            currentNoteTimeToLive = nextScoreTimeSlice!.entries[0].getValue()
                                             break
                                         }
-                                        else {
-                                            let barLine = entry as! BarLine
-                                            if barLine != nil {
-                                                currentTimeValue = 0
-                                            }
+                                    }
+                                    if entry is BarLine {
+                                        let barLine = entry as! BarLine
+                                        if barLine != nil {
+                                            currentTimeValue = 0
                                         }
                                     }
-                                    
                                     nextScoreIndex += 1
                                 }
                             }
@@ -300,7 +293,7 @@ class Metronome: ObservableObject {
 
                 if speechEnabled {
                     if loopCtr % 2 == 0 {
-                        let word = noteCoundSpeechWord(currentTimeValue: currentTimeValue)
+                        let word = noteCountSpeechWord(currentTimeValue: currentTimeValue)
                         speech.speakWord(word)
                     }
                     else {
@@ -341,7 +334,7 @@ class Metronome: ObservableObject {
         }
     }
 
-    func noteCoundSpeechWord(currentTimeValue:Double) -> String {
+    func noteCountSpeechWord(currentTimeValue:Double) -> String {
         var word = ""
         if currentTimeValue.truncatingRemainder(dividingBy: 1) == 0 {
             let cvInt = Int(currentTimeValue)

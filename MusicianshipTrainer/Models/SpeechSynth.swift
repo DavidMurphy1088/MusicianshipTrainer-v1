@@ -19,7 +19,7 @@ class SpeechSynthesizer {
                 if voice.name.contains("Saman") {//"Saman"
                     // print("                 ===========", voice.gender, voice.name, voice.quality)
                     
-                    print(voice.gender.rawValue, voice.name)
+                    //print(voice.gender.rawValue, voice.name)
                     if voice.name.contains("Saman") {//"Saman"
                         //print("                 ===========", voice.gender, voice.name, voice.quality)
                         voiceToUse = voice

@@ -21,7 +21,7 @@ struct PlayExampleMelody : View {
             var secondNote:Note?
             var firstNote:Note?
             for timeSlice in score.getAllTimeSlices() {
-                let notes = timeSlice.notes
+                let notes = timeSlice.getTimeSlices()
                 if notes.count > 0 {
                     let note = notes[0]
                     if firstNote == nil {

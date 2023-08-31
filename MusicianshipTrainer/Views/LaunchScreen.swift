@@ -67,7 +67,7 @@ struct LaunchScreenView: View {
     }
     
     func log() {
-        print("LaunchScreenView ", "id:", id, "state:", launchScreenState.state, "opac:", opacity.imageOpacity, "dur:", durationSeconds, "id:")
+        //print("LaunchScreenView ", "id:", id, "state:", launchScreenState.state, "opac:", opacity.imageOpacity, "dur:", durationSeconds, "id:")
     }
     
     

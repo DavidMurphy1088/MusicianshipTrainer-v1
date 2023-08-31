@@ -322,7 +322,6 @@ class GoogleAPI {
         }
         paths.append(ageGroup)
         var pathIndex = 1
-        print(UIGlobals.ageGroup, ageGroupPath, paths)
 
         var folderId = rootFolderId
         DispatchQueue.global(qos: .background).async {

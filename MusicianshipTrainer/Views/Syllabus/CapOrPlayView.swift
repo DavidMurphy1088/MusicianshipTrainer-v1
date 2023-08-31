@@ -141,7 +141,8 @@ struct ClapOrPlayPresentView: View {
                     score.addBarLine()
                 }
                 if entry is Rest {
-                    score.addRest(rest: entry as! Rest)
+                    let timeSlice = score.addTimeSlice()
+                    timeSlice.addRest(rest: entry as! Rest)
                 }
             }
         }
@@ -153,12 +154,23 @@ struct ClapOrPlayPresentView: View {
         if questionType == .melodyPlay {
             if let timeSlice = score.getLastTimeSlice() {
                 timeSlice.addTonicChord()
-                timeSlice.setTags(high: score.key.keySig.accidentalCount > 0 ? "G" : "C", low: "I")
+                let keyTag:String
+                if score.key.keySig.accidentalCount == 2 {
+                    keyTag = "D"
+                }
+                else {
+                    if score.key.keySig.accidentalCount == 1 {
+                        keyTag = "G"
+                    }
+                    else {
+                        keyTag = "C"
+                    }
+                }
+                timeSlice.setTags(high: keyTag, low: "I")
             }
             let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: questionType == .rhythmVisualClap ? 1 : 5)
             bstaff.isHidden = true
             score.setStaff(num: 1, staff: bstaff)
-            //score.hiddenStaffNo = 1
         }
     }
 
@@ -443,7 +455,6 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         self.tappingScore = rhythmAnalysis
         if let tappingScore = tappingScore {
             let errorsExist = score.markupStudentScore(questionTempo: self.questionTempo,
-                                                       //recordedTempo: 0, metronomeTempo: 0,
                                                        metronomeTempoAtStartRecording: tapRecorder.metronomeTempoAtRecordingStart ?? 0,
                                                        scoreToCompare: tappingScore, allowTempoVariation: questionType != .rhythmEchoClap)
             //self.answerWasCorrect1 = !errorsExist

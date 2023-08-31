@@ -112,21 +112,23 @@ struct CleffView: View {
 struct KeySignatureView: View {
     @ObservedObject var score:Score
     var lineSpacing:Double
-    var staffOffset:Int
-    
+    var staffOffset:[Int]
+
     var body: some View {
-        //if score.key.keySig.accidentalCount > 0 {
-        GeometryReader { geometry in
-            VStack {
-                Image("sharp")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: lineSpacing)
-                    .position(CGPoint(x: geometry.size.width/2.0, y: geometry.size.height/2.0 - Double(staffOffset) * lineSpacing / 2.0))
+        HStack {
+            ForEach(staffOffset, id: \.self) { offset in
+                VStack {
+                    Image("sharp")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: lineSpacing)
+                        .offset(y: 0 - Double(offset) * lineSpacing / 2.0)
+                }
+                .padding()
+                .frame(width: lineSpacing * 1.4)
+                //.border(Color.blue)
             }
-            //.border(Color.blue)
         }
-        .frame(width: lineSpacing * 1.5)
     }
 }
 
@@ -134,13 +136,13 @@ struct StaffView: View {
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
     @ObservedObject var staffLayoutSize:StaffLayoutSize = StaffLayoutSize(lineSpacing: 0)
-
+    
     @State private var rotationId: UUID = UUID()
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var position: CGPoint = .zero
     var entryPositions:[Double] = []
     var totalDuration = 0.0
-
+    
     init (score:Score, staff:Staff, staffLayoutSize:StaffLayoutSize) {
         self.score = score
         self.staff = staff
@@ -156,7 +158,7 @@ struct StaffView: View {
     func getNotes(entry:ScoreEntry) -> [Note] {
         if entry is TimeSlice {
             let ts = entry as! TimeSlice
-            return ts.notes
+            return ts.getTimeSlices()
         }
         else {
             let n:[Note] = []
@@ -164,24 +166,41 @@ struct StaffView: View {
         }
     }
     
-//    func getLineSpacing() -> Double {
-//        //print("  StaffView body::lineSpace", lineSpacing)
-//        return lineSpacing.value
-//    }
+    func keySigOffsets(staff:Staff, keySignture:KeySignature) -> [Int] {
+        var offsets:[Int] = []
+        if staff.type == .treble {
+            if keySignture.accidentalCount > 0 {
+                offsets.append(4)
+            }
+            if keySignture.accidentalCount > 1 {
+                offsets.append(1)
+            }
+        }
+        else {
+            if keySignture.accidentalCount > 0 {
+                offsets.append(2)
+            }
+            if keySignture.accidentalCount > 1 {
+                offsets.append(-1)
+            }
 
+        }
+        return offsets
+    }
+    
     var body: some View {
         ZStack { // The staff lines view and everything else on the staff share the same space
             StaffLinesView(staff: staff, staffLayoutSize: staffLayoutSize)
                 .frame(height: staffLayoutSize.getStaffHeight(score: score))
-                //.border(Color .purple, width: 2)
             
             HStack(spacing: 0) {
                 if staff.linesInStaff != 1 {
                     CleffView(staff: staff, lineSpacing: staffLayoutSize)
                         .frame(height: staffLayoutSize.getStaffHeight(score: score))
                     //.border(Color.red)
-                    if score.key.keySig.accidentalCount != 0 {
-                        KeySignatureView(score: score, lineSpacing: staffLayoutSize.lineSpacing, staffOffset: staff.type == .treble ? 4 : 2)
+                    if score.key.keySig.accidentalCount > 0 {
+                        KeySignatureView(score: score, lineSpacing: staffLayoutSize.lineSpacing,
+                                         staffOffset: keySigOffsets(staff: staff, keySignture: score.key.keySig))
                             .frame(height: staffLayoutSize.getStaffHeight(score: score))
                     }
                 }
@@ -192,7 +211,6 @@ struct StaffView: View {
 
                 StaffNotesView(score: score, staff: staff, lineSpacing: staffLayoutSize)
                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
-                //Text("      ")
             }
         }
         .frame(height: staffLayoutSize.getStaffHeight(score: score))

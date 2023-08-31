@@ -308,23 +308,31 @@ struct SectionsNavigationView:View {
                                tag: index,
                                selection: $sectionIndex) {
 
-                    HStack {
-                        Text(contentSections[index].getTitle()).padding().font(.title2)
+                    VStack {
                         Spacer()
                         HStack {
                             Spacer()
-                            //Text(self.getExamCompleteStatus(contentSection: contentSections[index])).padding().font(.title2)
-                            //Text("Status:[\(contentSections[index].questionStatus.status)]")
+                            Text(contentSections[index].getTitle()).padding()
+                                //.font(.title2)
+                                .font(.custom("Courgette-Regular", size: 32))
+                            Spacer()
                             if let rowImage = getGradeImage(contentSection: contentSections[index]) {
-                                Spacer()
-                                rowImage
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 40.0)
+                                HStack {
+                                    Spacer()
+                                //Text(self.getExamCompleteStatus(contentSection: contentSections[index])).padding().font(.title2)
+                                //Text("Status:[\(contentSections[index].questionStatus.status)]")
                                 
-                                Text("    ")
+                                    //Spacer()
+                                    rowImage
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 40.0)
+                                    
+                                    Text("    ")
+                                }
                             }
                         }
+                        Spacer()
                     }
                 }
             }
@@ -520,12 +528,12 @@ struct ContentSectionView: View {
         }
         .onAppear {           
             if contentSection.answer111 != nil {
-                print("ContentSectionView ==== did set answer submitted", answerState)
+                //print("ContentSectionView ==== did set answer submitted", answerState)
                 self.answerState = .submittedAnswer
                 self.answer = contentSection.answer111!
             }
             else {
-                print("ContentSectionView ==== did NOT set answer submitted", answerState)
+                //print("ContentSectionView ==== did NOT set answer submitted", answerState)
             }
             
         }

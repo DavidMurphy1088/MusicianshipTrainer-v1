@@ -41,7 +41,7 @@ struct ConfigurationView: View {
                     else {
                         selectedAge = 1
                     }
-                    print("OnAppear", selectedAge)
+                    //print("OnAppear", selectedAge)
                 }
                 
                 // =================== Colors ===================
@@ -98,7 +98,7 @@ struct ConfigurationView: View {
                         UIGlobals.colorBackground = colorBackground
                         
                         UIGlobals.ageGroup = selectedAge == 0 ? .Group_5To10 : .Group_11Plus
-                        print("Save Config", selectedAge, UIGlobals.ageGroup)
+                        //print("Save Config", selectedAge, UIGlobals.ageGroup)
                         Settings.shared.saveConfig()
                         isPresented = false
                     }

@@ -21,12 +21,14 @@ class NoteLayoutPositions: ObservableObject {
         return lp
     }
     
-    func storePosition(note: Note, rect: CGRect, cord:String) {
-        if note.beamType != .none {
-            let rectCopy = CGRect(origin: CGPoint(x: rect.minX, y: rect.minY), size: CGSize(width: rect.size.width, height: rect.size.height))
-            DispatchQueue.main.async {
-                sleep(UInt32(0.25))
-                self.positions[note] = rectCopy //rect
+    func storePosition(notes: [Note], rect: CGRect, cord:String) {
+        if notes.count > 0 {
+            if notes[0].beamType != .none {
+                let rectCopy = CGRect(origin: CGPoint(x: rect.minX, y: rect.minY), size: CGSize(width: rect.size.width, height: rect.size.height))
+                DispatchQueue.main.async {
+                    sleep(UInt32(0.25))
+                    self.positions[notes[0]] = rectCopy //rect
+                }
             }
         }
     }
@@ -44,20 +46,24 @@ class StaffPlacementsByKey {
 class NoteOffsetsInStaffByKey {
     var noteOffsetByKey:[String] = []
     init () {
+        //defines the way in which a midi pitch is displayed with accidentals in each key
         // offset, sign. sign = ' ' or 0=flat, 1=natural, 2=sharp
         //modified July23 - use -1 for flat, 0 for natural, 1 for sharp. Done onlu so far for C and G
+        //horizontal is the various keys
+        //vertical starts at showing how C is shown in that key, then c#, d, d# etc up the scale
+        //31Aug2023 - done for C, G and D
         //  Key                 C     D♭   D    E♭   E    F    G♭    G     A♭   A    B♭   B
-        noteOffsetByKey.append("0     0    0,1  0    0,1  0    0,1   0     0    0,1  0    0,0")  //C
-        noteOffsetByKey.append("0,1   1    0    1,0  0    1,0  1     0,1   1    0    1,0  0,0")  //C#
+        noteOffsetByKey.append("0     0    0    0    0,1  0    0,1   0     0    0,1  0    0,0")  //C
+        noteOffsetByKey.append("0,1   1    0,1  1,0  0    1,0  1     0,1   1    0    1,0  0,0")  //C#
         noteOffsetByKey.append("1     1,1  1    1    1,1  1    1,1   1     1,1  1    1    0,0")  //D
-        noteOffsetByKey.append("2,-1  2    2,0  2    1    2,0  2    2,-1  2    1,2  2    0,0")  //E♭
+        noteOffsetByKey.append("2,-1  2    2,-1 2    1    2,0  2     2,-1  2    1,2  2    0,0")  //E♭
         noteOffsetByKey.append("2     2,1  2    2,1  2    2    2,1   2     2,1  2    2,1  0,0")  //E
-        noteOffsetByKey.append("3     3    3,1  3    3,1  3    3     3     3    3,1  3    0,0")  //F
-        noteOffsetByKey.append("3,1   4    3    4,0  3    4,0  4     3,1   4,0  3    4,0  0,0")  //F#
+        noteOffsetByKey.append("3     3    3    3    3,1  3    3     3     3    3,1  3    0,0")  //F
+        noteOffsetByKey.append("3,1   4    3,1  4,0  3    4,0  4     3,1   4,0  3    4,0  0,0")  //F#
         noteOffsetByKey.append("4     4,1  4    4    4,1  4    4,1   4     4    4,1  4    0,0")  //G
-        noteOffsetByKey.append("4,1   5    4,2  5    4    5,0  5     4,1   5    4    5,0  0,0")  //G#
+        noteOffsetByKey.append("4,1   5    4,1  5    4    5,0  5     4,1   5    4    5,0  0,0")  //G#
         noteOffsetByKey.append("5     5,1  5    5,1  5    5    5,1   5     5,1  5    5    0,0")  //A
-        noteOffsetByKey.append("6,-1  6    6,0  6    6,0  6    6    6,0   6    6,0  6    0,0")  //B♭
+        noteOffsetByKey.append("6,-1  6    6,-1 6    6,0  6    6     6,-1  6    6,0  6    0,0")  //B♭
         noteOffsetByKey.append("6     6,1  6    6,1  6    6,1  6,1   6     6,1  6    6,1  0,0")  //B
     }
     
@@ -128,7 +134,13 @@ class Staff : ObservableObject {
         //Determine the staff placement for each note pitch
         
         //var noteOffsets:[NoteStaffPlacement] = []
-        let keyNumber = score.key.keySig.accidentalCount == 0 ? 0 : 7 //C Maj or G Maj
+        var keyNumber:Int = 0
+        if score.key.keySig.accidentalCount == 1 {
+            keyNumber = 7
+        }
+        if score.key.keySig.accidentalCount == 2 {
+            keyNumber = 2
+        }
         
         //for scaleDegreeLine in NoteOffsetsInStaffByKey().noteOffsetByKey {
 //            let scaleDegreeComponents:String = String(scaleDegreeLine.components(separatedBy: " ")[keyColumn])

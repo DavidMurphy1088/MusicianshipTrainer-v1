@@ -2,17 +2,27 @@ import SwiftUI
 import CoreData
 
 struct GradeIntroView: View {
+//    func test() -> Bool {
+//        for family in UIFont.familyNames {
+//            for name in UIFont.fontNames(forFamilyName: family) {
+//                print(name)
+//            }
+//        }
+//        return true
+//    }
     
     var body: some View {
             VStack  (alignment: .center) {
                 //Text("TopicsNavigationView")
                 Text("Musicianship Trainer")
-                    .font(.title)
+                    //.font(.title)
+                    .font(.custom("Courgette-Regular", size: 66))
                     .fontWeight(.bold)
                     .padding()
                 
+                
                 Text("Grade 1 Piano")
-                    .font(.title)
+                    .font(.custom("Courgette-Regular", size: 66))
                     .fontWeight(.bold)
                     .padding()
                 
@@ -24,6 +34,7 @@ struct GradeIntroView: View {
                         .padding()
                 //}
             }
+            .padding()
     }
 }
 
@@ -54,13 +65,30 @@ struct ContentNavigationView: View {
                     List(contentSection.subSections) { contentSection in
                         NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                                                                        //parentsSelectedContentIndex: $selectedContentIndex)) {
-                            VStack(alignment: .center) {
-                                Text(contentSection.getTitle()).padding()
-                                    .font(.title2)
+                            VStack {
+                                Spacer()
+                                HStack {
+                                    Spacer()
+                                    Text(contentSection.getTitle()).padding()
+                                        //.font(.title2)
+                                        .font(.custom("Courgette-Regular", size: 32))
+                                    
+                                    Spacer()
+                                }
+                                Spacer()
                             }
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                            )
+                            .padding(.vertical, 4)
+
                             //.navigationBarTitleDisplayMode(.inline)
                         }
                         .disabled(!contentSection.isActive)
+//                        .overlay(
+//                            Divider(), alignment: .bottom
+//                        )
                         //The back nav link that will be shown on the ContentSectionView
                         //.navigationTitle("NavTtitle::\(self.topic.level == 0 ? "" : topic.title)")
                    }

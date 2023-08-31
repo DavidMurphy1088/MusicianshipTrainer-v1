@@ -168,7 +168,7 @@ class ContentSection: Codable, Identifiable {
     
     func debug() {
         let spacer = String(repeating: " ", count: 4 * (level))
-        print(spacer, "--->", "path:[\(self.getPath())]", "\tname:", self.name, "\ttype:[\(self.type)]")
+        //print(spacer, "--->", "path:[\(self.getPath())]", "\tname:", self.name, "\ttype:[\(self.type)]")
 //        let sorted:[ContentSection] = subSections.sorted { (c1, c2) -> Bool in
 //            //return c1.loadedRow < c2.loadedRow
 //            return c1.name < c2.name
@@ -375,7 +375,14 @@ class ContentSection: Codable, Identifiable {
             //Fixed
             
             if i == 0 {
-                result.append(KeySignature(type: .sharp, count: parts[0] == "C" ? 0 : 1))
+                var keySigCount = 0
+                if parts[0] == "G" {
+                    keySigCount = 1
+                }
+                if parts[0] == "D" {
+                    keySigCount = 2
+                }
+                result.append(KeySignature(type: .sharp, count: keySigCount))
                 continue
             }
             if i == 1 {

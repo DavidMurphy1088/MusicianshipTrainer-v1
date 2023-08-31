@@ -114,9 +114,6 @@ class ExampleData : ObservableObject {
                         else {
                             contentData = []
                         }
-                        if keyLevel == 0 {
-                            print("")
-                        }
 
                         let contentSection = ContentSection(
                             parent: parent,
