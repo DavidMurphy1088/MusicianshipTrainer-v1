@@ -21,7 +21,7 @@ struct PlayExampleMelody : View {
             var secondNote:Note?
             var firstNote:Note?
             for timeSlice in score.getAllTimeSlices() {
-                let notes = timeSlice.getTimeSlices()
+                let notes = timeSlice.getTimeSliceNotes()
                 if notes.count > 0 {
                     let note = notes[0]
                     if firstNote == nil {
@@ -139,7 +139,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                     timeSlice.addNote(n: note)
                     intervalNotes.append(note)
                     if questionType == .intervalAural {
-                        chord.addNote(note: Note(num: note.midiNumber, value: 2, accidental: note.accidental))
+                        chord.addNote(note: Note(num: note.midiNumber, value: 2, staffNum: 0, accidental: note.accidental))
                     }
                 }
                 if entry is TimeSignature {

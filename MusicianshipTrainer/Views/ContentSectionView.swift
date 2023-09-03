@@ -2,20 +2,9 @@ import SwiftUI
 import WebKit
 
 struct ContentTypeView: View {
-
     let contentSection:ContentSection
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
-    //@Binding var parentSelectionIndex: Int?
-    
-//    init(contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>) {
-//        _someBinding = someBinding
-//    }
-//
-//    // When no binding is passed, use a constant false value
-//    init() {
-//        _someBinding = .constant(false)
-//    }
 
     func isNavigationHidden() -> Bool {
         ///No exit navigation in exam mode
@@ -461,6 +450,60 @@ struct ExamView: View {
     }
 }
 
+struct ContentOverviewView: View {
+    let contentSection:ContentSection
+    let googleAPI = GoogleAPI.shared
+    @State var HTMLcontent: String?
+    
+    init(contentSection:ContentSection) {
+        self.contentSection = contentSection
+    }
+    
+    struct HTMLOverviewView: UIViewRepresentable {
+        var htmlDocument:String
+
+        func makeUIView(context: Context) -> WKWebView {
+            return WKWebView()
+        }
+        
+        func updateUIView(_ uiView: WKWebView, context: Context) {
+            uiView.loadHTMLString(htmlDocument.trimmingCharacters(in: .whitespaces), baseURL: nil)
+        }
+    }
+    
+    func getContent()  {
+        googleAPI.getDocumentByName(contentSection: self.contentSection, name: contentSection.type) {status,document in
+            if status == .success {
+                self.HTMLcontent = document ?? ""
+            }
+            else {
+                self.HTMLcontent = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
+            }
+        }
+    }
+
+    var body: some View {
+        ZStack {
+            Text("Overview")
+            if let content = self.HTMLcontent {
+                HStack {
+                    GeometryReader { geometry in
+                        HTMLOverviewView(htmlDocument: content)
+                            .frame(height: geometry.size.height * 0.8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                            )
+                            .padding()
+                    }
+                }
+            }
+        }
+        .onAppear {
+            getContent()
+        }
+    }
+}
+
 struct ContentSectionView: View {
     let contentSection:ContentSection
     @State private var selectedContentIndex: Int?
@@ -508,22 +551,28 @@ struct ContentSectionView: View {
                 }
             }
             else {
-                ContentTypeView(contentSection: self.contentSection,
-                                answerState: $answerState,
-                                answer: $answer)
-                                //parentSelectionIndex: $selectedContentIndex)
+                if contentSection.type == "Overview" {
+                    ContentOverviewView(contentSection: self.contentSection)
+                }
+                else {
+                    ContentTypeView(contentSection: self.contentSection,
+                                    answerState: $answerState,
+                                    answer: $answer)
+                }
             }
             if contentSection.subSections.count == 0 {
+                if contentSection.type != "Overview" {
                 ///Tell the parent to navigate to the next section
-                Button("Next Example") {
-                    if self.parentSelectionIndex == nil {
-                        self.parentSelectionIndex = 0
+                    Button("Next Example") {
+                        if self.parentSelectionIndex == nil {
+                            self.parentSelectionIndex = 0
+                        }
+                        else {
+                            self.parentSelectionIndex! += 1
+                        }
                     }
-                    else {
-                        self.parentSelectionIndex! += 1
-                    }
+                    .padding()
                 }
-                .padding()
             }
         }
         .onAppear {           

@@ -112,11 +112,11 @@ struct CleffView: View {
 struct KeySignatureView: View {
     @ObservedObject var score:Score
     var lineSpacing:Double
-    var staffOffset:[Int]
+    var staffOffsets:[Int]
 
     var body: some View {
         HStack {
-            ForEach(staffOffset, id: \.self) { offset in
+            ForEach(staffOffsets, id: \.self) { offset in
                 VStack {
                     Image("sharp")
                         .resizable()
@@ -125,7 +125,7 @@ struct KeySignatureView: View {
                         .offset(y: 0 - Double(offset) * lineSpacing / 2.0)
                 }
                 .padding()
-                .frame(width: lineSpacing * 1.4)
+                .frame(width: lineSpacing * (staffOffsets.count <= 2 ? 1.4 : 1.0))
                 //.border(Color.blue)
             }
         }
@@ -158,7 +158,7 @@ struct StaffView: View {
     func getNotes(entry:ScoreEntry) -> [Note] {
         if entry is TimeSlice {
             let ts = entry as! TimeSlice
-            return ts.getTimeSlices()
+            return ts.getTimeSliceNotes()
         }
         else {
             let n:[Note] = []
@@ -169,11 +169,18 @@ struct StaffView: View {
     func keySigOffsets(staff:Staff, keySignture:KeySignature) -> [Int] {
         var offsets:[Int] = []
         if staff.type == .treble {
+            //Key Sig offsets on staff
             if keySignture.accidentalCount > 0 {
                 offsets.append(4)
             }
             if keySignture.accidentalCount > 1 {
                 offsets.append(1)
+            }
+            if keySignture.accidentalCount > 2 {
+                offsets.append(5)
+            }
+            if keySignture.accidentalCount > 3 {
+                offsets.append(2)
             }
         }
         else {
@@ -200,7 +207,7 @@ struct StaffView: View {
                     //.border(Color.red)
                     if score.key.keySig.accidentalCount > 0 {
                         KeySignatureView(score: score, lineSpacing: staffLayoutSize.lineSpacing,
-                                         staffOffset: keySigOffsets(staff: staff, keySignture: score.key.keySig))
+                                         staffOffsets: keySigOffsets(staff: staff, keySignture: score.key.keySig))
                             .frame(height: staffLayoutSize.getStaffHeight(score: score))
                     }
                 }

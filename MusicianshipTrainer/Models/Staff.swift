@@ -4,7 +4,7 @@ import AVFoundation
 
 //https://mammothmemory.net/music/sheet-music/reading-music/treble-clef-and-bass-clef.html
 
-//used to record view positions of notes as they are drawn by a view so that a 2nd drwing pass can draw quaver beams to the right points
+//used to record view positions of notes as they are drawn by a view so that a 2nd darwing pass can draw quaver beams to the right points
 class NoteLayoutPositions: ObservableObject {
     @Published var positions:[Note: CGRect] = [:]
 
@@ -27,7 +27,7 @@ class NoteLayoutPositions: ObservableObject {
                 let rectCopy = CGRect(origin: CGPoint(x: rect.minX, y: rect.minY), size: CGSize(width: rect.size.width, height: rect.size.height))
                 DispatchQueue.main.async {
                     sleep(UInt32(0.25))
-                    self.positions[notes[0]] = rectCopy //rect
+                    self.positions[notes[0]] = rectCopy
                 }
             }
         }
@@ -46,24 +46,25 @@ class StaffPlacementsByKey {
 class NoteOffsetsInStaffByKey {
     var noteOffsetByKey:[String] = []
     init () {
-        //defines the way in which a midi pitch is displayed with accidentals in each key
-        // offset, sign. sign = ' ' or 0=flat, 1=natural, 2=sharp
+        //Defines which staff line (and accidental) is used to show a midi pitch in each key,
+        //assuming key signature is not taken in account (it will be later in the note display code...)
+        //offset, sign. sign = ' ' or -1=flat, 1=sharp (1=natural,????)
         //modified July23 - use -1 for flat, 0 for natural, 1 for sharp. Done onlu so far for C and G
         //horizontal is the various keys
         //vertical starts at showing how C is shown in that key, then c#, d, d# etc up the scale
-        //31Aug2023 - done for C, G and D
+        //31Aug2023 - done for C, G, D, E
         //  Key                 C     D♭   D    E♭   E    F    G♭    G     A♭   A    B♭   B
-        noteOffsetByKey.append("0     0    0    0    0,1  0    0,1   0     0    0,1  0    0,0")  //C
-        noteOffsetByKey.append("0,1   1    0,1  1,0  0    1,0  1     0,1   1    0    1,0  0,0")  //C#
-        noteOffsetByKey.append("1     1,1  1    1    1,1  1    1,1   1     1,1  1    1    0,0")  //D
-        noteOffsetByKey.append("2,-1  2    2,-1 2    1    2,0  2     2,-1  2    1,2  2    0,0")  //E♭
+        noteOffsetByKey.append("0     0    0    0    0    0    0,1   0     0    0,1  0    0,0")  //C
+        noteOffsetByKey.append("0,1   1    0,1  1,0  0,1  1,0  1     0,1   1    0    1,0  0,0")  //C#, D♭
+        noteOffsetByKey.append("1     1,1  1    1    1    1    1,1   1     1,1  1    1    0,0")  //D
+        noteOffsetByKey.append("2,-1  2    2,-1 2    1,1  2,0  2     2,-1  2    1,2  2    0,0")  //D#, E♭
         noteOffsetByKey.append("2     2,1  2    2,1  2    2    2,1   2     2,1  2    2,1  0,0")  //E
-        noteOffsetByKey.append("3     3    3    3    3,1  3    3     3     3    3,1  3    0,0")  //F
-        noteOffsetByKey.append("3,1   4    3,1  4,0  3    4,0  4     3,1   4,0  3    4,0  0,0")  //F#
-        noteOffsetByKey.append("4     4,1  4    4    4,1  4    4,1   4     4    4,1  4    0,0")  //G
-        noteOffsetByKey.append("4,1   5    4,1  5    4    5,0  5     4,1   5    4    5,0  0,0")  //G#
+        noteOffsetByKey.append("3     3    3    3    3    3    3     3     3    3,1  3    0,0")  //F
+        noteOffsetByKey.append("3,1   4    3,1  4,0  3,1  4,0  4     3,1   4,0  3    4,0  0,0")  //F#, G♭
+        noteOffsetByKey.append("4     4,1  4    4    4    4    4,1   4     4    4,1  4    0,0")  //G
+        noteOffsetByKey.append("4,1   5    4,1  5    4,1  5,0  5     4,1   5    4    5,0  0,0")  //G#, A♭
         noteOffsetByKey.append("5     5,1  5    5,1  5    5    5,1   5     5,1  5    5    0,0")  //A
-        noteOffsetByKey.append("6,-1  6    6,-1 6    6,0  6    6     6,-1  6    6,0  6    0,0")  //B♭
+        noteOffsetByKey.append("6,-1  6    6,-1 6    6,0  6    6     6,-1  6    6,0  6    0,0")  //A#, B♭
         noteOffsetByKey.append("6     6,1  6    6,1  6    6,1  6,1   6     6,1  6    6,1  0,0")  //B
     }
     
@@ -141,23 +142,6 @@ class Staff : ObservableObject {
         if score.key.keySig.accidentalCount == 2 {
             keyNumber = 2
         }
-        
-        //for scaleDegreeLine in NoteOffsetsInStaffByKey().noteOffsetByKey {
-//            let scaleDegreeComponents:String = String(scaleDegreeLine.components(separatedBy: " ")[keyColumn])
-//            let offsetAndAccidental = scaleDegreeComponents.components(separatedBy: ",")
-//            let offset:Int? = Int(offsetAndAccidental[0])
-//            if let offset = offset {
-//                var accidental:Int? = nil
-//                if offsetAndAccidental.count > 1 {
-//                    let accStr = offsetAndAccidental[1]
-//                    accidental = Int(accStr)
-//                }
-//                noteOffsets.append(NoteStaffPlacement(midi:0, offsetFroMidLine: offset, accidental: accidental))
-//            }
-//            else {
-//                Logger.logger.reportError(self, "No offset for MIDI \(scaleDegreeLine)")
-//            }
-        //}
         
         for noteValue in 0...highestNoteValue {
             //Fix - longer? - offset should be from middle C, notes should be displayed on both staffs from a single traversal of the score's timeslices

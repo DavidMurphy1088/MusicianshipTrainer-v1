@@ -164,10 +164,10 @@ class Metronome: ObservableObject {
         if score.scoreEntries.count > 0 {
             if score.scoreEntries[0] is TimeSlice {
                 let next = score.scoreEntries[0] as! TimeSlice
-                if next.getTimeSlices().count > 0 {
+                if next.getTimeSliceEntries().count > 0 {
                     self.score = score
                     self.nextScoreTimeSlice = next
-                    self.currentNoteTimeToLive = nextScoreTimeSlice!.getTimeSlices()[0].getValue()
+                    self.currentNoteTimeToLive = nextScoreTimeSlice!.getTimeSliceEntries()[0].getValue()
                     self.onDoneFunction = onDone
                 }
             }
@@ -235,7 +235,7 @@ class Metronome: ObservableObject {
                                         audioClapper.soundTick(noteValue: entry.getValue(), silent: true)
                                     }
                                     else {
-                                        for note in timeSlice.getTimeSlices() {
+                                        for note in timeSlice.getTimeSliceNotes() {
                                             if note.isOnlyRhythmNote  {
                                                 audioClapper.soundTick(noteValue: note.getValue(), silent: false)
                                             }

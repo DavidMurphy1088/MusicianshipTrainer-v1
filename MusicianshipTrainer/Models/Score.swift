@@ -14,7 +14,21 @@ class ScoreEntry : ObservableObject, Hashable {
         hasher.combine(id)
     }
     
-    func getTimeSlices() -> [Note] {
+    func getTimeSliceEntries() -> [TimeSliceEntry] {
+        var result:[TimeSliceEntry] = []
+        if self is TimeSlice {
+            let ts:TimeSlice = self as! TimeSlice
+            let entries = ts.entries
+            for entry in entries {
+                //if entry is Note {
+                    result.append(entry)
+                //}
+            }
+        }
+        return result
+    }
+    
+    func getTimeSliceNotes() -> [Note] {
         var result:[Note] = []
         if self is TimeSlice {
             let ts:TimeSlice = self as! TimeSlice
@@ -69,7 +83,7 @@ class Score : ObservableObject {
     var timeSignature:TimeSignature
     let ledgerLineCount =  2 //3//4 is required to represent low E
     
-    @Published var key:Key = Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.sharp, count: 0))
+    @Published var key:Key = Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.sharp, keyName: ""))
     @Published var showNotes = true
     @Published var showFootnotes = false
     @Published var studentFeedback:StudentFeedback? = nil
@@ -77,7 +91,7 @@ class Score : ObservableObject {
     
     var staffs:[Staff] = []
     
-    var minorScaleType = Scale.MinorType.natural
+    //var minorScaleType = Scale.MinorType.natural
     var recordedTempo:Int?
     static let maxTempo:Float = 200
     static let minTempo:Float = 30
@@ -113,81 +127,130 @@ class Score : ObservableObject {
     
     //return the first timeslice index of where the scores differ
     func getFirstDifferentTimeSlice(compareScore:Score) -> Int? {
-        //let compareEntries = compareScore.scoreEntries
-        var result:Int? = nil
-        var scoreCtr = 0
+         var result:Int? = nil
+         var scoreCtr = 0
 
-        let scoreTimeSlices = self.getAllTimeSlices()
-        let compareTimeSlices = compareScore.getAllTimeSlices()
+         let scoreTimeSlices = self.getAllTimeSlices()
+         let compareTimeSlices = compareScore.getAllTimeSlices()
 
-        //adjust score values to include rests (which effectivly for this rhythm comparison here lengthen the score entry values)
-        var scoreValues:[Double] = []
-        var currentNoteValue = 0.0
-        var lastNote:TimeSliceEntry? = nil
-        
-        for scoreTimeSlice in scoreTimeSlices {
-            if scoreTimeSlice.entries.count == 0 {
-                continue
-            }
-            let entry = scoreTimeSlice.entries[0]
-            if entry is Note {
-                if let lastNote = lastNote {
-                    scoreValues.append(currentNoteValue)
-                    currentNoteValue = 0
-                }
-                currentNoteValue += entry.getValue()
-                lastNote = entry
-                continue
-            }
-            if entry is Rest {
-                currentNoteValue += entry.getValue()
-                continue
-            }
-        }
-        if let lastNote = lastNote {
-            scoreValues.append(currentNoteValue)
-        }
-                
-        //compare values score vs. recorded
-        for scoreValue in scoreValues {
+         for scoreTimeSlice in scoreTimeSlices {
 
-            if compareTimeSlices.count <= scoreCtr {
-                result = scoreCtr
-                break
-            }
-            
-            let compareEntry = compareTimeSlices[scoreCtr]
-            let compareEntries = compareEntry.getTimeSlices()
-            //let scoreEntries = scoreTimeSlice.getTimeSlices()
+             if compareTimeSlices.count <= scoreCtr {
+                 result = scoreCtr
+                 break
+             }
+             
+             let compareEntry = compareTimeSlices[scoreCtr]
+             let compareNotes = compareEntry.getTimeSliceEntries()
+             let scoreNotes = scoreTimeSlice.getTimeSliceEntries()
 
-            if compareEntries == nil {
-                result = scoreCtr
-                break
-            }
-            if compareEntries.count == 0 { //} || scoreEntries.count == 0 {
-                result = scoreCtr
-                break
-            }
+//             if compareNotes == nil || scoreNotes == nil {
+//                 result = scoreCtr
+//                 break
+//             }
+             if compareNotes.count == 0 || scoreNotes.count == 0 {
+                 result = scoreCtr
+                 break
+             }
 
-            if scoreCtr == scoreValues.count - 1 {
-                if scoreValue > compareEntries[0].getValue() {
-                    result = scoreCtr
-                    break
-                }
-                else {
-                    compareEntries[0].setValue(value: scoreValue)
-                }
-            }
-            else {
-                if scoreValue != compareEntries[0].getValue() {
-                    result = scoreCtr
-                    break
-                }
-            }
-            scoreCtr += 1
-        }
-        return result
-    }
+             if scoreCtr == scoreTimeSlices.count - 1 {
+                 if scoreNotes[0].getValue() > compareNotes[0].getValue() {
+                     result = scoreCtr
+                     break
+                 }
+                 else {
+                     compareNotes[0].setValue(value: scoreNotes[0].getValue())
+                 }
+             }
+             else {
+                 if scoreNotes[0].getValue() != compareNotes[0].getValue() {
+                     result = scoreCtr
+                     break
+                 }
+             }
+             scoreCtr += 1
+         }
+         return result
+     }
+    
+    //Return the first timeslice index of where the scores differ
+//    func getFirstDifferentTimeSliceNew(compareScore:Score) -> Int? {
+//        //let compareEntries = compareScore.scoreEntries
+//        var result:Int? = nil
+//        var scoreCtr = 0
+//
+//        let scoreTimeSlices = self.getAllTimeSlices()
+//        let compareTimeSlices = compareScore.getAllTimeSlices()
+//
+//        //Adjust score values to include rests since tapping cannot record rests
+//        //Rests for the rhythm comparison here have to lengthen the score entry values
+//        var scoreValues:[Double] = []
+//        var currentNoteValue = 0.0
+//        var lastNote:TimeSliceEntry? = nil
+//
+//        for scoreTimeSlice in scoreTimeSlices {
+//            if scoreTimeSlice.entries.count == 0 {
+//                continue
+//            }
+//            let entry = scoreTimeSlice.entries[0]
+//            if entry is Note {
+//                if let lastNote = lastNote {
+//                    scoreValues.append(currentNoteValue)
+//                    currentNoteValue = 0
+//                }
+//                currentNoteValue += entry.getValue()
+//                lastNote = entry
+//                continue
+//            }
+//            if entry is Rest {
+//                currentNoteValue += entry.getValue()
+//                continue
+//            }
+//        }
+//        if let lastNote = lastNote {
+//            scoreValues.append(currentNoteValue)
+//        }
+//
+//        //compare values score vs. recorded
+//        for scoreValue in scoreValues {
+//
+//            if compareTimeSlices.count <= scoreCtr {
+//                result = scoreCtr
+//                break
+//            }
+//
+//            let compareEntry = compareTimeSlices[scoreCtr]
+//            let compareEntries = compareEntry.getTimeSlices()
+//            //let scoreEntries = scoreTimeSlice.getTimeSlices()
+//
+//            if compareEntries == nil {
+//                result = scoreCtr
+//                break
+//            }
+//            if compareEntries.count == 0 { //} || scoreEntries.count == 0 {
+//                result = scoreCtr
+//                break
+//            }
+//
+//            if scoreCtr == scoreValues.count - 1 {
+//                if scoreValue > compareEntries[0].getValue() {
+//                    result = scoreCtr
+//                    break
+//                }
+//                else {
+//                    compareEntries[0].setValue(value: scoreValue)
+//                }
+//            }
+//            else {
+//                if scoreValue != compareEntries[0].getValue() {
+//                    result = scoreCtr
+//                    break
+//                }
+//            }
+//            scoreCtr += 1
+//        }
+//        return result
+//    }
     
     func setHiddenStaff(num:Int, isHidden:Bool) {
         DispatchQueue.main.async {
@@ -244,13 +307,13 @@ class Score : ObservableObject {
         return self.staffs
     }
     
-    func keyDesc() -> String {
-        var desc = key.description()
-        if key.type == Key.KeyType.minor {
-            desc += minorScaleType == Scale.MinorType.natural ? " (Natural)" : " (Harmonic)"
-        }
-        return desc
-    }
+//    func keyDesc() -> String {
+//        var desc = key.description()
+//        if key.type == Key.KeyType.minor {
+//            desc += minorScaleType == Scale.MinorType.natural ? " (Natural)" : " (Harmonic)"
+//        }
+//        return desc
+//    }
     
     func setKey(key:Key) {
         //self.key = key
@@ -290,9 +353,10 @@ class Score : ObservableObject {
         let scoreEntry = self.scoreEntries[lastNoteIndex]
         if scoreEntry is TimeSlice {
             let timeSlice = scoreEntry as! TimeSlice
-            let notes = timeSlice.getTimeSlices()
+            let notes = timeSlice.getTimeSliceNotes()
             if notes.count > 0 {
                 let lastNote = notes[0]
+
                 lastNote.sequence = self.getAllTimeSlices().count
                 if lastNote.getValue() == Note.VALUE_QUAVER {
                     //apply the quaver beam back from this note
@@ -307,7 +371,7 @@ class Score : ObservableObject {
                             break
                         }
                         let timeSlice = scoreEntry as! TimeSlice
-                        let notes = timeSlice.getTimeSlices()
+                        let notes = timeSlice.getTimeSliceNotes()
                         if notes.count > 0 {
                             if notes[0].getValue() == Note.VALUE_QUAVER {
                                 let note = notes[0]
@@ -336,19 +400,21 @@ class Score : ObservableObject {
         if let timeSliceNumber = timeSliceNumber {
             let exampleTimeSlices = getAllTimeSlices()
             let exampleTimeSlice = exampleTimeSlices[timeSliceNumber]
-            let exampleNote = exampleTimeSlice.getTimeSlices()[0]
-            //if let exampleNote = exampleNote {
+            if exampleTimeSlice.getTimeSliceEntries().count > 0 {
+                let exampleNote = exampleTimeSlice.getTimeSliceEntries()[0]
+                //if let exampleNote = exampleNote {
                 let studentTimeSlices = scoreToCompare.getAllTimeSlices()
                 if studentTimeSlices.count > timeSliceNumber {
                     let studentTimeSlice = studentTimeSlices[timeSliceNumber]
-                    let studentNote = studentTimeSlice.getTimeSlices()[0]
+                    let studentNote = studentTimeSlice.getTimeSliceEntries()[0]
                     //if let studentNote = studentNote {
-                        feedback.feedbackExplanation = "The example rhythm was a \(exampleNote.getNoteValueName()). "
-                        feedback.feedbackExplanation! += "Your rhythm was a \(studentNote.getNoteValueName())."
-                        feedback.indexInError = studentNote.sequence
+                    feedback.feedbackExplanation = "The example rhythm was a \(exampleNote.getNoteValueName()). "
+                    feedback.feedbackExplanation! += "Your rhythm was a \(studentNote.getNoteValueName())."
+                    feedback.indexInError = studentNote.sequence
                     //}
                 }
-            //}
+                //}
+            }
             feedback.correct = false
         }
         else {
@@ -377,15 +443,15 @@ class Score : ObservableObject {
             if scoreToCompare.scoreEntries.count > 0 {
                 let toCompareTimeSlices = scoreToCompare.getAllTimeSlices()
                 let toCompareTimeSlice = toCompareTimeSlices[difference < toCompareTimeSlices.count ? difference : toCompareTimeSlices.count - 1]
-                if toCompareTimeSlice.entries.count > 0 {
-                    let mistakeNote = toCompareTimeSlice.getTimeSlices()[0]
-                    mistakeNote.noteTag = .inError
+                if toCompareTimeSlice.getTimeSliceEntries().count > 0 {
+                    let mistakeNote = toCompareTimeSlice.getTimeSliceEntries()[0]
+                    //mistakeNote.noteTag = .inError
                     errorsExist = true
                     //mark the note in the example score to hilight what was expected
                     let timeslices = self.getAllTimeSlices()
                     let timeslice = timeslices[difference]
-                    if timeslice.getTimeSlices().count > 0 {
-                        timeslice.getTimeSlices()[0].setNoteTag(.hilightExpected)
+                    if timeslice.getTimeSliceEntries().count > 0 {
+                        //timeslice.getTimeSlices()[0].setNoteTag(.hilightExpected)
                     }
                     scoreToCompare.setStudentFeedback(
                         studentFeedack: self.constuctFeedback(scoreToCompare: scoreToCompare,
@@ -395,14 +461,14 @@ class Score : ObservableObject {
                                                               allowTempoVariation: allowTempoVariation))
                 }
             }
-            //mark the remaining entries after the difference as invisibile in display
+            //mark the remaining entries after the difference as invisible in display
             let toCompareTimeSlices = scoreToCompare.getAllTimeSlices()
             if difference + 1 < toCompareTimeSlices.count {
                 for t in difference+1..<toCompareTimeSlices.count {
                     let toCompareTimeSlice = toCompareTimeSlices[t]
-                    if toCompareTimeSlice.getTimeSlices().count > 0 {
-                        toCompareTimeSlice.getTimeSlices()[0].noteTag = .renderedInError
-                    }
+                    //if toCompareTimeSliceEntries.getTimeSliceEntries().count > 0 {
+                        //toCompareTimeSliceEntries.getTimeSlices()[0].noteTag = .renderedInError
+                    //}
                 }
             }
         }
@@ -417,7 +483,7 @@ class Score : ObservableObject {
     
     func clearTaggs() {
         for ts in getAllTimeSlices() {
-            for note in ts.getTimeSlices() {
+            for note in ts.getTimeSliceNotes() {
                 note.setNoteTag(.noTag)
             }
         }

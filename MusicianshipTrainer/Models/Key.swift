@@ -1,5 +1,5 @@
 class Key : Equatable, Hashable {
-    static var currentKey = Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.flat, count: 0))
+    //static var currentKey = Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.flat, count: 0))
 
     var keySig: KeySignature
     var type: KeyType
@@ -9,20 +9,41 @@ class Key : Equatable, Hashable {
         case minor
     }
     
-    static func allKeys(keyType:KeyType) -> [Key] {
-        var list:[Key] = []
-        for k in 0..<5 {
-            list.append(Key(type: keyType, keySig: KeySignature(type: AccidentalType.sharp, count: k)))
-            if k>0 {
-                list.append(Key(type: keyType, keySig: KeySignature(type: AccidentalType.flat, count: k)))
-            }
-        }
-        return list
-    }
+//    static func allKeys(keyType:KeyType) -> [Key] {
+//        var list:[Key] = []
+//        for k in 0..<5 {
+//            list.append(Key(type: keyType, keySig: KeySignature(type: AccidentalType.sharp, count: k)))
+//            if k>0 {
+//                list.append(Key(type: keyType, keySig: KeySignature(type: AccidentalType.flat, count: k)))
+//            }
+//        }
+//        return list
+//    }
     
     static func == (lhs: Key, rhs: Key) -> Bool {
         return (lhs.type == rhs.type) && (lhs.keySig.accidentalCount == rhs.keySig.accidentalCount) &&
         (lhs.keySig.accidentalType == rhs.keySig.accidentalType)
+    }
+    
+    init(type: KeyType, keySig:KeySignature) {
+        self.keySig = keySig
+        self.type = type
+    }
+    
+    func hasNote(note:Int) -> Bool {
+        var result:Bool = false
+        //print("\nS++++++++", note, keySig.sharps)
+
+        for n in keySig.sharps {
+            let octaves = Note.getAllOctaves(note: n)
+            //print("  ", n, octaves)
+            if octaves.contains(note) {
+                result = true
+                break
+            }
+        }
+        //print("E++++++++", result, note)
+        return result
     }
     
     //return the chord triad type for a scale degree
@@ -47,11 +68,6 @@ class Key : Equatable, Hashable {
         }
     }
 
-    init(type: KeyType, keySig:KeySignature) {
-        self.keySig = keySig
-        self.type = type
-    }
-    
     func hash(into hasher: inout Hasher) {
         hasher.combine(type)
         hasher.combine(keySig.accidentalCount)
@@ -105,20 +121,20 @@ class Key : Equatable, Hashable {
         return desc
     }
     
-    func firstScaleNote() -> Int {
-        var note = Note.MIDDLE_C
-        if keySig.accidentalCount > 0 {
-            if self.keySig.accidentalType == AccidentalType.sharp {
-                note = keySig.sharps[keySig.accidentalCount-1] + 2
-            }
-            else {
-                note = keySig.flats[keySig.accidentalCount-1] - 6
-            }
-        }
-        if self.type == KeyType.minor {
-            note -= 3
-        }
-        note = Note.getClosestOctave(note: note, toPitch: 45)
-        return note
-    }
+//    func firstScaleNote() -> Int {
+//        var note = Note.MIDDLE_C
+//        if keySig.accidentalCount > 0 {
+//            if self.keySig.accidentalType == AccidentalType.sharp {
+//                note = keySig.sharps[keySig.accidentalCount-1] + 2
+//            }
+//            else {
+//                note = keySig.flats[keySig.accidentalCount-1] - 6
+//            }
+//        }
+//        if self.type == KeyType.minor {
+//            note -= 3
+//        }
+//        note = Note.getClosestOctave(note: note, toPitch: 45)
+//        return note
+//    }
 }

@@ -45,7 +45,6 @@
 		7B40B8072A54DF9000CA7FC4 /* TimeSignature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */; };
 		7B40B8082A54DF9000CA7FC4 /* KeySignature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7EB2A54DF8F00CA7FC4 /* KeySignature.swift */; };
 		7B40B8092A54DF9000CA7FC4 /* SoundGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7EC2A54DF8F00CA7FC4 /* SoundGenerator.swift */; };
-		7B40B80A2A54DF9000CA7FC4 /* Scale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7ED2A54DF8F00CA7FC4 /* Scale.swift */; };
 		7B40B80B2A54DF9000CA7FC4 /* SpeechSynth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7EE2A54DF8F00CA7FC4 /* SpeechSynth.swift */; };
 		7B40B80E2A54E0BE00CA7FC4 /* AudioKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7B40B80D2A54E0BE00CA7FC4 /* AudioKit */; };
 		7B40B8112A54E0FE00CA7FC4 /* AudioKitEX in Frameworks */ = {isa = PBXBuildFile; productRef = 7B40B8102A54E0FE00CA7FC4 /* AudioKitEX */; };
@@ -161,7 +160,6 @@
 		7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeSignature.swift; sourceTree = "<group>"; };
 		7B40B7EB2A54DF8F00CA7FC4 /* KeySignature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeySignature.swift; sourceTree = "<group>"; };
 		7B40B7EC2A54DF8F00CA7FC4 /* SoundGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundGenerator.swift; sourceTree = "<group>"; };
-		7B40B7ED2A54DF8F00CA7FC4 /* Scale.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scale.swift; sourceTree = "<group>"; };
 		7B40B7EE2A54DF8F00CA7FC4 /* SpeechSynth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechSynth.swift; sourceTree = "<group>"; };
 		7B40B8162A54E52A00CA7FC4 /* ContentNavigationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentNavigationView.swift; sourceTree = "<group>"; };
 		7B40B8172A54E52A00CA7FC4 /* StaffView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaffView.swift; sourceTree = "<group>"; };
@@ -321,7 +319,6 @@
 				7B40B7E62A54DF8F00CA7FC4 /* Note.swift */,
 				7B40B7E82A54DF8F00CA7FC4 /* NotePositions.swift */,
 				7B40B7E92A54DF8F00CA7FC4 /* PianoKeyboard.swift */,
-				7B40B7ED2A54DF8F00CA7FC4 /* Scale.swift */,
 				7B40B7D32A54DF8F00CA7FC4 /* Score.swift */,
 				7B0A64CE2A61562B0091A24A /* Settings.swift */,
 				7B40B7EC2A54DF8F00CA7FC4 /* SoundGenerator.swift */,
@@ -787,7 +784,6 @@
 				7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */,
 				7B40B8032A54DF9000CA7FC4 /* Note.swift in Sources */,
 				7B12C3832A7B2B3800B4D430 /* Songs.swift in Sources */,
-				7B40B80A2A54DF9000CA7FC4 /* Scale.swift in Sources */,
 				7B40B7F72A54DF9000CA7FC4 /* Metronome.swift in Sources */,
 				7B40B8342A54E52A00CA7FC4 /* UIGlobals.swift in Sources */,
 				7B4F64572A54DC6100727710 /* MusicianshipTrainer.xcdatamodeld in Sources */,
@@ -970,7 +966,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;
@@ -1004,7 +1000,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;

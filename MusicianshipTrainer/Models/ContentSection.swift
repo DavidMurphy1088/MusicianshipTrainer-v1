@@ -209,7 +209,9 @@ class ContentSection: Codable, Identifiable {
         for section in self.subSections {
             if section.deepSearch(testCondition: {
                 section in
-                return section.isQuestionType()}
+                return !(["Ins", "T&T"].contains(section.type))
+                //return section.isQuestionType()
+            }
             )
             {
                 navSections.append(section)
@@ -376,13 +378,7 @@ class ContentSection: Codable, Identifiable {
             
             if i == 0 {
                 var keySigCount = 0
-                if parts[0] == "G" {
-                    keySigCount = 1
-                }
-                if parts[0] == "D" {
-                    keySigCount = 2
-                }
-                result.append(KeySignature(type: .sharp, count: keySigCount))
+                result.append(KeySignature(type: .sharp, keyName: parts[0]))
                 continue
             }
             if i == 1 {
@@ -423,7 +419,7 @@ class ContentSection: Codable, Identifiable {
             if parts.count == 2  {
                 if parts[0] == "R" {
                     let restValue = Double(parts[1]) ?? 1
-                    result.append(Rest(value: restValue))
+                    result.append(Rest(value: restValue, staffNum: 0))
                     continue
                 }
                 
@@ -439,7 +435,8 @@ class ContentSection: Codable, Identifiable {
                             accidental = acc
                         }
                     }
-                    result.append(Note(num: notePitch, value: value, accidental: accidental))
+                    
+                    result.append(Note(num: notePitch, value: value, staffNum: 0, accidental: accidental))
                 }
                 continue
             }

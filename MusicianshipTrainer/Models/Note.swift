@@ -5,22 +5,34 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
     @Published var hilite = false
 
     let id = UUID()
-    var staffNum:Int? //Narrow the display of the note to just one staff
+    var staffNum:Int //Narrow the display of the note to just one staff
     var isDotted:Bool = false
     var sequence:Int = 0 //the note's sequence position
 
     fileprivate var value:Double = Note.VALUE_QUARTER
 
-    init(value:Double) {
+    init(value:Double, staffNum: Int) {
         self.value = value
+        self.staffNum = staffNum
     }
+    
     static func == (lhs: TimeSliceEntry, rhs: TimeSliceEntry) -> Bool {
         //return lhs.midiNumber == rhs.midiNumber
         return lhs.id == rhs.id
     }
+    
     func getValue() -> Double {
         return self.value
     }
+    
+    func setValue(value:Double) {
+        self.value = value
+        if value == 3.0 {
+            self.isDotted = true
+        }
+    }
+    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
@@ -30,6 +42,25 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
             self.hilite = hilite
         }
     }
+    
+    func getNoteValueName() -> String {
+        var name = self.isDotted ? "dotted " : ""
+        switch self.value {
+        case 0.50 :
+            name += "quaver"
+        case 1.0 :
+            name += "crotchet"
+        case 1.5 :
+            name += "dotted crotchet"
+        case 2.0 :
+            name += "minim"
+        case 3.0 :
+            name += "minim"
+        default :
+            name += "semibreve"
+        }
+        return name
+    }
 
 }
 
@@ -38,8 +69,8 @@ class BarLine : ScoreEntry {
 
 class Rest : TimeSliceEntry {
     
-    override init(value:Double) {
-        super.init(value: value)
+    override init(value:Double, staffNum:Int) {
+        super.init(value: value, staffNum: staffNum)
         //self.value = value
     }
 }
@@ -77,7 +108,6 @@ class NoteStaffPlacement {
         self.midi = midi
         self.offsetFromStaffMidline = offsetFroMidLine
         self.accidental = accidental
-        //self.name = name
     }
 }
 
@@ -110,20 +140,12 @@ class Note : TimeSliceEntry, Comparable {
         return (note1 % 12) == (note2 % 12)
     }
     
-    init(num:Int, value:Double = Note.VALUE_QUARTER, accidental:Int?=nil, staffNum:Int? = nil, isDotted:Bool = false) {
+    init(num:Int, value:Double = Note.VALUE_QUARTER, staffNum:Int, accidental:Int?=nil) {//}, isDotted:Bool = false) {
         self.midiNumber = num
-        super.init(value: value)
+        super.init(value: value, staffNum: staffNum)
 
-        self.staffNum = staffNum
-        self.isDotted = isDotted
+        self.isDotted = [0.75, 1.5, 3.0].contains(value)
         self.accidental = accidental
-        if value == 3.0 {
-            self.isDotted = true
-        }
-    }
-    
-    func setValue(value:Double) {
-        self.value = value
         if value == 3.0 {
             self.isDotted = true
         }
@@ -133,23 +155,6 @@ class Note : TimeSliceEntry, Comparable {
         DispatchQueue.main.async {
             self.noteTag = tag
         }
-    }
-    
-    func getNoteValueName() -> String {
-        var name = self.isDotted ? "dotted " : ""
-        switch self.value {
-        case 0.50 :
-            name += "quaver"
-        case 1.0 :
-            name += "crotchet"
-        case 2.0 :
-            name += "minim"
-        case 3.0 :
-            name += "minim"
-        default :
-            name += "semibreve"
-        }
-        return name
     }
     
     func setIsOnlyRhythm(way: Bool) {
@@ -205,35 +210,49 @@ class Note : TimeSliceEntry, Comparable {
         return closest
     }
     
+    ///Find the first note for this quaver group
     func getBeamStartNote(score:Score, np: NoteLayoutPositions) -> Note {
+        if self.midiNumber == 72 {
+            print("X")
+        }
+
         let endNote = self
         if endNote.beamType != .end {
             return endNote
         }
         var result:Note? = nil
         var idx = score.scoreEntries.count - 1
-        var foundEnd = false
+        var foundEndNote = false
         while idx>=0 {
             let ts = score.scoreEntries[idx]
             if ts is TimeSlice {
-                let notes = ts.getTimeSlices()
-                //if let notes = notes {
-                    if notes.count > 0 {
-                        let note = notes[0]
-                        if note.sequence == endNote.sequence {
-                            foundEnd = true
-                        }
-                        else {
-                            if foundEnd && note.beamType == .start {
+                let notes = ts.getTimeSliceNotes()
+                if notes.count > 0 {
+                    let note = notes[0]
+                    if note.sequence == endNote.sequence {
+                        foundEndNote = true
+                    }
+                    else {
+                        if foundEndNote {
+                            if note.beamType == .start {
                                 result = note
                                 break
                             }
+                            else {
+                                if note.getValue() != Note.VALUE_QUAVER {
+                                    break
+                                }
+                            }
                         }
                     }
-                //}
+                }
             }
             if ts is BarLine {
+                if foundEndNote {
+                    break
+                }
             }
+
             idx = idx - 1
         }
         if result == nil {
@@ -271,7 +290,11 @@ class Note : TimeSliceEntry, Comparable {
     ///default staff offset based on the written accidental. e.g. a note at MIDI 75 would be defaulted to show as E ♭ in C major but may be speciifed to show as D# by a written
     ///accidentail. In that case the note must shift down 1 unit of offset.
     ///
-    func getNotePlacement(staff:Staff) -> NoteStaffPlacement {
+    func getNoteDisplayCharacteristics(staff:Staff) -> NoteStaffPlacement {
+        if self.midiNumber == 60 {
+            print("X")
+        }
+
         let defaultNoteData = staff.getNoteViewPlacement(note: self)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
         var offsetAccidental:Int? = nil
@@ -280,6 +303,7 @@ class Note : TimeSliceEntry, Comparable {
             offsetFromMiddle = 0
         }
         if let writtenAccidental = self.accidental {
+            //Content provided a specific accidental
             offsetAccidental = writtenAccidental
             if writtenAccidental != defaultNoteData.accidental {
                 let defaultNoteStaffPlacement = staff.noteStaffPlacement[self.midiNumber]
@@ -292,8 +316,19 @@ class Note : TimeSliceEntry, Comparable {
             }
         }
         else {
+            //Determine if the note's accidental is implied by the key signature
+            //Or a note has to have a natural accidental to offset the key signtue
+            let keySignatureHasNote = staff.score.key.hasNote(note: self.midiNumber)
             if let defaultAccidental = defaultNoteData.accidental {
-                offsetAccidental = defaultAccidental
+                if !keySignatureHasNote {
+                    offsetAccidental = defaultAccidental
+                }
+            }
+            else {
+                let keySignatureHasNote = staff.score.key.hasNote(note: self.midiNumber + 1)
+                if keySignatureHasNote {
+                    offsetAccidental = 0
+                }
             }
         }
         let placement = NoteStaffPlacement(midi: defaultNoteData.midi, offsetFroMidLine: offsetFromMiddle, accidental: offsetAccidental)

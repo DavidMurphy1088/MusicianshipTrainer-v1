@@ -85,7 +85,7 @@ struct NotesView: View {
                 result.append(LedgerLine(offsetVertical: 5 * lineSpacing * -1.0))
             }
         }
-        if note.midiNumber <= 60 {
+        if note.midiNumber <= 61  { //C#
             result.append(LedgerLine(offsetVertical: 3 * lineSpacing * 1.0))
             if note.midiNumber <= 58 {
                 result.append(LedgerLine(offsetVertical: 4 * lineSpacing * 1.0))
@@ -111,9 +111,29 @@ struct NotesView: View {
         return result
     }
     
+    func RestView(entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
+        ZStack {
+            if entry.getValue() == 1 {
+                Image("rest_quarter")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: CGFloat(geometry.size.height/4))
+                    .padding()
+            }
+            if entry.getValue() == 2 {
+                let height = lineSpacing / 2.0
+                Rectangle()
+                .fill(Color.black)
+                .frame(width: lineSpacing * 1.5, height: height)
+                .offset(y: 0 - height / 2.0)
+            }
+        }
+        //.border(Color.red)
+    }
+    
     func NoteView(note:Note, noteFrameWidth:Double, geometry: GeometryProxy) -> some View {
         ZStack {
-            let placement = note.getNotePlacement(staff: staff)
+            let placement = note.getNoteDisplayCharacteristics(staff: staff)
             let offsetFromStaffMiddle = placement.offsetFromStaffMidline
             let accidental = placement.accidental
             let noteEllipseMidpoint:Double = geometry.size.height/2.0 - Double(offsetFromStaffMiddle) * lineSpacing / 2.0
@@ -187,24 +207,6 @@ struct NotesView: View {
         }
     }
     
-    func RestView(entry:TimeSliceEntry, geometry:GeometryProxy) -> some View {
-        ZStack {
-//            if staff.staffNum == 0 {
-            //this code casues the rest image to jump right when its hilighted.
-//                NoteHiliteView(entry: entry, x: geometry.size.width/2, y: geometry.size.height/2, width: noteWidth * 1.5)
-//            }
-            
-            Image("rest_quarter")
-                .resizable()
-                .scaledToFit()
-                .frame(height: CGFloat(geometry.size.height/4))
-                .padding()
-            
-            //.border(Color.red)
-        }
-        //.frame(width: CGFloat(geometry.size.width * 4))
-    }
-    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -217,7 +219,7 @@ struct NotesView: View {
                         }
                         if entry is Rest {
                             Spacer()
-                            RestView(entry: entry, geometry: geometry)
+                            RestView(entry: entry, lineSpacing: lineSpacing, geometry: geometry)
                             Spacer()
                         }
                     }

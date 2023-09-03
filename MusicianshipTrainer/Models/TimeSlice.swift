@@ -48,26 +48,25 @@ class TimeSlice : ScoreEntry {
     }
         
     func addTonicChord() {
-        if getTimeSlices().count == 0 {
+        if getTimeSliceEntries().count == 0 {
             return
         }
-        let lastNote = getTimeSlices()[0]
-        let isDotted = lastNote.isDotted
+        let lastNote = getTimeSliceEntries()[0]
         
         if score.key.keySig.accidentalCount == 2 { //D Major
-            addNote(n: Note(num: Note.MIDDLE_C + 2 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
-            addNote(n: Note(num: Note.MIDDLE_C + 6 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
-            addNote(n: Note(num: Note.MIDDLE_C + 9 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
+            addNote(n: Note(num: Note.MIDDLE_C + 2 - 12, value: lastNote.getValue(), staffNum:1))
+            addNote(n: Note(num: Note.MIDDLE_C + 6 - 12, value: lastNote.getValue(), staffNum:1))
+            addNote(n: Note(num: Note.MIDDLE_C + 9 - 12, value: lastNote.getValue(), staffNum:1))
         }
         if score.key.keySig.accidentalCount == 1 { //G Major
-            addNote(n: Note(num: Note.MIDDLE_C - 5 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
-            addNote(n: Note(num: Note.MIDDLE_C - 1 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
-            addNote(n: Note(num: Note.MIDDLE_C + 2 - 12, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
+            addNote(n: Note(num: Note.MIDDLE_C - 5 - 12, value: lastNote.getValue(), staffNum:1))
+            addNote(n: Note(num: Note.MIDDLE_C - 1 - 12, value: lastNote.getValue(), staffNum:1))
+            addNote(n: Note(num: Note.MIDDLE_C + 2 - 12, value: lastNote.getValue(), staffNum:1))
         }
         if score.key.keySig.accidentalCount == 0 {
-            addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
-            addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE + 4, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
-            addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE + 7, value: lastNote.getValue(), staffNum:1, isDotted: isDotted))
+            addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE, value: lastNote.getValue(), staffNum:1))
+            addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE + 4, value: lastNote.getValue(), staffNum:1))
+            addNote(n: Note(num: Note.MIDDLE_C - Note.OCTAVE + 7, value: lastNote.getValue(), staffNum:1))
         }
     }
     
