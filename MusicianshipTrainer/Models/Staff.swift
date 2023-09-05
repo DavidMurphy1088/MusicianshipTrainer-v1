@@ -255,7 +255,6 @@ class Staff : ObservableObject {
         let defaultPlacement = noteStaffPlacement[note.midiNumber]
         let placement = NoteStaffPlacement(midi: defaultPlacement.midi,
                                            offsetFroMidLine: defaultPlacement.offsetFromStaffMidline,
-                                           //accidental: note.accidental == nil ? defaultPlacement.accidental : note.accidental
                                            accidental: defaultPlacement.accidental
         )
         return placement

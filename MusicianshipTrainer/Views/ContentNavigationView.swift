@@ -2,14 +2,6 @@ import SwiftUI
 import CoreData
 
 struct GradeIntroView: View {
-//    func test() -> Bool {
-//        for family in UIFont.familyNames {
-//            for name in UIFont.fontNames(forFamilyName: family) {
-//                print(name)
-//            }
-//        }
-//        return true
-//    }
     
     var body: some View {
             VStack  (alignment: .center) {
@@ -72,7 +64,6 @@ struct ContentNavigationView: View {
                                     Text(contentSection.getTitle()).padding()
                                         //.font(.title2)
                                         .font(.custom("Courgette-Regular", size: 32))
-                                    
                                     Spacer()
                                 }
                                 Spacer()
@@ -82,7 +73,6 @@ struct ContentNavigationView: View {
                                     .stroke(Color.gray.opacity(0.5), lineWidth: 1)
                             )
                             .padding(.vertical, 4)
-
                             //.navigationBarTitleDisplayMode(.inline)
                         }
                         .disabled(!contentSection.isActive)

@@ -150,6 +150,22 @@ class ContentSection: Codable, Identifiable {
         return false
     }
     
+    ///Recursivly search all children with a true test supplied by the caller
+    func parentSearch(testCondition:(_ section:ContentSection)->Bool) -> Bool {
+        if testCondition(self) {
+            return true
+        }
+        if let parent = self.parent  {
+            if testCondition(parent) {
+                return true
+            }
+            if parent.parentSearch(testCondition: testCondition) {
+                return true
+            }
+        }
+        return false
+    }
+
     func parentWithInstructions() -> ContentSection? {
         var section = self
         while section != nil {
@@ -297,9 +313,6 @@ class ContentSection: Codable, Identifiable {
             path.append(section.name)
             if let parent = section.parent {
                 section = parent
-//                if parent.parent != nil {
-//                    path = "." + path
-//                }
             }
             else {
                 break

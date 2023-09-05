@@ -32,7 +32,6 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
         }
     }
     
-
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
@@ -92,6 +91,11 @@ enum QuaverBeamType {
     case end
 }
 
+enum StemDirection {
+    case up
+    case down
+}
+
 enum NoteTag {
     case noTag
     case inError
@@ -129,6 +133,7 @@ class Note : TimeSliceEntry, Comparable {
     var rotated:Bool = false //true if note must be displayed vertically rotated due to closeness to a neighbor.
     
     var beamType:QuaverBeamType = .none
+    var stemDirection:StemDirection = .up
     //the note where the quaver beam for this note ends
     var beamEndNote:Note? = nil
     
@@ -212,9 +217,9 @@ class Note : TimeSliceEntry, Comparable {
     
     ///Find the first note for this quaver group
     func getBeamStartNote(score:Score, np: NoteLayoutPositions) -> Note {
-        if self.midiNumber == 72 {
-            print("X")
-        }
+//        if self.midiNumber == 72 {
+//            print("X")
+//        }
 
         let endNote = self
         if endNote.beamType != .end {
@@ -291,9 +296,9 @@ class Note : TimeSliceEntry, Comparable {
     ///accidentail. In that case the note must shift down 1 unit of offset.
     ///
     func getNoteDisplayCharacteristics(staff:Staff) -> NoteStaffPlacement {
-        if self.midiNumber == 60 {
-            print("X")
-        }
+//        if self.midiNumber == 60 {
+//            print("X")
+//        }
 
         let defaultNoteData = staff.getNoteViewPlacement(note: self)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline

@@ -26,21 +26,22 @@ class TimeSlice : ScoreEntry {
     func addRest(rest:Rest) {
         self.entries.append(rest)
         score.updateStaffs()
-        score.addStemCharaceteristics()
+        //score.addStemCharaceteristics()
     }
 
+    func addChord(c:Chord) {
+        for n in c.getNotes() {
+            self.entries.append(n)
+        }
+        score.addStemCharaceteristics()
+        score.updateStaffs()
+    }
+    
     func setTags(high:String, low:String) {
         DispatchQueue.main.async {
             self.tagHigh = high
             self.tagLow = low
         }
-    }
-    
-    func addChord(c:Chord) {
-        for n in c.getNotes() {
-            self.entries.append(n)
-        }
-        score.updateStaffs()
     }
     
     static func == (lhs: TimeSlice, rhs: TimeSlice) -> Bool {

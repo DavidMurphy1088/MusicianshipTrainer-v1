@@ -181,18 +181,13 @@ struct ContentSectionHeaderView: View {
                     }
                 }
             }
-//            .overlay(
-//                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-//            )
-//            .background(UIGlobals.colorScore)
-//            .padding(.horizontal)
                
             if tipsAndTricksExists {
                 Button(action: {
                     isHelpPresented.toggle()
                 }) {
                     HStack {
-                        Text("Tips and Tricks")
+                        Text("Tips and Tricks").font(.custom("Courgette-Regular", size: 32))
                         Image(systemName: "questionmark.circle")
                             .font(.largeTitle)
                     }
@@ -323,6 +318,12 @@ struct SectionsNavigationView:View {
                         }
                         Spacer()
                     }
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                    )
+                    .padding(.vertical, 4)
+
                 }
             }
         }

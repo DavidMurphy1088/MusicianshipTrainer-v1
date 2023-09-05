@@ -147,7 +147,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
                             else {
                                 note = Note(num: 0, value: entry.getValue(), staffNum: 0)
                             }
-                            note.isOnlyRhythmNote = true
+                            note.setIsOnlyRhythm(way: true)
                             timeSlice.addNote(n: note)
                         }
                         else {
@@ -161,7 +161,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
                 else {
                     let timeSlice = outputScore.addTimeSlice()
                     let note = Note(num: 0, value: tappedValue, staffNum: 0)
-                    note.isOnlyRhythmNote = true
+                    note.setIsOnlyRhythm(way: true)
                     timeSlice.addNote(n: note)
                 }
                 totalValue += tappedValue

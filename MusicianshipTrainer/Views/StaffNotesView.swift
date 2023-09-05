@@ -40,15 +40,6 @@ struct StemView: View {
     var notes: [Note]
     @ObservedObject var lineSpacing:StaffLayoutSize
     
-    func stemDirection(note:Note) -> Double {
-        if note.isOnlyRhythmNote {
-            return -1.0
-        }
-        else {
-            return note.midiNumber < 70 ? -1.0 : 1.0 //1 => stem down. below or at B flat
-        }
-    }
-    
     func getStemLength() -> Double {
         let len = lineSpacing.lineSpacing * 3.5
         //print(s, "      StemView:: length:", len, lineSpacing.lineSpacing)
@@ -60,21 +51,7 @@ struct StemView: View {
         return lineSpacing.lineSpacing * 1.2
     }
 
-    func getFurthestFromMidline(noteArray:[Note]) -> Note {
-        var furthest:Note = Note(num: 0, staffNum: 0)
-        var maxDist = 0
-        for note in noteArray {
-            let distance = abs(note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline)
-            if distance > maxDist {
-                maxDist = distance
-                furthest = note
-            }
-        }
-        return furthest
-    }
-    
     func midPointXOffset(notes:[Note], staff:Staff, stemDirection:Double) -> Double {
-        //if notes.anyNotesRotated() {
         for n in notes {
             if n.rotated {
                 if n.midiNumber < staff.middleNoteValue {
@@ -86,13 +63,14 @@ struct StemView: View {
         return (stemDirection * -1.0 * getNoteWidth())
     }
     
-    func log(note:Note) -> Bool {
-        if staff.type == .bass {
-            print(self.staff.staffNum)
-            print(note.getNoteDisplayCharacteristics(staff: staff).midi, note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline)
-        }
-        return true
-    }
+//    func log(note:Note, d:Double) -> Bool {
+//        //if staff.type == .bass {
+//            //print(self.staff.staffNum)
+//            print(note.getNoteDisplayCharacteristics(staff: staff).midi, note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline)
+//        print("  ", d)
+//        //}
+//        return true
+//    }
     
     func getStaffNotes(staff:Staff) -> [Note] {
         var notes:[Note] = []
@@ -117,7 +95,7 @@ struct StemView: View {
                         if startNote.getValue() != Note.VALUE_WHOLE {
                             //Note this code eventually has to go adjust the stem length for notes under a quaver beam
                             //3.5 lines is a full length stem
-                            let stemDirection = stemDirection(note: startNote)
+                            let stemDirection = startNote.stemDirection == .up ? 1.0 : -1.0 //stemDirection(note: startNote)
                             //let midX = geo.size.width / 2.0 + (stemDirection * -1.0 * noteWidth / 2.0)
                             let midX = (geo.size.width + (midPointXOffset(notes: notes, staff: staff, stemDirection: stemDirection))) / 2.0
                             let midY = geo.size.height / 2.0
@@ -132,13 +110,14 @@ struct StemView: View {
                     }
                     else {
                         ///This code assumes the stem for a chord wont (yet) be under a quaver beam
-                        let furthestFromMidline = self.getFurthestFromMidline(noteArray: staffNotes)
-                        let stemDirection = stemDirection(note: furthestFromMidline)
-                        let midX:Double = (geo.size.width + (midPointXOffset(notes: staffNotes, staff: staff, stemDirection: stemDirection))) / 2.0
-                        let midY = geo.size.height / 2.0
-                        let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
+                        //let furthestFromMidline = self.getFurthestFromMidline(noteArray: staffNotes)
                         ZStack {
                             ForEach(staffNotes, id: \.self) { note in
+                                let stemDirection = note.stemDirection == .up ? 1.0 : -1.0 //stemDirection(note: furthestFromMidline)
+                                let midX:Double = (geo.size.width + (midPointXOffset(notes: staffNotes, staff: staff, stemDirection: stemDirection))) / 2.0
+                                let midY = geo.size.height / 2.0
+                                let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
+
                                 if note.getValue() != Note.VALUE_WHOLE {
                                     // LINE SPACING is ZERO for some unknown reason for chords in BASE CLEFF, no stem shows????
                                     let offsetY = CGFloat(note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
@@ -189,13 +168,13 @@ struct StaffNotesView: View {
     }
     
     func getBeamLine(endNote:Note, noteWidth:Double, startNote:Note, stemLength:Double) -> (CGPoint, CGPoint)? {
-        var stemDirection:Double // = startNote.midiNumber < 71 ? -1.0 : 1.0
-        if endNote.isOnlyRhythmNote {
-            stemDirection = -1.0
-        }
-        else {
-            stemDirection = startNote.midiNumber < 71 ? -1.0 : 1.0
-        }
+        var stemDirection:Double = startNote.stemDirection == .up ? 1.0 : -1.0
+//        if endNote.isOnlyRhythmNote {
+//            stemDirection = -1.0
+//        }
+//        else {
+//            stemDirection = startNote.midiNumber < 71 ? -1.0 : 1.0
+//        }
 
         let endNotePos = noteLayoutPositions.positions[endNote]
         if let endNotePos = endNotePos {
@@ -251,13 +230,20 @@ struct StaffNotesView: View {
         return self.staffLayoutSize.lineSpacing
     }
 
-//    func log(notes: [Note : CGRect]) {
-//        for n in notes.keys {
-//            print("++++++Note seq", n.sequence, "midi:", n.midiNumber, n.getValue(), "\tBeamType:", n.beamType, "\tendNote:", n.beamEndNote?.midiNumber ?? "")
-//            let re = notes[n]
-//            //print ("   ", re)
-//        }
-//    }
+    func log(notes: [Note : CGRect]) {
+        let keys = notes.keys
+        let sss = keys.sorted { $0.sequence < $1.sequence }
+        print("")
+        for n in sss {
+            print("++++++BEAM Note seq", n.sequence, "midi:", n.midiNumber, n.getValue(),
+                  "\tBeamType:", n.beamType,
+                    "\tendNote:", n.beamEndNote?.midiNumber ?? "",
+                  "Rect:", notes[n] ?? ""
+            )
+            let re = notes[n]
+            //print ("   ", re)
+        }
+    }
     
     func quaverBeamView(line: (CGPoint, CGPoint), startNote:Note, endNote:Note, lineSpacing: Double) -> some View {
         ZStack {
@@ -342,7 +328,7 @@ struct StaffNotesView: View {
                 GeometryReader { geo in
                     ZStack {
                         ZStack {
-                            //let log = log(notes: noteLayoutPositions.positions)
+                            let log = log(notes: noteLayoutPositions.positions)
                             ForEach(noteLayoutPositions.positions.sorted(by: { $0.key.sequence < $1.key.sequence }), id: \.key) {
                                 endNote, endNotePos in
                                 if endNote.beamType == .end {

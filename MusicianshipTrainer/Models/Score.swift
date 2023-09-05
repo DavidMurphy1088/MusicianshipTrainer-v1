@@ -348,47 +348,78 @@ class Score : ObservableObject {
     }
          
     ///If the last note added was a quaver, identify any previous adjoining quavers and set them to be joined with a quaver bar
+    ///Set the beginning, middle and end quavers for the beam
     func addStemCharaceteristics() {
         let lastNoteIndex = self.scoreEntries.count - 1
         let scoreEntry = self.scoreEntries[lastNoteIndex]
-        if scoreEntry is TimeSlice {
+
+        guard scoreEntry is TimeSlice else {
+            return
+        }
+
+        let timeSlice = scoreEntry as! TimeSlice
+        let notes = timeSlice.getTimeSliceNotes()
+        if notes.count == 0 {
+            return
+        }
+        let lastNote = notes[0]
+        lastNote.sequence = self.getAllTimeSlices().count
+
+        let staff = self.staffs[lastNote.staffNum]
+        if lastNote.getValue() != Note.VALUE_QUAVER {
+            for note in notes {
+                let placement = staff.getNoteViewPlacement(note: note)
+                note.stemDirection = placement.offsetFromStaffMidline <= 0 ? .down : .up
+            }
+            return
+        }
+
+        //apply the quaver beam back from the last note
+        let endQuaver = notes[0]
+        var notesUnderBeam:[Note] = []
+        notesUnderBeam.append(lastNote)
+        
+        ///Figure out the start, middle and end of this group of quavers
+        for i in stride(from: lastNoteIndex - 1, through: 0, by: -1) {
+            let scoreEntry = self.scoreEntries[i]
+            if !(scoreEntry is TimeSlice) {
+                break
+            }
             let timeSlice = scoreEntry as! TimeSlice
             let notes = timeSlice.getTimeSliceNotes()
             if notes.count > 0 {
-                let lastNote = notes[0]
-
-                lastNote.sequence = self.getAllTimeSlices().count
-                if lastNote.getValue() == Note.VALUE_QUAVER {
-                    //apply the quaver beam back from this note
-                    let endQuaver = notes[0]
-                    endQuaver.beamType = .end
-                    endQuaver.beamEndNote = endQuaver
-                    var lastQuaver:Note? = nil
-                    
-                    for i in stride(from: lastNoteIndex - 1, through: 0, by: -1) {
-                        let scoreEntry = self.scoreEntries[i]
-                        if !(scoreEntry is TimeSlice) {
-                            break
-                        }
-                        let timeSlice = scoreEntry as! TimeSlice
-                        let notes = timeSlice.getTimeSliceNotes()
-                        if notes.count > 0 {
-                            if notes[0].getValue() == Note.VALUE_QUAVER {
-                                let note = notes[0]
-                                note.beamType = .middle
-                                note.beamEndNote = endQuaver
-                                lastQuaver = note
-                            }
-                            else {
-                                break
-                            }
-                        }
-                    }
-                    if let lastQuaver = lastQuaver {
-                        lastQuaver.beamType = .start
-                    }
+                if notes[0].getValue() == Note.VALUE_QUAVER {
+                    let note = notes[0]
+                    notesUnderBeam.append(note)
+                }
+                else {
+                    break
                 }
             }
+        }
+        
+        ///Set each note's beam type and calculate the nett above r below the staff line for the quaver group (for the subsequnet stem up or down decison)
+        var totalOffset = 0
+        for i in 0..<notesUnderBeam.count {
+            let note = notesUnderBeam[i]
+            if i == 0 {
+                note.beamType = .end
+            }
+            else {
+                if i == notesUnderBeam.count-1 {
+                    note.beamType = .start
+                }
+                else {
+                    note.beamType = .middle
+                }
+            }
+            let placement = staff.getNoteViewPlacement(note: note)
+            totalOffset += placement.offsetFromStaffMidline
+        }
+        
+        for i in 0..<notesUnderBeam.count {
+            let note = notesUnderBeam[i]
+            note.stemDirection = totalOffset > 0 ? .up : .down
         }
     }
 
