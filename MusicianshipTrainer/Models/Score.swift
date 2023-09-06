@@ -365,17 +365,21 @@ class Score : ObservableObject {
         let lastNote = notes[0]
         lastNote.sequence = self.getAllTimeSlices().count
 
+        //The number of staff lines for a full stem length
+        let stemLengthLines = 3.5
+
         let staff = self.staffs[lastNote.staffNum]
         if lastNote.getValue() != Note.VALUE_QUAVER {
             for note in notes {
                 let placement = staff.getNoteViewPlacement(note: note)
                 note.stemDirection = placement.offsetFromStaffMidline <= 0 ? .down : .up
+                note.stemLength = stemLengthLines
             }
             return
         }
 
         //apply the quaver beam back from the last note
-        let endQuaver = notes[0]
+        //let endQuaver = notes[0]
         var notesUnderBeam:[Note] = []
         notesUnderBeam.append(lastNote)
         
@@ -398,27 +402,48 @@ class Score : ObservableObject {
             }
         }
         
-        ///Set each note's beam type and calculate the nett above r below the staff line for the quaver group (for the subsequnet stem up or down decison)
+        //Determine if the haver group has up or down stems based on the overall staff placement of the group
         var totalOffset = 0
-        for i in 0..<notesUnderBeam.count {
-            let note = notesUnderBeam[i]
-            if i == 0 {
-                note.beamType = .end
-            }
-            else {
-                if i == notesUnderBeam.count-1 {
-                    note.beamType = .start
-                }
-                else {
-                    note.beamType = .middle
-                }
-            }
+        for note in notesUnderBeam {
             let placement = staff.getNoteViewPlacement(note: note)
             totalOffset += placement.offsetFromStaffMidline
         }
         
+        ///Set each note's beam type and calculate the nett above r below the staff line for the quaver group (for the subsequnet stem up or down decison)
+        let startNote = notesUnderBeam[0]
+        let startPlacement = staff.getNoteViewPlacement(note: startNote)
+
+        let endNote = notesUnderBeam[notesUnderBeam.count - 1]
+        let endPlacement = staff.getNoteViewPlacement(note: endNote)
+//        if startNote.midiNumber == 70 {
+//            print(endNote.sequence, endNote.midiNumber, endPlacement.offsetFromStaffMidline)
+//            print(startNote.sequence, startNote.midiNumber, startPlacement.offsetFromStaffMidline)
+//        }
+        var beamSlope:Double = Double(endPlacement.offsetFromStaffMidline - startPlacement.offsetFromStaffMidline)
+        beamSlope = beamSlope / Double(notesUnderBeam.count - 1)
+
+        var requiredBeamPosition = Double(startPlacement.offsetFromStaffMidline)
+        
         for i in 0..<notesUnderBeam.count {
             let note = notesUnderBeam[i]
+            if i == 0 {
+                note.beamType = .end
+                note.stemLength = stemLengthLines
+            }
+            else {
+                if i == notesUnderBeam.count-1 {
+                    note.beamType = .start
+                    note.stemLength = stemLengthLines
+                }
+                else {
+                    note.beamType = .middle
+                    let placement = staff.getNoteViewPlacement(note: note)
+                    ///adjust the stem length according to where the note is positioned vs. where the beam slope position requires
+                    let stemDiff = Double(placement.offsetFromStaffMidline) - requiredBeamPosition
+                    note.stemLength = stemLengthLines + (stemDiff / 2.0 * (totalOffset > 0 ? 1.0 : -1.0))
+                }
+            }
+            requiredBeamPosition += beamSlope
             note.stemDirection = totalOffset > 0 ? .up : .down
         }
     }

@@ -5,7 +5,6 @@ import AVFoundation
 class KeySignature {
     var accidentalType:AccidentalType
     var sharps:[Int] = [] //Notes of this pitch dont require individual accidentals, their accidental is implied by the key signature
-//    var flats:[Int] =  []
     var accidentalCount:Int
     var maxAccidentals = 7
     
@@ -39,7 +38,14 @@ class KeySignature {
             sharps.append(Note.MIDDLE_C + 8) //G#
             sharps.append(Note.MIDDLE_C + 3) //D#
         }
-
+        if keyName == "B" {
+            self.accidentalCount = 4
+            sharps.append(Note.MIDDLE_C + 6) //F#
+            sharps.append(Note.MIDDLE_C + 1) //C#
+            sharps.append(Note.MIDDLE_C + 8) //G#
+            sharps.append(Note.MIDDLE_C + 3) //D#
+            sharps.append(Note.MIDDLE_C + 10) //A#
+        }
     }
 
     // how frequently is this note in a key signature

@@ -41,7 +41,10 @@ struct StemView: View {
     @ObservedObject var lineSpacing:StaffLayoutSize
     
     func getStemLength() -> Double {
-        let len = lineSpacing.lineSpacing * 3.5
+        var len = 0.0
+        if notes.count > 0 {
+            len = notes[0].stemLength * lineSpacing.lineSpacing
+        }
         //print(s, "      StemView:: length:", len, lineSpacing.lineSpacing)
         return len
     }

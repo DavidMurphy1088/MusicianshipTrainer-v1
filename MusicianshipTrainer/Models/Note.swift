@@ -134,6 +134,8 @@ class Note : TimeSliceEntry, Comparable {
     
     var beamType:QuaverBeamType = .none
     var stemDirection:StemDirection = .up
+    var stemLength:Double = 0.0
+    
     //the note where the quaver beam for this note ends
     var beamEndNote:Note? = nil
     
