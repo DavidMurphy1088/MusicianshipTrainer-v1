@@ -59,9 +59,6 @@ class ExampleData : ObservableObject {
         for rowCells in sheetRows {
 
             rowNum += 1
-            if rowNum == 123 {
-                print("+++")
-            }
             if rowCells.count > 0 {
                 if rowCells[0].hasPrefix("//")  {
                     continue

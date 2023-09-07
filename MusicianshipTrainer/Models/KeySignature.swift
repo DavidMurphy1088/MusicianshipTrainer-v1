@@ -12,7 +12,7 @@ class KeySignature {
         self.accidentalType = type
         self.accidentalCount = 0
         if keyName != "" {
-            if !(["C", "D", "A", "E"].contains(keyName)) {
+            if !(["C", "D", "A", "E", "B"].contains(keyName)) {
                 Logger.logger.reportError(self, "Unknown Key \(keyName)")
             }
         }
@@ -39,7 +39,7 @@ class KeySignature {
             sharps.append(Note.MIDDLE_C + 3) //D#
         }
         if keyName == "B" {
-            self.accidentalCount = 4
+            self.accidentalCount = 5
             sharps.append(Note.MIDDLE_C + 6) //F#
             sharps.append(Note.MIDDLE_C + 1) //C#
             sharps.append(Note.MIDDLE_C + 8) //G#

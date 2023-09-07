@@ -4,6 +4,7 @@ import WebKit
 struct ContentTypeView: View {
     let contentSection:ContentSection
     @Binding var answerState:AnswerState
+    
     @Binding var answer:Answer
 
     func isNavigationHidden() -> Bool {
@@ -23,7 +24,6 @@ struct ContentTypeView: View {
     
     var body: some View {
         VStack {
-            //Text("----------- Content type VIEW --------------")
             let type = contentSection.type
            
             if type == "Type_1" {
@@ -165,7 +165,7 @@ struct ContentSectionHeaderView: View {
                     Button(action: {
                         AudioRecorder.shared.playAudioFromCloudURL(urlString: audioInstructionsFileName)
                     }) {
-                        Text("Aural Instructions").defaultStyle()
+                        Text("Aural Instructions").defaultButtonStyle()
                     }
                     .padding()
                 }
@@ -187,7 +187,7 @@ struct ContentSectionHeaderView: View {
                     isHelpPresented.toggle()
                 }) {
                     HStack {
-                        Text("Tips and Tricks").font(.custom("Courgette-Regular", size: 32))
+                        Text("Tips and Tricks").font(.custom("Courgette-Regular", size: 30))
                         Image(systemName: "questionmark.circle")
                             .font(.largeTitle)
                     }
@@ -296,17 +296,11 @@ struct SectionsNavigationView:View {
                         Spacer()
                         HStack {
                             Spacer()
-                            Text(contentSections[index].getTitle()).padding()
-                                //.font(.title2)
-                                .font(.custom("Courgette-Regular", size: 32))
+                            Text(contentSections[index].getTitle()).defaultTextStyle().padding()
                             Spacer()
                             if let rowImage = getGradeImage(contentSection: contentSections[index]) {
                                 HStack {
                                     Spacer()
-                                //Text(self.getExamCompleteStatus(contentSection: contentSections[index])).padding().font(.title2)
-                                //Text("Status:[\(contentSections[index].questionStatus.status)]")
-                                
-                                    //Spacer()
                                     rowImage
                                         .resizable()
                                         .scaledToFit()
@@ -368,8 +362,8 @@ struct ExamView: View {
                         self.examBeginning = false
                     }) {
                         VStack {
-                            Text("The exam has \(contentSections.count) questions").padding()
-                            Text("Start the Exam").defaultStyle()
+                            Text("The exam has \(contentSections.count) questions").defaultTextStyle().padding()
+                            Text("Start the Exam").defaultButtonStyle()
                         }
                     }
                     Spacer()
@@ -379,7 +373,7 @@ struct ExamView: View {
                 if self.answerState == .submittedAnswer {
                     Spacer()
                     if sectionIndex < contentSections.count - 1 {
-                        Text("Completed question \(sectionIndex+1) of \(contentSections.count)").padding()
+                        Text("Completed question \(sectionIndex+1) of \(contentSections.count)").defaultTextStyle().padding()
                         Button(action: {
                             contentSections[sectionIndex].answer111 = answer.copyAnwser()
                             contentSections[sectionIndex].storeAnswer(answer: answer.copyAnwser())
@@ -387,7 +381,7 @@ struct ExamView: View {
                             sectionIndex += 1
                         }) {
                             VStack {
-                                Text("Next Exam Question").defaultStyle().padding()
+                                Text("Next Exam Question").defaultButtonStyle()
                             }
                         }
                         .padding()
@@ -399,12 +393,13 @@ struct ExamView: View {
                             showingConfirm = true
                         }) {
                             VStack {
-                                Text("Exit Exam").defaultStyle().padding()
+                                Text("Exit Exam").defaultButtonStyle().padding()
                             }
                         }
                         .alert(isPresented: $showingConfirm) {
                             Alert(title: Text("Are you sure?"),
-                                  message: Text("You cannot restart an exam you exit from"), primaryButton: .destructive(Text("Yes, I'm sure")) {
+                                  message: Text("You cannot restart an exam you exit from"),
+                                  primaryButton: .destructive(Text("Yes, I'm sure")) {
                                 for s in contentSections {
                                     //if s.answer111 == nil {
                                         let answer = Answer(ctx: "cancelled")
@@ -427,7 +422,7 @@ struct ExamView: View {
                             contentSection.questionStatus.setStatus(1)
                             presentationMode.wrappedValue.dismiss()
                         }) {
-                            Text("End of Exam").defaultStyle()
+                            Text("End of Exam").defaultButtonStyle()
                         }
                         Spacer()
                     }
@@ -485,7 +480,7 @@ struct ContentOverviewView: View {
 
     var body: some View {
         ZStack {
-            Text("Overview")
+            Text("Overview").defaultTextStyle()
             if let content = self.HTMLcontent {
                 HStack {
                     GeometryReader { geometry in

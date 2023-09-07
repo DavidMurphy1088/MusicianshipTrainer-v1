@@ -65,7 +65,7 @@ struct StemView: View {
         }
         return (stemDirection * -1.0 * getNoteWidth())
     }
-    
+
 //    func log(note:Note, d:Double) -> Bool {
 //        //if staff.type == .bass {
 //            //print(self.staff.staffNum)
@@ -90,7 +90,7 @@ struct StemView: View {
             VStack {
                 let staffNotes = getStaffNotes(staff: staff)
                 if staffNotes.count > 0 {
-                    if staffNotes.count < 2 {
+                    if staffNotes.count <= 1 {
                         ///Draw in the stem lines for all notes under the current stem line if this is one.
                         ///For a group of notes under a quaver beam the the stem direction (and later length...) is determined by only one note in the group
                         let startNote = staffNotes[0].getBeamStartNote(score: score, np: notePositionLayout)
@@ -233,20 +233,20 @@ struct StaffNotesView: View {
         return self.staffLayoutSize.lineSpacing
     }
 
-    func log(notes: [Note : CGRect]) {
-        let keys = notes.keys
-        let sss = keys.sorted { $0.sequence < $1.sequence }
-        print("")
-        for n in sss {
-            print("++++++BEAM Note seq", n.sequence, "midi:", n.midiNumber, n.getValue(),
-                  "\tBeamType:", n.beamType,
-                    "\tendNote:", n.beamEndNote?.midiNumber ?? "",
-                  "Rect:", notes[n] ?? ""
-            )
-            let re = notes[n]
-            //print ("   ", re)
-        }
-    }
+//    func log(notes: [Note : CGRect]) {
+//        let keys = notes.keys
+//        let sss = keys.sorted { $0.sequence < $1.sequence }
+//        print("")
+//        for n in sss {
+//            print("++++++BEAM Note seq", n.sequence, "midi:", n.midiNumber, n.getValue(),
+//                  "\tBeamType:", n.beamType,
+//                    "\tendNote:", n.beamEndNote?.midiNumber ?? "",
+//                  "Rect:", notes[n] ?? ""
+//            )
+//            let re = notes[n]
+//            //print ("   ", re)
+//        }
+//    }
     
     func quaverBeamView(line: (CGPoint, CGPoint), startNote:Note, endNote:Note, lineSpacing: Double) -> some View {
         ZStack {
@@ -331,7 +331,7 @@ struct StaffNotesView: View {
                 GeometryReader { geo in
                     ZStack {
                         ZStack {
-                            let log = log(notes: noteLayoutPositions.positions)
+                            //let log = log(notes: noteLayoutPositions.positions)
                             ForEach(noteLayoutPositions.positions.sorted(by: { $0.key.sequence < $1.key.sequence }), id: \.key) {
                                 endNote, endNotePos in
                                 if endNote.beamType == .end {

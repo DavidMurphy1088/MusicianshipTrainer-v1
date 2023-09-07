@@ -87,7 +87,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
     
     //Make a score of notes and barlines from the tap intervals
     func makeScore(questionScore:Score, questionTempo:Int, tapValues: [Double]) -> Score {
-        let outputScore = Score(timeSignature: questionScore.timeSignature, linesPerStaff: 1)
+        let outputScore = Score(timeSignature: questionScore.timeSignature, linesPerStaff: 1, noteSize: questionScore.noteSize)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
         
@@ -176,13 +176,29 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
     //From the recording of the first tick, calculate the tempo the rhythm was tapped at
     func getTempoFromRecordingStart(tapValues:[Double], questionScore: Score) -> Int {
         let scoreTimeSlices = questionScore.getAllTimeSlices()
-        let firstNoteValue = scoreTimeSlices[0].getTimeSliceEntries()[0].getValue()
-        if self.tappedValues.count == 0 {
+        //var firstScoreNoteValue = scoreTimeSlices[0].getTimeSliceEntries()[0].getValue()
+        var firstScoreNoteValue = scoreTimeSlices[0].getTimeSliceNotes()[0].getValue()
+        for i in 1..<scoreTimeSlices.count {
+            let entries = scoreTimeSlices[i].getTimeSliceEntries()
+            if entries.count > 0 {
+                let entry = entries[0]
+                if entry is Note {
+                    break
+                }
+                else {
+                    if entry is Rest {
+                        firstScoreNoteValue += entry.getValue()
+                    }
+                }
+            }
+        }
+        //if self.tappedValues.count == 0 
+        if tapValues.count == 0 {
             return 60
         }
         //let firstTapValue = self.tapValues1[0]
         let firstTapValue = tapValues[0]
-        let tempo = (firstNoteValue / firstTapValue) * 60.0
+        let tempo = (firstScoreNoteValue / firstTapValue) * 60.0
         return Int(tempo)
     }
     

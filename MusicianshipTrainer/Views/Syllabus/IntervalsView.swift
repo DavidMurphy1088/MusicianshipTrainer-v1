@@ -47,8 +47,7 @@ struct PlayExampleMelody : View {
                 }
             }
         }) {
-            //UIHiliteText(text: "Play Example", answerMode: 1)
-            Text("Play An Example").defaultStyle()
+            Text("Play An Example").defaultButtonStyle()
         }
         .alert(isPresented: $showExamplePopover) {
             Alert(title: Text("Example"),
@@ -234,7 +233,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                         answer.selectedInterval = intervalNames.intervals[index].interval
                     }) {
                         Text(interval.name)
-                            .defaultStyle()
+                            .defaultButtonStyle()
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
@@ -283,7 +282,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                                 })
                                 self.scoreWasPlayed = true
                             }) {
-                                Text("Hear The Interval").defaultStyle()
+                                Text("Hear The Interval").defaultButtonStyle()
                             }
                             .padding()
                             Text("").padding()
@@ -296,7 +295,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 }
                                 
                  VStack {
-                    Text("Please select the correct interval").padding()
+                    Text("Please select the correct interval").defaultTextStyle().padding()
                     HStack {
                         selectIntervalView.padding()
                     }
@@ -309,7 +308,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                             self.buildAnser()
                             answerState = .submittedAnswer
                         }) {
-                            Text("\(self.isTakingExam() ? "Submit" : "Check") Your Answer").defaultStyle()
+                            Text("\(self.isTakingExam() ? "Submit" : "Check") Your Answer").defaultButtonStyle()
                         }
                         .padding()
                     }
@@ -353,11 +352,11 @@ struct IntervalAnswerView: View {
                 HStack {
                     if answer.correct {
                         Image(systemName: "checkmark.circle").resizable().frame(width: imageSize, height: imageSize).foregroundColor(.green)
-                        Text("Correct - Good Job")
+                        Text("Correct - Good Job").defaultTextStyle()
                     }
                     else {
                         Image(systemName: "staroflife.circle").resizable().frame(width: imageSize, height: imageSize).foregroundColor(.red)
-                        Text("Sorry - not correct")
+                        Text("Sorry - not correct").defaultTextStyle()
                     }
                 }
                 .padding()
@@ -366,14 +365,14 @@ struct IntervalAnswerView: View {
                     if let selectedInterval = answer.selectedInterval {
                         let selected = intervalNames.getInterval(interval: selectedInterval)
                         if let selected = selected {
-                            Text("You said that the interval was a \(selected.name)").padding()
+                            Text("You said that the interval was a \(selected.name)").defaultTextStyle().padding()
                         }
                     }
 
                 }
-                Text("The interval is a \(answer.correctIntervalName)").padding()
+                Text("The interval is a \(answer.correctIntervalName)").defaultTextStyle().padding()
                 if questionType == .intervalVisual {
-                    Text(answer.explanation).italic().fixedSize(horizontal: false, vertical: true).padding()
+                    Text(answer.explanation).defaultTextStyle().padding()
                 }
                 
                 HStack {
@@ -382,7 +381,7 @@ struct IntervalAnswerView: View {
                         //metronome.setTempo(tempo: 200, context: "Intervals Viz")
                         metronome.playScore(score: score)
                     }) {
-                        Text("Hear Interval").defaultStyle()
+                        Text("Hear Interval").defaultButtonStyle()
                     }
                     .padding()
                     //}
@@ -403,7 +402,7 @@ struct IntervalView: View {
     @Binding var answerState:AnswerState
     @Binding var answer:Answer 
 
-    @State var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5) //neds to be @state to pass it around
+    @State var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5, noteSize: .large) //neds to be @state to pass it around
 
     let id = UUID()
     let questionType:QuestionType

@@ -28,13 +28,15 @@ struct FeedbackView: View {
             if let feedbackExplanation = studentFeedback.feedbackExplanation {
                 VStack {
                     Text(feedbackExplanation)
-                        .lineLimit(nil)
+                        .defaultTextStyle()
+                        //.lineLimit(nil)
                 }
             }
             if let feedbackNote = studentFeedback.feedbackNote {
                 VStack {
                     Text(feedbackNote)
-                        .lineLimit(nil)
+                        .defaultTextStyle()
+                        //.lineLimit(nil)
                 }
             }
         }
@@ -89,19 +91,10 @@ struct ScoreView: View {
                 lineSpacing -= 1
             }
         }
-//
-//        print("\nSET ORIENTATION \tfrom", ctx, terminator: "")
-//        if UIDevice.current.orientation.isLandscape {
-//            print("\tLandscape", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
-//        }
-//        else {
-//            print("\tPortrait", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
-//        }
-//        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", lineSpacing)
         self.staffLayoutSize.setLineSpacing(lineSpacing)
-//=======
 
-        let ls = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
+        let ls = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 :
+        UIScreen.main.bounds.width / (score.noteSize == .small ? 64.0 : 48.0)
 //        if UIDevice.current.orientation.isLandscape {
 //            print("\tLandscape", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
 //        }
@@ -110,7 +103,6 @@ struct ScoreView: View {
 //        }
 //        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", ls)
         self.staffLayoutSize.setLineSpacing(ls)
-//>>>>>>> main
     }
     
     var body: some View {

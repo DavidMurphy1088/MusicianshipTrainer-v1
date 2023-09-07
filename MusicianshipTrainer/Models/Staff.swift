@@ -48,24 +48,24 @@ class NoteOffsetsInStaffByKey {
     init () {
         //Defines which staff line (and accidental) is used to show a midi pitch in each key,
         //assuming key signature is not taken in account (it will be later in the note display code...)
-        //offset, sign. sign = ' ' or -1=flat, 1=sharp (1=natural,????)
+        //offset, sign. sign = ' ' or -1=flat, 1=sharp (=natural,????)
         //modified July23 - use -1 for flat, 0 for natural, 1 for sharp. Done onlu so far for C and G
         //horizontal is the various keys
         //vertical starts at showing how C is shown in that key, then c#, d, d# etc up the scale
         //31Aug2023 - done for C, G, D, E
         //  Key                 C     D♭   D    E♭   E    F    G♭    G     A♭   A    B♭   B
-        noteOffsetByKey.append("0     0    0    0    0    0    0,1   0     0    0,1  0    0,0")  //C
-        noteOffsetByKey.append("0,1   1    0,1  1,0  0,1  1,0  1     0,1   1    0    1,0  0,0")  //C#, D♭
-        noteOffsetByKey.append("1     1,1  1    1    1    1    1,1   1     1,1  1    1    0,0")  //D
-        noteOffsetByKey.append("2,-1  2    2,-1 2    1,1  2,0  2     2,-1  2    1,2  2    0,0")  //D#, E♭
-        noteOffsetByKey.append("2     2,1  2    2,1  2    2    2,1   2     2,1  2    2,1  0,0")  //E
-        noteOffsetByKey.append("3     3    3    3    3    3    3     3     3    3,1  3    0,0")  //F
-        noteOffsetByKey.append("3,1   4    3,1  4,0  3,1  4,0  4     3,1   4,0  3    4,0  0,0")  //F#, G♭
-        noteOffsetByKey.append("4     4,1  4    4    4    4    4,1   4     4    4,1  4    0,0")  //G
-        noteOffsetByKey.append("4,1   5    4,1  5    4,1  5,0  5     4,1   5    4    5,0  0,0")  //G#, A♭
-        noteOffsetByKey.append("5     5,1  5    5,1  5    5    5,1   5     5,1  5    5    0,0")  //A
-        noteOffsetByKey.append("6,-1  6    6,-1 6    6,0  6    6     6,-1  6    6,0  6    0,0")  //A#, B♭
-        noteOffsetByKey.append("6     6,1  6    6,1  6    6,1  6,1   6     6,1  6    6,1  0,0")  //B
+        noteOffsetByKey.append("0     0    0    0    0    0    0,1   0     0    0,1  0    0")    //C
+        noteOffsetByKey.append("0,1   1    0,1  1,0  0,1  1,0  1     0,1   1    0    1,0  0,1")  //C#, D♭
+        noteOffsetByKey.append("1     1,1  1    1    1    1    1,1   1     1,1  1    1    1")    //D
+        noteOffsetByKey.append("2,-1  2    2,-1 2    1,1  2,0  2     2,-1  2    1,2  2    1,1")  //D#, E♭
+        noteOffsetByKey.append("2     2,1  2    2,1  2    2    2,1   2     2,1  2    2,1  2")    //E
+        noteOffsetByKey.append("3     3    3    3    3    3    3     3     3    3,1  3    3")    //F
+        noteOffsetByKey.append("3,1   4    3,1  4,0  3,1  4,0  4     3,1   4,0  3    4,0  3,1")  //F#, G♭
+        noteOffsetByKey.append("4     4,1  4    4    4    4    4,1   4     4    4,1  4    4")    //G
+        noteOffsetByKey.append("4,1   5    4,1  5    4,1  5,0  5     4,1   5    4    5,0  4,1")  //G#, A♭
+        noteOffsetByKey.append("5     5,1  5    5,1  5    5    5,1   5     5,1  5    5    5")    //A
+        noteOffsetByKey.append("6,-1  6    6,-1 6    6,-1 6    6     6,-1  6    6,0  6    5,1")  //A#, B♭
+        noteOffsetByKey.append("6     6,1  6    6,1  6    6,1  6,1   6     6,1  6    6,1  6")    //B
     }
     
     func getValue(scaleDegree:Int, keyNum:Int) -> NoteStaffPlacement? {
@@ -134,7 +134,6 @@ class Staff : ObservableObject {
         
         //Determine the staff placement for each note pitch
         
-        //var noteOffsets:[NoteStaffPlacement] = []
         var keyNumber:Int = 0
         if score.key.keySig.accidentalCount == 1 {
             keyNumber = 7
@@ -142,7 +141,16 @@ class Staff : ObservableObject {
         if score.key.keySig.accidentalCount == 2 {
             keyNumber = 2
         }
-        
+        if score.key.keySig.accidentalCount == 3 {
+            keyNumber = 9
+        }
+        if score.key.keySig.accidentalCount == 4 {
+            keyNumber = 4
+        }
+        if score.key.keySig.accidentalCount == 5 {
+            keyNumber = 11
+        }
+
         for noteValue in 0...highestNoteValue {
             //Fix - longer? - offset should be from middle C, notes should be displayed on both staffs from a single traversal of the score's timeslices
             

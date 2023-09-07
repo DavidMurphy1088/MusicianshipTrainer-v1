@@ -25,6 +25,9 @@ class UIGlobals {
     static let practiceTipsColor = Color.blue.opacity(0.08) //UIColor(red: 200/255, green: 255/255, blue: 200/255, alpha: 1) //paleGreen
     
     static var ageGroup:AgeGroup = .Group_11Plus
+    
+    static let font = Font.custom("Lora", size: 30) 
+
 }
 
 struct StandardButtonStyle: ButtonStyle {
@@ -39,16 +42,20 @@ struct StandardButtonStyle: ButtonStyle {
 
 extension Text {
     
-    func defaultStyle() -> some View {
+    func defaultButtonStyle() -> some View {
         self
+            .font(UIGlobals.font)
             .foregroundColor(.white)
-        //UIDevice.current.userInterfaceIdiom == .phone ? .zero : .
             .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
             .background(.blue)
             .cornerRadius(UIGlobals.cornerRadius)
-            //.padding()
     }
     
+    func defaultTextStyle() -> some View {
+        self
+            .font(UIGlobals.font)
+    }
+
     func defaultContainer(selected:Bool) -> some View {
         self
             .background(

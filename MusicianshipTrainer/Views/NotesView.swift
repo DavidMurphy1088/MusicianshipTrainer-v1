@@ -111,14 +111,23 @@ struct NotesView: View {
         return result
     }
     
+//    func RestView(entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
+//        ZStack {
+//            Text("RRR")
+//        }
+//        //.border(Color.red)
+//    }
     func RestView(entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
         ZStack {
             if entry.getValue() == 1 {
+                let height = lineSpacing * 8.0
+
                 Image("rest_quarter")
                     .resizable()
                     .scaledToFit()
                     .frame(height: CGFloat(geometry.size.height/4))
-                    .padding()
+                    //.offset(y: 0 - height / 2.0)
+                    //.padding()
             }
             if entry.getValue() == 2 {
                 let height = lineSpacing / 2.0
@@ -216,14 +225,17 @@ struct NotesView: View {
                     VStack {
                         if entry is Note {
                             NoteView(note: entry as! Note, noteFrameWidth: noteFrameWidth, geometry: geometry)
+                                //.border(Color.green)
                         }
                         if entry is Rest {
-                            Spacer()
+                            //Spacer()
                             RestView(entry: entry, lineSpacing: lineSpacing, geometry: geometry)
-                            Spacer()
+                            //Spacer()
+                                .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
+                                //.border(Color.red)
                         }
                     }
-                    //.border(Color.green)
+                    
                 }
             }
         }

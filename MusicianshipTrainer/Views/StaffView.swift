@@ -182,6 +182,9 @@ struct StaffView: View {
             if keySignture.accidentalCount > 3 {
                 offsets.append(2)
             }
+            if keySignture.accidentalCount > 4 {
+                offsets.append(-1)
+            }
         }
         else {
             if keySignture.accidentalCount > 0 {

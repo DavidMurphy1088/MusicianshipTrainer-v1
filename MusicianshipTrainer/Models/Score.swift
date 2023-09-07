@@ -104,9 +104,16 @@ class Score : ObservableObject {
     static var accFlat = "\u{266d}"
     var label:String? = nil
     
-    init(timeSignature:TimeSignature, linesPerStaff:Int) {
+    enum NoteSize {
+        case small
+        case large
+    }
+    let noteSize:NoteSize
+    
+    init(timeSignature:TimeSignature, linesPerStaff:Int, noteSize:NoteSize) {
         self.id = UUID()
         self.timeSignature = timeSignature
+        self.noteSize = noteSize
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
     }
     
@@ -346,7 +353,18 @@ class Score : ObservableObject {
             staff.clear()
         }
     }
-         
+    
+    ///Determine if the stem for the note(s) should go up or down
+    func getStemDirection(staff:Staff, notes:[Note]) -> StemDirection {
+        var totalOffsets = 0
+        for n in notes {
+            let placement = staff.getNoteViewPlacement(note: n)
+            totalOffsets += placement.offsetFromStaffMidline
+        }
+        //return Array(repeating: totalOffsets < 0 ? StemDirection.up : StemDirection.down, count: notes.count)
+        return totalOffsets <= 0 ? StemDirection.down : StemDirection.up
+    }
+    
     ///If the last note added was a quaver, identify any previous adjoining quavers and set them to be joined with a quaver bar
     ///Set the beginning, middle and end quavers for the beam
     func addStemCharaceteristics() {
@@ -370,9 +388,10 @@ class Score : ObservableObject {
 
         let staff = self.staffs[lastNote.staffNum]
         if lastNote.getValue() != Note.VALUE_QUAVER {
+            let stemDirection = getStemDirection(staff: staff, notes: notes)
             for note in notes {
-                let placement = staff.getNoteViewPlacement(note: note)
-                note.stemDirection = placement.offsetFromStaffMidline <= 0 ? .down : .up
+                //let placement = staff.getNoteViewPlacement(note: note)
+                note.stemDirection = stemDirection
                 note.stemLength = stemLengthLines
             }
             return

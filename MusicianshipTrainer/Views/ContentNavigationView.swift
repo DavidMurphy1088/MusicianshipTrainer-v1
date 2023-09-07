@@ -5,26 +5,23 @@ struct GradeIntroView: View {
     
     var body: some View {
             VStack  (alignment: .center) {
-                //Text("TopicsNavigationView")
                 Text("Musicianship Trainer")
                     //.font(.title)
-                    .font(.custom("Courgette-Regular", size: 66))
+                    .font(UIGlobals.font)
                     .fontWeight(.bold)
                     .padding()
                 
                 
                 Text("Grade 1 Piano")
-                    .font(.custom("Courgette-Regular", size: 66))
+                    .font(UIGlobals.font)
                     .fontWeight(.bold)
                     .padding()
                 
-                //GeometryReader { geo in
-                    Image("nzmeb_logo_transparent")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 200) //, height: 200)
-                        .padding()
-                //}
+                Image("nzmeb_logo_transparent")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200) 
+                    .padding()
             }
             .padding()
     }
@@ -63,7 +60,7 @@ struct ContentNavigationView: View {
                                     Spacer()
                                     Text(contentSection.getTitle()).padding()
                                         //.font(.title2)
-                                        .font(.custom("Courgette-Regular", size: 32))
+                                        .font(UIGlobals.font)
                                     Spacer()
                                 }
                                 Spacer()

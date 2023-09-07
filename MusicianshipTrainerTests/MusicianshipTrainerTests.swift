@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import MusicianshipTrainer
+//@testable import MusicianshipTrainer
 
 final class MusicianshipTrainerTests: XCTestCase {
 
