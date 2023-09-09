@@ -1,6 +1,4 @@
 class Key : Equatable, Hashable {
-    //static var currentKey = Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.flat, count: 0))
-
     var keySig: KeySignature
     var type: KeyType
     
@@ -8,18 +6,7 @@ class Key : Equatable, Hashable {
         case major
         case minor
     }
-    
-//    static func allKeys(keyType:KeyType) -> [Key] {
-//        var list:[Key] = []
-//        for k in 0..<5 {
-//            list.append(Key(type: keyType, keySig: KeySignature(type: AccidentalType.sharp, count: k)))
-//            if k>0 {
-//                list.append(Key(type: keyType, keySig: KeySignature(type: AccidentalType.flat, count: k)))
-//            }
-//        }
-//        return list
-//    }
-    
+        
     static func == (lhs: Key, rhs: Key) -> Bool {
         return (lhs.type == rhs.type) && (lhs.keySig.accidentalCount == rhs.keySig.accidentalCount) &&
         (lhs.keySig.accidentalType == rhs.keySig.accidentalType)
@@ -32,8 +19,6 @@ class Key : Equatable, Hashable {
     
     func hasNote(note:Int) -> Bool {
         var result:Bool = false
-        //print("\nS++++++++", note, keySig.sharps)
-
         for n in keySig.sharps {
             let octaves = Note.getAllOctaves(note: n)
             //print("  ", n, octaves)
@@ -42,11 +27,10 @@ class Key : Equatable, Hashable {
                 break
             }
         }
-        //print("E++++++++", result, note)
         return result
     }
     
-    //return the chord triad type for a scale degree
+    ///Return the chord triad type for a scale degree
     func getTriadType(scaleOffset: Int) -> Chord.ChordType {
         if self.type == KeyType.major {
             if ([0, 5, 7].contains(scaleOffset)) {
@@ -121,20 +105,62 @@ class Key : Equatable, Hashable {
         return desc
     }
     
-//    func firstScaleNote() -> Int {
-//        var note = Note.MIDDLE_C
-//        if keySig.accidentalCount > 0 {
-//            if self.keySig.accidentalType == AccidentalType.sharp {
-//                note = keySig.sharps[keySig.accidentalCount-1] + 2
-//            }
-//            else {
-//                note = keySig.flats[keySig.accidentalCount-1] - 6
-//            }
-//        }
-//        if self.type == KeyType.minor {
-//            note -= 3
-//        }
-//        note = Note.getClosestOctave(note: note, toPitch: 45)
-//        return note
-//    }
+    func getKeyTagName() -> String {
+        let keyTag:String
+        switch keySig.accidentalCount {
+        case 1:
+            keyTag = "G"
+        case 2:
+            keyTag = "D"
+        case 3:
+            keyTag = "A"
+        case 4:
+            keyTag = "E"
+        case 5:
+            keyTag = "B"
+        default:
+            keyTag = "C"
+        }
+        return keyTag
+    }
+    
+    func firstScaleNote() -> Int {
+        var note = Note.MIDDLE_C
+        if keySig.accidentalCount > 0 {
+            if self.keySig.accidentalType == AccidentalType.sharp {
+                note = keySig.sharps[keySig.accidentalCount-1] + 2
+            }
+            else {
+                //note = keySig.flats[keySig.accidentalCount-1] - 6
+            }
+        }
+        if self.type == KeyType.minor {
+            note -= 3
+        }
+        note = Note.getClosestOctave(note: note, toPitch: 45)
+        return note
+    }
+    
+    func makeTriad(value:Double, staffNum:Int) -> [Note] {
+        let rootMidi:Int
+        switch keySig.accidentalCount {
+        case 1:
+            rootMidi = 43
+        case 2:
+            rootMidi = 50
+        case 3:
+            rootMidi = 45
+        case 4:
+            rootMidi = 52
+        case 5:
+            rootMidi = 47
+        default:
+            rootMidi = 48
+        }
+        var result:[Note] = []
+        result.append(Note(num: rootMidi, value: value, staffNum: staffNum))
+        result.append(Note(num: rootMidi + 4, value: value, staffNum: staffNum))
+        result.append(Note(num: rootMidi + 7, value: value, staffNum: staffNum))
+        return result
+    }
 }

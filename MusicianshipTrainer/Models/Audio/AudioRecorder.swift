@@ -103,7 +103,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
 //            Logger.logger.reportError(self, "At playback, file URL is nil")
 //            return
 //        }
-        let fileManager = FileManager.default
+        //let fileManager = FileManager.default
         //print("PLAYING FROM:", audioFilename)
 //        if !fileManager.fileExists(atPath: audioFilename.path) {
 //            Logger.logger.reportError(self, "At playback, file does not exist \(audioFilename.path)")

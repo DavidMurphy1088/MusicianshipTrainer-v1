@@ -76,14 +76,7 @@ class ExampleData : ObservableObject {
                     }
                 }
             }
-            
-            if rowCells.count > 3 {
-                let grade = rowCells[3]
-//                if grade != "" {
-//                    print("====", grade)
-//                }
-            }
-                
+                            
             for cellIndex in keyStart..<keyStart + keyLength {
                 var keyData:String? = nil
                 if cellIndex < rowCells.count {

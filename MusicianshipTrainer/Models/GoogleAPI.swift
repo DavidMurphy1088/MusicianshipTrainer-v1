@@ -126,9 +126,8 @@ class GoogleAPI {
         if let key = request.targetExampleKey {
             let (cachedType, cachedData) = dataCache.getData(key: key)
             if let data = cachedData {
-                onDone(.success, cachedData)
+                onDone(.success, data)
                 if cachedType == .fromMemory {
-                    
                     return
                 }
                 else {
@@ -165,7 +164,7 @@ class GoogleAPI {
                             return
                         }
                         if let key = request.targetExampleKey {
-                            self.dataCache.setData(key: key, data: data)
+                            self.dataCache.setData(key: key, data: responseData)
                         }
                         onDone(.success, data)
                     }
@@ -480,9 +479,9 @@ class GoogleAPI {
         }
         do {
             let filesData = try JSONDecoder().decode(FileSearch.self, from: data)
-            for f in filesData.files {
-                print(f.name, f.parents, filesData.kind)
-            }
+//            for f in filesData.files {
+//                print(f.name, f.parents, filesData.kind)
+//            }
             for f in filesData.files {
                 if f.name == name {
                     return f.id

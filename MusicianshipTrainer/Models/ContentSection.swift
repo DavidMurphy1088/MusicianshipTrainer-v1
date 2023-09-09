@@ -183,7 +183,7 @@ class ContentSection: Codable, Identifiable {
     }
     
     func debug() {
-        let spacer = String(repeating: " ", count: 4 * (level))
+        //let spacer = String(repeating: " ", count: 4 * (level))
         //print(spacer, "--->", "path:[\(self.getPath())]", "\tname:", self.name, "\ttype:[\(self.type)]")
 //        let sorted:[ContentSection] = subSections.sorted { (c1, c2) -> Bool in
 //            //return c1.loadedRow < c2.loadedRow
@@ -271,7 +271,7 @@ class ContentSection: Codable, Identifiable {
         }
         
         // remove leading zero in example number
-        if let range = name.range(of: "example", options: .caseInsensitive) {
+        if name.range(of: "example", options: .caseInsensitive) != nil {
             let substrings = name.components(separatedBy: " ")
             if substrings.count > 1 {
                 let numStr = substrings[1]

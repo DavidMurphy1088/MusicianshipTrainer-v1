@@ -106,7 +106,7 @@ class AudioSamplerPlayer {
             let pitchAdjust = 0
             var n = 0
             for note in notes {
-                var dynamic:Double = 48
+                let dynamic:Double = 48
                 n += 1
                 sampler.startNote(UInt8(note.midiNumber + pitchAdjust), withVelocity:UInt8(dynamic), onChannel:0)
                 let wait = playTempo * 50000.0 * Double(note.getValue())

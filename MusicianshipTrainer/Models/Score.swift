@@ -362,7 +362,7 @@ class Score : ObservableObject {
             totalOffsets += placement.offsetFromStaffMidline
         }
         //return Array(repeating: totalOffsets < 0 ? StemDirection.up : StemDirection.down, count: notes.count)
-        return totalOffsets <= 0 ? StemDirection.down : StemDirection.up
+        return totalOffsets <= 0 ? StemDirection.up: StemDirection.down
     }
     
     ///If the last note added was a quaver, identify any previous adjoining quavers and set them to be joined with a quaver bar
@@ -388,6 +388,10 @@ class Score : ObservableObject {
 
         let staff = self.staffs[lastNote.staffNum]
         if lastNote.getValue() != Note.VALUE_QUAVER {
+            if lastNote.sequence > 7 {
+                print("SSSSS")
+            }
+
             let stemDirection = getStemDirection(staff: staff, notes: notes)
             for note in notes {
                 //let placement = staff.getNoteViewPlacement(note: note)

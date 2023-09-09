@@ -154,18 +154,7 @@ struct ClapOrPlayPresentView: View {
         if questionType == .melodyPlay {
             if let timeSlice = score.getLastTimeSlice() {
                 timeSlice.addTonicChord()
-                let keyTag:String
-                if score.key.keySig.accidentalCount == 2 {
-                    keyTag = "D"
-                }
-                else {
-                    if score.key.keySig.accidentalCount == 1 {
-                        keyTag = "G"
-                    }
-                    else {
-                        keyTag = "C"
-                    }
-                }
+                let keyTag:String = score.key.getKeyTagName()
                 timeSlice.setTags(high: keyTag, low: "I")
             }
             let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: questionType == .rhythmVisualClap ? 1 : 5)

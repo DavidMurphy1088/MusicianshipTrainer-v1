@@ -102,9 +102,9 @@ class IntervalNames {
             
             IntervalName(interval:6, name: "Tritone", explanation: ["",""]),
             
-            IntervalName(interval:7, name: "Fifth", explanation: ["",""]),
+            IntervalName(interval:7, name: "Fifth", explanation: ["",""])
             
-            IntervalName(interval:9, name: "Sixth", explanation: ["",""])
+            //IntervalName(interval:9, name: "Sixth", explanation: ["",""])
 
         ]
     }

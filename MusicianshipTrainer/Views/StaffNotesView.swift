@@ -82,6 +82,9 @@ struct StemView: View {
                 notes.append(n)
             }
         }
+//        if notes[0].sequence > 6 {
+//            print("SSSSS")
+//        }
         return notes
     }
 
@@ -98,7 +101,7 @@ struct StemView: View {
                         if startNote.getValue() != Note.VALUE_WHOLE {
                             //Note this code eventually has to go adjust the stem length for notes under a quaver beam
                             //3.5 lines is a full length stem
-                            let stemDirection = startNote.stemDirection == .up ? 1.0 : -1.0 //stemDirection(note: startNote)
+                            let stemDirection = startNote.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: startNote)
                             //let midX = geo.size.width / 2.0 + (stemDirection * -1.0 * noteWidth / 2.0)
                             let midX = (geo.size.width + (midPointXOffset(notes: notes, staff: staff, stemDirection: stemDirection))) / 2.0
                             let midY = geo.size.height / 2.0
@@ -116,7 +119,7 @@ struct StemView: View {
                         //let furthestFromMidline = self.getFurthestFromMidline(noteArray: staffNotes)
                         ZStack {
                             ForEach(staffNotes, id: \.self) { note in
-                                let stemDirection = note.stemDirection == .up ? 1.0 : -1.0 //stemDirection(note: furthestFromMidline)
+                                let stemDirection = note.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: furthestFromMidline)
                                 let midX:Double = (geo.size.width + (midPointXOffset(notes: staffNotes, staff: staff, stemDirection: stemDirection))) / 2.0
                                 let midY = geo.size.height / 2.0
                                 let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
@@ -171,7 +174,7 @@ struct StaffNotesView: View {
     }
     
     func getBeamLine(endNote:Note, noteWidth:Double, startNote:Note, stemLength:Double) -> (CGPoint, CGPoint)? {
-        var stemDirection:Double = startNote.stemDirection == .up ? 1.0 : -1.0
+        let stemDirection:Double = startNote.stemDirection == .up ? 1.0 : -1.0
 //        if endNote.isOnlyRhythmNote {
 //            stemDirection = -1.0
 //        }

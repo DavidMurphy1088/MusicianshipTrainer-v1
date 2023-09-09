@@ -227,7 +227,7 @@ class Metronome: ObservableObject {
                         firstNote = false
                         if let timeSlice = nextScoreTimeSlice {
                             var noteInChordNum = 0
-                            let entry = timeSlice.entries[0]
+                            //let entry = timeSlice.entries[0]
                             if timeSlice.entries.count > 0 {
                                 let entry = timeSlice.entries[0]
                                 if currentNoteTimeToLive >= entry.getValue() {
@@ -278,11 +278,8 @@ class Metronome: ObservableObject {
                                             break
                                         }
                                     }
-                                    if entry is BarLine {
-                                        let barLine = entry as! BarLine
-                                        if barLine != nil {
-                                            currentTimeValue = 0
-                                        }
+                                    if let barLine = entry as? BarLine {
+                                        currentTimeValue = 0
                                     }
                                     nextScoreIndex += 1
                                 }

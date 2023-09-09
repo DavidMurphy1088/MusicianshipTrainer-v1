@@ -44,7 +44,7 @@ struct ClapTestView: View {
         }
         utterance.voice = voice
         synthesizer.speak(utterance)
-        synthesizer.delegate = CompletionHandler(completion)
+        //synthesizer.delegate = CompletionHandler(completion)
     }
 
     

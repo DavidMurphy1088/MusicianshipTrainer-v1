@@ -12,7 +12,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
         Logger.logger.log(self, "Version.Build \(appVersion).\(buildNumber)")
-        let settings:Settings = Settings.shared
+        //let settings:Settings = Settings.shared
         
         //Make navigation titles at top larger font
         let appearance = UINavigationBarAppearance()
