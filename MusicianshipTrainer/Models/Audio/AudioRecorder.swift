@@ -97,18 +97,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     }
 
     func playRecording(fileName:String) {
-        //Logger.logger.log(self, "Playback starting")
         AppDelegate.startAVAudioSession(category: .playback)
-//        guard let url = audioFilename else {
-//            Logger.logger.reportError(self, "At playback, file URL is nil")
-//            return
-//        }
-        //let fileManager = FileManager.default
-        //print("PLAYING FROM:", audioFilename)
-//        if !fileManager.fileExists(atPath: audioFilename.path) {
-//            Logger.logger.reportError(self, "At playback, file does not exist \(audioFilename.path)")
-//            return
-//        }
         let audioFilename = self.audioFilenameStatic
         let url = getDocumentsDirectory().appendingPathComponent("\(audioFilename).wav")
         do {
@@ -127,6 +116,26 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
         } catch let error {
             Logger.logger.reportError(self, "At Playback, start playing error", error)
         }
+    }
+    
+    func playFromData(data:Data) {
+        do {
+            self.audioPlayer = try AVAudioPlayer(data: data)
+            //self.audioPlayer = try AVAudioPlayer(url: audioFilename)
+            if self.audioPlayer == nil {
+                Logger.logger.reportError(self, "playFromData, cannot create audio player")
+                return
+            }
+            //var msg = "playback started, still recording? \(audioRecorder.isRecording)"
+            //setStatus(msg)
+            //Logger.logger.log(self, msg)
+            self.audioPlayer.delegate = self
+            self.audioPlayer.play()
+            setStatus("Playback started, status:\(self.audioPlayer.isPlaying ? "OK" : "Error")")
+        } catch let error {
+            Logger.logger.reportError(self, "At Playback, start playing error", error)
+        }
+
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {

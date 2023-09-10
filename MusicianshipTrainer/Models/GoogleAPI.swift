@@ -120,7 +120,6 @@ class GoogleAPI {
 
     ///Call a Google Drive API (sheets etc) using an API key. Note that this does not require an OAuth2 token request.
     ///Data accessed via an API key only is regarded as less senstive by Google than data in a Google doc that requires an OAuth token
-    
     private func getByAPI(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         
         if let key = request.targetExampleKey {
@@ -291,13 +290,21 @@ class GoogleAPI {
             }
         }
     }
+    
+    ///Drill down through all folders in the content section path to find the named file
+    ///When its found return its data
+    func getDocumentByName(pathSegments:[String],
+                       name:String,
+                       reportError:Bool,
+                       onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void)  {
+        var cacheKey = ""
+        for path in pathSegments {
+            if path.count > 0 {
+                cacheKey += path + "."
+            }
+        }
 
-    func getDocumentByName(contentSection:ContentSection, name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
-        var ageGroupPath:[String] = contentSection.getPathAsArray()
-        let ageGroup = UIGlobals.ageGroup == .Group_11Plus ? "11Plus" : "5-10" //TODO ???
-        ageGroupPath.insert(ageGroup, at: 0)
-        
-        let cacheKey = contentSection.getPath() + ".\(ageGroup)." + name
+        cacheKey += name
         let (cachedType, data) = dataCache.getData(key: cacheKey)
         if let data = data {
             if let document = String(data: data, encoding: .utf8) {
@@ -314,56 +321,128 @@ class GoogleAPI {
             return
         }
         
-        let reversed = contentSection.getPathAsArray().reversed()
-        var paths:[String] = []
-        for path in reversed {
-            paths.append(path.trimmingCharacters(in: .whitespacesAndNewlines))
-        }
-        paths.append(ageGroup)
-        var pathIndex = 1
+//        let reversed = pathSegments.reversed()
+//        var paths:[String] = []
+//        for path in reversed {
+//            paths.append(path.trimmingCharacters(in: .whitespacesAndNewlines))
+//        }
+        var pathIndex = 0
 
         var folderId = rootFolderId
         DispatchQueue.global(qos: .background).async {
-            while pathIndex < paths.count + 1 {
+            while pathIndex < pathSegments.count + 1 {
                 let semaphore = DispatchSemaphore(value: 0)
-                if pathIndex == paths.count {
-                    self.getFileByNameInFolder(folderId: folderId, name: name, onDone: {status, document in
-                        //print("===++", document)
+                if pathIndex == pathSegments.count {
+                    self.getFileTextContentsByNameInFolder(folderId: folderId, name: name, reportError: reportError, onDone: {status, document in
                         semaphore.signal()
                         if let document = document {
                             self.dataCache.setData(key: cacheKey, data: document.data(using: .utf8)!)
                             onDone(.success, document)
                         }
                         else {
-                            self.logger.reportError(self, "No data for file:[\(name)] in path:[\(contentSection.getPath())]")
+                            if reportError {
+                                self.logger.reportError(self, "No data for file:[\(name)] in path:[\(cacheKey)]")
+                            }
                             onDone(.failed, nil)
                         }
                     })
+                    //getFileDataContentsByNameInFolder()
                 }
                 else {
-                    //print("\n---start of wait \(pathIndex) path:\(paths[pathIndex])")
-                    self.getFileInFolder(folderId: folderId, name: paths[pathIndex], onDone: {status, folder in
+                    self.getFileInFolder(folderId: folderId, name: pathSegments[pathIndex], onDone: {status, folder in
                         if let folder = folder {
-                            //print("  --signalled, received, folderID:", pathIndex, folder.id, folder.name)
                             folderId = folder.id
                         }
                         else {
-                            self.logger.reportError(self, "Cannot find folder for path \(paths[pathIndex])")
+                            if reportError {
+                                self.logger.reportError(self, "Cannot find folder for path \(pathSegments[pathIndex]) for filename:\(name), key:\(cacheKey)")
+                            }
                         }
                         semaphore.signal()
                     })
                 }
                 semaphore.wait()
-                //print("---end of wait", pathIndex, paths.count)
                 pathIndex += 1
             }
         }
-        //print("===Returning..")
     }
+    
+    func getFileDataByName(pathSegments:[String],
+                       fileName:String,
+                       reportError:Bool,
+                           onDone: @escaping (_ status:RequestStatus, _ fromCache:Bool, _ document:Data?) -> Void)  {
+        var cacheKey = ""
+        for path in pathSegments {
+            if path.count > 0 {
+                cacheKey += path + "."
+            }
+        }
+
+        cacheKey += fileName
+        let (cachedType, data) = dataCache.getData(key: cacheKey)
+        if let data = data {
+            onDone(.success, true, data)
+            if cachedType == .fromMemory {
+                return
+            }
+        }
+
+        let rootFolderId = getAPIBundleData(key: "GoogleDriveDataFolderID") //NZMEB
+        guard let rootFolderId = rootFolderId else {
+            self.logger.reportError(self, "No folder Id")
+            return
+        }
+        
+        var pathIndex = 0
+
+        var folderId = rootFolderId
+        DispatchQueue.global(qos: .background).async {
+            while pathIndex < pathSegments.count + 1 {
+                let semaphore = DispatchSemaphore(value: 0)
+                if pathIndex == pathSegments.count {
+                    let request = DataRequest(callType: .filesInFolder, id: folderId, context: "getDocumentByName.filesInFolder:\(fileName)", targetExampleKey: nil)
+                    
+                    self.getDataByID(request: request) { status, data in
+                        let fileId = self.getFileIDFromName(name:fileName, reportError: reportError, data: data) //{status, data  in
+                        if let fileId = fileId {
+                            let request = DataRequest(callType: .file, id: fileId, context: "getFileDataByName:\(fileName)", targetExampleKey: nil)
+                            self.getDataByID(request: request) { status, data in
+                                if let data = data {
+                                    print("data file", fileName, fileId, data.count)
+                                    self.dataCache.setData(key: cacheKey, data: data)
+                                    onDone(status, false, data)
+                                }
+                            }
+                        }
+                        else {
+                            self.logger.reportError(self, "filename:\(fileName) at key:\(cacheKey) does not exist")
+                        }
+                    }
+                }
+                else {
+                    self.getFileInFolder(folderId: folderId, name: pathSegments[pathIndex], onDone: {status, folder in
+                        if let folder = folder {
+                            folderId = folder.id
+                        }
+                        else {
+                            if reportError {
+                                self.logger.reportError(self, "Cannot find folder for path \(pathSegments[pathIndex]) for filename:\(fileName), key:\(cacheKey)")
+                            }
+                        }
+                        semaphore.signal()
+                    })
+                }
+                semaphore.wait()
+                pathIndex += 1
+            }
+        }
+    }
+    
     
     func getFileInFolder(folderId:String, name: String, onDone: @escaping (_ status:RequestStatus, _ file:GoogleFile?) -> Void) {
 
         let request = DataRequest(callType: .filesInFolder, id: folderId, context: "getAllFilesInFolder", targetExampleKey: nil)
+        
         getDataByID(request: request) { status, data in
             if let data = data {
                 struct FileSearch : Codable {
@@ -395,15 +474,18 @@ class GoogleAPI {
             }
         }
     }
-
-    func getFileByNameInFolder(folderId:String, name:String, onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
+    
+    func getFileTextContentsByNameInFolder(folderId:String, name:String, reportError: Bool,
+                               onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void) {
         
         let request = DataRequest(callType: .filesInFolder, id: folderId, context: "getDocumentByName.filesInFolder:\(name)", targetExampleKey: nil)
         
         getDataByID(request: request) { status, data in
-            let fileId = self.getFileIDFromName(name:name, data: data) //{status, data  in
+            let fileId = self.getFileIDFromName(name:name, reportError: reportError, data: data) //{status, data  in
             guard let fileId = fileId else {
-                self.logger.reportError(self, "File name not found, name:[\(name)] in folderID:[\(folderId)]")
+                if reportError {
+                    self.logger.reportError(self, "File name not found, name:[\(name)] in folderID:[\(folderId)]")
+                }
                 onDone(.failed, nil)
                 return
             }
@@ -454,8 +536,7 @@ class GoogleAPI {
                         onDone(.success, textContent)
                     }
                     catch  {
-                        //let str = String(data: data, encoding: .utf8)
-                        self.logger.reportError(self, "Cannot parse data in file:[\(name)] in folderId:[\(folderId)]")
+                        self.logger.reportError(self, "Cannot parse data in file:[\(name)]")
                         onDone(.failed, nil)
                     }
                 }
@@ -463,9 +544,9 @@ class GoogleAPI {
         }
     }
             
-    func getFileIDFromName(name:String, data:Data?) -> String? {
+    func getFileIDFromName(name:String, reportError:Bool, data:Data?) -> String? {
         guard let data = data else {
-            self.logger.reportError(self, "No data for file list")
+            self.logger.reportError(self, "No data for file list for file:\(name)")
             return nil
         }
         struct GoogleFile : Codable {
@@ -487,11 +568,9 @@ class GoogleAPI {
                     return f.id
                 }
             }
-            self.logger.reportError(self, "File name \(name) not found in folder")
-//            for f in filesData.files.sorted{ $0.name < $1.name } {
-//                print("  ", f.name)
-//            }
-
+            if reportError {
+                self.logger.reportError(self, "File name \(name) not found in folder")
+            }
         }
         catch {
             self.logger.log(self, "failed load")
@@ -499,7 +578,7 @@ class GoogleAPI {
         return nil
     }
 
-    
+    ///Get data from Google API using the access token already received
     func getDataByID(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         getAccessToken() { accessToken in
             guard let accessToken = accessToken else {

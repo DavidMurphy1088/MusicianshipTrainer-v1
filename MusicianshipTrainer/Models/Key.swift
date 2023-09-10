@@ -141,7 +141,30 @@ class Key : Equatable, Hashable {
         return note
     }
     
-    func makeTriad(value:Double, staffNum:Int) -> [Note] {
+//    func makeKeyTriad(value:Double, staffNum:Int) -> [Note] {
+//        let rootMidi:Int
+//        switch keySig.accidentalCount {
+//        case 1:
+//            rootMidi = 43
+//        case 2:
+//            rootMidi = 50
+//        case 3:
+//            rootMidi = 45
+//        case 4:
+//            rootMidi = 52
+//        case 5:
+//            rootMidi = 47
+//        default:
+//            rootMidi = 48
+//        }
+//        var result:[Note] = []
+//        result.append(Note(num: rootMidi, value: value, staffNum: staffNum))
+//        result.append(Note(num: rootMidi + 4, value: value, staffNum: staffNum))
+//        result.append(Note(num: rootMidi + 7, value: value, staffNum: staffNum))
+//        return result
+//    }
+//
+    func getScaleStartMidi() -> Int {
         let rootMidi:Int
         switch keySig.accidentalCount {
         case 1:
@@ -157,10 +180,15 @@ class Key : Equatable, Hashable {
         default:
             rootMidi = 48
         }
+        return rootMidi
+    }
+    
+    func makeTriadAt(rootMidi:Int, value:Double, staffNum:Int) -> [Note] {
         var result:[Note] = []
         result.append(Note(num: rootMidi, value: value, staffNum: staffNum))
         result.append(Note(num: rootMidi + 4, value: value, staffNum: staffNum))
         result.append(Note(num: rootMidi + 7, value: value, staffNum: staffNum))
         return result
     }
+
 }

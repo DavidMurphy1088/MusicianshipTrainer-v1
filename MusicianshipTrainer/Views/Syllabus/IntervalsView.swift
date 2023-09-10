@@ -120,6 +120,9 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     var grade:Int? = nil
     @ObservedObject var score:Score
     @ObservedObject private var logger = Logger.logger
+    @ObservedObject var audioRecorder = AudioRecorder.shared
+
+    @State private var examInstructions:Data? = nil
 
     @State var intervalNotes:[Note] = []
     @State private var selectedIntervalIndex:Int = 10//? = nil
@@ -128,9 +131,11 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @State var intervalNames = IntervalNames()
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
-
+    
     let questionType:QuestionType
     let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"IntervalPresentView")
+    let examMode:Bool
+    let googleAPI = GoogleAPI.shared
     
     init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.contentSection = contentSection
@@ -138,16 +143,8 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         self.questionType = questionType
         _answerState = answerState
         _answer = answer
-        //self.grade = nil
-        let paths = contentSection.getPathAsArray()
-        for path in paths {
-            if path.starts(with: "Grade ") {
-                let p = path.split(separator: " ")
-                if p.count == 2 {
-                    grade = Int(p[1])
-                }
-            }
-        }
+        self.grade = contentSection.getGrade()
+        self.examMode = contentSection.isInExam()
     }
 
     func initView() {
@@ -261,6 +258,23 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         }
     }
     
+    func getExamInstructions() {
+        let filename = "Instructions.wav"
+        var pathSegments = self.contentSection.getPathAsArray()
+        //remove the exam title from the path
+        pathSegments.remove(at: 2)
+        googleAPI.getFileDataByName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
+            //print("__getExamInstructions__", status, fromCache, data?.count)
+            if examInstructions == nil {
+                examInstructions = data
+                if fromCache {
+                    sleep(2)
+                }
+                audioRecorder.playFromData(data: data!)
+            }
+        }
+    }
+    
     var body: some View {
         AnyView(
             VStack {
@@ -295,7 +309,9 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 }
                                 
                  VStack {
-                    Text("Please select the correct interval").defaultTextStyle().padding()
+                    if !examMode {
+                        Text("Please select the correct interval").defaultTextStyle().padding()
+                    }
                     HStack {
                         selectIntervalView.padding()
                     }
@@ -317,6 +333,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             }
             .onAppear {
                 self.initView()
+                self.getExamInstructions()
             }
         )
     }

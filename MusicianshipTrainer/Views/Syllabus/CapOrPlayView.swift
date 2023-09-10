@@ -152,10 +152,48 @@ struct ClapOrPlayPresentView: View {
             score.setStaff(num: 0, staff: staff!)
         }
         if questionType == .melodyPlay {
-            if let timeSlice = score.getLastTimeSlice() {
-                timeSlice.addTonicChord()
-                let keyTag:String = score.key.getKeyTagName()
-                timeSlice.setTags(high: keyTag, low: "I")
+            if let lastTimeSlice = score.getLastTimeSlice() {
+                ///Place tonic on last timeslice
+                ///Place dominant on previous bar
+                let lastNote = lastTimeSlice.getTimeSliceNotes()[0]
+                let entries = score.scoreEntries
+                var barCount = 0
+                for i in stride(from: entries.count - 2, through: 0, by: -1) {
+                    if entries[i] is BarLine {
+                        barCount += 1
+                        if let nextTimeSlice:TimeSlice = entries[i+1] as? TimeSlice {
+                            let scaleStartMidi = score.key.getScaleStartMidi()
+                            if barCount == 1 {
+                                nextTimeSlice.addTriadAt(rootNoteMidi: scaleStartMidi, value: lastNote.getValue(), staffNum: 1)
+                                let keyTag:String = score.key.getKeyTagName()
+                                nextTimeSlice.setTags(high: keyTag, low: "I")
+                            }
+                            if contentSection.getGrade() == 2 {
+                                if barCount == 2 {
+                                    let dominant:String
+                                    switch score.key.keySig.accidentalCount {
+                                    case 1:
+                                        dominant = "D"
+                                    case 2:
+                                        dominant = "A"
+                                    case 3:
+                                        dominant = "E"
+                                    case 4:
+                                        dominant = "B"
+                                    default:
+                                        dominant = "G"
+                                    }
+                                    nextTimeSlice.addTriadAt(rootNoteMidi: scaleStartMidi - 5, value: lastNote.getValue(), staffNum: 1)
+                                    let keyTag:String = dominant
+                                    nextTimeSlice.setTags(high: keyTag, low: "V")
+                                }
+                            }
+                        }
+                        if barCount >= 2 {
+                            break
+                        }
+                    }
+                }
             }
             let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: questionType == .rhythmVisualClap ? 1 : 5)
             bstaff.isHidden = true

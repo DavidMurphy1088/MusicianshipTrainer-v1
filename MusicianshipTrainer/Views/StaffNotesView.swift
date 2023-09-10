@@ -174,7 +174,7 @@ struct StaffNotesView: View {
     }
     
     func getBeamLine(endNote:Note, noteWidth:Double, startNote:Note, stemLength:Double) -> (CGPoint, CGPoint)? {
-        let stemDirection:Double = startNote.stemDirection == .up ? 1.0 : -1.0
+        let stemDirection:Double = startNote.stemDirection == .up ? -1.0 : 1.0
 //        if endNote.isOnlyRhythmNote {
 //            stemDirection = -1.0
 //        }

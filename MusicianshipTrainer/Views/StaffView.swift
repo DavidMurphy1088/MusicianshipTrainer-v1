@@ -125,7 +125,8 @@ struct KeySignatureView: View {
                         .offset(y: 0 - Double(offset) * lineSpacing / 2.0)
                 }
                 .padding()
-                .frame(width: lineSpacing * (staffOffsets.count <= 2 ? 1.4 : 1.0))
+                //.frame(width: lineSpacing * (staffOffsets.count <= 2 ? 1.4 : 1.0))
+                .frame(width: lineSpacing * (staffOffsets.count <= 2 ? 1.0 : 0.7))
                 //.border(Color.blue)
             }
         }

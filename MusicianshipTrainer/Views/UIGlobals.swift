@@ -25,9 +25,11 @@ class UIGlobals {
     static let practiceTipsColor = Color.blue.opacity(0.08) //UIColor(red: 200/255, green: 255/255, blue: 200/255, alpha: 1) //paleGreen
     
     static var ageGroup:AgeGroup = .Group_11Plus
+    static let font = Font.custom("Lora", size: 24)
     
-    static let font = Font.custom("Lora", size: 30) 
-
+    static func getAgeGrpup() -> String {
+        return UIGlobals.ageGroup == .Group_11Plus ? "11Plus" : "5-10"
+    }
 }
 
 struct StandardButtonStyle: ButtonStyle {

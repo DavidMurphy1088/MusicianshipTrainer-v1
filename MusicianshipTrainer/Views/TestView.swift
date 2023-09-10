@@ -55,7 +55,9 @@ struct TestView: View {
                 Button(action: {
                     //requires files parent folder id in plist GoogleDriveDataFolderID
                     let name = "TestTipsTricks"
-                    googleAPI.getDocumentByName(contentSection: ContentSection(parent: nil, name: "test", type: "", isActive: false), name: name) {status,data in
+                    googleAPI.getDocumentByName(pathSegments:
+                                                    ContentSection(parent: nil, name: "test", type: "", isActive: false).getPathAsArray(),
+                                                name: name, reportError: false) {status,data in
                         print("TESTVIEW getDocumentByName:", status, "data:", data ?? "")
                     }
                     

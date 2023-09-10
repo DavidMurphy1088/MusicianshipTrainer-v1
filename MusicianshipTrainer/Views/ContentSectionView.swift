@@ -106,35 +106,41 @@ struct ContentSectionHeaderView: View {
     @State private var audioInstructionsFileName:String? = nil
 
     func getInstructions()  {
-        let instructionContent = contentSection.getChildSectionByType(type: "Ins")
-        if let instructionContent = instructionContent {
-            if instructionContent.contentSectionData.data.count > 0 {
-                let filename = instructionContent.contentSectionData.data[0]
-                googleAPI.getDocumentByName(contentSection: self.contentSection, name: filename) {status,document in
-                    if status == .success {
-                        self.instructions = document
-                    }
-                    else {
-                        self.instructions = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
-                    }
-                }
+//        //let instructionContent = contentSection.getChildSectionByType(type: "Ins")
+//        if let instructionContent = instructionContent {
+//            if instructionContent.contentSectionData.data.count > 0 {
+        var pathSegments = contentSection.getPathAsArray()
+        if pathSegments.count < 3 {
+            return
+        }
+        let filename = "Instructions" //instructionContent.contentSectionData.data[0]
+        pathSegments.append(UIGlobals.getAgeGrpup())
+        googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false) {status,document in
+            if status == .success {
+                self.instructions = document
+            }
+            else {
+                self.instructions = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
             }
         }
     }
     
     func getTipsAndTricks()  {
-        let tipsAndTricksContent = contentSection.getChildSectionByType(type: "T&T")
-        if let tipsAndTricksContent = tipsAndTricksContent { 
-            if tipsAndTricksContent.contentSectionData.data.count > 0 {
-                let filename = tipsAndTricksContent.contentSectionData.data[0]
-                googleAPI.getDocumentByName(contentSection: self.contentSection, name: filename) {status,document in
-                    if status == .success {
-                        self.tipsAndTricksExists = true
-                        self.tipsAndTricksData = document
-                    }
-                }
+//        let tipsAndTricksContent = contentSection.getChildSectionByType(type: "T&T")
+//        if let tipsAndTricksContent = tipsAndTricksContent {
+//            if tipsAndTricksContent.contentSectionData.data.count > 0 {
+        let filename = "Tips_Tricks" //tipsAndTricksContent.contentSectionData.data[0]
+        var pathSegments = contentSection.getPathAsArray()
+        pathSegments.append(UIGlobals.getAgeGrpup())
+
+        googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false) {status,document in
+            if status == .success {
+                self.tipsAndTricksExists = true
+                self.tipsAndTricksData = document
             }
         }
+//            }
+//        }
     }
     
     func getAudio()  {
@@ -355,8 +361,8 @@ struct ExamView: View {
     var body: some View {
         VStack {
             if examBeginning {
-                if let parent = contentSection.parentWithInstructions() {
-                    ContentSectionHeaderView(contentSection: parent)
+                //if let parent = contentSection.parentWithInstructions() {
+                    //ContentSectionHeaderView(contentSection: parent)
                     Spacer()
                     Button(action: {
                         self.examBeginning = false
@@ -367,7 +373,7 @@ struct ExamView: View {
                         }
                     }
                     Spacer()
-                }
+                //}
             }
             else {
                 if self.answerState == .submittedAnswer {
@@ -468,7 +474,10 @@ struct ContentOverviewView: View {
     }
     
     func getContent()  {
-        googleAPI.getDocumentByName(contentSection: self.contentSection, name: contentSection.type) {status,document in
+        var pathSegments = contentSection.getPathAsArray()
+        pathSegments.append(UIGlobals.getAgeGrpup())
+
+        googleAPI.getDocumentByName(pathSegments: pathSegments, name: contentSection.type, reportError: false) {status,document in
             if status == .success {
                 self.HTMLcontent = document ?? ""
             }

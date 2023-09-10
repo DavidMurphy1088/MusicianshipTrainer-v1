@@ -358,8 +358,10 @@ class Score : ObservableObject {
     func getStemDirection(staff:Staff, notes:[Note]) -> StemDirection {
         var totalOffsets = 0
         for n in notes {
-            let placement = staff.getNoteViewPlacement(note: n)
-            totalOffsets += placement.offsetFromStaffMidline
+            if n.staffNum == staff.staffNum {
+                let placement = staff.getNoteViewPlacement(note: n)
+                totalOffsets += placement.offsetFromStaffMidline
+            }
         }
         //return Array(repeating: totalOffsets < 0 ? StemDirection.up : StemDirection.down, count: notes.count)
         return totalOffsets <= 0 ? StemDirection.up: StemDirection.down
@@ -380,6 +382,9 @@ class Score : ObservableObject {
         if notes.count == 0 {
             return
         }
+        if notes[0].getValue() < 1 {
+            print ("+++++")
+        }
         let lastNote = notes[0]
         lastNote.sequence = self.getAllTimeSlices().count
 
@@ -388,13 +393,8 @@ class Score : ObservableObject {
 
         let staff = self.staffs[lastNote.staffNum]
         if lastNote.getValue() != Note.VALUE_QUAVER {
-            if lastNote.sequence > 7 {
-                print("SSSSS")
-            }
-
             let stemDirection = getStemDirection(staff: staff, notes: notes)
             for note in notes {
-                //let placement = staff.getNoteViewPlacement(note: note)
                 note.stemDirection = stemDirection
                 note.stemLength = stemLengthLines
             }
@@ -467,7 +467,7 @@ class Score : ObservableObject {
                 }
             }
             requiredBeamPosition += beamSlope
-            note.stemDirection = totalOffset > 0 ? .up : .down
+            note.stemDirection = totalOffset > 0 ? .down : .up
         }
     }
 

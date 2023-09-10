@@ -48,12 +48,11 @@ class TimeSlice : ScoreEntry {
         return lhs.id == rhs.id
     }
         
-    func addTonicChord() {
+    func addTriadAt(rootNoteMidi:Int, value: Double, staffNum:Int) {
         if getTimeSliceEntries().count == 0 {
             return
         }
-        let lastNote = getTimeSliceEntries()[0]
-        let triad = score.key.makeTriad(value: lastNote.getValue(), staffNum: 1)
+        let triad = score.key.makeTriadAt(rootMidi: rootNoteMidi, value: value, staffNum: staffNum)
         for note in triad {
             addNote(n: note)
         }
