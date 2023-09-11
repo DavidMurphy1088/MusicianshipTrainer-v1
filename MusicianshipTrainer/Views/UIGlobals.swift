@@ -1,11 +1,11 @@
 import SwiftUI
 import CoreData
 
-//enum Animal: Int {
 enum AgeGroup: Int {
     case Group_5To10 = 0
     case Group_11Plus = 1
 }
+
 class UIGlobals {
     static var colorDefault = Color.blue.opacity(0.10)
     static var colorBackgroundDefault = Color.white
@@ -14,10 +14,6 @@ class UIGlobals {
     static var colorInstructions = UIGlobals.colorDefault
     static var colorBackground = colorBackgroundDefault
 
-    //static var backgroundColorHiliteBox = Color.blue.opacity(0.10) //0.04
-    //static let backgroundColorLighter = Color.blue.opacity(0.03)
-    
-    //static let cornerRadius:CGFloat = 16
     static let cornerRadius:CGFloat = 8
     static let borderColor:CGColor = CGColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)
     static let borderLineWidth:CGFloat = 2
@@ -26,7 +22,8 @@ class UIGlobals {
     
     static var ageGroup:AgeGroup = .Group_11Plus
     static let font = Font.custom("Lora", size: 24)
-    
+    static let navigationFont = Font.custom("Lora", size: 32)
+
     static func getAgeGrpup() -> String {
         return UIGlobals.ageGroup == .Group_11Plus ? "11Plus" : "5-10"
     }

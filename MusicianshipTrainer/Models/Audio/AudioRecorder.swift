@@ -138,6 +138,12 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
 
     }
     
+    func stopPlaying() {
+        if self.audioPlayer != nil {
+            self.audioPlayer.stop()
+        }
+    }
+    
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         setStatus("Playback stopped, status:\(flag ? "OK" : "Error")")
     }

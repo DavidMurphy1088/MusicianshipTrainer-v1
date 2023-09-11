@@ -110,13 +110,7 @@ struct NotesView: View {
         }
         return result
     }
-    
-//    func RestView(entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
-//        ZStack {
-//            Text("RRR")
-//        }
-//        //.border(Color.red)
-//    }
+
     func RestView(entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
         ZStack {
             if entry.getValue() == 1 {
@@ -125,9 +119,7 @@ struct NotesView: View {
                 Image("rest_quarter")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: CGFloat(geometry.size.height/4))
-                    //.offset(y: 0 - height / 2.0)
-                    //.padding()
+                    .frame(height: lineSpacing * 3)
             }
             if entry.getValue() == 2 {
                 let height = lineSpacing / 2.0
@@ -202,7 +194,7 @@ struct NotesView: View {
                     if staff.type == .treble {
                         ForEach(getLedgerLines(note: note, noteWidth: noteWidth, lineSpacing: lineSpacing), id: \.id) { line in
                             let y = geometry.size.height/2.0 + line.offsetVertical
-                            let x = noteFrameWidth/2 - noteWidth
+                            let x = noteFrameWidth/2 - noteWidth - (note.rotated ? noteWidth : 0)
                             Path { path in
                                 path.move(to: CGPoint(x: x, y: y))
                                 path.addLine(to: CGPoint(x: x + 2 * noteWidth, y: y))

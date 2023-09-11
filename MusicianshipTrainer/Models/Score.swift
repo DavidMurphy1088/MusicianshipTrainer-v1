@@ -382,9 +382,9 @@ class Score : ObservableObject {
         if notes.count == 0 {
             return
         }
-        if notes[0].getValue() < 1 {
-            print ("+++++")
-        }
+//        if notes[0].getValue() < 1 {
+//            print ("+++++")
+//        }
         let lastNote = notes[0]
         lastNote.sequence = self.getAllTimeSlices().count
 

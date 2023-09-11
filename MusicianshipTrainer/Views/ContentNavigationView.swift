@@ -54,28 +54,29 @@ struct ContentNavigationView: View {
                     List(contentSection.subSections) { contentSection in
                         NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                                                                        //parentsSelectedContentIndex: $selectedContentIndex)) {
-                            VStack {
-                                Spacer()
+                            ZStack {
                                 HStack {
                                     Spacer()
                                     Text(contentSection.getTitle()).padding()
-                                        //.font(.title2)
-                                        .font(UIGlobals.font)
+                                        .font(UIGlobals.navigationFont)
                                     Spacer()
                                 }
-                                Spacer()
+                                ///Required to force SwiftUI's horz line beween Nav links to run full width when text is centered
+                                HStack {
+                                    Text("")
+                                    Spacer()
+                                }
                             }
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                            )
-                            .padding(.vertical, 4)
+//                            .overlay(
+//                                RoundedRectangle(cornerRadius: 12)
+//                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+//                            )
+//                            .padding(.vertical, 4)
                             //.navigationBarTitleDisplayMode(.inline)
                         }
                         .disabled(!contentSection.isActive)
-//                        .overlay(
-//                            Divider(), alignment: .bottom
-//                        )
+                        .padding(.vertical, 4)
+                        //.buttonStyle(PlainButtonStyle())
                         //The back nav link that will be shown on the ContentSectionView
                         //.navigationTitle("NavTtitle::\(self.topic.level == 0 ? "" : topic.title)")
                    }
@@ -87,6 +88,7 @@ struct ContentNavigationView: View {
                                           ageGroup: UIGlobals.ageGroup)
                     }
                 }
+                
                 //.navigationTitle(topic.name) ?? ignored??
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {

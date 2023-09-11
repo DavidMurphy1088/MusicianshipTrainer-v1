@@ -64,17 +64,42 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         return self.tappedValues
     }
 
+//    //Return the standard note value for a millisecond duration given the tempo input
+//    func roundNoteValueToStandardValueOld(inValue:Double, tempo:Int) -> Double? {
+//        let inValueAtTempo = (inValue * Double(tempo)) / 60.0
+//        if inValueAtTempo < 0.3 {
+//            return nil
+//        }
+//        if inValueAtTempo < 0.75 {
+//            return 0.5
+//        }
+//        if inValueAtTempo < 1.5 {
+//            return 1.0
+//        }
+//        if inValueAtTempo < 2.5 {
+//            return 2.0
+//        }
+//        if inValueAtTempo < 3.5 {
+//            return 3.0
+//        }
+//        return 4.0
+//    }
+    
     //Return the standard note value for a millisecond duration given the tempo input
+    //Handle dooted crotchets
     func roundNoteValueToStandardValue(inValue:Double, tempo:Int) -> Double? {
         let inValueAtTempo = (inValue * Double(tempo)) / 60.0
-        if inValueAtTempo < 0.3 {
+        if inValueAtTempo < 0.25 {
             return nil
         }
         if inValueAtTempo < 0.75 {
             return 0.5
         }
-        if inValueAtTempo < 1.5 {
+        if inValueAtTempo < 1.25 {
             return 1.0
+        }
+        if inValueAtTempo < 1.75 {
+            return 1.5
         }
         if inValueAtTempo < 2.5 {
             return 2.0
@@ -84,7 +109,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         }
         return 4.0
     }
-    
+
     //Make a score of notes and barlines from the tap intervals
     func makeScore(questionScore:Score, questionTempo:Int, tapValues: [Double]) -> Score {
         let outputScore = Score(timeSignature: questionScore.timeSignature, linesPerStaff: 1, noteSize: questionScore.noteSize)

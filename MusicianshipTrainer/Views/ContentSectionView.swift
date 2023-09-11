@@ -110,7 +110,7 @@ struct ContentSectionHeaderView: View {
 //        if let instructionContent = instructionContent {
 //            if instructionContent.contentSectionData.data.count > 0 {
         var pathSegments = contentSection.getPathAsArray()
-        if pathSegments.count < 3 {
+        if pathSegments.count < 1 {
             return
         }
         let filename = "Instructions" //instructionContent.contentSectionData.data[0]
@@ -119,9 +119,9 @@ struct ContentSectionHeaderView: View {
             if status == .success {
                 self.instructions = document
             }
-            else {
-                self.instructions = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
-            }
+//            else {
+//                self.instructions = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
+//            }
         }
     }
     
@@ -298,11 +298,12 @@ struct SectionsNavigationView:View {
                                tag: index,
                                selection: $sectionIndex) {
 
-                    VStack {
-                        Spacer()
+                    ZStack {
                         HStack {
                             Spacer()
-                            Text(contentSections[index].getTitle()).defaultTextStyle().padding()
+                            Text(contentSections[index].getTitle())
+                                .font(UIGlobals.navigationFont)
+                                .padding()
                             Spacer()
                             if let rowImage = getGradeImage(contentSection: contentSections[index]) {
                                 HStack {
@@ -311,20 +312,25 @@ struct SectionsNavigationView:View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 40.0)
-                                    
                                     Text("    ")
                                 }
                             }
                         }
-                        Spacer()
-                    }
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                    )
-                    .padding(.vertical, 4)
+                        ///Required to force SwiftUI's horz line beween Nav links to run full width when text is centered
+                        HStack {
+                            Text("")
+                            Spacer()
+                        }
 
+                    }
+//                    .overlay(
+//                        RoundedRectangle(cornerRadius: 12)
+//                            .stroke(Color.gray.opacity(0.25), lineWidth: 1)
+//                            .padding(.bottom, 0)
+//                            .padding(.top, 0)
+//                    )
                 }
+                .padding(.vertical, 6)
             }
         }
     }

@@ -90,6 +90,7 @@ struct ClapOrPlayPresentView: View {
     @ObservedObject var tapRecorder = TapRecorder.shared
     @ObservedObject private var logger = Logger.logger
     @ObservedObject private var metronome:Metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "ClapOrPlayPresentView init @ObservedObject")
+
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
 
@@ -97,16 +98,20 @@ struct ClapOrPlayPresentView: View {
     @State private var helpPopup = false
     @State var isTapping = false
     @State var rhythmHeard:Bool
-    var questionType:QuestionType
+    @State private var examInstructions:Data? = nil
 
+    var questionType:QuestionType
+    //var examMode:Bool
     let questionTempo = 90
-    
+    let googleAPI = GoogleAPI.shared
+
     init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh_unused:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.score = score
         self.questionType = questionType
         self.questionType = questionType
         self.rhythmHeard = false
+        //self.examMode = contentSection.isInExam()
         _answerState = answerState
         _answer = answer
     }
@@ -200,6 +205,24 @@ struct ClapOrPlayPresentView: View {
             score.setStaff(num: 1, staff: bstaff)
         }
     }
+    
+    func getExamInstructions() {
+        let filename = "Instructions.wav"
+        var pathSegments = self.contentSection.getPathAsArray()
+        //remove the exam title from the path
+        pathSegments.remove(at: 2)
+        googleAPI.getFileDataByName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
+            if examInstructions == nil {
+                examInstructions = data
+                DispatchQueue.global(qos: .background).async {
+                    if fromCache {
+                        sleep(3)
+                    }
+                    audioRecorder.playFromData(data: data!)
+                }
+            }
+        }
+    }
 
     func getInstruction(mode:QuestionType) -> String {
         var result = ""
@@ -287,9 +310,13 @@ struct ClapOrPlayPresentView: View {
 
     var body: AnyView {
         AnyView(
-            VStack  {
+            GeometryReader { geo in
+            //VStack  {
                 VStack {
-                    if !self.isTakingExam() {
+                    if self.isTakingExam() {
+                        Text(" ")
+                    }
+                    else {
                         if UIDevice.current.userInterfaceIdiom != .phone {
                             if questionType == .melodyPlay || questionType == .rhythmEchoClap {
                                 ToolsView(score: score, helpMetronome: helpMetronome())
@@ -299,7 +326,7 @@ struct ClapOrPlayPresentView: View {
                             }
                         }
                     }
-
+                    
                     if questionType == .rhythmVisualClap || questionType == .melodyPlay {
                         ScoreSpacerView()
                         ScoreView(score: score)
@@ -314,23 +341,32 @@ struct ClapOrPlayPresentView: View {
                                           metronome: metronome,
                                           fileName: contentSection.name,
                                           onDone: {rhythmHeard = true})
-                        
                     }
-
+                    
                     VStack {
                         if answerState != .recording {
-                            VStack {
-                                Text(self.getInstruction(mode: self.questionType))
-                                    .defaultTextStyle()
-                                    //.lineLimit(nil)
-                                    .padding()
+                            if self.isTakingExam() {
+                                if self.examInstructions == nil {
+                                    Text("Waiting for instructions...").defaultTextStyle().padding()
+                                }
                             }
-                            .overlay(
-                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                            )
-
+                            else {
+                                VStack {
+                                    Text(self.getInstruction(mode: self.questionType))
+                                        .defaultTextStyle()
+                                        .padding()
+                                }
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                                )
+                            }
+                            
                             if rhythmHeard || questionType == .melodyPlay {
                                 Button(action: {
+                                    if self.isTakingExam() {
+                                        self.audioRecorder.stopPlaying()
+                                    }
+
                                     answerState = .recording
                                     metronome.stopTicking()
                                     if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
@@ -350,13 +386,16 @@ struct ClapOrPlayPresentView: View {
                                 .disabled(!rhythmHeard && questionType != .melodyPlay)
                             }
                         }
-
+                        
                         if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
+                            
                             VStack {
                                 tappingView
+                                    .frame(height: geo.size.height / 4.0)
                             }
                             .padding()
                         }
+                        
                         if answerState == .recording {
                             Button(action: {
                                 answerState = .recorded
@@ -374,7 +413,7 @@ struct ClapOrPlayPresentView: View {
                             }
                             Spacer()
                         }
-
+                        
                         if answerState == .recorded {
                             
                             if replayRecordingAllowed() {
@@ -391,7 +430,7 @@ struct ClapOrPlayPresentView: View {
                                         }
                                     }
                                 }),
-                                onDone: ({
+                                                  onDone: ({
                                     //recording was played at the student's tempo and now reset metronome
                                     metronome.setTempo(tempo: self.questionTempo, context: "end hear student")
                                 })
@@ -400,11 +439,11 @@ struct ClapOrPlayPresentView: View {
                             
                             Button(action: {
                                 //contentSection.setAnswerState(ctx: "clap", .submittedAnswer)
-//                                if let parent = contentSection.parent {
-//                                    if parent.isExamTypeContentSection() {
-//                                        contentSection.answer111 = answer
-//                                    }
-//                                }
+                                //                                if let parent = contentSection.parent {
+                                //                                    if parent.isExamTypeContentSection() {
+                                //                                        contentSection.answer111 = answer
+                                //                                    }
+                                //                                }
                                 answerState = .submittedAnswer
                                 if questionType == .melodyPlay {
                                     answer.correct = true
@@ -422,9 +461,13 @@ struct ClapOrPlayPresentView: View {
                         }
                     }
                     Spacer() //Keep - required to align the page from the top
+                //}
                 }
                 .onAppear() {
                     self.initScore()
+                    if self.isTakingExam() {
+                        self.getExamInstructions()
+                    }
                     score.setHiddenStaff(num: 1, isHidden: true)
                     metronome.setTempo(tempo: 90, context: "View init")
                     if questionType == .rhythmEchoClap || questionType == .melodyPlay {
@@ -434,6 +477,12 @@ struct ClapOrPlayPresentView: View {
                         metronome.setAllowTempoChange(allow: false)
                     }
                 }
+                .onDisappear() {
+                    //if self.examMode {
+                        self.audioRecorder.stopPlaying()
+                    //}
+                }
+
             }
             .font(.system(size: UIDevice.current.userInterfaceIdiom == .phone ? UIFont.systemFontSize : UIFont.systemFontSize * 1.6))
         )

@@ -18,20 +18,12 @@ struct ConfigurationView: View {
                 
                 Text("Your Configuration").font(.title).padding()
 
-//                VStack {
-//                    Text("Select Your Instrument")
-//                    ConfigSelectInstrument()
-//                }
-//                .frame(width: 100, height: 100)
-                
                 // =================== Age Mode ===================
                 
                 VStack {
                     Text("Select Your Age Group").font(.title)
                     ConfigSelectAgeMode(selectedIndex: $selectedAge, items: ages)
                 }
-                //.frame(width: 300, height: 100)
-                //.padding()
                 .border(Color.black, width: 1)
                 .padding()
                 .onAppear {
@@ -88,9 +80,6 @@ struct ConfigurationView: View {
                     .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
                 }
 
-                
-                //ContentView2()
-                
                 HStack {
                     Button("Ok") {
                         UIGlobals.colorScore = colorScore
@@ -98,7 +87,7 @@ struct ConfigurationView: View {
                         UIGlobals.colorBackground = colorBackground
                         
                         UIGlobals.ageGroup = selectedAge == 0 ? .Group_5To10 : .Group_11Plus
-                        //print("Save Config", selectedAge, UIGlobals.ageGroup)
+                        print("-----> Save Config", selectedAge, UIGlobals.ageGroup)
                         Settings.shared.saveConfig()
                         isPresented = false
                     }
@@ -121,21 +110,6 @@ struct ConfigurationView: View {
     }
     
 }
-//
-//struct ConfigSelectInstrument: View {
-//    @Binding var selectedIndex: Int
-//    let items: [String]
-//
-//    var body: some View {
-//        Picker("Select your Age", selection: $selectedIndex) {
-//            ForEach(0..<items.count) { index in
-//                Text(items[index]).tag(index)
-//            }
-//        }
-//        .pickerStyle(DefaultPickerStyle())
-//    }
-//
-//}
 
 struct ConfigSelectAgeMode: View {
     @Binding var selectedIndex: Int

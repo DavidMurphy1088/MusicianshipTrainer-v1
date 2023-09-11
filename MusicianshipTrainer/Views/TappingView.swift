@@ -31,8 +31,13 @@ struct TappingView: View {
                         .resizable()
                         .scaledToFit()
                         .padding()
-                        .border(invert.invert ? Color.accentColor : Color.accentColor, width: invert.invert ? 2 : 6)
+                        //.border(invert.invert ? Color.accentColor : Color.accentColor, width: invert.invert ? 2 : 12)
                         .frame(width: geometry.size.width / 4.0)
+                        .padding()
+                        .clipShape(Circle())
+                        .padding()
+                        .overlay(Circle().stroke(invert.invert ? Color.white : Color.black, lineWidth: 4))
+                        .shadow(radius: 10)
                         .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
                     
                     if true && isRecording {
@@ -49,7 +54,6 @@ struct TappingView: View {
                     }
                 }
             }
-            //.frame(width: geometry.size.width)
             .onTapGesture {
                 if isRecording {
                     invert.rev()

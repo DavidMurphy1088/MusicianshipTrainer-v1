@@ -134,7 +134,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     
     let questionType:QuestionType
     let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"IntervalPresentView")
-    let examMode:Bool
+    //let isTakingExam:Bool
     let googleAPI = GoogleAPI.shared
     
     init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh:(() -> Void)? = nil) {
@@ -144,7 +144,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         _answerState = answerState
         _answer = answer
         self.grade = contentSection.getGrade()
-        self.examMode = contentSection.isInExam()
+        //self.isTakingExam = contentSection.isInExam()
     }
 
     func initView() {
@@ -264,13 +264,14 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         //remove the exam title from the path
         pathSegments.remove(at: 2)
         googleAPI.getFileDataByName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
-            //print("__getExamInstructions__", status, fromCache, data?.count)
             if examInstructions == nil {
                 examInstructions = data
-                if fromCache {
-                    sleep(2)
+                DispatchQueue.global(qos: .background).async {
+                    if fromCache {
+                        sleep(2)
+                    }
+                    audioRecorder.playFromData(data: data!)
                 }
-                audioRecorder.playFromData(data: data!)
             }
         }
     }
@@ -281,13 +282,14 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 VStack {
                     ScoreSpacerView()
                     ScoreSpacerView()
-                    if questionType == .intervalVisual {
-                        ScoreView(score: score).padding()
+                    //if questionType == .intervalVisual {
+                    //keep the score in the UI for consistent UIlayout between various usages of this view
+                    ScoreView(score: score).padding().opacity(questionType == .intervalAural ? 0.0 : 1.0)
                         ScoreSpacerView()
                         ScoreSpacerView()
                         ScoreSpacerView()
-                    }
-                    else {
+                    //}
+                    if questionType == .intervalAural {
                         VStack {
                             Text("").padding()
                             Button(action: {
@@ -309,7 +311,12 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 }
                                 
                  VStack {
-                    if !examMode {
+                    if isTakingExam() {
+                        if self.examInstructions == nil {
+                            Text("Waiting for instructions...").defaultTextStyle().padding()
+                        }
+                    }
+                    else {
                         Text("Please select the correct interval").defaultTextStyle().padding()
                     }
                     HStack {
@@ -333,7 +340,14 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             }
             .onAppear {
                 self.initView()
-                self.getExamInstructions()
+                if self.isTakingExam() {
+                    self.getExamInstructions()
+                }
+            }
+            .onDisappear() {
+                //if self.examMode {
+                    self.audioRecorder.stopPlaying()
+                //}
             }
         )
     }
@@ -476,6 +490,7 @@ struct IntervalView: View {
             //print("==========================Interval View On Appear State:", answerState, "answer", answer.correctInterval, answer.selectedInterval)
         }
         .background(UIGlobals.colorBackground)
+        //.border(Color.red)
     }
 }
 

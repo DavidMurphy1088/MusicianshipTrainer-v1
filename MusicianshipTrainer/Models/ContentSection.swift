@@ -77,16 +77,19 @@ class ContentSection: Codable, Identifiable {
         return grade
     }
     
-    func isInExam() -> Bool {
-        let paths = getPathAsArray()
-        for path in paths {
-            if path.range(of: "Exam", options: .caseInsensitive) != nil {
-                return true
-            }
-        }
-        return false
-    }
-    
+//    func isInExam() -> Bool {
+//        var section:ContentSection? = self
+//        while section != nil {
+//            if section!.name.range(of: "ExamMode", options: .caseInsensitive) != nil {
+//                if section!.hasNoAnswers() {
+//                    return true
+//                }
+//            }
+//            section = section!.parent
+//        }
+//        return false
+//    }
+
     func storeAnswer(answer: Answer) {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
