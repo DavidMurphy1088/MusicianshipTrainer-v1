@@ -413,6 +413,11 @@ class Score : ObservableObject {
                 break
             }
             let timeSlice = scoreEntry as! TimeSlice
+            if timeSlice.entries.count > 0 {
+                if let rest = timeSlice.entries[0] as? Rest {
+                    break
+                }
+            }
             let notes = timeSlice.getTimeSliceNotes()
             if notes.count > 0 {
                 if notes[0].getValue() == Note.VALUE_QUAVER {
@@ -473,6 +478,10 @@ class Score : ObservableObject {
 
     // ================= Student feedback =================
     
+    func copyEntries(from:Score) {
+        self.scoreEntries = from.scoreEntries
+    }
+    
     func constuctFeedback(scoreToCompare:Score, timeSliceNumber:Int?, questionTempo:Int,
                           metronomeTempoAtStartRecording:Int, allowTempoVariation:Bool) -> StudentFeedback {
         let feedback = StudentFeedback()
@@ -510,55 +519,120 @@ class Score : ObservableObject {
         return feedback
     }
     
-    //analyse the student's score against the question score. Markup dfferences. Return false if there are errors
-    func markupStudentScore(questionTempo: Int,
-                            //recordedTempo:Int,
-                            metronomeTempoAtStartRecording: Int,
-                            scoreToCompare:Score,
-                            allowTempoVariation:Bool) -> Bool {
-        var errorsExist = false
-        let difference = getFirstDifferentTimeSlice(compareScore: scoreToCompare)
-        if let difference = difference {
-            if scoreToCompare.scoreEntries.count > 0 {
-                let toCompareTimeSlices = scoreToCompare.getAllTimeSlices()
-                let toCompareTimeSlice = toCompareTimeSlices[difference < toCompareTimeSlices.count ? difference : toCompareTimeSlices.count - 1]
-                if toCompareTimeSlice.getTimeSliceEntries().count > 0 {
-                    let mistakeNote = toCompareTimeSlice.getTimeSliceEntries()[0]
-                    //mistakeNote.noteTag = .inError
-                    errorsExist = true
-                    //mark the note in the example score to hilight what was expected
-                    let timeslices = self.getAllTimeSlices()
-                    let timeslice = timeslices[difference]
-                    if timeslice.getTimeSliceEntries().count > 0 {
-                        //timeslice.getTimeSlices()[0].setNoteTag(.hilightExpected)
-                    }
-                    scoreToCompare.setStudentFeedback(
-                        studentFeedack: self.constuctFeedback(scoreToCompare: scoreToCompare,
-                                                              timeSliceNumber:difference,
-                                                              questionTempo: questionTempo,
-                                                              metronomeTempoAtStartRecording: metronomeTempoAtStartRecording,
-                                                              allowTempoVariation: allowTempoVariation))
-                }
-            }
-            //mark the remaining entries after the difference as invisible in display
-            let toCompareTimeSlices = scoreToCompare.getAllTimeSlices()
-            if difference + 1 < toCompareTimeSlices.count {
-                for t in difference+1..<toCompareTimeSlices.count {
-                    let toCompareTimeSlice = toCompareTimeSlices[t]
-                    //if toCompareTimeSliceEntries.getTimeSliceEntries().count > 0 {
-                        //toCompareTimeSliceEntries.getTimeSlices()[0].noteTag = .renderedInError
-                    //}
+    func errorCount() -> Int {
+        var cnt = 0
+        for timeSlice in self.getAllTimeSlices() {
+            let entries = timeSlice.getTimeSliceEntries()
+            if entries.count > 0 {
+                if entries[0].noteTag == .inError {
+                    cnt += 1
                 }
             }
         }
-        else {
-            scoreToCompare.setStudentFeedback(studentFeedack: self.constuctFeedback(scoreToCompare: scoreToCompare, timeSliceNumber:nil,
-                                                                                    questionTempo: questionTempo,
-                                                                                    metronomeTempoAtStartRecording: metronomeTempoAtStartRecording,
-                                                                                    allowTempoVariation: allowTempoVariation))
-        }
-        return errorsExist
+        return cnt
     }
+    
+    ///Compare this score to an input tapped score. Look for notes in the question score that did have a tap at their time offset and flag them.
+    ///Flag taps that are not associated with notes - extraneous taps
+    func flagNotesMissingRequiredTap(tappingScore:Score) {
+        let questionTimeSlices = self.getAllTimeSlices()
+        let tappedTimeSlices = tappingScore.getAllTimeSlices()
+        var runningQuestionTime = 0.0
+        
+        for timeSlice in tappingScore.getAllTimeSlices() {
+            timeSlice.entries[0].noteTag = .inError
+        }
+        
+        ///Check every question entry note has a tap at the same time location
+        for questionSlice in questionTimeSlices {
+            var questionNote:TimeSliceEntry? = nil
+            if questionSlice.entries.count > 0 {
+                let questionEntry = questionSlice.entries[0]
+                questionNote = questionEntry as? Note
+                if questionNote == nil {
+                    ///Dont check that a rest has an associated tapped value
+                    runningQuestionTime += questionEntry.getValue()
+                    continue
+                }
+            }
+            else {
+                continue
+            }
+            
+            var tapLocation = 0.0
+            var tappedFound = false
+            for tappedTimeSlice in tappedTimeSlices {
+                if tapLocation == runningQuestionTime {
+                    tappedFound = true
+                    tappedTimeSlice.entries[0].noteTag = .noTag
+                    break
+                }
+                else {
+                    if tapLocation > runningQuestionTime {
+                        break
+                    }
+                }
+                if tappedTimeSlice.entries.count > 0 {
+                    tapLocation += tappedTimeSlice.entries[0].getValue()
+                }
+            }
+                        
+            if !tappedFound {
+                questionNote!.noteTag = .inError
+            }
+            runningQuestionTime += questionNote!.getValue()
+        }
+    }
+    
+    //analyse the student's score against the question score. Markup dfferences. Return false if there are errors
+//    func markupStudentScore(questionTempo: Int,
+//                            //recordedTempo:Int,
+//                            metronomeTempoAtStartRecording: Int,
+//                            scoreToCompare:Score,
+//                            allowTempoVariation:Bool) -> Bool {
+//        var errorsExist = false
+//        let difference = getFirstDifferentTimeSlice(compareScore: scoreToCompare)
+//        if let difference = difference {
+//            if scoreToCompare.scoreEntries.count > 0 {
+//                let toCompareTimeSlices = scoreToCompare.getAllTimeSlices()
+//                let toCompareTimeSlice = toCompareTimeSlices[difference < toCompareTimeSlices.count ? difference : toCompareTimeSlices.count - 1]
+//                if toCompareTimeSlice.getTimeSliceEntries().count > 0 {
+//                    let mistakeNote = toCompareTimeSlice.getTimeSliceEntries()[0]
+//                    //mistakeNote.noteTag = .inError
+//                    errorsExist = true
+//                    //mark the note in the example score to hilight what was expected
+//                    let timeslices = self.getAllTimeSlices()
+//                    let timeslice = timeslices[difference]
+//                    if timeslice.getTimeSliceEntries().count > 0 {
+//                        //timeslice.getTimeSlices()[0].setNoteTag(.hilightExpected)
+//                    }
+//                    scoreToCompare.setStudentFeedback(
+//                        studentFeedack: self.constuctFeedback(scoreToCompare: scoreToCompare,
+//                                                              timeSliceNumber:difference,
+//                                                              questionTempo: questionTempo,
+//                                                              metronomeTempoAtStartRecording: metronomeTempoAtStartRecording,
+//                                                              allowTempoVariation: allowTempoVariation))
+//                }
+//            }
+//            //mark the remaining entries after the difference as invisible in display
+//            let toCompareTimeSlices = scoreToCompare.getAllTimeSlices()
+//            if difference + 1 < toCompareTimeSlices.count {
+//                for t in difference+1..<toCompareTimeSlices.count {
+//                    let toCompareTimeSlice = toCompareTimeSlices[t]
+//                    //if toCompareTimeSliceEntries.getTimeSliceEntries().count > 0 {
+//                        //toCompareTimeSliceEntries.getTimeSlices()[0].noteTag = .renderedInError
+//                    //}
+//                }
+//            }
+//        }
+//        else {
+//            scoreToCompare.setStudentFeedback(studentFeedack: self.constuctFeedback(scoreToCompare: scoreToCompare, timeSliceNumber:nil,
+//                                                                                    questionTempo: questionTempo,
+//                                                                                    metronomeTempoAtStartRecording: metronomeTempoAtStartRecording,
+//                                                                                    allowTempoVariation: allowTempoVariation))
+//        }
+//        return errorsExist
+//    }
     
     func clearTaggs() {
         for ts in getAllTimeSlices() {

@@ -3,6 +3,7 @@ import SwiftUI
 
 class TimeSliceEntry : ObservableObject, Equatable, Hashable {
     @Published var hilite = false
+    @Published var noteTag:NoteTag = .noTag
 
     let id = UUID()
     var staffNum:Int //Narrow the display of the note to just one staff
@@ -66,8 +67,7 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
 class BarLine : ScoreEntry {
 }
 
-class Rest : TimeSliceEntry {
-    
+class Rest : TimeSliceEntry {    
     override init(value:Double, staffNum:Int) {
         super.init(value: value, staffNum: staffNum)
         //self.value = value
@@ -116,7 +116,6 @@ class NoteStaffPlacement {
 }
 
 class Note : TimeSliceEntry, Comparable {
-    @Published var noteTag:NoteTag = .noTag
     
     static let MIDDLE_C = 60 //Midi pitch for C4
     static let OCTAVE = 12

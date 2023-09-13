@@ -346,6 +346,7 @@
 			children = (
 				7B40B8282A54E52A00CA7FC4 /* ClapTestView.swift */,
 				7B40B82A2A54E52A00CA7FC4 /* ConfigurationView.swift */,
+				7B40B8162A54E52A00CA7FC4 /* ContentNavigationView.swift */,
 				7B40B8272A54E52A00CA7FC4 /* ContentSectionView.swift */,
 				7B40B8212A54E52A00CA7FC4 /* IndexView.swift */,
 				7B40B8292A54E52A00CA7FC4 /* LaunchScreen.swift */,
@@ -359,7 +360,6 @@
 				7B40B8192A54E52A00CA7FC4 /* TappingView.swift */,
 				7B40B81F2A54E52A00CA7FC4 /* TestView.swift */,
 				7B40B8202A54E52A00CA7FC4 /* ToolsView.swift */,
-				7B40B8162A54E52A00CA7FC4 /* ContentNavigationView.swift */,
 				7B40B81E2A54E52A00CA7FC4 /* UIGlobals.swift */,
 				7B40B81C2A54E52A00CA7FC4 /* VoiceCounter.swift */,
 			);

@@ -247,9 +247,9 @@ struct ClapOrPlayPresentView: View {
         return result
     }
     
-    func getStudentRecordedScoreWithTempo() -> Score? {
+    func getStudentTappingAsAScore() -> Score? {
         if let values = self.answer.values {
-            let rhythmAnalysisScore = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score, tapValues: values)
+            let rhythmAnalysisScore = tapRecorder.getTappedAsAScore(timeSignatue: score.timeSignature, questionScore: score, tapValues: values)
             return rhythmAnalysisScore
         }
         else {
@@ -270,13 +270,9 @@ struct ClapOrPlayPresentView: View {
         guard let tapValues = answer.values else {
             return false
         }
-        let tappingScore = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
-        let errorsExist = score.markupStudentScore(questionTempo: self.questionTempo,
-                                                   //recordedTempo: 0,
-                                                   metronomeTempoAtStartRecording: tapRecorder.metronomeTempoAtRecordingStart ?? 0,
-                                                   scoreToCompare: tappingScore, allowTempoVariation: questionType != .rhythmEchoClap)
-        //print("============Rhythm Correct Errors:", errorsExist, "Tempo", self.questionTempo, "tap Metro tempo", tapRecorder.metronomeTempoAtRecordingStart ?? 0)
-        return !errorsExist
+        let tappingScore = tapRecorder.getTappedAsAScore(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
+        score.flagNotesMissingRequiredTap(tappingScore: tappingScore)
+        return score.errorCount() == 0 && tappingScore.errorCount() == 0
     }
          
     func replayRecordingAllowed() -> Bool {
@@ -418,12 +414,12 @@ struct ClapOrPlayPresentView: View {
                             
                             if replayRecordingAllowed() {
                                 PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                                  score: questionType == .melodyPlay ? nil : getStudentRecordedScoreWithTempo(),
+                                                  score: questionType == .melodyPlay ? nil : getStudentTappingAsAScore(),
                                                   metronome: self.metronome,
                                                   fileName: contentSection.name,
                                                   onStart: ({
                                     if questionType != .melodyPlay {
-                                        if let recordedScore = getStudentRecordedScoreWithTempo() {
+                                        if let recordedScore = getStudentTappingAsAScore() {
                                             if let recordedtempo = recordedScore.recordedTempo {
                                                 metronome.setTempo(tempo: recordedtempo, context:"start hear student")
                                             }
@@ -438,12 +434,6 @@ struct ClapOrPlayPresentView: View {
                             }
                             
                             Button(action: {
-                                //contentSection.setAnswerState(ctx: "clap", .submittedAnswer)
-                                //                                if let parent = contentSection.parent {
-                                //                                    if parent.isExamTypeContentSection() {
-                                //                                        contentSection.answer111 = answer
-                                //                                    }
-                                //                                }
                                 answerState = .submittedAnswer
                                 if questionType == .melodyPlay {
                                     answer.correct = true
@@ -478,11 +468,9 @@ struct ClapOrPlayPresentView: View {
                     }
                 }
                 .onDisappear() {
-                    //if self.examMode {
-                        self.audioRecorder.stopPlaying()
-                    //}
+                    self.audioRecorder.stopPlaying()
+                    self.metronome.stopTicking()
                 }
-
             }
             .font(.system(size: UIDevice.current.userInterfaceIdiom == .phone ? UIFont.systemFontSize : UIFont.systemFontSize * 1.6))
         )
@@ -523,27 +511,47 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         guard let tapValues = answer.values else {
             return
         }
-        let rhythmAnalysis = tapRecorder.analyseRhythm(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
-        self.tappingScore = rhythmAnalysis
-        if let tappingScore = tappingScore {
-            let errorsExist = score.markupStudentScore(questionTempo: self.questionTempo,
-                                                       metronomeTempoAtStartRecording: tapRecorder.metronomeTempoAtRecordingStart ?? 0,
-                                                       scoreToCompare: tappingScore, allowTempoVariation: questionType != .rhythmEchoClap)
-            //self.answerWasCorrect1 = !errorsExist
-            //print("============analyseStudentRhythm errors:", errorsExist, "Tempo", self.questionTempo, "tap Metro tempo", tapRecorder.metronomeTempoAtRecordingStart ?? 0)
-            if errorsExist {
-                //self.metronome.setTempo(tempo: self.questionTempo, context: "Analyse Student - failed")
-                self.answerMetronome.setAllowTempoChange(allow: false)
-                self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
-            }
-            else {
-                if let recordedTempo = rhythmAnalysis.recordedTempo {
-                    self.answerMetronome.setTempo(tempo: recordedTempo, context: "Analyse Student - passed", allowBeyondLimits: true)
-                }
-                self.answerMetronome.setAllowTempoChange(allow: true)
-            }
-            tappingScore.label = "Your Rhythm"
+        
+        let tappedScore = tapRecorder.getTappedAsAScore(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
+        
+        self.tappingScore = tappedScore
+        guard let tappingScore = tappingScore else {
+            return
         }
+        ///This checks
+        ///1) all notes in the question have taps at the same time location
+        ///2) no taps are in a location where there is no question note
+        
+        score.flagNotesMissingRequiredTap(tappingScore: tappingScore)
+        ///If the student got the test correct then ensure that what they saw that they tapped exaclty matches the question.
+        ///Otherwise, try to make the studnets tapped score look the same as the question score up until the point of error
+        ///(e.g. a long tap might correctly represent either a long note or a short note followed by a rest. So mark the tapped score accordingingly
+        
+        if score.errorCount() > 0 {
+            self.answerMetronome.setAllowTempoChange(allow: false)
+            self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
+            let studentFeedack = StudentFeedback()
+            studentFeedack.feedbackExplanation = "There was no tap for \(score.errorCount() > 1 ? "these notes" : "this note") in the question."
+            score.setStudentFeedback(studentFeedack: studentFeedack)
+        }
+        
+        if tappedScore.errorCount() > 0 {
+            self.answerMetronome.setAllowTempoChange(allow: false)
+            self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
+            let studentFeedack = StudentFeedback()
+            studentFeedack.feedbackExplanation = "\(tappedScore.errorCount() > 1 ? "These taps don't" : "This tap does not") match a note in the question."
+            tappedScore.setStudentFeedback(studentFeedack: studentFeedack)
+        }
+        
+        if tappedScore.errorCount() == 0 && score.errorCount() == 0 {
+            ///Studnet is correct so ensure that what they saw that they tapped exactly matches the question.
+            tappingScore.copyEntries(from: score)
+            if let recordedTempo = tappedScore.recordedTempo {
+                self.answerMetronome.setTempo(tempo: recordedTempo, context: "Analyse Student - passed", allowBeyondLimits: true)
+            }
+            self.answerMetronome.setAllowTempoChange(allow: true)
+        }
+        tappingScore.label = "Your Rhythm"
     }
     
     func helpMetronome() -> String {
@@ -619,6 +627,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
             }
             .onDisappear() {
                 score.clearTaggs() //clear tags from any previous attempt
+                //Metronome.shared.stopTicking()
             }
         )
     }

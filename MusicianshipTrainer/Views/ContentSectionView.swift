@@ -292,9 +292,11 @@ struct SectionsNavigationView:View {
     var body: some View {
         VStack {
             List(Array(contentSections.indices), id: \.self) { index in
-                ///- selection: A bound variable that causes the link to present `destination` when `selection` becomes equal to `tag`.
+                ///selection: A bound variable that causes the link to present `destination` when `selection` becomes equal to `tag`
+                ///tag: The value of `selection` that causes the link to present `destination`..
                 NavigationLink(destination:
-                                ContentSectionView(contentSection: contentSections[index], parentSelectionIndex: $sectionIndex),
+                                ContentSectionView(contentSection: contentSections[index],
+                                                   parentSelectionIndex: $sectionIndex),
                                tag: index,
                                selection: $sectionIndex) {
 
