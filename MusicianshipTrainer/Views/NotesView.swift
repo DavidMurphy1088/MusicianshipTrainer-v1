@@ -139,7 +139,7 @@ struct NotesView: View {
             let accidental = placement.accidental
             let noteEllipseMidpoint:Double = geometry.size.height/2.0 - Double(offsetFromStaffMiddle) * lineSpacing / 2.0
             let noteValueUnDotted = note.isDotted ? note.getValue() * 2.0/3.0 : note.getValue()
-            
+
             if staff.staffNum == 0 {
                 NoteHiliteView(entry: note, x: noteFrameWidth/2, y: noteEllipseMidpoint, width: noteWidth * 1.5)
             }
@@ -153,55 +153,44 @@ struct NotesView: View {
                               y: noteEllipseMidpoint + yOffset)
 
             }
-            //Note ellipse
-            if note.noteTag == .inError {
-                Text("X")
-                    .font(.largeTitle)
-                    .bold()
-                    .foregroundColor(.red)
+            if [Note.VALUE_QUARTER, Note.VALUE_QUAVER].contains(noteValueUnDotted )  {
+                Ellipse()
+                //Closed ellipse
+                    .foregroundColor(note.getColor(staff: staff))
                     .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
-                    .position(x: noteFrameWidth/2, y: noteEllipseMidpoint)
+                    .position(x: noteFrameWidth/2  - (note.rotated ? noteWidth : 0), y: noteEllipseMidpoint)
             }
-            else {
-                if [Note.VALUE_QUARTER, Note.VALUE_QUAVER].contains(noteValueUnDotted )  {
-                    Ellipse()
-                    //Closed ellipse
-                        .foregroundColor(note.getColor(staff: staff))
-                        .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
-                        .position(x: noteFrameWidth/2  - (note.rotated ? noteWidth : 0), y: noteEllipseMidpoint)
-                }
-                if noteValueUnDotted == Note.VALUE_HALF || noteValueUnDotted == Note.VALUE_WHOLE {
-                    Ellipse()
-                    //Open ellipse
-                        .stroke(note.getColor(staff: staff), lineWidth: 2)
-                        .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 0.9))
-                        .position(x: noteFrameWidth/2 - (note.rotated ? noteWidth : 0), y: noteEllipseMidpoint)
-                }
+            if noteValueUnDotted == Note.VALUE_HALF || noteValueUnDotted == Note.VALUE_WHOLE {
+                Ellipse()
+                //Open ellipse
+                    .stroke(note.getColor(staff: staff), lineWidth: 2)
+                    .foregroundColor(note.getColor(staff: staff))
+                    .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 0.9))
+                    .position(x: noteFrameWidth/2 - (note.rotated ? noteWidth : 0), y: noteEllipseMidpoint)
+            }
 
-                //dotted
-                if note.isDotted {
-                    //the dot needs to be moved off the note center to move the dot off a staff line
-                    let yOffset = offsetFromStaffMiddle % 2 == 0 ? lineSpacing / 3.0 : 0
-                    Ellipse()
-                    //Open ellipse
-                    //.stroke(color(note: note), lineWidth: 2)
-                        .frame(width: noteWidth/3.0, height: noteWidth/3.0)
-                        .position(x: noteFrameWidth/2 + noteWidth/0.75, y: noteEllipseMidpoint - yOffset)
-                        .foregroundColor(note.getColor(staff: staff))
-                }
+            //dotted
+            if note.isDotted {
+                //the dot needs to be moved off the note center to move the dot off a staff line
+                let yOffset = offsetFromStaffMiddle % 2 == 0 ? lineSpacing / 3.0 : 0
+                Ellipse()
+                //Open ellipse
+                //.stroke(color(note: note), lineWidth: 2)
+                    .frame(width: noteWidth/3.0, height: noteWidth/3.0)
+                    .position(x: noteFrameWidth/2 + noteWidth/0.75, y: noteEllipseMidpoint - yOffset)
+                    .foregroundColor(note.getColor(staff: staff))
+            }
 
-                if !note.isOnlyRhythmNote {
-                    if staff.type == .treble {
-                        ForEach(getLedgerLines(note: note, noteWidth: noteWidth, lineSpacing: lineSpacing), id: \.id) { line in
-                            let y = geometry.size.height/2.0 + line.offsetVertical
-                            let x = noteFrameWidth/2 - noteWidth - (note.rotated ? noteWidth : 0)
-                            Path { path in
-                                path.move(to: CGPoint(x: x, y: y))
-                                path.addLine(to: CGPoint(x: x + 2 * noteWidth, y: y))
-                            }
-                            .stroke(note.getColor(staff: staff), lineWidth: 1)
-                            //.stroke(Color.red, lineWidth: 2)
+            if !note.isOnlyRhythmNote {
+                if staff.type == .treble {
+                    ForEach(getLedgerLines(note: note, noteWidth: noteWidth, lineSpacing: lineSpacing), id: \.id) { line in
+                        let y = geometry.size.height/2.0 + line.offsetVertical
+                        let x = noteFrameWidth/2 - noteWidth - (note.rotated ? noteWidth : 0)
+                        Path { path in
+                            path.move(to: CGPoint(x: x, y: y))
+                            path.addLine(to: CGPoint(x: x + 2 * noteWidth, y: y))
                         }
+                        .stroke(note.getColor(staff: staff), lineWidth: 1)
                     }
                 }
             }

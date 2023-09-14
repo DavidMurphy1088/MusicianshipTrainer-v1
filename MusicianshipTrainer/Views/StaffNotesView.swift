@@ -251,6 +251,10 @@ struct StaffNotesView: View {
 //        }
 //    }
     
+//    func quaverColor() -> Color {
+//        return Color(.red)
+//    }
+    
     func quaverBeamView(line: (CGPoint, CGPoint), startNote:Note, endNote:Note, lineSpacing: Double) -> some View {
         ZStack {
             if startNote.sequence == endNote.sequence {
@@ -260,6 +264,7 @@ struct StaffNotesView: View {
                 Image("quaver_arm")
                     .resizable()
                     .scaledToFit()
+                    .colorMultiply(endNote.getColor(staff: staff))
                     .frame(height: height)
                     .position(x: line.0.x + width / 3.0 , y: line.1.y + height / 3.5)
             }

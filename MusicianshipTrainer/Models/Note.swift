@@ -3,7 +3,7 @@ import SwiftUI
 
 class TimeSliceEntry : ObservableObject, Equatable, Hashable {
     @Published var hilite = false
-    @Published var noteTag:NoteTag = .noTag
+    @Published var statusTag:StatusTag = .noTag
 
     let id = UUID()
     var staffNum:Int //Narrow the display of the note to just one staff
@@ -96,9 +96,10 @@ enum StemDirection {
     case down
 }
 
-enum NoteTag {
+enum StatusTag {
     case noTag
     case inError
+    case afterError
     case renderedInError //e.g. all rhythm after a rhythm error is moot
     case hilightExpected //hilight the correct note that was expected
 }
@@ -157,9 +158,17 @@ class Note : TimeSliceEntry, Comparable {
         }
     }
     
-    func setNoteTag(_ tag: NoteTag) {
+    init(note:Note) {
+        self.midiNumber = note.midiNumber
+        super.init(value: note.getValue(), staffNum: note.staffNum)
+        self.isDotted = note.isDotted
+        self.accidental = note.accidental
+        self.isOnlyRhythmNote = note.isOnlyRhythmNote
+    }
+
+    func setStatusTag(_ tag: StatusTag) {
         DispatchQueue.main.async {
-            self.noteTag = tag
+            self.statusTag = tag
         }
     }
     
@@ -271,13 +280,16 @@ class Note : TimeSliceEntry, Comparable {
     
     //cause notes that are set for specifc staff to be tranparent on other staffs
     func getColor(staff:Staff) -> Color {
-        if noteTag == .inError {
+        if statusTag == .inError {
             return Color(.red)
         }
-        if noteTag == .renderedInError {
+        if statusTag == .afterError {
+            return Color(.gray)
+        }
+        if statusTag == .renderedInError {
             return Color(.clear)
         }
-        if noteTag == .hilightExpected {
+        if statusTag == .hilightExpected {
             return Color(red: 0, green: 0.5, blue: 0)
         }
 //        if let accidental = accidental {

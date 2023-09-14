@@ -488,7 +488,8 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     @State var playingStudent = false
     @State var speechEnabled = false
     @State var tappingScore:Score?
-    
+    @State var fittedScore:Score?
+
     private var score:Score
     private var questionType:QuestionType
     private var answer:Answer
@@ -518,38 +519,56 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         guard let tappingScore = tappingScore else {
             return
         }
-        ///This checks
+
+        ///Checks -
         ///1) all notes in the question have taps at the same time location
         ///2) no taps are in a location where there is no question note
         
         score.flagNotesMissingRequiredTap(tappingScore: tappingScore)
+        
+        self.fittedScore = score.fitScoreToQuestionScore(tappedScore:tappedScore)
+        guard let fittedScore = fittedScore else {
+            return
+        }
+
         ///If the student got the test correct then ensure that what they saw that they tapped exaclty matches the question.
         ///Otherwise, try to make the studnets tapped score look the same as the question score up until the point of error
         ///(e.g. a long tap might correctly represent either a long note or a short note followed by a rest. So mark the tapped score accordingingly
         
+
         if score.errorCount() > 0 {
             self.answerMetronome.setAllowTempoChange(allow: false)
             self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
             let studentFeedack = StudentFeedback()
-            studentFeedack.feedbackExplanation = "There was no tap for \(score.errorCount() > 1 ? "these notes" : "this note") in the question."
+            studentFeedack.feedbackExplanation = "There was no tap for \(score.errorCount() > 1 ? "these notes" : "this note") at the right time."
             score.setStudentFeedback(studentFeedack: studentFeedack)
         }
         
-        if tappedScore.errorCount() > 0 {
+        if fittedScore.errorCount() > 0 {
             self.answerMetronome.setAllowTempoChange(allow: false)
             self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
             let studentFeedack = StudentFeedback()
-            studentFeedack.feedbackExplanation = "\(tappedScore.errorCount() > 1 ? "These taps don't" : "This tap does not") match a note in the question."
-            tappedScore.setStudentFeedback(studentFeedack: studentFeedack)
+            studentFeedack.feedbackExplanation = "\(fittedScore.errorCount() > 1 ? "These taps don't" : "This tap does not") match a note in the question."
+            fittedScore.setStudentFeedback(studentFeedack: studentFeedack)
         }
         
-        if tappedScore.errorCount() == 0 && score.errorCount() == 0 {
-            ///Studnet is correct so ensure that what they saw that they tapped exactly matches the question.
-            tappingScore.copyEntries(from: score)
+        if fittedScore.errorCount() == 0 && score.errorCount() == 0 {
+            ///Student is correct so ensure that what they saw that they tapped exactly matches the question.
+            fittedScore.copyEntries(from: score)
+
+            let studentFeedack = StudentFeedback()
             if let recordedTempo = tappedScore.recordedTempo {
                 self.answerMetronome.setTempo(tempo: recordedTempo, context: "Analyse Student - passed", allowBeyondLimits: true)
+                studentFeedack.tempo = recordedTempo
             }
             self.answerMetronome.setAllowTempoChange(allow: true)
+            studentFeedack.correct = true
+            studentFeedack.feedbackExplanation = "Good job"
+            fittedScore.setStudentFeedback(studentFeedack: studentFeedack)
+        }
+        else {
+            //let fittedScore = score.fitScoreToQuestionScore(tappedScore:tappedScore)
+            //fittedScore.copyEntries(from: fittedScore)
         }
         tappingScore.label = "Your Rhythm"
     }
@@ -584,12 +603,18 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                     ScoreSpacerView()
                 }
                 if let tappingScore = self.tappingScore {
-                    Text(" ")
+                    Text(" TEMP - AS RECORDED ... ")
                     ScoreSpacerView()
                     ScoreView(score: tappingScore).padding()
                     ScoreSpacerView()
                 }
-                
+                if let fittedScore = self.fittedScore {
+                    Text(" ")
+                    ScoreSpacerView()
+                    ScoreView(score: fittedScore).padding()
+                    ScoreSpacerView()
+                }
+
                 VStack {
                     
                     PlayRecordingView(buttonLabel: "Hear The Given \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
@@ -610,6 +635,14 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                                               metronome: answerMetronome,
                                               fileName: contentSection.name)
                         }
+                        ///Only reply studnt rhythm from the tapped score so they know exactly what they tapped.
+                        ///So tap hilights wont be seen unless the tapped score is visible but the played back rhythm will be accurate.
+//                        if let fittedScore = self.fittedScore {
+//                            PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
+//                                              score: fittedScore,
+//                                              metronome: answerMetronome,
+//                                              fileName: contentSection.name)
+//                        }
                     }
                     
                     Spacer() //Keep - required to align the page from the top

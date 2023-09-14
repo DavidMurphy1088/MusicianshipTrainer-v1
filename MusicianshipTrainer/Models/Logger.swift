@@ -10,15 +10,6 @@ class Logger : ObservableObject {
         
     }
     
-//    func refresh() {
-//        DispatchQueue.main.async {
-//            print("===>Logger::refresh", self.id.uuidString.prefix(8), self.errorMsg)
-//
-//            self.errorMsg = self.errorMsg + " "
-//            self.errorNo += 1
-//        }
-//    }
-    
     func reportError(_ reporter:AnyObject, _ context:String, _ err:Error? = nil) {
         var msg = String("🛑 *** ERROR *** ErrNo:\(errorNo): " + String(describing: type(of: reporter))) + " " + context
         if let err = err {

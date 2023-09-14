@@ -149,10 +149,6 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
                 timeSlice.addNote(n: note)
             }
         }
-        
-//        for ts in outputScore.getAllTimeSlices() {
-//            print("========>", ts.entries[0].getValue(), type(of: ts))
-//        }
         return outputScore
     }
         
