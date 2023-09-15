@@ -274,8 +274,8 @@ struct StaffNotesView: View {
                     path.move(to: CGPoint(x: line.0.x, y: line.0.y))
                     path.addLine(to: CGPoint(x: line.1.x, y: line.1.y))
                 }
-                //.stroke(endNote.getColor(staff: staff), lineWidth: 3)
-                .stroke(lineWidth: 3)
+                .stroke(endNote.getColor(staff: staff), lineWidth: 3)
+                //.stroke(lineWidth: 3)
             }
         }
     }
@@ -325,6 +325,7 @@ struct StaffNotesView: View {
                         if entry is BarLine {
                             BarLineView(entry: entry, staff: staff, staffLayoutSize: staffLayoutSize)
                                 .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                                //.border(Color.cyan)
                         }
                     }
                     .coordinateSpace(name: "VStack")

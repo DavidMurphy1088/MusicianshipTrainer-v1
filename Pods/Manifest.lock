@@ -14,10 +14,12 @@ PODS:
     - BlueRSA (~> 1.0)
     - KituraContracts (~> 1.2)
     - LoggerAPI (~> 1.7)
+  - SwiftSoup (2.6.1)
 
 DEPENDENCIES:
   - Alamofire
   - SwiftJWT
+  - SwiftSoup
 
 SPEC REPOS:
   trunk:
@@ -29,6 +31,7 @@ SPEC REPOS:
     - LoggerAPI
     - Logging
     - SwiftJWT
+    - SwiftSoup
 
 SPEC CHECKSUMS:
   Alamofire: 0123a34370cb170936ae79a8df46cc62b2edeb88
@@ -39,7 +42,8 @@ SPEC CHECKSUMS:
   LoggerAPI: ad9c4a6f1e32f518fdb43a1347ac14d765ab5e3d
   Logging: beeb016c9c80cf77042d62e83495816847ef108b
   SwiftJWT: 88c412708f58c169d431d344c87bc79a87c830ae
+  SwiftSoup: 5dd2c1b06afc964f30d99894af6ede22ede627aa
 
-PODFILE CHECKSUM: fbd9df5ac1d5eb4930222f9b7be27c14443781b1
+PODFILE CHECKSUM: c170a1941191c564728f464bebfbe34e4f9b19ca
 
 COCOAPODS: 1.12.1

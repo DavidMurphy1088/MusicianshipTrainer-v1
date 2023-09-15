@@ -4,9 +4,11 @@ import MessageUI
 
 struct FeedbackView: View {
     @ObservedObject var score:Score
+    @ObservedObject var studentFeedback:StudentFeedback
+    
     var body: some View {
         HStack {
-            if let studentFeedback = score.studentFeedback {
+//            if let studentFeedback = studentFeedback {
                 if studentFeedback.correct {
                     Image(systemName: "checkmark.circle")
                         .scaleEffect(2.0)
@@ -23,8 +25,8 @@ struct FeedbackView: View {
                         Text("Wrong rhythm here")// at note: \(index)").padding()
                 }
             }
-        }
-        if let studentFeedback = score.studentFeedback {
+//        }
+//        if let studentFeedback = studentFeedback {
             if let feedbackExplanation = studentFeedback.feedbackExplanation {
                 VStack {
                     Text(feedbackExplanation)
@@ -40,7 +42,7 @@ struct FeedbackView: View {
                 }
             }
         }
-    }
+//    }
 }
 
 struct ScoreView: View {
@@ -107,7 +109,9 @@ struct ScoreView: View {
     
     var body: some View {
         VStack {
-            FeedbackView(score: score)
+            if let feedback = score.studentFeedback {
+                FeedbackView(score: score, studentFeedback: feedback)
+            }
             
             ForEach(score.getStaff(), id: \.self.type) { staff in
                 if !staff.isHidden {

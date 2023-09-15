@@ -82,6 +82,7 @@
 		7B73B7BE2A7112E80097BAA8 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73B7BD2A7112E80097BAA8 /* Answer.swift */; };
 		7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F52A68F63B00EA088E /* Cache.swift */; };
 		7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */; };
+		7BA8B70B2AB3D8D900AE7692 /* TTS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA8B70A2AB3D8D900AE7692 /* TTS.swift */; };
 		7BB835462A5548750083C1C0 /* Firestore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB835452A5548750083C1C0 /* Firestore.swift */; };
 		7BB835492A5555130083C1C0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB835482A5555130083C1C0 /* FirebaseFirestore */; };
 		7BC42EB22A550F39004FE117 /* AudioNotes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB12A550F39004FE117 /* AudioNotes */; };
@@ -197,6 +198,7 @@
 		7B73B7BD2A7112E80097BAA8 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
 		7B8EF2F52A68F63B00EA088E /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
+		7BA8B70A2AB3D8D900AE7692 /* TTS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTS.swift; sourceTree = "<group>"; };
 		7BB835452A5548750083C1C0 /* Firestore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore.swift; sourceTree = "<group>"; };
 		7BC42EB12A550F39004FE117 /* AudioNotes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AudioNotes; sourceTree = "<group>"; };
 		7BC42EB32A550F4E004FE117 /* GPTQuestions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GPTQuestions; sourceTree = "<group>"; };
@@ -326,6 +328,7 @@
 				7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */,
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,
 				7B12C3822A7B2B3800B4D430 /* Songs.swift */,
+				7BA8B70A2AB3D8D900AE7692 /* TTS.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -792,6 +795,7 @@
 				7B40B8322A54E52A00CA7FC4 /* VoiceCounter.swift in Sources */,
 				7B12C3852A7B2F6B00B4D430 /* AudioSamplerPlayer.swift in Sources */,
 				7B40B8382A54E52A00CA7FC4 /* ViewProtocol.swift in Sources */,
+				7BA8B70B2AB3D8D900AE7692 /* TTS.swift in Sources */,
 				7B40B7FC2A54DF9000CA7FC4 /* AudioTicker.swift in Sources */,
 				7B40B82E2A54E52A00CA7FC4 /* NotesView.swift in Sources */,
 				7B40B8352A54E52A00CA7FC4 /* TestView.swift in Sources */,

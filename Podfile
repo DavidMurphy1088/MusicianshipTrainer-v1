@@ -13,7 +13,8 @@ target 'MusicianshipTrainer' do
   #pod 'GoogleAPIClientForREST/Drive'
   pod 'SwiftJWT'
   pod 'Alamofire'
-
+  pod 'SwiftSoup'
+  
   post_install do |installer|
     installer.generated_projects.each do |project|
       project.targets.each do |target|

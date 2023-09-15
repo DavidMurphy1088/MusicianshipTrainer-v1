@@ -44,7 +44,7 @@ class ScoreEntry : ObservableObject, Hashable {
 }
 
 
-class StudentFeedback { //}: ObservableObject {
+class StudentFeedback : ObservableObject {
     var correct:Bool = false
     var indexInError:Int? = nil
     var feedbackExplanation:String? = nil
@@ -180,6 +180,22 @@ class Score : ObservableObject {
          return result
      }
     
+    func getDurationToFirstError() -> Double {
+        var duration = 0.0
+        for timeSlice in self.getAllTimeSlices() {
+            if timeSlice.entries.count > 0 {
+                let entry = timeSlice.entries[0]
+                if entry.statusTag == .inError {
+                    break
+                }
+                else {
+                    duration += entry.getValue()
+                }
+            }
+        }
+        return duration
+    }
+
     //Return the first timeslice index of where the scores differ
 //    func getFirstDifferentTimeSliceNew(compareScore:Score) -> Int? {
 //        //let compareEntries = compareScore.scoreEntries
@@ -430,7 +446,7 @@ class Score : ObservableObject {
             }
         }
         
-        //Determine if the haver group has up or down stems based on the overall staff placement of the group
+        //Determine if the quaver group has up or down stems based on the overall staff placement of the group
         var totalOffset = 0
         for note in notesUnderBeam {
             let placement = staff.getNoteViewPlacement(note: note)
@@ -600,6 +616,7 @@ class Score : ObservableObject {
         let outputScore = Score(timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: self.noteSize)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
+        
         var questionIndex = 0
         let tappedTimeSlices = tappedScore.getAllTimeSlices()
         let questionTimeSlices = self.getAllTimeSlices()
@@ -614,10 +631,11 @@ class Score : ObservableObject {
         }
         var tapInErrorWasFlagged = false
 
-        for tappedTimeSlice in tappedTimeSlices {
+        for tappedIndex in 0..<tappedTimeSlices.count {
+            let tappedTimeSlice = tappedTimeSlices[tappedIndex]
             let tap = tappedTimeSlice.entries[0]
             let tappedValue = tap.getValue()
-            print("---", tappedValue, tap.statusTag, inSync, barDuration)
+            print("---", tappedValue, tap.statusTag, inSync, barDuration, questionIndex, questionIndex)
 
             var questionValue = 0.0
             if tap.statusTag == .inError {
@@ -653,16 +671,30 @@ class Score : ObservableObject {
                 }
             }
             else {
-                let ts = outputScore.addTimeSlice()
-                let note = Note(note: tap as! Note)
+                let tappedNote = Note(note: tap as! Note)
                 if !tapInErrorWasFlagged {
-                    note.statusTag = .inError
+                    let qq = getDurationToFirstError()
+                    let tt = tappedScore.getDurationToFirstError()
+                    print("  ERR---", tappedValue, tap.statusTag, inSync, barDuration, questionIndex, questionIndex, "...", qq, tt)
+                    if qq > tt {
+                        if tappedIndex > 0 {
+                            let lastSlice = tappedTimeSlices[tappedIndex-1]
+                            if lastSlice.entries.count > 0 {
+                                if let lastTap = lastSlice.entries[0] as? Note {
+                                    let ts = outputScore.addTimeSlice()
+                                    ts.addNote(n: Note(note: lastTap))
+                                }
+                            }
+                        }
+                    }
+                    tappedNote.statusTag = .inError
                     tapInErrorWasFlagged = true
                 }
                 else {
-                    note.statusTag = .afterError
+                    tappedNote.statusTag = .afterError
                 }
-                ts.addNote(n: note)
+                let ts = outputScore.addTimeSlice()
+                ts.addNote(n: tappedNote)
                 barDuration += tap.getValue()
             }
             if barDuration >= Double(self.timeSignature.top) {

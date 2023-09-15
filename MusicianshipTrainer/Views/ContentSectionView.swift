@@ -71,6 +71,40 @@ struct ContentTypeView: View {
     }
 }
 
+struct NarrationView : View {
+    let contentSection:ContentSection
+    let htmlDocument:String
+    let context:String
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Spacer()
+                Button(action: {
+                    TTS.shared.speakText(contentSection: contentSection, context: context, htmlContent: htmlDocument)
+                }) {
+                    Image("voiceCount")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 60.0)
+                        .padding()
+                        .clipShape(Circle())  // Clip the image to a circle
+                        .overlay(
+                            Circle()
+                                .stroke(Color.blue, lineWidth: 4)
+                        )
+                        .padding()
+                }
+            }
+            Spacer()
+        }
+        .onDisappear() {
+            TTS.shared.stop()
+        }
+    }
+        
+}
+
 struct ContentSectionTipsView: UIViewRepresentable {
     var htmlDocument:String
     
@@ -106,9 +140,6 @@ struct ContentSectionHeaderView: View {
     @State private var audioInstructionsFileName:String? = nil
 
     func getInstructions()  {
-//        //let instructionContent = contentSection.getChildSectionByType(type: "Ins")
-//        if let instructionContent = instructionContent {
-//            if instructionContent.contentSectionData.data.count > 0 {
         var pathSegments = contentSection.getPathAsArray()
         if pathSegments.count < 1 {
             return
@@ -119,16 +150,10 @@ struct ContentSectionHeaderView: View {
             if status == .success {
                 self.instructions = document
             }
-//            else {
-//                self.instructions = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
-//            }
         }
     }
     
     func getTipsAndTricks()  {
-//        let tipsAndTricksContent = contentSection.getChildSectionByType(type: "T&T")
-//        if let tipsAndTricksContent = tipsAndTricksContent {
-//            if tipsAndTricksContent.contentSectionData.data.count > 0 {
         let filename = "Tips_Tricks" //tipsAndTricksContent.contentSectionData.data[0]
         var pathSegments = contentSection.getPathAsArray()
         pathSegments.append(UIGlobals.getAgeGrpup())
@@ -139,8 +164,6 @@ struct ContentSectionHeaderView: View {
                 self.tipsAndTricksData = document
             }
         }
-//            }
-//        }
     }
     
     func getAudio()  {
@@ -148,7 +171,6 @@ struct ContentSectionHeaderView: View {
         if let audioContent = audioContent {
             if audioContent.contentSectionData.data.count > 0 {
                 audioInstructionsFileName = audioContent.contentSectionData.data[0]
-                
             }
         }
     }
@@ -178,12 +200,28 @@ struct ContentSectionHeaderView: View {
                 
                 if let instructions = self.instructions {
                     HStack {
-                        ContentSectionInstructionsView(htmlDocument: instructions)
-                            .frame(height: CGFloat(getParagraphCount(html: instructions)) * 150.0)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                            )
-                            .padding()
+                        ZStack {
+                            ContentSectionInstructionsView(htmlDocument: instructions)
+                                //.frame(height: CGFloat(getParagraphCount(html: instructions)) * 150.0)
+//                                .overlay(
+//                                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+//                                )
+//                                .padding()
+//                                //.padding()
+//                                .background(
+//                                    Rectangle().stroke(Color.blue, lineWidth: 4)
+//                                )
+
+                            NarrationView(contentSection: contentSection, htmlDocument: instructions, context: "Instructions")
+                        }
+                        .frame(height: CGFloat(getParagraphCount(html: instructions)) * 150.0)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                        )
+                        .padding()
+//                        .background(
+//                            Rectangle().stroke(Color.blue, lineWidth: 4)
+//                        )
                     }
                 }
             }
@@ -200,12 +238,17 @@ struct ContentSectionHeaderView: View {
                 }
                 .sheet(isPresented: $isHelpPresented) {
                     if let tipsAndTricksData = self.tipsAndTricksData {
-                        ContentSectionTipsView(htmlDocument: tipsAndTricksData)
-                            .padding()
-                            .background(
-                                Rectangle()
-                                    .stroke(Color.blue, lineWidth: 4)
-                            )
+                        ZStack {
+                            ContentSectionTipsView(htmlDocument: tipsAndTricksData)
+                                .background(
+                                    Rectangle().stroke(Color.blue, lineWidth: 4)
+                                )
+                            NarrationView(contentSection: contentSection, htmlDocument: tipsAndTricksData, context: "TipsTricks")
+                        }
+                        .padding()
+                        .background(
+                            Rectangle().stroke(Color.blue, lineWidth: 4)
+                        )
                     }
                 }
             }
@@ -214,6 +257,9 @@ struct ContentSectionHeaderView: View {
             getAudio()
             getInstructions()
             getTipsAndTricks()
+        }
+        .onDisappear() {
+            TTS.shared.stop()
         }
     }
 }
@@ -453,9 +499,7 @@ struct ExamView: View {
         }
         .navigationBarHidden(isNavigationHidden())
         .onAppear() {
-            
-
-            self.sectionIndex = 0            
+            self.sectionIndex = 0
         }
     }
 }
@@ -514,6 +558,9 @@ struct ContentOverviewView: View {
         .onAppear {
             getContent()
         }
+        .onDisappear() {
+            TTS.shared.stop()
+        }
     }
 }
 
@@ -526,6 +573,7 @@ struct ContentSectionView: View {
     @State var answer:Answer = Answer(ctx: "ContentSectionView")//, questionMode: .practice)
     @State var sectionIndex:Int = 0
     @Binding var parentSelectionIndex:Int?
+    @State var isShowingConfiguration:Bool = false
     
     let id = UUID()
     
@@ -599,7 +647,29 @@ struct ContentSectionView: View {
             }
             
         }
+        .onDisappear() {
+            TTS.shared.stop()
+        }
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    isShowingConfiguration = true
+                }) {
+                    Image("Coloured_Note2")
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .aspectRatio(contentMode: .fit)                        }
+            }
+        }
+        .sheet(isPresented: $isShowingConfiguration) {
+            ConfigurationView(isPresented: $isShowingConfiguration,
+                              colorScore: UIGlobals.colorScore,
+                              colorBackground: UIGlobals.colorBackground,
+                              colorInstructions: UIGlobals.colorInstructions,
+                              ageGroup: UIGlobals.ageGroup)
+        }
+
     }
 }
 

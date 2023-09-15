@@ -81,7 +81,7 @@ class GoogleAPI {
     private init() {
     }
     
-    private func getAPIBundleData(key:String) -> String? {
+    public func getAPIBundleData(key:String) -> String? {
         var data:String? = nil
         let pListName = "GoogleAPI"
         if let path = Bundle.main.path(forResource: pListName, ofType: "plist"),

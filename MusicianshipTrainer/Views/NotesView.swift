@@ -16,7 +16,7 @@ struct BarLineView: View {
                 
         }
         .frame(maxWidth: Double(staffLayoutSize.lineSpacing)  * 1.0)
-        .border(Color.red)
+        //.border(Color.red)
     }
 }
 
@@ -213,7 +213,7 @@ struct NotesView: View {
                             RestView(entry: entry, lineSpacing: lineSpacing, geometry: geometry)
                             //Spacer()
                                 .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
-                                //.border(Color.red)
+                                //.border(Color.blue)
                         }
                     }
                     

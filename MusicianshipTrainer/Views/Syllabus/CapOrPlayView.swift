@@ -160,7 +160,10 @@ struct ClapOrPlayPresentView: View {
             if let lastTimeSlice = score.getLastTimeSlice() {
                 ///Place tonic on last timeslice
                 ///Place dominant on previous bar
-                let lastNote = lastTimeSlice.getTimeSliceNotes()[0]
+                var lastNote:Note? = nil
+                if lastTimeSlice.getTimeSliceNotes().count > 0 {
+                    lastNote = lastTimeSlice.getTimeSliceNotes()[0]
+                }
                 let entries = score.scoreEntries
                 var barCount = 0
                 for i in stride(from: entries.count - 2, through: 0, by: -1) {
@@ -169,9 +172,11 @@ struct ClapOrPlayPresentView: View {
                         if let nextTimeSlice:TimeSlice = entries[i+1] as? TimeSlice {
                             let scaleStartMidi = score.key.getScaleStartMidi()
                             if barCount == 1 {
-                                nextTimeSlice.addTriadAt(rootNoteMidi: scaleStartMidi, value: lastNote.getValue(), staffNum: 1)
-                                let keyTag:String = score.key.getKeyTagName()
-                                nextTimeSlice.setTags(high: keyTag, low: "I")
+                                if let lastNote = lastNote {
+                                    nextTimeSlice.addTriadAt(rootNoteMidi: scaleStartMidi, value: lastNote.getValue(), staffNum: 1)
+                                    let keyTag:String = score.key.getKeyTagName()
+                                    nextTimeSlice.setTags(high: keyTag, low: "I")
+                                }
                             }
                             if contentSection.getGrade() == 2 {
                                 if barCount == 2 {
@@ -188,9 +193,11 @@ struct ClapOrPlayPresentView: View {
                                     default:
                                         dominant = "G"
                                     }
-                                    nextTimeSlice.addTriadAt(rootNoteMidi: scaleStartMidi - 5, value: lastNote.getValue(), staffNum: 1)
-                                    let keyTag:String = dominant
-                                    nextTimeSlice.setTags(high: keyTag, low: "V")
+                                    if let lastNote = lastNote {
+                                        nextTimeSlice.addTriadAt(rootNoteMidi: scaleStartMidi - 5, value: lastNote.getValue(), staffNum: 1)
+                                        let keyTag:String = dominant
+                                        nextTimeSlice.setTags(high: keyTag, low: "V")
+                                    }
                                 }
                             }
                         }
@@ -548,7 +555,10 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
             self.answerMetronome.setAllowTempoChange(allow: false)
             self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
             let studentFeedack = StudentFeedback()
-            studentFeedack.feedbackExplanation = "\(fittedScore.errorCount() > 1 ? "These taps don't" : "This tap does not") match a note in the question."
+            let questionDuration = score.getDurationToFirstError()
+            let tapDuration = tappingScore.getDurationToFirstError()
+            //studentFeedack.feedbackExplanation = "\(fittedScore.errorCount() > 1 ? "These taps don't" : "This tap does not") match a note in the question."
+            studentFeedack.feedbackExplanation = "This tap was too \(tapDuration < questionDuration ? "early" : "late")."
             fittedScore.setStudentFeedback(studentFeedack: studentFeedack)
         }
         
@@ -616,7 +626,6 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                 }
 
                 VStack {
-                    
                     PlayRecordingView(buttonLabel: "Hear The Given \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                       score: score,
                                       metronome: answerMetronome,
@@ -739,7 +748,8 @@ struct ClapOrPlayView: View {
 
         }
         .background(UIGlobals.colorBackground)
-        .onAppear {
+        .onDisappear {
+            Metronome.getMetronomeWithCurrentSettings(ctx: "").stopTicking()
         }
     }
 

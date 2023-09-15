@@ -95,10 +95,10 @@ struct ContentNavigationView: View {
                         Button(action: {
                             isShowingConfiguration = true
                         }) {
-                            Image(systemName: "gear")
-                            .font(.largeTitle)
-                            .scaleEffect(1.0)
-                        }
+                            Image("Coloured_Note2")
+                            .resizable()
+                            .frame(width: 50, height: 50)
+                            .aspectRatio(contentMode: .fit)                        }
                     }
                 }
             }

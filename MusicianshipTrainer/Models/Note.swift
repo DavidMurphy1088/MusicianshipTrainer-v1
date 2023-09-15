@@ -284,7 +284,7 @@ class Note : TimeSliceEntry, Comparable {
             return Color(.red)
         }
         if statusTag == .afterError {
-            return Color(.gray)
+            return Color(.lightGray)
         }
         if statusTag == .renderedInError {
             return Color(.clear)
