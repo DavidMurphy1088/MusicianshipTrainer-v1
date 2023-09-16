@@ -17,9 +17,9 @@ class Answer : Codable,Identifiable {
     var explanation = ""
 
     ///Intervals
-    var correctInterval = 0
+    //var correctInterval = 0
     var correctIntervalName = ""
-    var selectedInterval:Int? = nil
+    var selectedIntervalName = ""
     
     ///Rhythm
     //var tempo:Int?
@@ -36,9 +36,10 @@ class Answer : Codable,Identifiable {
     func copyAnwser() -> Answer {
         let a = Answer(ctx: "copy") //, questionMode: self.questionMode)
         a.correct = self.correct
-        a.selectedInterval = self.selectedInterval
-        a.correctInterval = self.correctInterval
+        //a.selectedInterval = self.selectedInterval
+        //a.correctInterval = self.correctInterval
         a.correctIntervalName = self.correctIntervalName
+        a.selectedIntervalName = self.selectedIntervalName
         a.explanation = self.explanation
         a.values = self.values
         a.recordedData = self.recordedData

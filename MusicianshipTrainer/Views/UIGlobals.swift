@@ -20,6 +20,9 @@ class UIGlobals {
     static let buttonCornerRadius = 10.0
     static let practiceTipsColor = Color.blue.opacity(0.08) //UIColor(red: 200/255, green: 255/255, blue: 200/255, alpha: 1) //paleGreen
     
+    static let circularIconSize = 40.0
+    static let circularIconBorderSize = 4.0
+
     static var ageGroup:AgeGroup = .Group_11Plus
     static let font = Font.custom("Lora", size: 24)
     static let navigationFont = Font.custom("Lora", size: 32)

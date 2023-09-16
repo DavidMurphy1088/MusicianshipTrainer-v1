@@ -58,66 +58,10 @@ struct PlayExampleMelody : View {
     }
 }
 
-class IntervalName : Hashable, Comparable {
-    var interval: Int
-    var name:String
-    var explanation:[String]
-    var isIncluded = true
-    
-    static func < (lhs: IntervalName, rhs: IntervalName) -> Bool {
-        return lhs.interval < rhs.interval
-    }
-
-    init(interval:Int, name:String, explanation:[String]) {
-        self.interval = interval
-        self.name = name
-        self.explanation = explanation
-    }
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(interval)
-    }
-    static func == (lhs: IntervalName, rhs: IntervalName) -> Bool {
-        return lhs.interval == rhs.interval
-    }
-}
-
-class IntervalNames {
-    let intervals:[IntervalName]
-    
-    init() {
-        self.intervals = [
-            IntervalName(interval:1, name: "Second", //Minor
-                         explanation: ["",
-                                       ""]),
-            IntervalName(interval:2, name: "Second", //Major
-                         explanation: ["A line to a space is a step",
-                                       "A space to a line is a step"]),
-            IntervalName(interval:3, name: "Third", //Minor
-                         explanation: ["A line to a line is a skip",
-                                       "A space to a space is a skip"]),
-            
-            IntervalName(interval:4, name: "Third", explanation: ["",""]),
-            
-            IntervalName(interval:5, name: "Fourth", explanation: ["",""]),
-            
-            IntervalName(interval:6, name: "Tritone", explanation: ["",""]),
-            
-            IntervalName(interval:7, name: "Fifth", explanation: ["",""])
-            
-            //IntervalName(interval:9, name: "Sixth", explanation: ["",""])
-
-        ]
-    }
-    
-    func getInterval(interval:Int) -> IntervalName? {
-        let result = self.intervals.first(where: {$0.interval == interval})
-        return result
-    }
-}
 
 struct IntervalPresentView: View { //}, QuestionPartProtocol {
     let contentSection:ContentSection
-    var grade:Int? = nil
+    var grade:Int
     @ObservedObject var score:Score
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
@@ -125,10 +69,10 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @State private var examInstructions:Data? = nil
 
     @State var intervalNotes:[Note] = []
-    @State private var selectedIntervalIndex:Int = 10//? = nil
+    @State private var selectedIntervalName:String?
     @State private var selectedOption: String? = nil
     @State private var scoreWasPlayed = false
-    @State var intervalNames = IntervalNames()
+    @State var intervals:Intervals
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
     
@@ -144,6 +88,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         _answerState = answerState
         _answer = answer
         self.grade = contentSection.getGrade()
+        self.intervals = Intervals(grade: grade)
         //self.isTakingExam = contentSection.isInExam()
     }
 
@@ -174,26 +119,10 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                     let ts = entry as! TimeSignature
                     score.timeSignature = ts
                 }
-
             }
         }
         if chord.getNotes().count > 0 {
             score.addTimeSlice().addChord(c: chord)
-        }
-        for interval in intervalNames.intervals {
-            interval.isIncluded = false
-            if let grade = grade {
-                if grade > 0 {
-                    if interval.interval == 2 || interval.interval == 4 {
-                        interval.isIncluded = true
-                    }
-                }
-                if grade > 1 {
-                    if interval.interval == 5 || interval.interval == 7 || interval.interval == 9 {
-                        interval.isIncluded = true
-                    }
-                }
-            }
         }
     }
     
@@ -202,48 +131,42 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             return
         }
         let interval = abs((intervalNotes[1].midiNumber - intervalNotes[0].midiNumber))
-        let range = interval...interval+1
-        //print (contentSection.answer.selectedInterval)
-        if answer.selectedInterval != nil && range.contains(answer.selectedInterval!) {
-            answer.correct = true
-            answer.correctInterval = interval
-        }
-        else {
-            answer.correct = false
-            answer.correctInterval = interval
-        }
-        let name = intervalNames.intervals.first(where: { $0.interval == answer.correctInterval})
-        if name != nil {
-            answer.correctIntervalName = name!.name
-            let noteIsSpace = [Note.MIDDLE_C + 5, Note.MIDDLE_C + 9, Note.MIDDLE_C + 12, Note.MIDDLE_C + 16].contains(intervalNotes[0].midiNumber)
-            answer.explanation = name!.explanation[noteIsSpace ? 1 : 0]
+        answer.correct = false
+        for intervalType in intervals.intervalTypes {
+            if intervalType.intervals.contains(interval) {
+                answer.correctIntervalName = intervalType.name
+                if answer.correctIntervalName == answer.selectedIntervalName {
+                    answer.correct = true
+                }
+                break
+            }
         }
     }
 
     var selectIntervalView : some View {
         VStack(spacing: 0) {
-            ForEach(Array(intervalNames.intervals.sorted().enumerated()), id: \.1) { index, interval in
-                if interval.isIncluded {
+            //ScrollView {
+                ForEach(intervals.intervalTypes, id: \.name) { intervalType in
+                    //ForEach(Array(intervals.intervalTypes.sorted().enumerated()), id: \.1) { index, interval in
                     Button(action: {
-                        selectedIntervalIndex = index
+                        selectedIntervalName = intervalType.name
                         answerState = .answered
-                        answer.selectedInterval = intervalNames.intervals[index].interval
+                        answer.selectedIntervalName = intervalType.name
                     }) {
-                        Text(interval.name)
+                        Text(intervalType.name)
                             .defaultButtonStyle()
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .stroke(scoreWasPlayed ? Color.black : Color.clear, lineWidth: 1)
-                                    //.background(selectedIntervalIndex == index ? Color(.systemTeal) : Color.clear)
-                                    .background(selectedIntervalIndex == index ? UIGlobals.colorInstructions : Color.clear)
+                                    .background(selectedIntervalName == intervalType.name ? UIGlobals.colorInstructions : Color.clear)
                             )
                     }
-                    .padding()
+                    //.padding()
                 }
-            }
+            //}
+            //.padding()
         }
-        .padding()
     }
 
     func isTakingExam() -> Bool {
@@ -361,7 +284,8 @@ struct IntervalAnswerView: View {
     private let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"Interval answer View")
     private var noteIsSpace:Bool
     private var answer:Answer
-    private let intervalNames = IntervalNames()
+    private let intervals:Intervals
+    private let grade:Int
     
     init(contentSection:ContentSection, score:Score, answer:Answer, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.contentSection = contentSection
@@ -370,6 +294,8 @@ struct IntervalAnswerView: View {
         metronome.speechEnabled = false
         self.questionType = questionType
         self.answer = answer
+        self.grade = contentSection.getGrade()
+        self.intervals = Intervals(grade: grade)
     }
     
     var body: AnyView {
@@ -393,12 +319,12 @@ struct IntervalAnswerView: View {
                 .padding()
                 
                 if !answer.correct {
-                    if let selectedInterval = answer.selectedInterval {
-                        let selected = intervalNames.getInterval(interval: selectedInterval)
-                        if let selected = selected {
-                            Text("You said that the interval was a \(selected.name)").defaultTextStyle().padding()
-                        }
-                    }
+//                    if let selectedInterval = answer.selectedIntervalName {
+//                        //let selected = intervals.getInterval(interval: selectedInterval)
+//                        if let selectedInterval = selectedInterval {
+                            Text("You said that the interval was a \(answer.selectedIntervalName )").defaultTextStyle().padding()
+//                        }
+//                    }
 
                 }
                 Text("The interval is a \(answer.correctIntervalName)").defaultTextStyle().padding()

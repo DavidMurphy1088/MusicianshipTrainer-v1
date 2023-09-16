@@ -62,15 +62,17 @@ class ContentSection: Codable, Identifiable {
         self.index = 0
     }
     
-    func getGrade() -> Int? {
-        var grade:Int?
+    func getGrade() -> Int {
+        var grade:Int = 1
         let paths = getPathAsArray()
         for path in paths {
             if path.starts(with: "Grade ") {
                 let p = path.split(separator: " ")
                 if p.count == 2 {
-                    grade = Int(p[1])
-                    break
+                    if let gradeInt = Int(p[1]) {
+                        grade = gradeInt
+                        break
+                    }
                 }
             }
         }

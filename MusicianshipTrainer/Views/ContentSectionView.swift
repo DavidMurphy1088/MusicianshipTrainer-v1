@@ -79,22 +79,29 @@ struct NarrationView : View {
     var body: some View {
         VStack {
             HStack {
-                Spacer()
+                
                 Button(action: {
                     TTS.shared.speakText(contentSection: contentSection, context: context, htmlContent: htmlDocument)
                 }) {
-                    Image("voiceCount")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 60.0)
-                        .padding()
-                        .clipShape(Circle())  // Clip the image to a circle
-                        .overlay(
-                            Circle()
-                                .stroke(Color.blue, lineWidth: 4)
-                        )
+                    //Image("voice_icon")
+                    Image(systemName: "speaker.wave.2")
+                        .foregroundColor(.blue)
+                        .font(.largeTitle)
+//                        .font(.largeTitle)
+//                        .frame(width: UIGlobals.circularIconSize)
+//                        //.padding
+////                        .resizable()
+////                        .scaledToFit()
+////                        .frame(width: UIGlobals.circularIconSize)
+////                        .padding()
+//                        .clipShape(Circle())  // Clip the image to a circle
+//                        .overlay(
+//                            Circle()
+//                                .stroke(Color.blue, lineWidth: UIGlobals.circularIconBorderSize)
+//                        )
                         .padding()
                 }
+                Spacer()
             }
             Spacer()
         }
@@ -102,7 +109,6 @@ struct NarrationView : View {
             TTS.shared.stop()
         }
     }
-        
 }
 
 struct ContentSectionTipsView: UIViewRepresentable {
@@ -233,6 +239,8 @@ struct ContentSectionHeaderView: View {
                     HStack {
                         Text("Tips and Tricks").font(.custom("Courgette-Regular", size: 30))
                         Image(systemName: "questionmark.circle")
+                            //.font(.system(size: 50))  // Set the desired size here
+                            .foregroundColor(.blue)
                             .font(.largeTitle)
                     }
                 }
@@ -299,15 +307,7 @@ struct SectionsNavigationView:View {
             }
         }
         var image:Image
-//        if name == "checkmark.circle" {
-//            image = Image(systemName: name)
-//
-//            //image
-//            //Color(.green)
-//        }
-//        else {
-           image = Image(name)
-        //}
+        image = Image(name)
         return image
     }
     
@@ -656,10 +656,15 @@ struct ContentSectionView: View {
                 Button(action: {
                     isShowingConfiguration = true
                 }) {
-                    Image("Coloured_Note2")
-                    .resizable()
-                    .frame(width: 50, height: 50)
-                    .aspectRatio(contentMode: .fit)                        }
+                    //Image("Coloured_Note2")
+                    Image(systemName: "music.note.list")
+                        .foregroundColor(.blue)
+                        .font(.largeTitle)
+                    //.resizable()
+                    //.frame(width: 50, height: 50)
+                    //.aspectRatio(contentMode: .fit)
+                    
+                }
             }
         }
         .sheet(isPresented: $isShowingConfiguration) {
