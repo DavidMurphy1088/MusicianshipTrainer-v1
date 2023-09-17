@@ -72,6 +72,10 @@ class Rest : TimeSliceEntry {
         super.init(value: value, staffNum: staffNum)
         //self.value = value
     }
+    
+    init(r:Rest) {
+        super.init(value: r.value, staffNum: r.staffNum)
+    }
 }
 
 enum AccidentalType {

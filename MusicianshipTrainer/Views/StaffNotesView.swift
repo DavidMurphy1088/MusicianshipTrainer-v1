@@ -259,7 +259,7 @@ struct StaffNotesView: View {
         ZStack {
             if startNote.sequence == endNote.sequence {
                 //An unpaired quaver
-                let height = lineSpacing * 5
+                let height = lineSpacing * 4.5
                 let width = height / 3.0
                 Image("quaver_arm")
                     .resizable()

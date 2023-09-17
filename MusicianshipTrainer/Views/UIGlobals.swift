@@ -7,12 +7,20 @@ enum AgeGroup: Int {
 }
 
 class UIGlobals {
-    static var colorDefault = Color.blue.opacity(0.10)
-    static var colorBackgroundDefault = Color.white
+    static var colorDefault = Color.white
+    
+    static var colorInstructionsDefault = Color.blue.opacity(0.10)
+    static var colorBackgroundDefault = Color(red: 1.0, green: 1.0, blue: 0.95)
+    static var colorScoreDefault = Color(red: 0.85, green: 1.0, blue: 1.0)
+    static var colorNavigationDefault = Color(red: 0.95, green: 1.0, blue: 1.0)
 
-    static var colorScore = UIGlobals.colorDefault
-    static var colorInstructions = UIGlobals.colorDefault
+    static var colorScore = colorScoreDefault
+    static var colorInstructions = colorInstructionsDefault
     static var colorBackground = colorBackgroundDefault
+    static var colorNavigation = colorNavigationDefault
+    
+    //behind instructions to match background of Navigation View which is unchangeable from grey
+    static var colorNavigationBackground = Color(red: 0.95, green: 0.95, blue: 0.95)
 
     static let cornerRadius:CGFloat = 8
     static let borderColor:CGColor = CGColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)
@@ -25,8 +33,10 @@ class UIGlobals {
 
     static var ageGroup:AgeGroup = .Group_11Plus
     static let font = Font.custom("Lora", size: 24)
-    static let navigationFont = Font.custom("Lora", size: 32)
-
+    
+    //static let navigationFont = Font.custom("Lora", size: 32)
+    static let navigationFont = Font.custom("Courgette-Regular", size: 32)
+        
     static func getAgeGrpup() -> String {
         return UIGlobals.ageGroup == .Group_11Plus ? "11Plus" : "5-10"
     }

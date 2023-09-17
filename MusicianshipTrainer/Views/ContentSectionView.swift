@@ -208,26 +208,16 @@ struct ContentSectionHeaderView: View {
                     HStack {
                         ZStack {
                             ContentSectionInstructionsView(htmlDocument: instructions)
-                                //.frame(height: CGFloat(getParagraphCount(html: instructions)) * 150.0)
-//                                .overlay(
-//                                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-//                                )
-//                                .padding()
-//                                //.padding()
-//                                .background(
-//                                    Rectangle().stroke(Color.blue, lineWidth: 4)
-//                                )
-
                             NarrationView(contentSection: contentSection, htmlDocument: instructions, context: "Instructions")
                         }
                         .frame(height: CGFloat(getParagraphCount(html: instructions)) * 150.0)
                         .overlay(
                             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
                         )
+                        //.padding(.vertical, 0)
+                        //.padding(.horizontal)
                         .padding()
-//                        .background(
-//                            Rectangle().stroke(Color.blue, lineWidth: 4)
-//                        )
+                        .background(UIGlobals.colorNavigationBackground)
                     }
                 }
             }
@@ -351,7 +341,7 @@ struct SectionsNavigationView:View {
                             Spacer()
                             Text(contentSections[index].getTitle())
                                 .font(UIGlobals.navigationFont)
-                                .padding()
+                                .padding(.vertical, 8) //xxxx
                             Spacer()
                             if let rowImage = getGradeImage(contentSection: contentSections[index]) {
                                 HStack {
@@ -371,14 +361,10 @@ struct SectionsNavigationView:View {
                         }
 
                     }
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 12)
-//                            .stroke(Color.gray.opacity(0.25), lineWidth: 1)
-//                            .padding(.bottom, 0)
-//                            .padding(.top, 0)
-//                    )
                 }
-                .padding(.vertical, 6)
+                .listRowBackground(UIGlobals.colorNavigation)
+                //.background(UIGlobals.colorNavigation)
+                //.padding(.vertical, 6)
             }
         }
     }
@@ -608,7 +594,9 @@ struct ContentSectionView: View {
                 }
                 else {
                     ContentSectionHeaderView(contentSection: contentSection)
+                        //.padding(.vertical, 0)
                     SectionsNavigationView(contentSections: childSections)
+                        //.padding(.vertical, 0)
                 }
             }
             else {
@@ -623,20 +611,37 @@ struct ContentSectionView: View {
             }
             if contentSection.subSections.count == 0 {
                 if contentSection.type != "Overview" {
-                ///Tell the parent to navigate to the next section
-                    Button("Next Example") {
-                        if self.parentSelectionIndex == nil {
-                            self.parentSelectionIndex = 0
+                    HStack {
+                        ///Tell the parent to navigate to the next section
+                        Button("Previous Example") {
+                            if self.parentSelectionIndex == nil {
+                                self.parentSelectionIndex = 0
+                            }
+                            else {
+                                if self.parentSelectionIndex! > 0 {
+                                    self.parentSelectionIndex! -= 1
+                                }
+                                else {
+                                    self.parentSelectionIndex = nil
+                                }
+                            }
                         }
-                        else {
-                            self.parentSelectionIndex! += 1
+                        .padding()
+                        Button("Next Example") {
+                            if self.parentSelectionIndex == nil {
+                                self.parentSelectionIndex = 0
+                            }
+                            else {
+                                self.parentSelectionIndex! += 1
+                            }
                         }
+                        .padding()
                     }
-                    .padding()
                 }
             }
         }
-        .onAppear {           
+        .background(UIGlobals.colorNavigationBackground)
+        .onAppear {
             if contentSection.answer111 != nil {
                 //print("ContentSectionView ==== did set answer submitted", answerState)
                 self.answerState = .submittedAnswer
@@ -656,14 +661,9 @@ struct ContentSectionView: View {
                 Button(action: {
                     isShowingConfiguration = true
                 }) {
-                    //Image("Coloured_Note2")
                     Image(systemName: "music.note.list")
                         .foregroundColor(.blue)
                         .font(.largeTitle)
-                    //.resizable()
-                    //.frame(width: 50, height: 50)
-                    //.aspectRatio(contentMode: .fit)
-                    
                 }
             }
         }
@@ -674,7 +674,6 @@ struct ContentSectionView: View {
                               colorInstructions: UIGlobals.colorInstructions,
                               ageGroup: UIGlobals.ageGroup)
         }
-
     }
 }
 

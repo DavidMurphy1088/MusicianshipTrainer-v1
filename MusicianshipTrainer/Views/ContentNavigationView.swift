@@ -36,59 +36,54 @@ struct ContentNavigationView: View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             NavigationView {
                 VStack {
-                    //This is the list placed in the split navigation screen.
-                    //The 2nd NavigationView below (for iPhone without split nav) will present the topics on the first screen the user sees
-//                    if false {
-//                        List(contentSection.subSections) { contentSection in
-//                            NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
-//                                                                           //parentsSelectedContentIndex: $selectedContentIndex)) {
-//                                Text(contentSection.getTitle())
-//                                    .font(.title2)
-//                            }
-//                            .disabled(!contentSection.isActive)
-//                        }
-//                    }
-                    
+                        //This is the list placed in the split navigation screen.
+                        //The 2nd NavigationView below (for iPhone without split nav) will present the topics on the first screen the user sees
+                        
                     GradeIntroView()
-                    
-                    List(contentSection.subSections) { contentSection in
-                        NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
-                                                                       //parentsSelectedContentIndex: $selectedContentIndex)) {
-                            ZStack {
-                                HStack {
-                                    Spacer()
-                                    Text(contentSection.getTitle()).padding()
-                                        .font(UIGlobals.navigationFont)
-                                    Spacer()
+                    ZStack {
+                        Color.yellow.edgesIgnoringSafeArea(.all)
+                        List(contentSection.subSections) { contentSection in
+                            NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
+                                //parentsSelectedContentIndex: $selectedContentIndex)) {
+                                ZStack {
+                                    HStack {
+                                        Spacer()
+                                        Text(contentSection.getTitle()).padding()
+                                            .font(UIGlobals.navigationFont)
+                                        Spacer()
+                                    }
+                                    ///Required to force SwiftUI's horz line beween Nav links to run full width when text is centered
+                                    HStack {
+                                        Text("")
+                                        Spacer()
+                                    }
                                 }
-                                ///Required to force SwiftUI's horz line beween Nav links to run full width when text is centered
-                                HStack {
-                                    Text("")
-                                    Spacer()
-                                }
+                                //                            .overlay(
+                                //                                RoundedRectangle(cornerRadius: 12)
+                                //                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                                //                            )
+                                //                            .padding(.vertical, 4)
+                                //.navigationBarTitleDisplayMode(.inline)
                             }
-//                            .overlay(
-//                                RoundedRectangle(cornerRadius: 12)
-//                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-//                            )
-//                            .padding(.vertical, 4)
-                            //.navigationBarTitleDisplayMode(.inline)
+                            .disabled(!contentSection.isActive)
+                            .padding(.vertical, 4)
+                            //.listRowBackground(Color.yellow)
+                            //.buttonStyle(PlainButtonStyle())
+                            //The back nav link that will be shown on the ContentSectionView
+                            //.navigationTitle("NavTtitle::\(self.topic.level == 0 ? "" : topic.title)")
                         }
-                        .disabled(!contentSection.isActive)
-                        .padding(.vertical, 4)
-                        //.buttonStyle(PlainButtonStyle())
-                        //The back nav link that will be shown on the ContentSectionView
-                        //.navigationTitle("NavTtitle::\(self.topic.level == 0 ? "" : topic.title)")
-                   }
-                    .sheet(isPresented: $isShowingConfiguration) {
-                        ConfigurationView(isPresented: $isShowingConfiguration,
-                                          colorScore: UIGlobals.colorScore,
-                                          colorBackground: UIGlobals.colorBackground,
-                                          colorInstructions: UIGlobals.colorInstructions,
-                                          ageGroup: UIGlobals.ageGroup)
+                        .listRowBackground(Color.yellow)
+                        //.border(Color.red, width: 4)
+                        .sheet(isPresented: $isShowingConfiguration) {
+                            ConfigurationView(isPresented: $isShowingConfiguration,
+                                              colorScore: UIGlobals.colorScore,
+                                              colorBackground: UIGlobals.colorBackground,
+                                              colorInstructions: UIGlobals.colorInstructions,
+                                              ageGroup: UIGlobals.ageGroup)
+                        }
                     }
                 }
-                
+
                 //.navigationTitle(topic.name) ?? ignored??
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -108,40 +103,30 @@ struct ContentNavigationView: View {
         }
         else {
             NavigationView {
-                List(contentSection.subSections) { contentSection in
-                    NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {//}, parentsSelectedContentIndex: $selectedContentIndex)) {
-                        VStack {
-                            Text(contentSection.getTitle())
-                                .font(.title2)
-                                .padding()
+                ZStack {
+                    Color.red.edgesIgnoringSafeArea(.all)
+                    List(contentSection.subSections) { contentSection in
+                        NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {//}, parentsSelectedContentIndex: $selectedContentIndex)) {
+                            VStack {
+                                Text(contentSection.getTitle())
+                                    .font(.title2)
+                                    .padding()
+                            }
                         }
+                        .disabled(!contentSection.isActive)
+                        .background(Color.white)
                     }
-                    .disabled(!contentSection.isActive)
+                    
+                    .sheet(isPresented: $isShowingConfiguration) {
+                        ConfigurationView(isPresented: $isShowingConfiguration,
+                                          colorScore: UIGlobals.colorScore,
+                                          colorBackground: UIGlobals.colorBackground,
+                                          colorInstructions: UIGlobals.colorInstructions,
+                                          ageGroup: UIGlobals.ageGroup
+                        )
+                    }
                 }
-                .sheet(isPresented: $isShowingConfiguration) {
-                    ConfigurationView(isPresented: $isShowingConfiguration,
-                                      colorScore: UIGlobals.colorScore,
-                                      colorBackground: UIGlobals.colorBackground,
-                                      colorInstructions: UIGlobals.colorInstructions,
-                                      ageGroup: UIGlobals.ageGroup
-                                    )
-                }
-                //.navigationTitle(topic.name)
-//                .toolbar {
-//                    ToolbarItem(placement: .navigationBarTrailing) {
-//                        Button(action: {
-//                            isShowingConfiguration = true
-//                        }) {
-//                            Image(systemName: "xgear")
-//                                //.resizable()
-//                                //.frame(width: 200, height: 200)
-//                                //.font(.largeTitle)
-//                                //.scaleEffect(1.5)
-//                                .resizable()
-//                                .frame(width: 132, height: 132)
-//                        }
-//                    }
-//                }
+                
             }
         }
     }
