@@ -5,8 +5,10 @@ class TimeSlice : ScoreEntry {
     @Published var tagHigh:String?
     @Published var tagLow:String?
     @Published var notesLength:Int?
-    var score:Score
+    @Published var statusTag:StatusTag = .noTag
 
+    var score:Score
+        
     var footnote:String?
     var barLine:Int = 0
     private static var idIndex = 0
@@ -17,8 +19,15 @@ class TimeSlice : ScoreEntry {
         TimeSlice.idIndex += 1
     }
     
+    func setStatusTag(_ tag: StatusTag) {
+        DispatchQueue.main.async {
+            self.statusTag = tag
+        }
+    }
+
     func addNote(n:Note) {
         self.entries.append(n)
+        n.timeSlice = self
         score.updateStaffs()
         score.addStemCharaceteristics()
     }

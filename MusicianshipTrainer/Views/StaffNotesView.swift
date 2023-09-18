@@ -265,6 +265,7 @@ struct StaffNotesView: View {
                     .resizable()
                     .scaledToFit()
                     .colorMultiply(endNote.getColor(staff: staff))
+                    //.overlay(Color.red.blendMode(.difference))
                     .frame(height: height)
                     .position(x: line.0.x + width / 3.0 , y: line.1.y + height / 3.5)
             }
@@ -309,6 +310,7 @@ struct StaffNotesView: View {
                                             }
                                         }
                                 })
+                                .border(entries.statusTag == .inError ? Color .red : Color .clear)
                                 
                                 //if staff.staffNum == 10 {
                                     StemView(score:score,

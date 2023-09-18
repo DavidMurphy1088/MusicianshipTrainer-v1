@@ -279,7 +279,8 @@ struct ClapOrPlayPresentView: View {
         }
         let tappingScore = tapRecorder.getTappedAsAScore(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
         score.flagNotesMissingRequiredTap(tappingScore: tappingScore)
-        return score.errorCount() == 0 && tappingScore.errorCount() == 0
+        //return score.errorCount() == 0 && tappingScore.errorCount() == 0
+        return true
     }
          
     func replayRecordingAllowed() -> Bool {
@@ -544,49 +545,52 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         ///Otherwise, try to make the studnets tapped score look the same as the question score up until the point of error
         ///(e.g. a long tap might correctly represent either a long note or a short note followed by a rest. So mark the tapped score accordingingly
         
-        if score.errorCount() > 0 {
-            self.answerMetronome.setAllowTempoChange(allow: false)
-            self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
-            let studentFeedack = StudentFeedback()
-            studentFeedack.feedbackExplanation = "There was no tap for \(score.errorCount() > 1 ? "these notes" : "this note") at the right time."
-            score.setStudentFeedback(studentFeedack: studentFeedack)
+        if let fittedScore = fittedScore {
+            if fittedScore.errorCount() > 0 {
+                self.answerMetronome.setAllowTempoChange(allow: false)
+                self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
+//                let studentFeedack = StudentFeedback()
+//                studentFeedack.feedbackExplanation = "There was no tap for \(score.errorCount() > 1 ? "these notes" : "this note") at the right time."
+//                score.setStudentFeedback(studentFeedack: studentFeedack)
+            }
         }
         
         //if fittedScore.errorCount() > 0 {
         self.answerMetronome.setAllowTempoChange(allow: false)
         self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
-        let studentFeedack = StudentFeedback()
-        let questionDuration = score.getDurationToFirstError()
-        let tapDuration = tappingScore.getDurationToFirstError()
-            //studentFeedack.feedbackExplanation = "\(fittedScore.errorCount() > 1 ? "These taps don't" : "This tap does not") match a note in the question."
-        if tapDuration < questionDuration {
-            studentFeedack.feedbackExplanation = "This tap was too early since the previous note or rest was shortened"
-        }
-        else {
-            studentFeedack.feedbackExplanation = "This tap was too late"
-        }
         
-        fittedScore!.setStudentFeedback(studentFeedack: studentFeedack)
+        //let studentFeedack = StudentFeedback()
+        //let questionDuration = score.getDurationToFirstError()
+        //let tapDuration = tappingScore.getDurationToFirstError()
+            //studentFeedack.feedbackExplanation = "\(fittedScore.errorCount() > 1 ? "These taps don't" : "This tap does not") match a note in the question."
+//        if tapDuration < questionDuration {
+//            studentFeedack.feedbackExplanation = "This tap was too early since the previous note or rest was shortened"
+//        }
+//        else {
+//            studentFeedack.feedbackExplanation = "This tap was too late"
+//        }
+        
+        //fittedScore!.setStudentFeedback(studentFeedack: studentFeedack)
         //}
         
-        if fittedScore!.errorCount() == 0 && score.errorCount() == 0 {
-            ///Student is correct so ensure that what they saw that they tapped exactly matches the question.
-            fittedScore!.copyEntries(from: score)
-
-            let studentFeedack = StudentFeedback()
-            if let recordedTempo = tappedScore.recordedTempo {
-                self.answerMetronome.setTempo(tempo: recordedTempo, context: "Analyse Student - passed", allowBeyondLimits: true)
-                studentFeedack.tempo = recordedTempo
-            }
-            self.answerMetronome.setAllowTempoChange(allow: true)
-            studentFeedack.correct = true
-            studentFeedack.feedbackExplanation = "Good job"
-            fittedScore!.setStudentFeedback(studentFeedack: studentFeedack)
-        }
-        else {
-            //let fittedScore = score.fitScoreToQuestionScore(tappedScore:tappedScore)
-            //fittedScore.copyEntries(from: fittedScore)
-        }
+//        if fittedScore!.errorCount() == 0 && score.errorCount() == 0 {
+//            ///Student is correct so ensure that what they saw that they tapped exactly matches the question.
+//            fittedScore!.copyEntries(from: score)
+//
+//            let studentFeedack = StudentFeedback()
+//            if let recordedTempo = tappedScore.recordedTempo {
+//                self.answerMetronome.setTempo(tempo: recordedTempo, context: "Analyse Student - passed", allowBeyondLimits: true)
+//                studentFeedack.tempo = recordedTempo
+//            }
+//            self.answerMetronome.setAllowTempoChange(allow: true)
+//            studentFeedack.correct = true
+//            studentFeedack.feedbackExplanation = "Good job"
+//            fittedScore!.setStudentFeedback(studentFeedack: studentFeedack)
+//        }
+//        else {
+//            //let fittedScore = score.fitScoreToQuestionScore(tappedScore:tappedScore)
+//            //fittedScore.copyEntries(from: fittedScore)
+//        }
         
     }
     

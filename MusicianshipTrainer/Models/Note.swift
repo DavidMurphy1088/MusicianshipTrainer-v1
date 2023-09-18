@@ -3,12 +3,12 @@ import SwiftUI
 
 class TimeSliceEntry : ObservableObject, Equatable, Hashable {
     @Published var hilite = false
-    @Published var statusTag:StatusTag = .noTag
 
     let id = UUID()
     var staffNum:Int //Narrow the display of the note to just one staff
     var isDotted:Bool = false
     var sequence:Int = 0 //the note's sequence position
+    var timeSlice:TimeSlice?
 
     fileprivate var value:Double = Note.VALUE_QUARTER
 
@@ -61,7 +61,27 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
         }
         return name
     }
-
+    
+    static func getValueName(value:Double) -> String {
+        var name = ""
+        switch value {
+        case 0.50 :
+            name += "quaver"
+        case 1.0 :
+            name += "crotchet"
+        case 1.5 :
+            name += "dotted crotchet"
+        case 2.0 :
+            name += "minim"
+        case 3.0 :
+            name += "dotted minim"
+        case 4.0 :
+            name += "semibreve"
+        default :
+            name += "unknown value \(value)"
+        }
+        return name
+    }
 }
 
 class BarLine : ScoreEntry {
@@ -170,12 +190,6 @@ class Note : TimeSliceEntry, Comparable {
         self.isOnlyRhythmNote = note.isOnlyRhythmNote
     }
 
-    func setStatusTag(_ tag: StatusTag) {
-        DispatchQueue.main.async {
-            self.statusTag = tag
-        }
-    }
-    
     func setIsOnlyRhythm(way: Bool) {
         self.isOnlyRhythmNote = way
         if self.isOnlyRhythmNote {
@@ -284,22 +298,20 @@ class Note : TimeSliceEntry, Comparable {
     
     //cause notes that are set for specifc staff to be tranparent on other staffs
     func getColor(staff:Staff) -> Color {
-        if statusTag == .inError {
-            return Color(.red)
+        if let timeSlice = timeSlice {
+            if timeSlice.statusTag == .inError {
+                return Color(.red)
+            }
+            if timeSlice.statusTag == .afterError {
+                return Color(.lightGray)
+            }
+            if timeSlice.statusTag == .renderedInError {
+                return Color(.clear)
+            }
+            if timeSlice.statusTag == .hilightExpected {
+                return Color(red: 0, green: 0.5, blue: 0)
+            }
         }
-        if statusTag == .afterError {
-            return Color(.lightGray)
-        }
-        if statusTag == .renderedInError {
-            return Color(.clear)
-        }
-        if statusTag == .hilightExpected {
-            return Color(red: 0, green: 0.5, blue: 0)
-        }
-//        if let accidental = accidental {
-//            return Color.blue
-//        }
-
         if staffNum == nil {
             return Color(.black)
         }
