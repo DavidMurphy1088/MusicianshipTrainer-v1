@@ -6,15 +6,16 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
 
     let id = UUID()
     var staffNum:Int //Narrow the display of the note to just one staff
+    var timeSlice:TimeSlice
     var isDotted:Bool = false
     var sequence:Int = 0 //the note's sequence position
-    var timeSlice:TimeSlice?
 
     fileprivate var value:Double = Note.VALUE_QUARTER
 
-    init(value:Double, staffNum: Int) {
+    init(timeSlice:TimeSlice, value:Double, staffNum: Int) {
         self.value = value
         self.staffNum = staffNum
+        self.timeSlice = timeSlice
     }
     
     static func == (lhs: TimeSliceEntry, rhs: TimeSliceEntry) -> Bool {
@@ -26,9 +27,36 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
         return self.value
     }
     
+    //cause notes that are set for specifc staff to be tranparent on other staffs
+    func getColor(staff:Staff) -> Color {
+        var out:Color? = nil
+        //if let timeSlice = timeSlice {
+            if timeSlice.statusTag == .inError {
+                out = Color(.red)
+            }
+            if timeSlice.statusTag == .afterError {
+                out = Color(.lightGray)
+            }
+            if timeSlice.statusTag == .renderedInError {
+                out = Color(.clear)
+            }
+            if timeSlice.statusTag == .hilightExpected {
+                out = Color(red: 0, green: 0.5, blue: 0)
+            }
+            //print("=======COLOR", out?.rgbData ?? "", timeSlice.statusTag)
+        //}
+//        if staffNum == nil {
+//            out = Color(.black)
+//        }
+        if out == nil {
+            out = Color(staffNum == staff.staffNum ? .black : .clear)
+        }
+        return out!
+    }
+
     func setValue(value:Double) {
         self.value = value
-        if value == 3.0 {
+        if [3.0, 1.5].contains(value) {
             self.isDotted = true
         }
     }
@@ -46,6 +74,8 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
     func getNoteValueName() -> String {
         var name = self.isDotted ? "dotted " : ""
         switch self.value {
+        case 0.25 :
+            name += "semi quaver"
         case 0.50 :
             name += "quaver"
         case 1.0 :
@@ -65,6 +95,8 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
     static func getValueName(value:Double) -> String {
         var name = ""
         switch value {
+        case 0.25 :
+            name += "semi quaver"
         case 0.50 :
             name += "quaver"
         case 1.0 :
@@ -88,13 +120,13 @@ class BarLine : ScoreEntry {
 }
 
 class Rest : TimeSliceEntry {    
-    override init(value:Double, staffNum:Int) {
-        super.init(value: value, staffNum: staffNum)
+    override init(timeSlice:TimeSlice, value:Double, staffNum:Int) {
+        super.init(timeSlice:timeSlice, value: value, staffNum: staffNum)
         //self.value = value
     }
     
     init(r:Rest) {
-        super.init(value: r.value, staffNum: r.staffNum)
+        super.init(timeSlice: r.timeSlice, value: r.value, staffNum: r.staffNum)
     }
 }
 
@@ -171,9 +203,9 @@ class Note : TimeSliceEntry, Comparable {
         return (note1 % 12) == (note2 % 12)
     }
     
-    init(num:Int, value:Double = Note.VALUE_QUARTER, staffNum:Int, accidental:Int?=nil) {//}, isDotted:Bool = false) {
+    init(timeSlice:TimeSlice, num:Int, value:Double = Note.VALUE_QUARTER, staffNum:Int, accidental:Int?=nil) {//}, isDotted:Bool = false) {
         self.midiNumber = num
-        super.init(value: value, staffNum: staffNum)
+        super.init(timeSlice:timeSlice, value: value, staffNum: staffNum)
 
         self.isDotted = [0.75, 1.5, 3.0].contains(value)
         self.accidental = accidental
@@ -184,7 +216,7 @@ class Note : TimeSliceEntry, Comparable {
     
     init(note:Note) {
         self.midiNumber = note.midiNumber
-        super.init(value: note.getValue(), staffNum: note.staffNum)
+        super.init(timeSlice:note.timeSlice, value: note.getValue(), staffNum: note.staffNum)
         self.isDotted = note.isDotted
         self.accidental = note.accidental
         self.isOnlyRhythmNote = note.isOnlyRhythmNote
@@ -296,27 +328,6 @@ class Note : TimeSliceEntry, Comparable {
         }
     }
     
-    //cause notes that are set for specifc staff to be tranparent on other staffs
-    func getColor(staff:Staff) -> Color {
-        if let timeSlice = timeSlice {
-            if timeSlice.statusTag == .inError {
-                return Color(.red)
-            }
-            if timeSlice.statusTag == .afterError {
-                return Color(.lightGray)
-            }
-            if timeSlice.statusTag == .renderedInError {
-                return Color(.clear)
-            }
-            if timeSlice.statusTag == .hilightExpected {
-                return Color(red: 0, green: 0.5, blue: 0)
-            }
-        }
-        if staffNum == nil {
-            return Color(.black)
-        }
-        return Color(staffNum == staff.staffNum ? .black : .clear)
-    }
     
     ///The note has a default accidental determined by which key the score is in but can be overidden by content specifying a written accidental
     ///The written accidental must overide the default accidental and the note's offset adjusted accordingly.

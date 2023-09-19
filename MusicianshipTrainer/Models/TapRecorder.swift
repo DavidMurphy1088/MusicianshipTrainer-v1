@@ -90,7 +90,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
     func roundNoteValueToStandardValue(inValue:Double, tempo:Int) -> Double? {
         let inValueAtTempo = (inValue * Double(tempo)) / 60.0
         if inValueAtTempo < 0.25 {
-            return nil
+            return 0.25
         }
         if inValueAtTempo < 0.75 {
             return 0.5
@@ -144,7 +144,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
                     }
                 }
                 let timeSlice = outputScore.addTimeSlice()
-                let note = Note(num: 0, value: tappedValue, staffNum: 0)
+                let note = Note(timeSlice:timeSlice, num: 0, value: tappedValue, staffNum: 0)
                 note.setIsOnlyRhythm(way: true)
                 timeSlice.addNote(n: note)
             }

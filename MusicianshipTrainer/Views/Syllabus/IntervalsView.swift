@@ -39,7 +39,8 @@ struct PlayExampleMelody : View {
                     let songs = Songs()
                     let base = firstNote
                     let interval = secondNote.midiNumber - firstNote.midiNumber
-                    let (melodyName, notes) = songs.song(base: base, interval: interval)
+                    let timeSlice = TimeSlice(score: score)
+                    let (melodyName, notes) = songs.song(timeSlice: timeSlice, base: base, interval: interval)
                     if let melodyName = melodyName {
                         self.melodyName = melodyName
                     }
@@ -93,7 +94,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     }
 
     func initView() {
-        let exampleData = contentSection.parseData() //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
+        let exampleData = contentSection.parseData(score: score) //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
         
         let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5)
         self.score.setStaff(num: 0, staff: staff)
@@ -112,7 +113,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                     timeSlice.addNote(n: note)
                     intervalNotes.append(note)
                     if questionType == .intervalAural {
-                        chord.addNote(note: Note(num: note.midiNumber, value: 2, staffNum: 0, accidental: note.accidental))
+                        chord.addNote(note: Note(timeSlice: timeSlice, num: note.midiNumber, value: 2, staffNum: 0, accidental: note.accidental))
                     }
                 }
                 if entry is TimeSignature {
@@ -471,8 +472,6 @@ struct FlyingImageView: View {
                 yPos += delta
             }
             
-            print("=====In animate", i, answer.correct, yPos, randomX)
-
             withAnimation(Animation.linear(duration: totalDuration / Double(loops))) { //}.repeatForever(autoreverses: false)) {
                 opacity = 0.0
                 position = CGPoint(x: UIScreen.main.bounds.width / 2 + randomX, y: UIScreen.main.bounds.height / 2 + yPos)

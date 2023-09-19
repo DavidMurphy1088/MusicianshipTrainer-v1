@@ -183,11 +183,11 @@ class Key : Equatable, Hashable {
         return rootMidi
     }
     
-    func makeTriadAt(rootMidi:Int, value:Double, staffNum:Int) -> [Note] {
+    func makeTriadAt(timeSlice:TimeSlice, rootMidi:Int, value:Double, staffNum:Int) -> [Note] {
         var result:[Note] = []
-        result.append(Note(num: rootMidi, value: value, staffNum: staffNum))
-        result.append(Note(num: rootMidi + 4, value: value, staffNum: staffNum))
-        result.append(Note(num: rootMidi + 7, value: value, staffNum: staffNum))
+        result.append(Note(timeSlice:timeSlice, num: rootMidi, value: value, staffNum: staffNum))
+        result.append(Note(timeSlice:timeSlice, num: rootMidi + 4, value: value, staffNum: staffNum))
+        result.append(Note(timeSlice:timeSlice, num: rootMidi + 7, value: value, staffNum: staffNum))
         return result
     }
 

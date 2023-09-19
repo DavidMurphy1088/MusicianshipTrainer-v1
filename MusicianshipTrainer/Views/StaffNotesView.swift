@@ -236,38 +236,24 @@ struct StaffNotesView: View {
         return self.staffLayoutSize.lineSpacing
     }
 
-//    func log(notes: [Note : CGRect]) {
-//        let keys = notes.keys
-//        let sss = keys.sorted { $0.sequence < $1.sequence }
-//        print("")
-//        for n in sss {
-//            print("++++++BEAM Note seq", n.sequence, "midi:", n.midiNumber, n.getValue(),
-//                  "\tBeamType:", n.beamType,
-//                    "\tendNote:", n.beamEndNote?.midiNumber ?? "",
-//                  "Rect:", notes[n] ?? ""
-//            )
-//            let re = notes[n]
-//            //print ("   ", re)
-//        }
-//    }
-    
-//    func quaverColor() -> Color {
-//        return Color(.red)
-//    }
-    
+    func getQuaverImage(note:Note) -> Image {
+        return Image(note.midiNumber > 71 ? "quaver_arm_flipped_grayscale" : "quaver_arm_grayscale")
+    }
+
     func quaverBeamView(line: (CGPoint, CGPoint), startNote:Note, endNote:Note, lineSpacing: Double) -> some View {
         ZStack {
             if startNote.sequence == endNote.sequence {
                 //An unpaired quaver
                 let height = lineSpacing * 4.5
                 let width = height / 3.0
-                Image("quaver_arm")
+                let flippedHeightOffset = startNote.midiNumber > 71 ? height / 2.0 : 0.0
+                getQuaverImage(note:startNote)
                     .resizable()
+                    .renderingMode(.template)
+                    .foregroundColor(startNote.getColor(staff: staff))
                     .scaledToFit()
-                    .colorMultiply(endNote.getColor(staff: staff))
-                    //.overlay(Color.red.blendMode(.difference))
                     .frame(height: height)
-                    .position(x: line.0.x + width / 3.0 , y: line.1.y + height / 3.5)
+                    .position(x: line.0.x + width / 3.0 , y: line.1.y + height / 3.5 - flippedHeightOffset)
             }
             else {
                 //A paired quaver
@@ -310,15 +296,22 @@ struct StaffNotesView: View {
                                             }
                                         }
                                 })
-                                .border(entries.statusTag == .inError ? Color .red : Color .clear)
+//                                if entries.statusTag == .inError {
+//                                    VStack {
+//                                        //Spacer()
+//                                        Circle()
+//                                            .fill(Color.red)
+//                                            .frame(width: 16, height: 16)
+//                                        Spacer()
+//                                    }
+//                                }
+//                                .border(entries.statusTag == .inError ? Color(.red) : Color(.clear))
                                 
-                                //if staff.staffNum == 10 {
-                                    StemView(score:score,
-                                             staff:staff,
-                                             notePositionLayout: noteLayoutPositions,
-                                             notes: entries.getTimeSliceNotes(),
-                                             lineSpacing: staffLayoutSize)
-                                //}
+                                StemView(score:score,
+                                         staff:staff,
+                                         notePositionLayout: noteLayoutPositions,
+                                         notes: entries.getTimeSliceNotes(),
+                                         lineSpacing: staffLayoutSize)
 
                                 TimeSliceLabelView(score:score, staff:staff, timeSlice: entry as! TimeSlice)
                                     .frame(height: staffLayoutSize.getStaffHeight(score: score))

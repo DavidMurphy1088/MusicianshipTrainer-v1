@@ -155,7 +155,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     
     func playAudioFromCloudURL(urlString: String) {
         guard let url = URL(string: urlString) else {
-            print("Invalid URL")
+            Logger.logger.reportError(self, "Invalid URL")
             return
         }
 

@@ -135,7 +135,6 @@ class ContentSection: Codable, Identifiable {
         }
         else {
             Logger.logger.reportError(self, "Failed answer read, no document URL")
-            print("Failed to read answer")
         }
     }
     
@@ -355,7 +354,7 @@ class ContentSection: Codable, Identifiable {
         return true
     }
     
-    func parseData(warnNotFound:Bool=true) -> [Any]! {
+    func parseData(score:Score, warnNotFound:Bool=true) -> [Any]! {
         let data = self.contentSectionData.data
         guard data != nil else {
             if warnNotFound {
@@ -422,10 +421,9 @@ class ContentSection: Codable, Identifiable {
             if parts.count == 2  {
                 if parts[0] == "R" {
                     let restValue = Double(parts[1]) ?? 1
-                    result.append(Rest(value: restValue, staffNum: 0))
+                    result.append(Rest(timeSlice: TimeSlice(score: score), value: restValue, staffNum: 0))
                     continue
                 }
-                
             }
 
             if parts.count == 2 || parts.count == 3  {
@@ -438,8 +436,7 @@ class ContentSection: Codable, Identifiable {
                             accidental = acc
                         }
                     }
-                    
-                    result.append(Note(num: notePitch, value: value, staffNum: 0, accidental: accidental))
+                    result.append(Note(timeSlice: TimeSlice(score: score), num: notePitch, value: value, staffNum: 0, accidental: accidental))
                 }
                 continue
             }

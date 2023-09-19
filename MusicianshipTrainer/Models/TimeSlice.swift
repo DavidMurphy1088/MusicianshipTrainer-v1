@@ -57,11 +57,11 @@ class TimeSlice : ScoreEntry {
         return lhs.id == rhs.id
     }
         
-    func addTriadAt(rootNoteMidi:Int, value: Double, staffNum:Int) {
+    func addTriadAt(timeSlice:TimeSlice, rootNoteMidi:Int, value: Double, staffNum:Int) {
         if getTimeSliceEntries().count == 0 {
             return
         }
-        let triad = score.key.makeTriadAt(rootMidi: rootNoteMidi, value: value, staffNum: staffNum)
+        let triad = score.key.makeTriadAt(timeSlice:timeSlice, rootMidi: rootNoteMidi, value: value, staffNum: staffNum)
         for note in triad {
             addNote(n: note)
         }

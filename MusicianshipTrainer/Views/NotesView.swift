@@ -1,6 +1,7 @@
 import SwiftUI
 import CoreData
 import MessageUI
+import CoreImage
 
 struct BarLineView: View {
     var entry:ScoreEntry
@@ -110,28 +111,46 @@ struct NotesView: View {
         }
         return result
     }
-
-    func RestView(entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
+    
+    func RestView(staff:Staff, entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
         ZStack {
             if entry.getValue() == 1 {
-                let height = lineSpacing * 8.0
-
-                Image("rest_quarter")
+                //Image(uiImage: makeMono(name: "rest_quarter")!)
+                Image("rest_quarter_grayscale")
                     .resizable()
+                    .renderingMode(.template)
+                    .foregroundColor(entry.getColor(staff: staff))
                     .scaledToFit()
                     .frame(height: lineSpacing * 3)
             }
             if entry.getValue() == 2 {
                 let height = lineSpacing / 2.0
                 Rectangle()
-                .fill(Color.black)
+                .fill(entry.getColor(staff: staff))
                 .frame(width: lineSpacing * 1.5, height: height)
                 .offset(y: 0 - height / 2.0)
             }
+            if entry.timeSlice.statusTag == .inError {
+                VStack {
+                    Text("X")
+                        .font(.title)
+                        .foregroundColor(entry.getColor(staff: staff))
+                    Spacer()
+                }
+            }
+
         }
         //.border(Color.red)
     }
     
+    func RestView1(staff:Staff, entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
+        ZStack {
+            Text("R")
+                .font(.title)
+                .foregroundColor(entry.getColor(staff: staff))
+        }
+    }
+
     func NoteView(note:Note, noteFrameWidth:Double, geometry: GeometryProxy) -> some View {
         ZStack {
             let placement = note.getNoteDisplayCharacteristics(staff: staff)
@@ -210,7 +229,7 @@ struct NotesView: View {
                         }
                         if entry is Rest {
                             //Spacer()
-                            RestView(entry: entry, lineSpacing: lineSpacing, geometry: geometry)
+                            RestView(staff: staff, entry: entry, lineSpacing: lineSpacing, geometry: geometry)
                             //Spacer()
                                 .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
                                 //.border(Color.blue)

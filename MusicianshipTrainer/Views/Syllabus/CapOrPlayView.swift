@@ -117,7 +117,7 @@ struct ClapOrPlayPresentView: View {
     }
     
     func initScore() {
-        let exampleData = contentSection.parseData()
+        let exampleData = contentSection.parseData(score:score)
         self.rhythmHeard = self.questionType == .rhythmVisualClap ? true : false
         var staff:Staff?
         
@@ -173,7 +173,7 @@ struct ClapOrPlayPresentView: View {
                             let scaleStartMidi = score.key.getScaleStartMidi()
                             if barCount == 1 {
                                 if let lastNote = lastNote {
-                                    nextTimeSlice.addTriadAt(rootNoteMidi: scaleStartMidi, value: lastNote.getValue(), staffNum: 1)
+                                    nextTimeSlice.addTriadAt(timeSlice:lastTimeSlice, rootNoteMidi: scaleStartMidi, value: lastNote.getValue(), staffNum: 1)
                                     let keyTag:String = score.key.getKeyTagName()
                                     nextTimeSlice.setTags(high: keyTag, low: "I")
                                 }
@@ -194,7 +194,7 @@ struct ClapOrPlayPresentView: View {
                                         dominant = "G"
                                     }
                                     if let lastNote = lastNote {
-                                        nextTimeSlice.addTriadAt(rootNoteMidi: scaleStartMidi - 5, value: lastNote.getValue(), staffNum: 1)
+                                        nextTimeSlice.addTriadAt(timeSlice:lastTimeSlice, rootNoteMidi: scaleStartMidi - 5, value: lastNote.getValue(), staffNum: 1)
                                         let keyTag:String = dominant
                                         nextTimeSlice.setTags(high: keyTag, low: "V")
                                     }
@@ -623,12 +623,6 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                 if questionType == .melodyPlay {
                     ScoreSpacerView()
                 }
-                if let tappingScore = self.tappingScore {
-                    Text(" TEMP - AS RECORDED ... ")
-                    ScoreSpacerView()
-                    ScoreView(score: tappingScore).padding()
-                    ScoreSpacerView()
-                }
                 if let fittedScore = self.fittedScore {
                     Text(" ")
                     ScoreSpacerView()
@@ -668,6 +662,12 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                     
                     Spacer() //Keep - required to align the page from the top
                 }
+//                if let tappingScore = self.tappingScore {
+//                    Text(" TEMP - AS RECORDED ... ")
+//                    ScoreSpacerView()
+//                    ScoreView(score: tappingScore).padding()
+//                    ScoreSpacerView()
+//                }
 
             }
             .onAppear() {

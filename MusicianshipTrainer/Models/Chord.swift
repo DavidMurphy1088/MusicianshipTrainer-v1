@@ -10,19 +10,19 @@ class Chord : Identifiable {
     init() {
     }
     
-    func makeTriad(root: Int, type:ChordType, staffNum: Int) {
-        notes.append(Note(num: root, staffNum: staffNum))
+    func makeTriad(timeSlice:TimeSlice, root: Int, type:ChordType, staffNum: Int) {
+        notes.append(Note(timeSlice:timeSlice, num: root, staffNum: staffNum))
         if type == ChordType.major {
-            notes.append(Note(num: root+4, staffNum: staffNum))
+            notes.append(Note(timeSlice:timeSlice, num: root+4, staffNum: staffNum))
         }
         else {
-            notes.append(Note(num: root+3, staffNum: staffNum))
+            notes.append(Note(timeSlice:timeSlice, num: root+3, staffNum: staffNum))
         }
         if type == ChordType.diminished {
-            notes.append(Note(num: root+6, staffNum: staffNum))
+            notes.append(Note(timeSlice:timeSlice, num: root+6, staffNum: staffNum))
         }
         else {
-            notes.append(Note(num: root+7, staffNum: staffNum))
+            notes.append(Note(timeSlice:timeSlice, num: root+7, staffNum: staffNum))
         }
     }
     
@@ -45,11 +45,11 @@ class Chord : Identifiable {
 
     /// Dont double the 3rd
     /// Keep each voice within one octave of the one below except for tenor down to base
-    func makeSATBFourNote() -> Chord {
+    func makeSATBFourNote(timeSlice:TimeSlice) -> Chord {
         let result = Chord()
         var desiredPitch = Note.MIDDLE_C - Note.OCTAVE
         let baseNote = Note.getClosestOctave(note: self.notes[0].midiNumber, toPitch: desiredPitch)
-        result.notes.append(Note(num: baseNote, staffNum: 1))
+        result.notes.append(Note(timeSlice:timeSlice, num: baseNote, staffNum: 1))
         let voiceGap = Note.OCTAVE/2 // + 3
         
         //choose the tenor as triad note 1 or 2
@@ -67,7 +67,7 @@ class Chord : Identifiable {
                 tenorNote = closest
             }
         }
-        result.notes.append(Note(num: tenorNote, staffNum: 1))
+        result.notes.append(Note(timeSlice:timeSlice, num: tenorNote, staffNum: 1))
         
         //choose the alto
         desiredPitch = tenorNote + voiceGap
@@ -88,7 +88,7 @@ class Chord : Identifiable {
                 altoNote = closest
             }
         }
-        result.notes.append(Note(num: altoNote, staffNum: 0))
+        result.notes.append(Note(timeSlice:timeSlice, num: altoNote, staffNum: 0))
 
         //choose the soprano
         desiredPitch = altoNote + voiceGap
@@ -107,7 +107,7 @@ class Chord : Identifiable {
                 sopranoNote = closest
             }
         }
-        result.notes.append(Note(num: sopranoNote, staffNum: 0))
+        result.notes.append(Note(timeSlice:timeSlice, num: sopranoNote, staffNum: 0))
         return result
     }
 
@@ -131,7 +131,7 @@ class Chord : Identifiable {
     
     ///Return a chord based on the notes of the toChordTriad that is a voice led cadence from the self chord
     ///TODO - add rules to ensue 3rd always added and avoid parallet 5ths and octaves
-    func makeCadenceWithVoiceLead(toChordTriad: Chord) -> Chord {
+    func makeCadenceWithVoiceLead(timeSlice:TimeSlice, toChordTriad: Chord) -> Chord {
         var result:[Int] = []
         
         let destinationRoot = toChordTriad.notes[0].midiNumber
@@ -167,7 +167,7 @@ class Chord : Identifiable {
         
         let resultChord = Chord()
         for n in 0..<result.count {
-            resultChord.notes.append(Note(num: result[n], staffNum: n < 2 ? 1 : 0))
+            resultChord.notes.append(Note(timeSlice:timeSlice, num: result[n], staffNum: n < 2 ? 1 : 0))
         }
         return resultChord
     }

@@ -148,7 +148,6 @@ class GoogleAPI {
             return
         }
         let session = URLSession.shared
-        print(url)
         let task = session.dataTask(with: url) { (data, response, error) in
             if let error = error {
                 self.logger.reportError(self, "DataTask Error \(error.localizedDescription)")
@@ -408,7 +407,6 @@ class GoogleAPI {
                             let request = DataRequest(callType: .file, id: fileId, context: "getFileDataByName:\(fileName)", targetExampleKey: nil)
                             self.getDataByID(request: request) { status, data in
                                 if let data = data {
-                                    print("data file", fileName, fileId, data.count)
                                     self.dataCache.setData(key: cacheKey, data: data)
                                     onDone(status, false, data)
                                 }

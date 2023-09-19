@@ -129,7 +129,7 @@ class ExampleData : ObservableObject {
                 }
             }
         }
-        print("Example data loaded \(contentSectionCount) rows")
+        //print("Example data loaded \(contentSectionCount) rows")
     }
 
     //load data from Google Drive Sheet

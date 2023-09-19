@@ -70,7 +70,7 @@ class Settings {
         }
         if let retrievedAgeGroup = UserDefaults.standard.getSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup) {
             UIGlobals.ageGroup = retrievedAgeGroup
-            print("Settings, Load", UserDefaultKeys.selectedAgeGroup, retrievedAgeGroup)
+            //print("Settings, Load", UserDefaultKeys.selectedAgeGroup, retrievedAgeGroup)
 
         }
     }
@@ -79,7 +79,7 @@ class Settings {
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorScore, UIGlobals.colorScore)
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorInstructions, UIGlobals.colorInstructions)
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorBackground, UIGlobals.colorBackground)
-        print("Settings, Save", UserDefaultKeys.selectedAgeGroup, UIGlobals.ageGroup)
+        //print("Settings, Save", UserDefaultKeys.selectedAgeGroup, UIGlobals.ageGroup)
         UserDefaults.standard.setSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup, UIGlobals.ageGroup)
     }
     

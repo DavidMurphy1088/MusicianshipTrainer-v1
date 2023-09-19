@@ -63,22 +63,14 @@ class TTS {
             let tags: Elements = try doc.select("p, h1")
             var cnt = 0
             for tag in tags {
-                print(try tag.outerHtml())
                 try ssmlContent += filterForSSML(tag.text()) + "<break time=\"1000ms\"/>"
-//                cnt += 1
-//                if cnt > 2 {
-//                    break
-//                }
             }
-            print(ssmlContent)
         } catch Exception.Error(let type, let message) {
-            print("Type: \(type), Message: \(message)")
+            logger.reportError(self, "Type: \(type), Message: \(message)")
         } catch {
-            print("error")
+            logger.reportError(self,"Error")
         }
         ssmlContent += "</speak>"
-        //print(ssmlContent)
-        
 
         let requestBody: [String: Any] = [
             "input": ["ssml": ssmlContent],

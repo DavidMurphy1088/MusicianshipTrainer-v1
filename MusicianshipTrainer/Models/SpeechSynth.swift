@@ -85,7 +85,7 @@ struct VoiceListView: View {
                     selectedVoice = voice
                     speakWord("Hello World", withVoice: voice)
                     //print("\n", ctr, selectedVoice, selectedVoice?.gender.rawValue, selectedVoice?.name, selectedVoice?.quality )
-                    print("\n", ctr, selectedVoice, selectedVoice?.gender.rawValue, selectedVoice?.name, selectedVoice?.quality )
+                    //print("\n", ctr, selectedVoice, selectedVoice?.gender.rawValue, selectedVoice?.name, selectedVoice?.quality )
                     ctr += 1
                 }) {
                     Text(voice.language)
