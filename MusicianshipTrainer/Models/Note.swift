@@ -28,29 +28,29 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
     }
     
     //cause notes that are set for specifc staff to be tranparent on other staffs
-    func getColor(staff:Staff) -> Color {
+    func getColor(staff:Staff, log:Bool? = false) -> Color {
         var out:Color? = nil
-        //if let timeSlice = timeSlice {
-            if timeSlice.statusTag == .inError {
-                out = Color(.red)
-            }
-            if timeSlice.statusTag == .afterError {
-                out = Color(.lightGray)
-            }
-            if timeSlice.statusTag == .renderedInError {
-                out = Color(.clear)
-            }
-            if timeSlice.statusTag == .hilightExpected {
-                out = Color(red: 0, green: 0.5, blue: 0)
-            }
-            //print("=======COLOR", out?.rgbData ?? "", timeSlice.statusTag)
-        //}
+        if timeSlice.statusTag == .inError {
+            out = Color(.red)
+        }
+        if timeSlice.statusTag == .afterError {
+            out = Color(.lightGray)
+        }
+
+        if timeSlice.statusTag == .hilightAsCorrect {
+            out = Color(red: 0.0, green: 0.6, blue: 0.0)
+        }
 //        if staffNum == nil {
 //            out = Color(.black)
 //        }
         if out == nil {
             out = Color(staffNum == staff.staffNum ? .black : .clear)
         }
+//        if let log = log {
+//            if log {
+//                print("======================================", type(of: self), timeSlice.statusTag, "scoreid", timeSlice.score.id)
+//            }
+//        }
         return out!
     }
 
@@ -155,9 +155,10 @@ enum StemDirection {
 enum StatusTag {
     case noTag
     case inError
-    case afterError
-    case renderedInError //e.g. all rhythm after a rhythm error is moot
-    case hilightExpected //hilight the correct note that was expected
+    //case inError
+    //case afterError
+    case afterError //e.g. all rhythm after a rhythm error is moot
+    case hilightAsCorrect //hilight the correct note that was expected
 }
 
 class NoteStaffPlacement {

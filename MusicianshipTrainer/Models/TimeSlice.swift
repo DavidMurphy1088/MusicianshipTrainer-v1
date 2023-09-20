@@ -8,7 +8,6 @@ class TimeSlice : ScoreEntry {
     @Published var statusTag:StatusTag = .noTag
 
     var score:Score
-        
     var footnote:String?
     var barLine:Int = 0
     private static var idIndex = 0

@@ -119,22 +119,33 @@ struct NotesView: View {
                 Image("rest_quarter_grayscale")
                     .resizable()
                     .renderingMode(.template)
-                    .foregroundColor(entry.getColor(staff: staff))
+                    .foregroundColor(entry.getColor(staff: staff, log: true))
                     .scaledToFit()
                     .frame(height: lineSpacing * 3)
             }
-            if entry.getValue() == 2 {
-                let height = lineSpacing / 2.0
-                Rectangle()
-                .fill(entry.getColor(staff: staff))
-                .frame(width: lineSpacing * 1.5, height: height)
-                .offset(y: 0 - height / 2.0)
+            else {
+                if entry.getValue() == 2 {
+                    let height = lineSpacing / 2.0
+                    Rectangle()
+                        .fill(entry.getColor(staff: staff, log: true))
+                        .frame(width: lineSpacing * 1.5, height: height)
+                        .offset(y: 0 - height / 2.0)
+                }
+                else {
+                    VStack {
+                        Text("R \()")
+                            .font(.title)
+                            .foregroundColor(entry.getColor(staff: staff, log: true))
+                        Spacer()
+                    }
+                }
             }
-            if entry.timeSlice.statusTag == .inError {
+            
+            if entry.timeSlice.statusTag == .hilightAsCorrect {
                 VStack {
                     Text("X")
                         .font(.title)
-                        .foregroundColor(entry.getColor(staff: staff))
+                        .foregroundColor(entry.getColor(staff: staff, log: true))
                     Spacer()
                 }
             }
