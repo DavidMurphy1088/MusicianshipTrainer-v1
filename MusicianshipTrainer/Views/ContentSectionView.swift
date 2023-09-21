@@ -125,16 +125,22 @@ struct ContentSectionInstructionsView: UIViewRepresentable {
 
 struct ContentSectionHeaderView: View {
     var contentSection:ContentSection
+    //@Binding var parentSelectionIndex:Int?
+    var parentSelection: SectionsNavigationView
+
     let googleAPI = GoogleAPI.shared
     @State private var isTipsTricksPresented = false
     @State private var instructions:String? = nil
     @State private var tipsAndTricksExists = false
     @State private var tipsAndTricksData:String?=nil
     @State private var audioInstructionsFileName:String? = nil
-    @State private var random:Bool = false
-    @State var answerState:AnswerState = .notEverAnswered
-    @State var answer = Answer(ctx: "RandomView")
-
+    
+    init (contentSection:ContentSection, parentSelection:SectionsNavigationView) {
+        self.contentSection = contentSection
+        self.parentSelection = parentSelection
+        //_parentSelectionIndex = parentSelectionIndex
+    }
+    
     func getInstructions()  {
         var pathSegments = contentSection.getPathAsArray()
         if pathSegments.count < 1 {
@@ -179,28 +185,28 @@ struct ContentSectionHeaderView: View {
         return p
     }
     
-    func log(contentSection: ContentSection) -> Bool {
-        print(contentSection.getPathTitle())
+    func log(contentSection: ContentSection, index:Int?) -> Bool {
+        print(contentSection.getPathTitle(), "index", index)
         return true
     }
     
-    func randomSelection() -> some View {
-        VStack {
-            if log(contentSection: contentSection) {
-                ContentTypeView(contentSection: contentSection.subSections[2],
-                                answerState: $answerState,
-                                answer: $answer)
-            }
-        }
-    }
+//    func randomSelection() -> some View {
+//        VStack {
+////            if log(contentSection: contentSection) {
+////                ContentTypeView(contentSection: contentSection.subSections[2],
+////                                answerState: $answerState,
+////                                answer: $answer)
+////            }
+//        }
+//    }
     
     var body: some View {
-        if random {
-            randomSelection()
-        }
-        else {
+//        if random {
+//            randomSelection()
+//        }
+//        else {
             prompts()
-        }
+//        }
     }
 
     func prompts() -> some View {
@@ -262,8 +268,14 @@ struct ContentSectionHeaderView: View {
                     }
                     Spacer()
                     Button(action: {
-                        randomSelection()
-                        random = true
+                        //randomSelection()
+                        DispatchQueue.main.async {
+                            //log(contentSection: contentSection, index: parentSelectionIndex)
+                            //parentSelectionIndex = 2
+                            //parentSelection.sectionIndex = 2
+                            parentSelection.test(index: 2)
+                        }
+                        //random = true
                     }) {
                         VStack {
                             HStack {
@@ -295,8 +307,12 @@ struct ContentSectionHeaderView: View {
 
 struct SectionsNavigationView:View {
     let contentSections:[ContentSection]
-    @State private var sectionIndex: Int?
-
+    @State var sectionIndex: Int?
+    
+    func test(index:Int) {
+        sectionIndex = index
+    }
+    
     func getGradeImage(contentSection: ContentSection) -> Image? {
         var name = ""
         if contentSection.isExamTypeContentSection() {
@@ -605,6 +621,7 @@ struct ContentSectionView: View {
         self.contentSection = contentSection
         _parentSelectionIndex = parentSelectionIndex
     }
+    
     init (contentSection:ContentSection) {
         self.contentSection = contentSection
         _parentSelectionIndex = .constant(nil)
@@ -613,6 +630,7 @@ struct ContentSectionView: View {
     var body: some View {
         VStack {
             let childSections = contentSection.getNavigableChildSections()
+            let navigationView = SectionsNavigationView(contentSections: childSections)
             if childSections.count > 0 {
                 if contentSection.isExamTypeContentSection() {
                     //No ContentSectionHeaderView in any exam mode content section except the exam start
@@ -630,10 +648,11 @@ struct ContentSectionView: View {
                     }
                 }
                 else {
-                    ContentSectionHeaderView(contentSection: contentSection)
+                    ContentSectionHeaderView(contentSection: contentSection, parentSelection: navigationView)
                         //.border(Color.red)
                         .padding(.vertical, 0)
-                    SectionsNavigationView(contentSections: childSections)
+                    //SectionsNavigationView(contentSections: childSections)
+                    navigationView
                         //.border(Color.blue)
                         .padding(.vertical, 0)
                 }
