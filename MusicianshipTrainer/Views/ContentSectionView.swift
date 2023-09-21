@@ -83,22 +83,9 @@ struct NarrationView : View {
                 Button(action: {
                     TTS.shared.speakText(contentSection: contentSection, context: context, htmlContent: htmlDocument)
                 }) {
-                    //Image("voice_icon")
                     Image(systemName: "speaker.wave.2")
                         .foregroundColor(.blue)
                         .font(.largeTitle)
-//                        .font(.largeTitle)
-//                        .frame(width: UIGlobals.circularIconSize)
-//                        //.padding
-////                        .resizable()
-////                        .scaledToFit()
-////                        .frame(width: UIGlobals.circularIconSize)
-////                        .padding()
-//                        .clipShape(Circle())  // Clip the image to a circle
-//                        .overlay(
-//                            Circle()
-//                                .stroke(Color.blue, lineWidth: UIGlobals.circularIconBorderSize)
-//                        )
                         .padding()
                 }
                 Spacer()
@@ -139,11 +126,14 @@ struct ContentSectionInstructionsView: UIViewRepresentable {
 struct ContentSectionHeaderView: View {
     var contentSection:ContentSection
     let googleAPI = GoogleAPI.shared
-    @State private var isHelpPresented = false
+    @State private var isTipsTricksPresented = false
     @State private var instructions:String? = nil
     @State private var tipsAndTricksExists = false
     @State private var tipsAndTricksData:String?=nil
     @State private var audioInstructionsFileName:String? = nil
+    @State private var random:Bool = false
+    @State var answerState:AnswerState = .notEverAnswered
+    @State var answer = Answer(ctx: "RandomView")
 
     func getInstructions()  {
         var pathSegments = contentSection.getPathAsArray()
@@ -189,11 +179,32 @@ struct ContentSectionHeaderView: View {
         return p
     }
     
-    var body: some View {
+    func log(contentSection: ContentSection) -> Bool {
+        print(contentSection.getPathTitle())
+        return true
+    }
+    
+    func randomSelection() -> some View {
         VStack {
-//            Text("\(contentSection.getTitle())").font(.title)
-//                .fontWeight(.bold)
-            
+            if log(contentSection: contentSection) {
+                ContentTypeView(contentSection: contentSection.subSections[2],
+                                answerState: $answerState,
+                                answer: $answer)
+            }
+        }
+    }
+    
+    var body: some View {
+        if random {
+            randomSelection()
+        }
+        else {
+            prompts()
+        }
+    }
+
+    func prompts() -> some View {
+        VStack {
             VStack {
                 if let audioInstructionsFileName = audioInstructionsFileName {
                     Button(action: {
@@ -210,44 +221,64 @@ struct ContentSectionHeaderView: View {
                             ContentSectionInstructionsView(htmlDocument: instructions)
                             NarrationView(contentSection: contentSection, htmlDocument: instructions, context: "Instructions")
                         }
-                        .frame(height: CGFloat(getParagraphCount(html: instructions)) * 150.0)
+                        .frame(height: CGFloat((getParagraphCount(html: instructions)))/12.0 * UIScreen.main.bounds.height)
                         .overlay(
                             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
                         )
-                        //.padding(.vertical, 0)
-                        //.padding(.horizontal)
                         .padding()
-                        .background(UIGlobals.colorNavigationBackground)
+                        //.background(UIGlobals.colorNavigationBackground)
+                        .background(Color(.secondarySystemBackground))
                     }
                 }
             }
                
             if tipsAndTricksExists {
-                Button(action: {
-                    isHelpPresented.toggle()
-                }) {
-                    HStack {
-                        Text("Tips and Tricks").font(.custom("Courgette-Regular", size: 30))
-                        Image(systemName: "questionmark.circle")
-                            //.font(.system(size: 50))  // Set the desired size here
-                            .foregroundColor(.blue)
-                            .font(.largeTitle)
-                    }
-                }
-                .sheet(isPresented: $isHelpPresented) {
-                    if let tipsAndTricksData = self.tipsAndTricksData {
-                        ZStack {
-                            ContentSectionTipsView(htmlDocument: tipsAndTricksData)
-                                .background(
-                                    Rectangle().stroke(Color.blue, lineWidth: 4)
-                                )
-                            NarrationView(contentSection: contentSection, htmlDocument: tipsAndTricksData, context: "TipsTricks")
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        isTipsTricksPresented.toggle()
+                    }) {
+                        VStack {
+                            HStack {
+                                Text("Tips and Tricks").font(UIGlobals.navigationFont)
+                                Image(systemName: "questionmark.circle")
+                                    .foregroundColor(.blue)
+                                    .font(.largeTitle)
+                            }
                         }
-                        .padding()
-                        .background(
-                            Rectangle().stroke(Color.blue, lineWidth: 4)
-                        )
                     }
+                    .sheet(isPresented: $isTipsTricksPresented) {
+                        if let tipsAndTricksData = self.tipsAndTricksData {
+                            ZStack {
+                                ContentSectionTipsView(htmlDocument: tipsAndTricksData)
+                                    .background(Rectangle().stroke(Color.blue, lineWidth: 4))
+                                NarrationView(contentSection: contentSection, htmlDocument: tipsAndTricksData, context: "TipsTricks")
+                            }
+                            .padding()
+                            .background(
+                                Rectangle().stroke(Color.blue, lineWidth: 4)
+                            )
+                        }
+                    }
+                    Spacer()
+                    Button(action: {
+                        randomSelection()
+                        random = true
+                    }) {
+                        VStack {
+                            HStack {
+                                Text("Random Pick").font(UIGlobals.navigationFont)
+                                Image(systemName: "tornado")
+                                    .foregroundColor(.blue)
+                                    .font(.largeTitle)
+                            }
+                        }
+                    }
+//                    .sheet(isPresented: $random) {
+//                        randomSelection()
+//                    }
+
+                    Spacer()
                 }
             }
         }
@@ -361,10 +392,17 @@ struct SectionsNavigationView:View {
                         }
 
                     }
+                    //.border(Color.green)
                 }
-                .listRowBackground(UIGlobals.colorNavigation)
+                //.listRowBackground(UIGlobals.colorNavigation)
+                //.listRowBackground(Color(.systemBackground))
                 //.background(UIGlobals.colorNavigation)
-                //.padding(.vertical, 6)
+
+                ///This color matches the NavigationView background which cannot be changed.
+                ///i.e. any other colour here causes the navigation link rows to have a different background than the background of the navigationView's own background
+                .listRowBackground(Color(.secondarySystemBackground))
+                ///Does nothing :(
+                //.padding(.vertical, 0)
             }
         }
     }
@@ -576,7 +614,6 @@ struct ContentSectionView: View {
         VStack {
             let childSections = contentSection.getNavigableChildSections()
             if childSections.count > 0 {
-//                Text("==========---------\(contentSection.name) STATUS:\(contentSection.questionStatus.status) \(contentSection.hasNoAnswers() ? "NONE" : "HAS")")
                 if contentSection.isExamTypeContentSection() {
                     //No ContentSectionHeaderView in any exam mode content section except the exam start
                     if contentSection.hasExamModeChildren() {
@@ -594,9 +631,11 @@ struct ContentSectionView: View {
                 }
                 else {
                     ContentSectionHeaderView(contentSection: contentSection)
-                        //.padding(.vertical, 0)
+                        //.border(Color.red)
+                        .padding(.vertical, 0)
                     SectionsNavigationView(contentSections: childSections)
-                        //.padding(.vertical, 0)
+                        //.border(Color.blue)
+                        .padding(.vertical, 0)
                 }
             }
             else {
@@ -640,7 +679,8 @@ struct ContentSectionView: View {
                 }
             }
         }
-        .background(UIGlobals.colorNavigationBackground)
+        //.background(UIGlobals.colorNavigationBackground)
+        .background(Color(.secondarySystemBackground))
         .onAppear {
             if contentSection.answer111 != nil {
                 //print("ContentSectionView ==== did set answer submitted", answerState)

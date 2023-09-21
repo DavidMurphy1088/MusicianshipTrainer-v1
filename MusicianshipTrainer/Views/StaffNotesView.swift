@@ -277,8 +277,8 @@ struct StaffNotesView: View {
                         if entry is TimeSlice {
                             let entries = entry as! TimeSlice
                             ZStack { // Each note frame in the timeslice shares the same same vertical space
-                                NotesView(staff: staff,
-                                         notes: entries,
+                                TimeSliceView(staff: staff,
+                                         timeSlice: entries,
                                          noteWidth: noteWidth,
                                          lineSpacing: staffLayoutSize.lineSpacing)
                                 //.border(Color.green)

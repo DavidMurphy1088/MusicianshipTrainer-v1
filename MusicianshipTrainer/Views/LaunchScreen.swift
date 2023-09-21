@@ -74,33 +74,34 @@ struct LaunchScreenView: View {
     @ViewBuilder
     private var image: some View {  // Mark 3
         GeometryReader { geo in
-            //let x = log()
             //hack: for some reason there are 2 instances of LaunchScreenView. The first starts showing too early ??
             if id == 1 {
-                ZStack {
+                VStack {
                     VStack {
                         Spacer()
                         HStack {
                             Spacer()
-                            Image("nzmeb_logo_transparent")
+                            //Image("nzmeb_logo_transparent")
+                            Image("NZMEB logo aqua bird")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: geo.size.width * 0.75)
+                                .frame(height: geo.size.width * 0.95)
                                 .opacity(self.opacity.imageOpacity)
                             Spacer()
                         }
                         Spacer()
                     }
                     VStack(alignment: .center) {
-                        VStack {
+                        //VStack {
                             Text("NZMEB Musicianship Trainer").font(.title)
                             Text("")
-                            Text("© 2023 Musicmaster Education LLC.").font(.title2)
-                        }
-                        .position(x: geo.size.width * 0.5, y: geo.size.height * 0.85)
+                            Text("© 2024 Musicmaster Education LLC.").font(.title2)
+                        //}
+                        //.position(x: geo.size.width * 0.5, y: geo.size.height * 0.85)
                         .opacity(self.opacity.imageOpacity)
-                        
                         Text("Version \(appVersion())")
+                        Text("")
+                        Text("")
                     }
                 }
             }

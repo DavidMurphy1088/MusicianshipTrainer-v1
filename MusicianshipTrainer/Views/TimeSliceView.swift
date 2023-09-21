@@ -40,17 +40,17 @@ struct NoteHiliteView: View {
     }
 }
 
-struct NotesView: View {
-    @ObservedObject var notes:TimeSlice
+struct TimeSliceView: View {
+    @ObservedObject var timeSlice:TimeSlice
     var staff:Staff
     var color: Color
     var lineSpacing:Double
     var noteWidth:Double
     var accidental:Int?
     
-    init(staff:Staff, notes:TimeSlice, noteWidth:Double, lineSpacing: Double) {
+    init(staff:Staff, timeSlice:TimeSlice, noteWidth:Double, lineSpacing: Double) {
         self.staff = staff
-        self.notes = notes
+        self.timeSlice = timeSlice
         self.noteWidth = noteWidth
         self.color = Color.black
         self.lineSpacing = lineSpacing
@@ -104,7 +104,7 @@ struct NotesView: View {
         //            print("  ==Note", n.midiNumber, n.sequence)
         //        }
         var result:[TimeSliceEntry] = []
-        for n in self.notes.entries {
+        for n in self.timeSlice.entries {
             //if n is Note {
                 result.append(n)
             //}
@@ -133,7 +133,7 @@ struct NotesView: View {
                 }
                 else {
                     VStack {
-                        Text("R \()")
+                        Text("R[\(String(format: "%.1f", entry.getValue()))]")
                             .font(.title)
                             .foregroundColor(entry.getColor(staff: staff, log: true))
                         Spacer()
@@ -179,7 +179,7 @@ struct NotesView: View {
                 Text(getAccidental(accidental: accidental))
                     .font(.system(size: lineSpacing * 3.0))
                     .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
-                    .position(x: noteFrameWidth/2 - lineSpacing * (notes.anyNotesRotated() ? 3.0 : 2.0),
+                    .position(x: noteFrameWidth/2 - lineSpacing * (timeSlice.anyNotesRotated() ? 3.0 : 2.0),
                               y: noteEllipseMidpoint + yOffset)
 
             }

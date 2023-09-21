@@ -16,11 +16,18 @@ class UIGlobals {
 
     static var colorScore = colorScoreDefault
     static var colorInstructions = colorInstructionsDefault
-    static var colorBackground = colorBackgroundDefault
-    static var colorNavigation = colorNavigationDefault
     
-    //behind instructions to match background of Navigation View which is unchangeable from grey
-    static var colorNavigationBackground = Color(red: 0.95, green: 0.95, blue: 0.95)
+    ///Color of each test's screen background
+    //static var colorBackground = colorBackgroundDefault
+    static var colorBackground = Color(red: 0.0, green: 0.0, blue: 0.7)
+
+    ///Color of each navigation row in Navigation View. But there is still a navigation color behind these from the NavigationView
+    //static var colorNavigation = colorBackgroundDefault //colorNavigationDefault
+    //static var colorNavigation = Color(red: 0.0, green: 0.7, blue: 0.0)
+    
+    ///Behind instructions to match background of the Navigation View below which is unchangeable from grey
+    //static var colorNavigationBackground = Color(red: 0.95, green: 0.95, blue: 0.95)
+    //static var colorNavigationBackground = Color(red: 0.7, green: 0.0, blue: 0.0)
 
     static let cornerRadius:CGFloat = 8
     static let borderColor:CGColor = CGColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)
@@ -33,9 +40,10 @@ class UIGlobals {
 
     static var ageGroup:AgeGroup = .Group_11Plus
     static let font = Font.custom("Lora", size: 24)
-    
+    static let fontiPhone = Font.custom("Lora", size: 16)
+
     //static let navigationFont = Font.custom("Lora", size: 32)
-    static let navigationFont = Font.custom("Courgette-Regular", size: 32)
+    static let navigationFont = Font.custom("Courgette-Regular", size: UIDevice.current.userInterfaceIdiom == .pad ? 28 : 24)
         
     static func getAgeGrpup() -> String {
         return UIGlobals.ageGroup == .Group_11Plus ? "11Plus" : "5-10"
@@ -56,7 +64,7 @@ extension Text {
     
     func defaultButtonStyle() -> some View {
         self
-            .font(UIGlobals.font)
+            .font(UIDevice.current.userInterfaceIdiom == .pad ? UIGlobals.font : UIGlobals.fontiPhone)
             .foregroundColor(.white)
             .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
             .background(.blue)

@@ -17,7 +17,8 @@ struct GradeIntroView: View {
                     .fontWeight(.bold)
                     .padding()
                 
-                Image("nzmeb_logo_transparent")
+                //Image("nzmeb_logo_transparent")
+                Image("NZMEB logo aqua bird")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200) 
@@ -36,12 +37,10 @@ struct ContentNavigationView: View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             NavigationView {
                 VStack {
-                        //This is the list placed in the split navigation screen.
-                        //The 2nd NavigationView below (for iPhone without split nav) will present the topics on the first screen the user sees
-                        
+                    //This is the list placed in the split navigation screen.
+                    //The 1st NavigationView below (for iPhone without split nav) will present the topics on the first screen the user sees
                     GradeIntroView()
                     ZStack {
-                        Color.yellow.edgesIgnoringSafeArea(.all)
                         List(contentSection.subSections) { contentSection in
                             NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                                 //parentsSelectedContentIndex: $selectedContentIndex)) {
@@ -58,21 +57,11 @@ struct ContentNavigationView: View {
                                         Spacer()
                                     }
                                 }
-                                //                            .overlay(
-                                //                                RoundedRectangle(cornerRadius: 12)
-                                //                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                                //                            )
-                                //                            .padding(.vertical, 4)
-                                //.navigationBarTitleDisplayMode(.inline)
                             }
                             .disabled(!contentSection.isActive)
                             .padding(.vertical, 4)
-                            //.listRowBackground(Color.yellow)
-                            //.buttonStyle(PlainButtonStyle())
-                            //The back nav link that will be shown on the ContentSectionView
-                            //.navigationTitle("NavTtitle::\(self.topic.level == 0 ? "" : topic.title)")
                         }
-                        .listRowBackground(Color.yellow)
+                        //.listRowBackground(Color.yellow)
                         //.border(Color.red, width: 4)
                         .sheet(isPresented: $isShowingConfiguration) {
                             ConfigurationView(isPresented: $isShowingConfiguration,
@@ -126,7 +115,6 @@ struct ContentNavigationView: View {
                         )
                     }
                 }
-                
             }
         }
     }

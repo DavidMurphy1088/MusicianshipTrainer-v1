@@ -703,7 +703,7 @@ class Score : ObservableObject {
                                 }
                             }
                             if tappedDurations[tapIndex].value < expectedTapValue {
-                                explanation = "There is a \(questionRestName) rest here in the question but your tap did not allow time for it"
+                                explanation = "There is a \(questionRestName) rest here in the question but your tap did not give enough time for it"
                             }
                             else {
                                 explanation = "There is a \(questionRestName) rest here in the question but your tap gave too much time to it"

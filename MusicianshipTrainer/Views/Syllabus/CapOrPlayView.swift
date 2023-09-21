@@ -231,25 +231,52 @@ struct ClapOrPlayPresentView: View {
         }
     }
 
-    func getInstruction(mode:QuestionType) -> String {
+    func getInstruction(mode:QuestionType, number:Int, grade:Int) -> String {
         var result = ""
-        switch mode {
-            
-        case .rhythmVisualClap, .rhythmEchoClap:
-            //result += "you will be counted in for one full bar. Then tap your rhythm on the drum."
-            result += "Listen to the given rhythm then press Start Recording. Tap your rhythm on the drum below."
-            result += "\n\nFor a clear result, you should tap and then immediately release your finger (like a staccato motion), rather than holding it down on the device."
-            result += "\n\nWhen you have finished, stop the recording."
-            result += "\n\nIf you tap the rhythm incorrectly, you will be able to hear your rhythm and the given rhythm at crotchet = 90 on the next page."
+        let bullet = "\u{2022}" + " "
+        if number == 0 {
+            switch mode {
+            case .rhythmVisualClap:
+                result += "\(bullet)Look through the given rhythm."
+                result += "\n\n\(bullet)When you are ready to, press Start Recording."
+                result += "\n\n\(bullet)Tap your rhythm on the drum and then press Stop Recording once you have finished."
+                
+            case .rhythmEchoClap:
+                result += "\(bullet)Listen to the given rhythm."
+                result += "\n\n\(bullet)When it has finished you will be able to press Start Recording."
+                result += "\n\n\(bullet)Tap your rhythm on the drum that appears and then press Stop Recording once you have finished."
 
-        case .melodyPlay:
-            result += "Press Start Recording then "
-            result += "play the melody and the final chord."
-            //result += "\n\nWhen you have finished, stop the recording."
-            result += " When you have finished, stop the recording."
+            case .melodyPlay:
+                result += "\(bullet)Press Start Recording then "
+                result += "play the melody and the final chord."
+                result += "\n\n\(bullet)When you have finished, stop the recording."
+                
+            default:
+                result = ""
+            }
+        }
+        if number == 1 {
+            switch mode {
+            case .rhythmVisualClap:
+                result += "\(bullet)Advice: For a clear result, you should tap and then immediately release"
+                result += " your finger from the screen, rather than holding it down."
+                if grade >= 2 {
+                    result += "\n\n\(bullet)For rests, accurately count them but do not touch the screen."
+                }
+                
+            case .rhythmEchoClap:
+                result += "\(bullet)Advice: For a clear result, you should tap and then immediately release"
+                result += " your finger from the screen, rather than holding it down."
+                result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
+                
+            case .melodyPlay:
+                result += "\(bullet)Press Start Recording then "
+                result += "play the melody and the final chord."
+                result += "\n\n\(bullet)When you have finished, stop the recording."
 
-        default:
-            result = ""
+            default:
+                result = ""
+            }
         }
         return result
     }
@@ -355,14 +382,26 @@ struct ClapOrPlayPresentView: View {
                                 }
                             }
                             else {
-                                VStack {
-                                    Text(self.getInstruction(mode: self.questionType))
-                                        .defaultTextStyle()
-                                        .padding()
+                                if UIDevice.current.userInterfaceIdiom == .pad {
+                                    VStack {
+                                        Text(self.getInstruction(mode: self.questionType, number: 0, grade: contentSection.getGrade()))
+                                            .defaultTextStyle()
+                                            .padding()
+                                            .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                                            )
+                                            .padding()
+                                        Text(self.getInstruction(mode: self.questionType, number: 1, grade: contentSection.getGrade()))
+                                            .defaultTextStyle()
+                                            .padding()
+                                            .frame(width:UIScreen.main.bounds.width * 0.9, alignment: .leading)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                                            )
+                                            .padding()
+                                    }
                                 }
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                                )
                             }
                             
                             if rhythmHeard || questionType == .melodyPlay {

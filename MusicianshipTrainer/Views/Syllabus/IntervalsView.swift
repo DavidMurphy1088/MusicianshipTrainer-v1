@@ -48,7 +48,7 @@ struct PlayExampleMelody : View {
                 }
             }
         }) {
-            Text("Play An Example").defaultButtonStyle()
+            Text("Hear Melody").defaultButtonStyle()
         }
         .alert(isPresented: $showExamplePopover) {
             Alert(title: Text("Example"),
@@ -79,7 +79,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     
     let questionType:QuestionType
     let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"IntervalPresentView")
-    //let isTakingExam:Bool
     let googleAPI = GoogleAPI.shared
     
     init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh:(() -> Void)? = nil) {
@@ -90,7 +89,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         _answer = answer
         self.grade = contentSection.getGrade()
         self.intervals = Intervals(grade: grade)
-        //self.isTakingExam = contentSection.isInExam()
     }
 
     func initView() {
@@ -146,27 +144,22 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
 
     var selectIntervalView : some View {
         VStack(spacing: 0) {
-            //ScrollView {
-                ForEach(intervals.intervalTypes, id: \.name) { intervalType in
-                    //ForEach(Array(intervals.intervalTypes.sorted().enumerated()), id: \.1) { index, interval in
-                    Button(action: {
-                        selectedIntervalName = intervalType.name
-                        answerState = .answered
-                        answer.selectedIntervalName = intervalType.name
-                    }) {
-                        Text(intervalType.name)
-                            .defaultButtonStyle()
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(scoreWasPlayed ? Color.black : Color.clear, lineWidth: 1)
-                                    .background(selectedIntervalName == intervalType.name ? UIGlobals.colorInstructions : Color.clear)
-                            )
-                    }
-                    //.padding()
+            ForEach(intervals.intervalTypes, id: \.name) { intervalType in
+                Button(action: {
+                    selectedIntervalName = intervalType.name
+                    answerState = .answered
+                    answer.selectedIntervalName = intervalType.name
+                }) {
+                    Text(intervalType.name)
+                        .defaultButtonStyle()
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                            .stroke(scoreWasPlayed ? Color.black : Color.clear, lineWidth: 1)
+                            .background(selectedIntervalName == intervalType.name ? UIGlobals.colorInstructions : Color.clear)
+                        )
                 }
-            //}
-            //.padding()
+            }
         }
     }
 
@@ -204,15 +197,17 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         AnyView(
             VStack {
                 VStack {
-                    ScoreSpacerView()
-                    ScoreSpacerView()
-                    //if questionType == .intervalVisual {
+                    ScoreSpacerView() //kkep for top ledger line notes
+                    if UIDevice.current.userInterfaceIdiom == .pad {
+                        ScoreSpacerView()
+                    }
                     //keep the score in the UI for consistent UIlayout between various usages of this view
                     ScoreView(score: score).padding().opacity(questionType == .intervalAural ? 0.0 : 1.0)
+                    if UIDevice.current.userInterfaceIdiom == .pad {
                         ScoreSpacerView()
                         ScoreSpacerView()
                         ScoreSpacerView()
-                    //}
+                    }
                     if questionType == .intervalAural {
                         VStack {
                             Text("").padding()
@@ -241,7 +236,9 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                         }
                     }
                     else {
-                        Text("Please select the correct interval").defaultTextStyle().padding()
+                        if UIDevice.current.userInterfaceIdiom == .pad {
+                            Text("Please select the correct interval").defaultTextStyle().padding()
+                        }
                     }
                     HStack {
                         selectIntervalView.padding()
