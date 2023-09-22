@@ -12,7 +12,7 @@ class KeySignature {
         self.accidentalType = type
         self.accidentalCount = 0
         if keyName != "" {
-            if !(["C", "D", "A", "E", "B"].contains(keyName)) {
+            if !(["C", "G", "D", "A", "E", "B"].contains(keyName)) {
                 Logger.logger.reportError(self, "Unknown Key \(keyName)")
             }
         }

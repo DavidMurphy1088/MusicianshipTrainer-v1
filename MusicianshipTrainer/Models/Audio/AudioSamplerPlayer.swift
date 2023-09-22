@@ -2,45 +2,18 @@ import Foundation
 import AVKit
 import AVFoundation
 
-//class MusicPlayer : ObservableObject {
-//    private let audioEngine = AVAudioEngine()
-//    private let sampler = AVAudioUnitSampler()
-//
-//    func play (notes: [Note]) {
-//        DispatchQueue.global(qos: .userInitiated).async { [self] in
-//            let playTempo = 3.0
-//            let pitchAdjust = 5
-//            var n = 0
-//            for note in notes {
-//                var dynamic:Double = 127
-////                if n < 3 {
-////                    dynamic *= 1.3
-////                }
-//                n += 1
-//                //Score.sampler.startNote(UInt8(note.num + 12 + pitchAdjust), withVelocity:UInt8(dynamic), onChannel:0)
-//                //player.startNote(UInt8(note.midiNumber + 12 + pitchAdjust), withVelocity:UInt8(dynamic), onChannel:0)
-//                //player.startNote(72, withVelocity:UInt8(dynamic), onChannel:0)
-//                let wait = playTempo * 50000.0 * Double(note.getValue())
-//                usleep(useconds_t(wait))
-//            }
-//        }
-//    }
-//}
-
-import AVFoundation
-
 class AudioSamplerPlayer {
     static let shared = AudioSamplerPlayer()
     private let audioEngine = AVAudioEngine()
-    let sampler = AVAudioUnitSampler()
-    //must be instance of Metronome lifetime
-    //let midiNoteEngine = AVAudioEngine()
+    private let sampler = AVAudioUnitSampler()
 
     private init() {
         audioEngine.attach(sampler)
-        let output = audioEngine.outputNode
-        let outputFormat = output.inputFormat(forBus: 0)
-        audioEngine.connect(sampler, to: output, format: outputFormat)
+//        let output = audioEngine.outputNode
+//        let outputFormat = output.inputFormat(forBus: 0)
+//        audioEngine.connect(sampler, to: output, format: outputFormat)
+        audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
+
         do {
             try audioEngine.start()
         } catch {
@@ -48,8 +21,30 @@ class AudioSamplerPlayer {
         }
         loadSoundFont()
     }
+    
+    public func getSampler() -> AVAudioUnitSampler {
+        return sampler
+    }
+    
+    public func startSampler() {
+//        print ("=============== START AudioSamplerPlayer =============== ")
+//        do {
+//            try audioEngine.start()
+//        }
+//        catch let error {
+//            Logger.logger.reportError(self, "Cant create MIDI sampler \(error.localizedDescription)")
+//        }
+   }
 
-    //func getMidiAudioSampler() -> AVAudioUnitSampler {
+    func stopSampler() {
+//        print ("=============== STOP AudioSamplerPlayer =============== ")
+//
+////        for m in 58...74 {
+////            sampler.stopNote(UInt8(m), onChannel: UInt8(0))
+////        }
+//        audioEngine.stop()
+    }
+    
     private func loadSoundFont() {
         
         //https://www.rockhoppertech.com/blog/the-great-avaudiounitsampler-workout/#soundfont
@@ -84,12 +79,12 @@ class AudioSamplerPlayer {
             Logger.logger.reportError(self, "Cannot loadSoundBankInstrument \(samplerFileName)")
         }
         
-        do {
-            try audioEngine.start()
-        }
-        catch let error {
-            Logger.logger.reportError(self, "Cant create MIDI sampler \(error.localizedDescription)")
-        }
+//        do {
+//            try audioEngine.start()
+//        }
+//        catch let error {
+//            Logger.logger.reportError(self, "Cant create MIDI sampler \(error.localizedDescription)")
+//        }
     }
 
     func play(note: UInt8) {

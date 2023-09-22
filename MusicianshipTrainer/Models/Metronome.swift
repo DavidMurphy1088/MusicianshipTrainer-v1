@@ -2,7 +2,7 @@ import SwiftUI
 import CoreData
 import AVFoundation
 
-class Metronome: ObservableObject {
+class Metronome: AudioPlayerUser, ObservableObject  {
     
     static private var shared:Metronome = Metronome()
     static private var nextInstrument = 0
@@ -50,6 +50,7 @@ class Metronome: ObservableObject {
 //    }
 
     private init() {
+        super.init(parent: "Metronome")
     }
     
     func setSpeechEnabled(enabled:Bool) {
@@ -59,19 +60,21 @@ class Metronome: ObservableObject {
     }
     
     func startTicking(score:Score) {
-        let audioSamplerMIDI = AudioSamplerPlayer.shared.sampler //getMidiAudioSampler()
+        //let audioSamplerMIDI = AudioSamplerPlayer.shared.sampler
         //let audioTicker:AudioSamplerPlayer = AudioSamplerPlayer(timeSignature: score.timeSignature)
         //setTempo(tempo: self.tempo)
         DispatchQueue.main.async {
             self.tickingIsActive = true
             if !self.isThreadRunning {
-                self.startThreadRunning(timeSignature: score.timeSignature, audioSamplerPlayerMIDI:audioSamplerMIDI)
+                self.startThreadRunning(timeSignature: score.timeSignature)
             }
         }
     }
     
     func stopTicking() {
+        //self.tickingIsActive = false
         DispatchQueue.main.async {
+            Logger.logger.log(self, "set stopTicking")
             self.tickingIsActive = false
         }
     }
@@ -154,11 +157,9 @@ class Metronome: ObservableObject {
     }
     
     func playScore(score:Score, rhythmNotesOnly:Bool=false, onDone: (()->Void)? = nil) {
-        let audioSamplerMIDI = AudioSamplerPlayer.shared.sampler //getMidiAudioSampler()
-//        guard self.nextScoreTimeSlice != nil else {
-//            return
-//        }
-
+//        let audioSamplerMIDI = AudioSamplerPlayer.shared.sampler
+//        AudioSamplerPlayer.shared.startSampler()
+        
         //find the first note to play
         nextScoreIndex = 0
         if score.scoreEntries.count > 0 {
@@ -174,27 +175,22 @@ class Metronome: ObservableObject {
         }
         nextScoreIndex = 1
         if !self.isThreadRunning {
-            startThreadRunning(timeSignature: score.timeSignature, audioSamplerPlayerMIDI:audioSamplerMIDI)
+            startThreadRunning(timeSignature: score.timeSignature)
         }
-        //setTempo(tempo: self.tempo, context: "Metronome start playScore")
     }
     
     func stopPlayingScore() {
         DispatchQueue.main.async {
             self.score = nil
-            //let audioUnitSampler:AVAudioUnitSampler = self.getMidiAudioSampler()
-            let audioUnitSampler = AudioSamplerPlayer.shared.sampler
-            for m in 58...74 {
-                audioUnitSampler.stopNote(UInt8(m), onChannel: UInt8(0))
-            }
-            audioUnitSampler.reset()
+            AudioSamplerPlayer.shared.stopSampler()
         }
-
     }
 
-    private func startThreadRunning(timeSignature:TimeSignature, audioSamplerPlayerMIDI:AVAudioUnitSampler?) {
+    private func startThreadRunning(timeSignature:TimeSignature) {
         self.isThreadRunning = true
-        
+        let midiSampler = AudioSamplerPlayer.shared.getSampler()
+        AudioSamplerPlayer.shared.startSampler()
+
         let audioTickerMetronomeTick:AudioTicker = AudioTicker(timeSignature: timeSignature, tickStyle: true)
         let audioClapper:AudioTicker = AudioTicker(timeSignature: timeSignature, tickStyle: false)
 
@@ -241,9 +237,9 @@ class Metronome: ObservableObject {
                                             }
                                             else {
                                                 //print(" --- Score play note", loopCtr, "next score time slice", nextScoreTimeSlice)
-                                                if let audioPlayer = audioSamplerPlayerMIDI {
-                                                    audioPlayer.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
-                                                }
+                                                //if let audioPlayer = midiSampler {
+                                                midiSampler.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
+                                                //}
                                             }
                                             if noteInChordNum == 0 && note.getValue() < 1.0 {
                                                 noteValueSpeechWord = "and"

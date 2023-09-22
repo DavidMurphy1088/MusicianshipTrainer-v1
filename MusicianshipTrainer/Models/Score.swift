@@ -46,9 +46,9 @@ class ScoreEntry : ObservableObject, Hashable {
 
 class StudentFeedback : ObservableObject {
     var correct:Bool = false
-    var indexInError:Int? = nil
+    //var indexInError:Int? = nil
     var feedbackExplanation:String? = nil
-    var feedbackNote:String? = nil
+    var feedbackNotes:String? = nil
     var tempo:Int? = nil
 }
 
@@ -91,8 +91,7 @@ class Score : ObservableObject {
     
     var staffs:[Staff] = []
     
-    //var minorScaleType = Scale.MinorType.natural
-    var recordedTempo:Int?
+    var tempo:Int?
     static let maxTempo:Float = 200
     static let minTempo:Float = 30
     static let midTempo:Float = Score.minTempo + (Score.maxTempo - Score.minTempo) / 2.0
@@ -429,42 +428,42 @@ class Score : ObservableObject {
     // ================= Student feedback =================
     
     
-    func constuctFeedback(scoreToCompare:Score, timeSliceNumber:Int?, questionTempo:Int,
-                          metronomeTempoAtStartRecording:Int, allowTempoVariation:Bool) -> StudentFeedback {
-        let feedback = StudentFeedback()
-        if let timeSliceNumber = timeSliceNumber {
-            let exampleTimeSlices = getAllTimeSlices()
-            let exampleTimeSlice = exampleTimeSlices[timeSliceNumber]
-            if exampleTimeSlice.getTimeSliceEntries().count > 0 {
-                let exampleNote = exampleTimeSlice.getTimeSliceEntries()[0]
-                //if let exampleNote = exampleNote {
-                let studentTimeSlices = scoreToCompare.getAllTimeSlices()
-                if studentTimeSlices.count > timeSliceNumber {
-                    let studentTimeSlice = studentTimeSlices[timeSliceNumber]
-                    let studentNote = studentTimeSlice.getTimeSliceEntries()[0]
-                    //if let studentNote = studentNote {
-                    feedback.feedbackExplanation = "The example rhythm was a \(exampleNote.getNoteValueName()). "
-                    feedback.feedbackExplanation! += "Your rhythm was a \(studentNote.getNoteValueName())."
-                    feedback.indexInError = studentNote.sequence
-                    //}
-                }
-                //}
-            }
-            feedback.correct = false
-        }
-        else {
-            feedback.correct = true
-            feedback.feedbackExplanation = "Good Job!"
-            if let recordedTempo = scoreToCompare.recordedTempo {
-                let tolerance = Int(Double(metronomeTempoAtStartRecording) * 0.10)
-                if !allowTempoVariation && abs(recordedTempo - metronomeTempoAtStartRecording) > tolerance {
-                    feedback.feedbackExplanation = "But your tempo of \(recordedTempo) was \(recordedTempo < metronomeTempoAtStartRecording ? "slower" : "faster") than the metronome tempo \(metronomeTempoAtStartRecording) you heard."
-                }
-            }
-        }
-        feedback.tempo = recordedTempo
-        return feedback
-    }
+//    func constuctFeedback(scoreToCompare:Score, timeSliceNumber:Int?, questionTempo:Int,
+//                          metronomeTempoAtStartRecording:Int, allowTempoVariation:Bool) -> StudentFeedback {
+//        let feedback = StudentFeedback()
+//        if let timeSliceNumber = timeSliceNumber {
+//            let exampleTimeSlices = getAllTimeSlices()
+//            let exampleTimeSlice = exampleTimeSlices[timeSliceNumber]
+//            if exampleTimeSlice.getTimeSliceEntries().count > 0 {
+//                let exampleNote = exampleTimeSlice.getTimeSliceEntries()[0]
+//                //if let exampleNote = exampleNote {
+//                let studentTimeSlices = scoreToCompare.getAllTimeSlices()
+//                if studentTimeSlices.count > timeSliceNumber {
+//                    let studentTimeSlice = studentTimeSlices[timeSliceNumber]
+//                    let studentNote = studentTimeSlice.getTimeSliceEntries()[0]
+//                    //if let studentNote = studentNote {
+//                    feedback.feedbackExplanation = "The example rhythm was a \(exampleNote.getNoteValueName()). "
+//                    feedback.feedbackExplanation! += "Your rhythm was a \(studentNote.getNoteValueName())."
+//                    feedback.indexInError = studentNote.sequence
+//                    //}
+//                }
+//                //}
+//            }
+//            feedback.correct = false
+//        }
+//        else {
+//            feedback.correct = true
+//            feedback.feedbackExplanation = "Good Job!"
+//            if let recordedTempo = scoreToCompare.recordedTempo {
+//                C
+//                if !allowTempoVariation && abs(recordedTempo - metronomeTempoAtStartRecording) > tolerance {
+//                    feedback.feedbackExplanation = "But your tempo of \(recordedTempo) was \(recordedTempo < metronomeTempoAtStartRecording ? "slower" : "faster") than the metronome tempo \(metronomeTempoAtStartRecording) you heard."
+//                }
+//            }
+//        }
+//        feedback.tempo = recordedTempo
+//        return feedback
+//    }
     
     func errorCount() -> Int {
         var cnt = 0
@@ -559,7 +558,7 @@ class Score : ObservableObject {
         return false
     }
     
-    func fitScoreToQuestionScore(tappedScore:Score) -> Score {
+    func fitScoreToQuestionScore(tappedScore:Score) -> (Score, StudentFeedback) {
         let outputScore = Score(timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: self.noteSize)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
@@ -619,10 +618,10 @@ class Score : ObservableObject {
             }
         }
         
-        print("\nQuestion")
-        for d in questionTimeSliceValues {
-            print ("QUE Elapsed", d.elapsed, "type", d.type, "value", d.value)
-        }
+//        print("\nQuestion")
+//        for d in questionTimeSliceValues {
+//            print ("QUE Elapsed", d.elapsed, "type", d.type, "value", d.value)
+//        }
         
         var errorsFlagged = false
         var tapIndex = 0
@@ -637,13 +636,13 @@ class Score : ObservableObject {
                 continue
             }
             
-            let q = questionTimeSliceValues[questionIndex]
-            print("==question", "elap", q.elapsed, q.type, "val", q.value)
-            if tapIndex < tappedDurations.count {
-                let t = tappedDurations[tapIndex]
-                print("    ===Tap", "elap", t.elapsed, t.type, "val", t.value )
-            }
-            print("         Qi", questionIndex, "Ti", tapIndex)
+//            let q = questionTimeSliceValues[questionIndex]
+//            print("==question", "elap", q.elapsed, q.type, "val", q.value)
+//            if tapIndex < tappedDurations.count {
+//                let t = tappedDurations[tapIndex]
+//                print("    ===Tap", "elap", t.elapsed, t.type, "val", t.value )
+//            }
+//            print("         Qi", questionIndex, "Ti", tapIndex)
             
             let outTimeSlice = outputScore.addTimeSlice()
             
@@ -730,24 +729,19 @@ class Score : ObservableObject {
         }
         let feedback = StudentFeedback()
         feedback.feedbackExplanation = explanation
-        feedback.correct = explanation == nil
-        outputScore.setStudentFeedback(studentFeedack: feedback)
-        let out = outputScore.getAllTimeSlices()
-        for q in self.getAllTimeSlices() {
-            print("QuestionOut", type(of:q.entries[0]), q.entries[0].getValue(), q.statusTag)
-        }
-        for e in out {
-            print("   ScoreOut", type(of:e.entries[0]), e.entries[0].getValue(), e.statusTag)
-        }
-        return outputScore
+//        let out = outputScore.getAllTimeSlices()
+//        for q in self.getAllTimeSlices() {
+//            print("QuestionOut", type(of:q.entries[0]), q.entries[0].getValue(), q.statusTag)
+//        }
+//        for e in out {
+//            print("   ScoreOut", type(of:e.entries[0]), e.entries[0].getValue(), e.statusTag)
+//        }
+        return (outputScore, feedback)
     }
 
     func clearTaggs() {
         for ts in getAllTimeSlices() {
             ts.setStatusTag(.noTag)
-//            for note in ts.getTimeSliceNotes() {
-//                note.
-//            }
         }
     }
 }

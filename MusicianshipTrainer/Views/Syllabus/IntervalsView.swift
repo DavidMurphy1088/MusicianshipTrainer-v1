@@ -9,6 +9,7 @@ struct ScoreSpacerView: View {
         }
     }
 }
+
 struct PlayExampleMelody : View {
     let score:Score
     @State private var showExamplePopover = false
@@ -56,7 +57,14 @@ struct PlayExampleMelody : View {
                   message: Text(self.melodyName).font(.title),
                   dismissButton: .default(Text("OK")))
         }
+        .onAppear() {
+            AudioSamplerPlayer.shared.startSampler()
+        }
+        .onDisappear() {
+            AudioSamplerPlayer.shared.stopSampler()
+        }
     }
+    
 }
 
 

@@ -79,9 +79,8 @@ struct NarrationView : View {
     var body: some View {
         VStack {
             HStack {
-                
                 Button(action: {
-                    TTS.shared.speakText(contentSection: contentSection, context: context, htmlContent: htmlDocument)
+                    //TTS.shared.speakText(contentSection: contentSection, context: context, htmlContent: htmlDocument)
                 }) {
                     Image(systemName: "speaker.wave.2")
                         .foregroundColor(.blue)
@@ -93,12 +92,12 @@ struct NarrationView : View {
             Spacer()
         }
         .onDisappear() {
-            TTS.shared.stop()
+            //TTS.shared.stop()
         }
     }
 }
 
-struct ContentSectionTipsView: UIViewRepresentable {
+struct ContentSectionTipsView1: UIViewRepresentable {
     var htmlDocument:String
     
     func makeUIView(context: Context) -> WKWebView {
@@ -108,7 +107,17 @@ struct ContentSectionTipsView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {
         uiView.loadHTMLString(htmlDocument, baseURL: nil)
     }
+}
 
+
+struct ContentSectionTipsView: View {
+    var htmlDocument:String
+    var body: some View {
+        VStack {
+            //Text("TIPS_TRICKS")
+            ContentSectionTipsView1(htmlDocument: htmlDocument)
+        }
+    }
 }
    
 struct ContentSectionInstructionsView: UIViewRepresentable {
@@ -125,8 +134,7 @@ struct ContentSectionInstructionsView: UIViewRepresentable {
 
 struct ContentSectionHeaderView: View {
     var contentSection:ContentSection
-    //@Binding var parentSelectionIndex:Int?
-    var parentSelection: SectionsNavigationView
+    @Binding var selectedIndex: Int?
 
     let googleAPI = GoogleAPI.shared
     @State private var isTipsTricksPresented = false
@@ -134,12 +142,6 @@ struct ContentSectionHeaderView: View {
     @State private var tipsAndTricksExists = false
     @State private var tipsAndTricksData:String?=nil
     @State private var audioInstructionsFileName:String? = nil
-    
-    init (contentSection:ContentSection, parentSelection:SectionsNavigationView) {
-        self.contentSection = contentSection
-        self.parentSelection = parentSelection
-        //_parentSelectionIndex = parentSelectionIndex
-    }
     
     func getInstructions()  {
         var pathSegments = contentSection.getPathAsArray()
@@ -190,26 +192,12 @@ struct ContentSectionHeaderView: View {
         return true
     }
     
-//    func randomSelection() -> some View {
-//        VStack {
-////            if log(contentSection: contentSection) {
-////                ContentTypeView(contentSection: contentSection.subSections[2],
-////                                answerState: $answerState,
-////                                answer: $answer)
-////            }
-//        }
-//    }
+    func randomSelection(contentSection:ContentSection) -> Int {
+        let range = contentSection.subSections.count
+        return Int.random(in: 0...range-1)
+    }
     
     var body: some View {
-//        if random {
-//            randomSelection()
-//        }
-//        else {
-            prompts()
-//        }
-    }
-
-    func prompts() -> some View {
         VStack {
             VStack {
                 if let audioInstructionsFileName = audioInstructionsFileName {
@@ -225,7 +213,10 @@ struct ContentSectionHeaderView: View {
                     HStack {
                         ZStack {
                             ContentSectionInstructionsView(htmlDocument: instructions)
-                            NarrationView(contentSection: contentSection, htmlDocument: instructions, context: "Instructions")
+                            //NarrationView(contentSection: contentSection, htmlDocument: instructions, context: "Instructions")
+                            .onDisappear() {
+                                //TTS.shared.stop()
+                            }
                         }
                         .frame(height: CGFloat((getParagraphCount(html: instructions)))/12.0 * UIScreen.main.bounds.height)
                         .overlay(
@@ -258,7 +249,7 @@ struct ContentSectionHeaderView: View {
                             ZStack {
                                 ContentSectionTipsView(htmlDocument: tipsAndTricksData)
                                     .background(Rectangle().stroke(Color.blue, lineWidth: 4))
-                                NarrationView(contentSection: contentSection, htmlDocument: tipsAndTricksData, context: "TipsTricks")
+                                //NarrationView(contentSection: contentSection, htmlDocument: tipsAndTricksData, context: "TipsTricks")
                             }
                             .padding()
                             .background(
@@ -268,14 +259,9 @@ struct ContentSectionHeaderView: View {
                     }
                     Spacer()
                     Button(action: {
-                        //randomSelection()
                         DispatchQueue.main.async {
-                            //log(contentSection: contentSection, index: parentSelectionIndex)
-                            //parentSelectionIndex = 2
-                            //parentSelection.sectionIndex = 2
-                            parentSelection.test(index: 2)
+                            self.selectedIndex = randomSelection(contentSection: self.contentSection)
                         }
-                        //random = true
                     }) {
                         VStack {
                             HStack {
@@ -286,10 +272,6 @@ struct ContentSectionHeaderView: View {
                             }
                         }
                     }
-//                    .sheet(isPresented: $random) {
-//                        randomSelection()
-//                    }
-
                     Spacer()
                 }
             }
@@ -300,18 +282,14 @@ struct ContentSectionHeaderView: View {
             getTipsAndTricks()
         }
         .onDisappear() {
-            TTS.shared.stop()
+            //TTS.shared.stop()
         }
     }
 }
 
 struct SectionsNavigationView:View {
     let contentSections:[ContentSection]
-    @State var sectionIndex: Int?
-    
-    func test(index:Int) {
-        sectionIndex = index
-    }
+    @Binding var selectedIndex: Int?
     
     func getGradeImage(contentSection: ContentSection) -> Image? {
         var name = ""
@@ -374,14 +352,22 @@ struct SectionsNavigationView:View {
 
     var body: some View {
         VStack {
+//            Button(action: {
+//                self.selectedIndex = 24
+//            }) {
+//                VStack {
+//                    Text("__TEST In SectionsNavigationView__").defaultTextStyle().padding()
+//                }
+//            }
+
             List(Array(contentSections.indices), id: \.self) { index in
                 ///selection: A bound variable that causes the link to present `destination` when `selection` becomes equal to `tag`
                 ///tag: The value of `selection` that causes the link to present `destination`..
                 NavigationLink(destination:
                                 ContentSectionView(contentSection: contentSections[index],
-                                                   parentSelectionIndex: $sectionIndex),
+                                                   parentSelectionIndex: $selectedIndex),
                                tag: index,
-                               selection: $sectionIndex) {
+                               selection: $selectedIndex) {
 
                     ZStack {
                         HStack {
@@ -599,7 +585,7 @@ struct ContentOverviewView: View {
             getContent()
         }
         .onDisappear() {
-            TTS.shared.stop()
+            //TTS.shared.stop()
         }
     }
 }
@@ -611,10 +597,10 @@ struct ContentSectionView: View {
     @State private var endOfSection: Bool = false
     @State var answerState:AnswerState = .notEverAnswered
     @State var answer:Answer = Answer(ctx: "ContentSectionView")//, questionMode: .practice)
-    @State var sectionIndex:Int = 0
     @Binding var parentSelectionIndex:Int?
     @State var isShowingConfiguration:Bool = false
-    
+    @State var sectionIndex: Int?
+
     let id = UUID()
     
     init (contentSection:ContentSection, parentSelectionIndex:Binding<Int?>) {
@@ -630,12 +616,11 @@ struct ContentSectionView: View {
     var body: some View {
         VStack {
             let childSections = contentSection.getNavigableChildSections()
-            let navigationView = SectionsNavigationView(contentSections: childSections)
             if childSections.count > 0 {
                 if contentSection.isExamTypeContentSection() {
                     //No ContentSectionHeaderView in any exam mode content section except the exam start
                     if contentSection.hasExamModeChildren() {
-                        SectionsNavigationView(contentSections: childSections)
+                        SectionsNavigationView(contentSections: childSections, selectedIndex: $sectionIndex)
                     }
                     else {
                         if contentSection.hasNoAnswers() {
@@ -643,18 +628,27 @@ struct ContentSectionView: View {
                         }
                         else {
                             //Exam was taken
-                            SectionsNavigationView(contentSections: childSections)
+                            SectionsNavigationView(contentSections: childSections, selectedIndex: $sectionIndex)
                         }
                     }
                 }
                 else {
-                    ContentSectionHeaderView(contentSection: contentSection, parentSelection: navigationView)
-                        //.border(Color.red)
-                        .padding(.vertical, 0)
-                    //SectionsNavigationView(contentSections: childSections)
-                    navigationView
+                    ScrollViewReader { proxy in
+                        ContentSectionHeaderView(contentSection: contentSection, selectedIndex: $sectionIndex)
+                            //.border(Color.red)
+                            .padding(.vertical, 0)
+                    
+                        SectionsNavigationView(contentSections: childSections, selectedIndex: $sectionIndex)
                         //.border(Color.blue)
-                        .padding(.vertical, 0)
+                            .padding(.vertical, 0)
+                            .onChange(of: sectionIndex) { newValue in
+                                if let newValue = newValue {
+                                    withAnimation {
+                                        proxy.scrollTo(newValue, anchor: .top)
+                                    }
+                                }
+                            }
+                    }
                 }
             }
             else {
@@ -712,7 +706,7 @@ struct ContentSectionView: View {
             
         }
         .onDisappear() {
-            TTS.shared.stop()
+            //TTS.shared.stop()
         }
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
         .toolbar {

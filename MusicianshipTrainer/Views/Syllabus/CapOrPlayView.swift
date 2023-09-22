@@ -231,7 +231,7 @@ struct ClapOrPlayPresentView: View {
         }
     }
 
-    func getInstruction(mode:QuestionType, number:Int, grade:Int) -> String {
+    func getInstruction(mode:QuestionType, number:Int, grade:Int) -> String? {
         var result = ""
         let bullet = "\u{2022}" + " "
         if number == 0 {
@@ -269,16 +269,11 @@ struct ClapOrPlayPresentView: View {
                 result += " your finger from the screen, rather than holding it down."
                 result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
                 
-            case .melodyPlay:
-                result += "\(bullet)Press Start Recording then "
-                result += "play the melody and the final chord."
-                result += "\n\n\(bullet)When you have finished, stop the recording."
-
             default:
                 result = ""
             }
         }
-        return result
+        return result.count > 0 ? result : nil
     }
     
     func getStudentTappingAsAScore() -> Score? {
@@ -384,22 +379,26 @@ struct ClapOrPlayPresentView: View {
                             else {
                                 if UIDevice.current.userInterfaceIdiom == .pad {
                                     VStack {
-                                        Text(self.getInstruction(mode: self.questionType, number: 0, grade: contentSection.getGrade()))
-                                            .defaultTextStyle()
-                                            .padding()
-                                            .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                                            )
-                                            .padding()
-                                        Text(self.getInstruction(mode: self.questionType, number: 1, grade: contentSection.getGrade()))
-                                            .defaultTextStyle()
-                                            .padding()
-                                            .frame(width:UIScreen.main.bounds.width * 0.9, alignment: .leading)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                                            )
-                                            .padding()
+                                        if let instruction = self.getInstruction(mode: self.questionType, number: 0, grade: contentSection.getGrade()) {
+                                            Text(instruction)
+                                                .defaultTextStyle()
+                                                .padding()
+                                                .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                                                )
+                                                .padding()
+                                        }
+                                        if let instruction = self.getInstruction(mode: self.questionType, number: 1, grade: contentSection.getGrade()) {
+                                            Text(instruction)
+                                                .defaultTextStyle()
+                                                .padding()
+                                                .frame(width:UIScreen.main.bounds.width * 0.9, alignment: .leading)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                                                )
+                                                .padding()
+                                        }
                                     }
                                 }
                             }
@@ -467,7 +466,7 @@ struct ClapOrPlayPresentView: View {
                                                   onStart: ({
                                     if questionType != .melodyPlay {
                                         if let recordedScore = getStudentTappingAsAScore() {
-                                            if let recordedtempo = recordedScore.recordedTempo {
+                                            if let recordedtempo = recordedScore.tempo {
                                                 metronome.setTempo(tempo: recordedtempo, context:"start hear student")
                                             }
                                         }
@@ -515,8 +514,8 @@ struct ClapOrPlayPresentView: View {
                     }
                 }
                 .onDisappear() {
-                    self.audioRecorder.stopPlaying()
-                    self.metronome.stopTicking()
+                    //self.audioRecorder.stopPlaying()
+                    //self.metronome.stopPlayingScore()
                 }
             }
             .font(.system(size: UIDevice.current.userInterfaceIdiom == .phone ? UIFont.systemFontSize : UIFont.systemFontSize * 1.6))
@@ -571,66 +570,44 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         ///Checks -
         ///1) all notes in the question have taps at the same time location
         ///2) no taps are in a location where there is no question note
-        
-        score.flagNotesMissingRequiredTap(tappingScore: tappingScore)
-        
-        self.fittedScore = score.fitScoreToQuestionScore(tappedScore:tappedScore)
-        if self.fittedScore == nil {
-            return
-        }
-        //fittedScore.label = "---FITTED---"
-
+        ///
         ///If the student got the test correct then ensure that what they saw that they tapped exaclty matches the question.
         ///Otherwise, try to make the studnets tapped score look the same as the question score up until the point of error
         ///(e.g. a long tap might correctly represent either a long note or a short note followed by a rest. So mark the tapped score accordingingly
+
+        score.flagNotesMissingRequiredTap(tappingScore: tappingScore)
         
-        if let fittedScore = fittedScore {
-            if fittedScore.errorCount() > 0 {
-                self.answerMetronome.setAllowTempoChange(allow: false)
-                self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
-//                let studentFeedack = StudentFeedback()
-//                studentFeedack.feedbackExplanation = "There was no tap for \(score.errorCount() > 1 ? "these notes" : "this note") at the right time."
-//                score.setStudentFeedback(studentFeedack: studentFeedack)
-            }
+        let fitted = score.fitScoreToQuestionScore(tappedScore:tappedScore)
+        self.fittedScore = fitted.0
+        let feedback = fitted.1
+        
+        if self.fittedScore == nil {
+            return
         }
-        
-        //if fittedScore.errorCount() > 0 {
+
         self.answerMetronome.setAllowTempoChange(allow: false)
         self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
-        
-        //let studentFeedack = StudentFeedback()
-        //let questionDuration = score.getDurationToFirstError()
-        //let tapDuration = tappingScore.getDurationToFirstError()
-            //studentFeedack.feedbackExplanation = "\(fittedScore.errorCount() > 1 ? "These taps don't" : "This tap does not") match a note in the question."
-//        if tapDuration < questionDuration {
-//            studentFeedack.feedbackExplanation = "This tap was too early since the previous note or rest was shortened"
-//        }
-//        else {
-//            studentFeedack.feedbackExplanation = "This tap was too late"
-//        }
-        
-        //fittedScore!.setStudentFeedback(studentFeedack: studentFeedack)
-        //}
-        
-//        if fittedScore!.errorCount() == 0 && score.errorCount() == 0 {
-//            ///Student is correct so ensure that what they saw that they tapped exactly matches the question.
-//            fittedScore!.copyEntries(from: score)
-//
-//            let studentFeedack = StudentFeedback()
-//            if let recordedTempo = tappedScore.recordedTempo {
-//                self.answerMetronome.setTempo(tempo: recordedTempo, context: "Analyse Student - passed", allowBeyondLimits: true)
-//                studentFeedack.tempo = recordedTempo
-//            }
-//            self.answerMetronome.setAllowTempoChange(allow: true)
-//            studentFeedack.correct = true
-//            studentFeedack.feedbackExplanation = "Good job"
-//            fittedScore!.setStudentFeedback(studentFeedack: studentFeedack)
-//        }
-//        else {
-//            //let fittedScore = score.fitScoreToQuestionScore(tappedScore:tappedScore)
-//            //fittedScore.copyEntries(from: fittedScore)
-//        }
-        
+
+        if let fittedScore = fittedScore {
+            if fittedScore.errorCount() == 0 {
+                feedback.correct = true
+                feedback.feedbackExplanation = "Good job!"
+                if let recordedTempo = tappedScore.tempo {
+                    self.answerMetronome.setAllowTempoChange(allow: true)
+                    self.answerMetronome.setTempo(tempo: recordedTempo, context: "ClapOrPlayAnswerView")
+                    let questionTempo = 90
+                    let tolerance = Int(CGFloat(questionTempo) * 0.1)
+                    if recordedTempo < questionTempo - tolerance || recordedTempo > questionTempo + tolerance {
+                        feedback.feedbackExplanation! +=
+                        " But your tempo of \(recordedTempo) was \(recordedTempo < questionTempo ? "slower" : "faster") than the question tempo \(questionTempo) you heard."
+                    }
+                }
+            }
+            else {
+                feedback.correct = false
+            }
+            fittedScore.setStudentFeedback(studentFeedack: feedback)
+        }
     }
     
     func helpMetronome() -> String {
@@ -799,8 +776,12 @@ struct ClapOrPlayView: View {
 
         }
         .background(UIGlobals.colorBackground)
+        .onAppear() {
+            AudioSamplerPlayer.shared.startSampler()
+        }
         .onDisappear {
-            Metronome.getMetronomeWithCurrentSettings(ctx: "").stopTicking()
+            //Metronome.getMetronomeWithCurrentSettings(ctx: "").stopTicking()
+            //AudioSamplerPlayer.shared.stopSampler()
         }
     }
 

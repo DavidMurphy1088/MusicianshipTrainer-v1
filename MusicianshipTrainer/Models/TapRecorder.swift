@@ -191,7 +191,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
     func getTappedAsAScore(timeSignatue:TimeSignature, questionScore:Score, tapValues:[Double]) -> Score {
         let recordedTempo = getTempoFromRecordingStart(tapValues: tapValues, questionScore: questionScore)
         let tappedScore = self.makeScoreFromTaps(questionScore: questionScore, questionTempo: recordedTempo, tapValues: tapValues) //, tapValues: self.tapValues1)
-        tappedScore.recordedTempo = recordedTempo
+        tappedScore.tempo = recordedTempo
         return tappedScore
     }
       

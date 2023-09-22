@@ -7,8 +7,7 @@ enum TickType {
     case handclap
 }
 
-// Provide sampled audio as ticks for metronome
-
+/// Provide sampled audio as ticks for metronome
 class AudioTicker {
     private var timeSignature:TimeSignature
     

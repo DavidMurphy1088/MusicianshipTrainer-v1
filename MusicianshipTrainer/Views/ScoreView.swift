@@ -8,41 +8,36 @@ struct FeedbackView: View {
     
     var body: some View {
         HStack {
-//            if let studentFeedback = studentFeedback {
-                if studentFeedback.correct {
-                    Image(systemName: "checkmark.circle")
-                        .scaleEffect(2.0)
-                        .foregroundColor(Color.green)
-                        .padding()
-                }
-                else {
-                    Image(systemName: "xmark.octagon")
-                        .scaleEffect(2.0)
-                        .foregroundColor(Color.red)
-                        .padding()
-                }
-                if let index = studentFeedback.indexInError {
-                        Text("Wrong rhythm here")// at note: \(index)").padding()
-                }
+            if studentFeedback.correct {
+                Image(systemName: "checkmark.circle")
+                    .scaleEffect(2.0)
+                    .foregroundColor(Color.green)
+                    .padding()
             }
-//        }
-//        if let studentFeedback = studentFeedback {
-            if let feedbackExplanation = studentFeedback.feedbackExplanation {
-                VStack {
-                    Text(feedbackExplanation)
-                        .defaultTextStyle()
-                        //.lineLimit(nil)
-                }
+            else {
+                Image(systemName: "xmark.octagon")
+                    .scaleEffect(2.0)
+                    .foregroundColor(Color.red)
+                    .padding()
             }
-            if let feedbackNote = studentFeedback.feedbackNote {
-                VStack {
-                    Text(feedbackNote)
-                        .defaultTextStyle()
-                        //.lineLimit(nil)
-                }
+//            if let index = studentFeedback.indexInError {
+//                    Text("Wrong rhythm here")// at note: \(index)").padding()
+//            }
+        }
+        if let feedbackExplanation = studentFeedback.feedbackExplanation {
+            VStack {
+                Text(feedbackExplanation)
+                    .defaultTextStyle()
+                    //.lineLimit(nil)
             }
         }
-//    }
+        if let feedbackNote = studentFeedback.feedbackNotes {
+            VStack {
+                Text(feedbackNote)
+                    .defaultTextStyle()
+            }
+        }
+    }
 }
 
 struct ScoreView: View {
