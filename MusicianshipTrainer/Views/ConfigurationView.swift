@@ -11,21 +11,21 @@ struct ConfigurationView: View {
     @State var ageGroup:AgeGroup
     @State var selectedAge:Int = 0
     let ages = ["5-10", "11Plus"]
-
+    let colorCircleSize = 60.0
+    
     var body: some View {
         //GeometryReader { geo in //CAUSES ALL CHILDS LEft ALIGNED???
             VStack(alignment: .center) {
                 
                 Text("Your Configuration").font(.title).padding()
-
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
+                
                 // =================== Age Mode ===================
                 
                 VStack {
-                    Text("Select Your Age Group").font(.title)
+                    Text("Select Your Age Group").font(.title).padding()
                     ConfigSelectAgeMode(selectedIndex: $selectedAge, items: ages)
                 }
-                .border(Color.black, width: 1)
-                .padding()
                 .onAppear {
                     if ageGroup == .Group_5To10 {
                         selectedAge = 0
@@ -35,6 +35,11 @@ struct ConfigurationView: View {
                     }
                     //print("OnAppear", selectedAge)
                 }
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+//                )
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
+                .padding()
                 
                 // =================== Colors ===================
                 
@@ -42,9 +47,9 @@ struct ConfigurationView: View {
                     VStack {
                         Circle()
                             .fill(colorBackground)
-                            .frame(width: 100, height: 100)
+                            .frame(width: colorCircleSize, height: colorCircleSize)
                         
-                        ColorPicker("Background : Select a Colour", selection: $colorBackground, supportsOpacity: false)
+                        ColorPicker("Background-Select a Colour", selection: $colorBackground, supportsOpacity: false)
                         
                         Button("Reset") {
                             colorBackground = UIGlobals.colorBackgroundDefault
@@ -55,9 +60,9 @@ struct ConfigurationView: View {
                     VStack {
                         Circle()
                             .fill(colorScore)
-                            .frame(width: 100, height: 100)
+                            .frame(width: colorCircleSize, height: colorCircleSize)
                         
-                        ColorPicker("Score : Select a Colour", selection: $colorScore, supportsOpacity: false)
+                        ColorPicker("Score-Select a Colour", selection: $colorScore, supportsOpacity: false)
                         
                         Button("Reset") {
                             colorScore = UIGlobals.colorDefault
@@ -68,9 +73,9 @@ struct ConfigurationView: View {
                     VStack {
                         Circle()
                             .fill(colorInstructions)
-                            .frame(width: 100, height: 100)
+                            .frame(width: colorCircleSize, height: colorCircleSize)
                         
-                        ColorPicker("Instructions : Select a Colour", selection: $colorInstructions, supportsOpacity: false)
+                        ColorPicker("Instructions-Select a Colour", selection: $colorInstructions, supportsOpacity: false)
 
                         Button("Reset") {
                             colorInstructions = UIGlobals.colorInstructions

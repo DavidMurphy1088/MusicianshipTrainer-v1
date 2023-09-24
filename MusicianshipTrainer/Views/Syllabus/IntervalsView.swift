@@ -14,7 +14,7 @@ struct PlayExampleMelody : View {
     let score:Score
     @State private var showExamplePopover = false
     @State var melodyName: String = ""
-    let player = AudioSamplerPlayer.shared
+    let player = AudioSamplerPlayer.getShared()
 
     var body : some View {
         Button(action: {
@@ -58,15 +58,14 @@ struct PlayExampleMelody : View {
                   dismissButton: .default(Text("OK")))
         }
         .onAppear() {
-            AudioSamplerPlayer.shared.startSampler()
+            //AudioSamplerPlayer.shared.startSampler()
         }
         .onDisappear() {
-            AudioSamplerPlayer.shared.stopSampler()
+            //AudioSamplerPlayer.shared.stopSampler()
         }
     }
     
 }
-
 
 struct IntervalPresentView: View { //}, QuestionPartProtocol {
     let contentSection:ContentSection
@@ -133,10 +132,43 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         }
     }
     
-    func buildAnser() {
+    func buildAnser(grade:Int) {
         if intervalNotes.count == 0 {
             return
         }
+        let staff = score.getStaff()[0]
+        let offset1 = intervalNotes[0].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
+        let offset2 = intervalNotes[1].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
+        var explanation = ""
+        
+        if offset1 % 2 == 0 {
+            explanation = "A line to a "
+            if offset2 % 2 == 0 {
+                explanation += "line is a skip"
+            }
+            else {
+                explanation += "space is a step"
+            }
+        }
+        else {
+            explanation = "A space to a "
+            if offset2 % 2 == 0 {
+                explanation += "line is a step"
+//                if grade == 1 {
+//                    explanation += "a step"
+//                }
+//                else {
+//                    explanation += "a step"
+//                }
+            }
+            else {
+                explanation += "space is a skip"
+            }
+        }
+        if grade == 1 {
+            answer.explanation = explanation
+        }
+
         let interval = abs((intervalNotes[1].midiNumber - intervalNotes[0].midiNumber))
         answer.correct = false
         for intervalType in intervals.intervalTypes {
@@ -151,22 +183,29 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     }
 
     var selectIntervalView : some View {
-        VStack(spacing: 0) {
-            ForEach(intervals.intervalTypes, id: \.name) { intervalType in
-                Button(action: {
-                    selectedIntervalName = intervalType.name
-                    answerState = .answered
-                    answer.selectedIntervalName = intervalType.name
-                }) {
-                    Text(intervalType.name)
-                        .defaultButtonStyle()
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                            .stroke(scoreWasPlayed ? Color.black : Color.clear, lineWidth: 1)
-                            .background(selectedIntervalName == intervalType.name ? UIGlobals.colorInstructions : Color.clear)
-                        )
+        HStack(alignment: .top)  {
+            let columns = intervals.getVisualColumnCount()
+            ForEach(0..<columns) { column in
+                VStack {
+                    let intervalsForColumn = intervals.getVisualColumns(col: column)
+                    ForEach(intervalsForColumn, id: \.name) { intervalType in
+                        Button(action: {
+                            selectedIntervalName = intervalType.name
+                            answerState = .answered
+                            answer.selectedIntervalName = intervalType.name
+                        }) {
+                            Text(intervalType.name)
+                                .defaultButtonStyle()
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(scoreWasPlayed ? Color.black : Color.clear, lineWidth: 1)
+                                        .background(selectedIntervalName == intervalType.name ? UIGlobals.colorInstructions : Color.clear)
+                                )
+                        }
+                    }
                 }
+                .padding(.top, 0)
             }
         }
     }
@@ -205,7 +244,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         AnyView(
             VStack {
                 VStack {
-                    ScoreSpacerView() //kkep for top ledger line notes
+                    ScoreSpacerView() //keep for top ledger line notes
                     if UIDevice.current.userInterfaceIdiom == .pad {
                         ScoreSpacerView()
                     }
@@ -257,7 +296,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 if answerState == .answered {
                     VStack {
                         Button(action: {
-                            self.buildAnser()
+                            self.buildAnser(grade: contentSection.getGrade())
                             answerState = .submittedAnswer
                         }) {
                             Text("\(self.isTakingExam() ? "Submit" : "Check") Your Answer").defaultButtonStyle()
@@ -325,13 +364,7 @@ struct IntervalAnswerView: View {
                 .padding()
                 
                 if !answer.correct {
-//                    if let selectedInterval = answer.selectedIntervalName {
-//                        //let selected = intervals.getInterval(interval: selectedInterval)
-//                        if let selectedInterval = selectedInterval {
-                            Text("You said that the interval was a \(answer.selectedIntervalName )").defaultTextStyle().padding()
-//                        }
-//                    }
-
+                    Text("You said that the interval was a \(answer.selectedIntervalName )").defaultTextStyle().padding()
                 }
                 Text("The interval is a \(answer.correctIntervalName)").defaultTextStyle().padding()
                 if questionType == .intervalVisual {

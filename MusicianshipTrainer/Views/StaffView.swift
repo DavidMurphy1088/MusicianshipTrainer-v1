@@ -113,20 +113,27 @@ struct KeySignatureView: View {
     @ObservedObject var score:Score
     var lineSpacing:Double
     var staffOffsets:[Int]
-
+    
+    func getWidthMultiplier() -> Double {
+        var widthMultiplier = staffOffsets.count <= 2 ? 1.0 : 0.7
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            widthMultiplier = widthMultiplier * 0.7
+        }
+        return widthMultiplier
+    }
+    
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             ForEach(staffOffsets, id: \.self) { offset in
                 VStack {
                     Image("sharp")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: lineSpacing)
+                        .frame(width: lineSpacing * getWidthMultiplier())
                         .offset(y: 0 - Double(offset) * lineSpacing / 2.0)
                 }
-                .padding()
-                //.frame(width: lineSpacing * (staffOffsets.count <= 2 ? 1.4 : 1.0))
-                .frame(width: lineSpacing * (staffOffsets.count <= 2 ? 1.0 : 0.7))
+                .padding(0)
+                .frame(width: lineSpacing * getWidthMultiplier())
                 //.border(Color.blue)
             }
         }

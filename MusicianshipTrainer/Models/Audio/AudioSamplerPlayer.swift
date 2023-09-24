@@ -3,15 +3,14 @@ import AVKit
 import AVFoundation
 
 class AudioSamplerPlayer {
-    static let shared = AudioSamplerPlayer()
-    private let audioEngine = AVAudioEngine()
-    private let sampler = AVAudioUnitSampler()
+    static private var shared = AudioSamplerPlayer()
+    private var audioEngine = AVAudioEngine()
+    private var sampler = AVAudioUnitSampler()
 
     private init() {
+        audioEngine = AVAudioEngine()
+        sampler = AVAudioUnitSampler()
         audioEngine.attach(sampler)
-//        let output = audioEngine.outputNode
-//        let outputFormat = output.inputFormat(forBus: 0)
-//        audioEngine.connect(sampler, to: output, format: outputFormat)
         audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
 
         do {
@@ -22,28 +21,36 @@ class AudioSamplerPlayer {
         loadSoundFont()
     }
     
+    static public func getShared() -> AudioSamplerPlayer {
+        return AudioSamplerPlayer.shared
+    }
+    
+    static public func reset() {        
+        AudioSamplerPlayer.shared = AudioSamplerPlayer()
+    }
+    
     public func getSampler() -> AVAudioUnitSampler {
         return sampler
     }
     
-    public func startSampler() {
-//        print ("=============== START AudioSamplerPlayer =============== ")
-//        do {
-//            try audioEngine.start()
-//        }
-//        catch let error {
-//            Logger.logger.reportError(self, "Cant create MIDI sampler \(error.localizedDescription)")
-//        }
-   }
-
-    func stopSampler() {
-//        print ("=============== STOP AudioSamplerPlayer =============== ")
-//
-////        for m in 58...74 {
-////            sampler.stopNote(UInt8(m), onChannel: UInt8(0))
+//    public func startSampler() {
+////        print ("=============== START AudioSamplerPlayer =============== ")
+////        do {
+////            try audioEngine.start()
 ////        }
-//        audioEngine.stop()
-    }
+////        catch let error {
+////            Logger.logger.reportError(self, "Cant create MIDI sampler \(error.localizedDescription)")
+////        }
+//   }
+//
+//    func stopSampler() {
+////        print ("=============== STOP AudioSamplerPlayer =============== ")
+////
+//////        for m in 58...74 {
+//////            sampler.stopNote(UInt8(m), onChannel: UInt8(0))
+//////        }
+////        audioEngine.stop()
+//    }
     
     private func loadSoundFont() {
         

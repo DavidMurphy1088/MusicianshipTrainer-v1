@@ -79,10 +79,15 @@ struct ContentNavigationView: View {
                         Button(action: {
                             isShowingConfiguration = true
                         }) {
-                            Image("Coloured_Note2")
-                            .resizable()
-                            .frame(width: 50, height: 50)
-                            .aspectRatio(contentMode: .fit)                        }
+//                            Image("Coloured_Note2").
+//                            .resizable()
+//                            .frame(width: 50, height: 50)
+//                            .aspectRatio(contentMode: .fit)
+                            Image(systemName: "music.note.list")
+                                .foregroundColor(.blue)
+                                //.font(.largeTitle)
+                                .font(UIDevice.current.userInterfaceIdiom == .phone ? .body : .largeTitle)
+                        }
                     }
                 }
             }

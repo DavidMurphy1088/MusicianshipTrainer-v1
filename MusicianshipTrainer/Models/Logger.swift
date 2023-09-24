@@ -23,6 +23,10 @@ class Logger : ObservableObject {
         }
     }
     
+    func reportErrorString(_ context:String, _ err:Error? = nil) {
+        reportError(self, context, err)
+    }
+
     func log(_ reporter:AnyObject, _ msg:String) {
         let msg = String(describing: type(of: reporter)) + ":" + msg
         print("-->", msg)

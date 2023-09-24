@@ -155,8 +155,15 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
     //From the recording of the first tick, calculate the tempo the rhythm was tapped at
     func getTempoFromRecordingStart(tapValues:[Double], questionScore: Score) -> Int {
         let scoreTimeSlices = questionScore.getAllTimeSlices()
-        //var firstScoreNoteValue = scoreTimeSlices[0].getTimeSliceEntries()[0].getValue()
-        var firstScoreNoteValue = scoreTimeSlices[0].getTimeSliceNotes()[0].getValue()
+        var firstScoreValue:Double
+        if scoreTimeSlices[0].getTimeSliceNotes().count == 0 {
+            ///first entry is a rest
+            firstScoreValue = scoreTimeSlices[0].getTimeSliceEntries()[0].getValue()
+        }
+        else {
+            firstScoreValue = scoreTimeSlices[0].getTimeSliceNotes()[0].getValue()
+        }
+        
         for i in 1..<scoreTimeSlices.count {
             let entries = scoreTimeSlices[i].getTimeSliceEntries()
             if entries.count > 0 {
@@ -166,7 +173,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
                 }
                 else {
                     if entry is Rest {
-                        firstScoreNoteValue += entry.getValue()
+                        firstScoreValue += entry.getValue()
                     }
                 }
             }
@@ -177,7 +184,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         }
         //let firstTapValue = self.tapValues1[0]
         let firstTapValue = tapValues[0]
-        let tempo = (firstScoreNoteValue / firstTapValue) * 60.0
+        let tempo = (firstScoreValue / firstTapValue) * 60.0
         return Int(tempo)
     }
     

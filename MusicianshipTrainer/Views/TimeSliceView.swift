@@ -88,7 +88,7 @@ struct TimeSliceView: View {
         }
         if note.midiNumber <= 61  { //C#
             result.append(LedgerLine(offsetVertical: 3 * lineSpacing * 1.0))
-            if note.midiNumber <= 58 {
+            if note.midiNumber <= 57 {
                 result.append(LedgerLine(offsetVertical: 4 * lineSpacing * 1.0))
             }
             if note.midiNumber <= 54 {

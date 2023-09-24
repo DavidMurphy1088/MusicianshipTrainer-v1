@@ -1,5 +1,8 @@
 import SwiftUI
 import WebKit
+import AVFoundation
+import AVKit
+import UIKit
 
 struct ContentTypeView: View {
     let contentSection:ContentSection
@@ -91,13 +94,10 @@ struct NarrationView : View {
             }
             Spacer()
         }
-        .onDisappear() {
-            //TTS.shared.stop()
-        }
     }
 }
 
-struct ContentSectionTipsView1: UIViewRepresentable {
+struct ContentSectionTipsViewUI: UIViewRepresentable {
     var htmlDocument:String
     
     func makeUIView(context: Context) -> WKWebView {
@@ -109,13 +109,13 @@ struct ContentSectionTipsView1: UIViewRepresentable {
     }
 }
 
-
 struct ContentSectionTipsView: View {
-    var htmlDocument:String
+    let htmlDocument:String
+    let contentSection: ContentSection
     var body: some View {
         VStack {
-            //Text("TIPS_TRICKS")
-            ContentSectionTipsView1(htmlDocument: htmlDocument)
+            ContentSectionTipsViewUI(htmlDocument: htmlDocument)
+            NarrationView(contentSection: contentSection, htmlDocument: htmlDocument, context: "ContentSectionTipsView")
         }
     }
 }
@@ -137,7 +137,7 @@ struct ContentSectionHeaderView: View {
     @Binding var selectedIndex: Int?
 
     let googleAPI = GoogleAPI.shared
-    @State private var isTipsTricksPresented = false
+    @State private var isVideoPresented = false
     @State private var instructions:String? = nil
     @State private var tipsAndTricksExists = false
     @State private var tipsAndTricksData:String?=nil
@@ -149,7 +149,7 @@ struct ContentSectionHeaderView: View {
             return
         }
         let filename = "Instructions" //instructionContent.contentSectionData.data[0]
-        pathSegments.append(UIGlobals.getAgeGrpup())
+        pathSegments.append(UIGlobals.getAgeGroup())
         googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false) {status,document in
             if status == .success {
                 self.instructions = document
@@ -160,7 +160,7 @@ struct ContentSectionHeaderView: View {
     func getTipsAndTricks()  {
         let filename = "Tips_Tricks" //tipsAndTricksContent.contentSectionData.data[0]
         var pathSegments = contentSection.getPathAsArray()
-        pathSegments.append(UIGlobals.getAgeGrpup())
+        pathSegments.append(UIGlobals.getAgeGroup())
 
         googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false) {status,document in
             if status == .success {
@@ -188,7 +188,7 @@ struct ContentSectionHeaderView: View {
     }
     
     func log(contentSection: ContentSection, index:Int?) -> Bool {
-        print(contentSection.getPathTitle(), "index", index)
+        //print(contentSection.getPathTitle(), "index", index)
         return true
     }
     
@@ -213,10 +213,7 @@ struct ContentSectionHeaderView: View {
                     HStack {
                         ZStack {
                             ContentSectionInstructionsView(htmlDocument: instructions)
-                            //NarrationView(contentSection: contentSection, htmlDocument: instructions, context: "Instructions")
-                            .onDisappear() {
-                                //TTS.shared.stop()
-                            }
+                            NarrationView(contentSection: contentSection, htmlDocument: instructions, context: "Instructions")
                         }
                         .frame(height: CGFloat((getParagraphCount(html: instructions)))/12.0 * UIScreen.main.bounds.height)
                         .overlay(
@@ -232,31 +229,48 @@ struct ContentSectionHeaderView: View {
             if tipsAndTricksExists {
                 HStack {
                     Spacer()
+                    NavigationLink(destination: ContentSectionTipsView(htmlDocument: tipsAndTricksData!, contentSection: contentSection)) {
+                        HStack {
+                            Text("Tips and Tricks")
+                                .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
+                            Image(systemName: "questionmark.circle")
+                                .foregroundColor(.blue)
+                                .font(.largeTitle)
+                        }
+                    }
+                    Spacer()
+
                     Button(action: {
-                        isTipsTricksPresented.toggle()
+                        isVideoPresented.toggle()
                     }) {
                         VStack {
                             HStack {
-                                Text("Tips and Tricks").font(UIGlobals.navigationFont)
-                                Image(systemName: "questionmark.circle")
+                                Text("Video")
+                                    .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
+                                Image(systemName: "video")
                                     .foregroundColor(.blue)
                                     .font(.largeTitle)
                             }
                         }
                     }
-                    .sheet(isPresented: $isTipsTricksPresented) {
-                        if let tipsAndTricksData = self.tipsAndTricksData {
-                            ZStack {
-                                ContentSectionTipsView(htmlDocument: tipsAndTricksData)
-                                    .background(Rectangle().stroke(Color.blue, lineWidth: 4))
-                                //NarrationView(contentSection: contentSection, htmlDocument: tipsAndTricksData, context: "TipsTricks")
+                    .sheet(isPresented: $isVideoPresented) {
+                        let urlStr = "https://storage.googleapis.com/musicianship_trainer/NZMEB/" +
+                        contentSection.getPath() + "." + UIGlobals.getAgeGroup() + ".video.mp4"
+                    //https://storage.googleapis.com/musicianship_trainer/NZMEB/Grade%201.PracticeMode.Sight%20Reading.11Plus.video.mp4
+                        //Grade 1.PracticeMode.Sight Reading.11Plus.video.mp4
+                        let allowedCharacterSet = CharacterSet.urlQueryAllowed
+                        if let encodedString = urlStr.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) {
+                            if let url = URL(string: encodedString) {
+                                GeometryReader { geo in
+                                    VStack {
+                                        VideoPlayer(player: AVPlayer(url: url))
+                                    }
+                                    .frame(height: geo.size.height)
+                                }
                             }
-                            .padding()
-                            .background(
-                                Rectangle().stroke(Color.blue, lineWidth: 4)
-                            )
                         }
                     }
+
                     Spacer()
                     Button(action: {
                         DispatchQueue.main.async {
@@ -265,7 +279,8 @@ struct ContentSectionHeaderView: View {
                     }) {
                         VStack {
                             HStack {
-                                Text("Random Pick").font(UIGlobals.navigationFont)
+                                Text("Random Pick")
+                                    .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                                 Image(systemName: "tornado")
                                     .foregroundColor(.blue)
                                     .font(.largeTitle)
@@ -280,9 +295,6 @@ struct ContentSectionHeaderView: View {
             getAudio()
             getInstructions()
             getTipsAndTricks()
-        }
-        .onDisappear() {
-            //TTS.shared.stop()
         }
     }
 }
@@ -338,17 +350,17 @@ struct SectionsNavigationView:View {
         return score
     }
     
-    func getExamCompleteStatus(contentSection: ContentSection) -> String {
-        if contentSection.isExamTypeContentSection() {
-            if contentSection.hasNoAnswers() {
-                return "Not Started"
-            }
-            else {
-                return "Completed - \(getScore(contentSection: contentSection)) out of \(contentSection.getNavigableChildSections().count)"
-            }
-        }
-        return ""
-    }
+//    func getExamCompleteStatus(contentSection: ContentSection) -> String {
+//        if contentSection.isExamTypeContentSection() {
+//            if contentSection.hasNoAnswers() {
+//                return "Not Started"
+//            }
+//            else {
+//                return "Completed - \(getScore(contentSection: contentSection)) out of \(contentSection.getNavigableChildSections().count)"
+//            }
+//        }
+//        return ""
+//    }
 
     var body: some View {
         VStack {
@@ -441,19 +453,16 @@ struct ExamView: View {
     var body: some View {
         VStack {
             if examBeginning {
-                //if let parent = contentSection.parentWithInstructions() {
-                    //ContentSectionHeaderView(contentSection: parent)
-                    Spacer()
-                    Button(action: {
-                        self.examBeginning = false
-                    }) {
-                        VStack {
-                            Text("The exam has \(contentSections.count) questions").defaultTextStyle().padding()
-                            Text("Start the Exam").defaultButtonStyle()
-                        }
+                Spacer()
+                Button(action: {
+                    self.examBeginning = false
+                }) {
+                    VStack {
+                        Text("The exam has \(contentSections.count) questions").defaultTextStyle().padding()
+                        Text("Start the Exam").defaultButtonStyle()
                     }
-                    Spacer()
-                //}
+                }
+                Spacer()
             }
             else {
                 if self.answerState == .submittedAnswer {
@@ -553,7 +562,7 @@ struct ContentOverviewView: View {
     
     func getContent()  {
         var pathSegments = contentSection.getPathAsArray()
-        pathSegments.append(UIGlobals.getAgeGrpup())
+        pathSegments.append(UIGlobals.getAgeGroup())
 
         googleAPI.getDocumentByName(pathSegments: pathSegments, name: contentSection.type, reportError: false) {status,document in
             if status == .success {
@@ -583,9 +592,6 @@ struct ContentOverviewView: View {
         }
         .onAppear {
             getContent()
-        }
-        .onDisappear() {
-            //TTS.shared.stop()
         }
     }
 }
@@ -624,7 +630,11 @@ struct ContentSectionView: View {
                     }
                     else {
                         if contentSection.hasNoAnswers() {
-                            ExamView(contentSection: contentSection, contentSections: childSections)
+                            GeometryReader { geo in
+                                ExamView(contentSection: contentSection, contentSections: childSections)
+                                    .frame(width: geo.size.width)
+                                    //.border(Color.red)
+                            }
                         }
                         else {
                             //Exam was taken
@@ -705,9 +715,6 @@ struct ContentSectionView: View {
             }
             
         }
-        .onDisappear() {
-            //TTS.shared.stop()
-        }
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -716,7 +723,7 @@ struct ContentSectionView: View {
                 }) {
                     Image(systemName: "music.note.list")
                         .foregroundColor(.blue)
-                        .font(.largeTitle)
+                        .font(UIDevice.current.userInterfaceIdiom == .phone ? .body : .largeTitle)
                 }
             }
         }

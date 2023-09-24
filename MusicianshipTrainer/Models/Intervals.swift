@@ -37,6 +37,7 @@ class IntervalType : Comparable, Hashable {
 
 class Intervals {
     var intervalTypes:[IntervalType]
+    var intervalsPerColumn:Int
     
     init(grade:Int) {
         self.intervalTypes = []
@@ -45,13 +46,17 @@ class Intervals {
             intervalTypes.append(IntervalType(intervals:[3,4], name: "Third", explanation: [""]))
         }
         if grade >= 2 {
-            intervalTypes.append(IntervalType(intervals:[5,6], name: "Fourth", explanation: ["",""]))
-            intervalTypes.append(IntervalType(intervals:[7], name: "Fifth", explanation: [""]))
+            intervalTypes.append(IntervalType(intervals:[5], name: "Fourth", explanation: ["",""]))
+            intervalTypes.append(IntervalType(intervals:[6,7], name: "Fifth", explanation: [""]))
         }
         if grade >= 3 {
             intervalTypes.append(IntervalType(intervals:[8,9], name: "Sixth", explanation: ["",""]))
             intervalTypes.append(IntervalType(intervals:[10,11], name: "Seventh", explanation: [""]))
             intervalTypes.append(IntervalType(intervals:[12], name: "Octave", explanation: [""]))
+        }
+        self.intervalsPerColumn = Int(Double((self.intervalTypes.count + 1)) / 2.0)
+        if intervalsPerColumn == 0 {
+            intervalsPerColumn = 1
         }
     }
     
@@ -63,5 +68,21 @@ class Intervals {
             }
         }
         return nil
+    }
+    
+    func getVisualColumnCount() -> Int {
+        return (intervalTypes.count + self.intervalsPerColumn/2) / self.intervalsPerColumn
+    }
+    
+    func getVisualColumns(col:Int) -> [IntervalType] {
+        var result:[IntervalType] = []
+        let start = col * intervalsPerColumn
+        for i in 0..<intervalsPerColumn {
+            let index = i + col * intervalsPerColumn
+            if index < intervalTypes.count {
+                result.append(intervalTypes[index])
+            }
+        }
+        return result
     }
 }

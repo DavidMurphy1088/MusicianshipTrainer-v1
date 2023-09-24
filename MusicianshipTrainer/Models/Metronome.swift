@@ -182,14 +182,14 @@ class Metronome: AudioPlayerUser, ObservableObject  {
     func stopPlayingScore() {
         DispatchQueue.main.async {
             self.score = nil
-            AudioSamplerPlayer.shared.stopSampler()
+            //AudioSamplerPlayer.shared.stopSampler()
         }
     }
 
     private func startThreadRunning(timeSignature:TimeSignature) {
         self.isThreadRunning = true
-        let midiSampler = AudioSamplerPlayer.shared.getSampler()
-        AudioSamplerPlayer.shared.startSampler()
+        let midiSampler = AudioSamplerPlayer.getShared().getSampler()
+        //AudioSamplerPlayer.getShared().startSampler()
 
         let audioTickerMetronomeTick:AudioTicker = AudioTicker(timeSignature: timeSignature, tickStyle: true)
         let audioClapper:AudioTicker = AudioTicker(timeSignature: timeSignature, tickStyle: false)

@@ -593,6 +593,12 @@ class Score : ObservableObject {
         for d in tappedDurations {
             print ("TAP Elapsed", d.elapsed, "type", d.type, "value", d.value)
         }
+        
+        if tappedDurations.count == 0 {
+            let feedback = StudentFeedback()
+            feedback.feedbackExplanation = "There were no taps"
+            return (outputScore, feedback)
+        }
        
         ///Make a table of note times in the question and the sequence number of each note
         ///Note duration is not the note value, but the duration between a note and the next note. e.g. a note with value 1 followed by a quaver rest has a note duration 2

@@ -360,13 +360,17 @@ struct ClapOrPlayPresentView: View {
                         ScoreSpacerView()
                     }
                     
-                    if answerState != .recording {
-                        let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
-                        PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
-                                          score: score,
-                                          metronome: metronome,
-                                          fileName: contentSection.name,
-                                          onDone: {rhythmHeard = true})
+                    if let parent = contentSection.parent {
+                        if !parent.isExamTypeContentSection() {
+                            if answerState != .recording {
+                                let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
+                                PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
+                                                  score: score,
+                                                  metronome: metronome,
+                                                  fileName: contentSection.name,
+                                                  onDone: {rhythmHeard = true})
+                            }
+                        }
                     }
                     
                     VStack {
@@ -589,7 +593,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
 
         if let fittedScore = fittedScore {
-            if fittedScore.errorCount() == 0 {
+            if fittedScore.errorCount() == 0 && fittedScore.getAllTimeSlices().count > 0 {
                 feedback.correct = true
                 feedback.feedbackExplanation = "Good job!"
                 if let recordedTempo = tappedScore.tempo {
@@ -777,11 +781,12 @@ struct ClapOrPlayView: View {
         }
         .background(UIGlobals.colorBackground)
         .onAppear() {
-            AudioSamplerPlayer.shared.startSampler()
+            //AudioSamplerPlayer.shared.startSampler()
         }
         .onDisappear {
-            //Metronome.getMetronomeWithCurrentSettings(ctx: "").stopTicking()
-            //AudioSamplerPlayer.shared.stopSampler()
+            let metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "")
+            metronome.stopTicking()
+            metronome.stopPlayingScore()
         }
     }
 
