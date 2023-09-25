@@ -7,12 +7,12 @@ class TimeSlice : ScoreEntry {
     @Published var notesLength:Int?
     @Published var statusTag:StatusTag = .noTag
 
-    var score:Score
+    var score:Score?
     var footnote:String?
     var barLine:Int = 0
     private static var idIndex = 0
     
-    init(score:Score) {
+    init(score:Score?) {
         self.score = score
         self.entries = []
         TimeSlice.idIndex += 1
@@ -27,22 +27,28 @@ class TimeSlice : ScoreEntry {
     func addNote(n:Note) {
         self.entries.append(n)
         n.timeSlice = self
-        score.updateStaffs()
-        score.addStemCharaceteristics()
+        if let score = score {
+            score.updateStaffs()
+            score.addStemCharaceteristics()
+        }
     }
     
     func addRest(rest:Rest) {
         self.entries.append(rest)
-        score.updateStaffs()
-        //score.addStemCharaceteristics()
+        if let score = score {
+            score.updateStaffs()
+            //score.addStemCharaceteristics()
+        }
     }
 
     func addChord(c:Chord) {
         for n in c.getNotes() {
             self.entries.append(n)
         }
-        score.addStemCharaceteristics()
-        score.updateStaffs()
+        if let score = score {
+            score.addStemCharaceteristics()
+            score.updateStaffs()
+        }
     }
     
     func setTags(high:String, low:String) {
@@ -60,9 +66,11 @@ class TimeSlice : ScoreEntry {
         if getTimeSliceEntries().count == 0 {
             return
         }
-        let triad = score.key.makeTriadAt(timeSlice:timeSlice, rootMidi: rootNoteMidi, value: value, staffNum: staffNum)
-        for note in triad {
-            addNote(n: note)
+        if let score = score {
+            let triad = score.key.makeTriadAt(timeSlice:timeSlice, rootMidi: rootNoteMidi, value: value, staffNum: staffNum)
+            for note in triad {
+                addNote(n: note)
+            }
         }
     }
     

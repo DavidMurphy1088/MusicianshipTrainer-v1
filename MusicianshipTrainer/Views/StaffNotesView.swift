@@ -296,17 +296,7 @@ struct StaffNotesView: View {
                                             }
                                         }
                                 })
-//                                if entries.statusTag == .inError {
-//                                    VStack {
-//                                        //Spacer()
-//                                        Circle()
-//                                            .fill(Color.red)
-//                                            .frame(width: 16, height: 16)
-//                                        Spacer()
-//                                    }
-//                                }
-//                                .border(entries.statusTag == .inError ? Color(.red) : Color(.clear))
-                                
+
                                 StemView(score:score,
                                          staff:staff,
                                          notePositionLayout: noteLayoutPositions,
@@ -327,6 +317,9 @@ struct StaffNotesView: View {
                     //IMPORTANT - keep this since the quaver beam code needs to know exactly the note view width
                 }
                 .coordinateSpace(name: "ForEach")
+                ///spacing before end of staff
+                Text(" ")
+                    .frame(width:1.5 * noteWidth)
             }
             .coordinateSpace(name: "HStack")
 

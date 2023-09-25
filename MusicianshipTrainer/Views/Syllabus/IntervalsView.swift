@@ -37,15 +37,13 @@ struct PlayExampleMelody : View {
             }
             if let firstNote = firstNote {
                 if let secondNote = secondNote {
-                    let songs = Songs()
+                    let melodies = Melodies.shared
                     let base = firstNote
-                    let interval = secondNote.midiNumber - firstNote.midiNumber
+                    let halfSteps = secondNote.midiNumber - firstNote.midiNumber
                     let timeSlice = TimeSlice(score: score)
-                    let (melodyName, notes) = songs.song(timeSlice: timeSlice, base: base, interval: interval)
-                    if let melodyName = melodyName {
-                        self.melodyName = melodyName
-                    }
-                    player.playNotes(notes: notes)
+                    let melody = melodies.getMelodies(halfSteps: halfSteps)
+                    self.melodyName = melodyName
+                    player.playNotes(notes: melody[0].notes)
                 }
             }
         }) {
@@ -321,6 +319,48 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     }
 }
 
+struct ShowMelodiesView: View {
+    let firstNote:Note
+    let intervalName:String
+    let melodies:[Melody]
+    @State var selectedMelodyId:UUID?
+    @State var showingMelodies = false
+
+    var body: some View {
+        VStack {
+            Button(action: {
+                showingMelodies = true
+            }) {
+                Text("Hear Melody").defaultButtonStyle()
+            }
+            .padding()
+            .popover(isPresented: $showingMelodies, arrowEdge: .trailing) {
+                VStack {
+                    HStack {
+                        ForEach(melodies, id: \.id) { melody in
+                            Button(action: {
+                                selectedMelodyId = melody.id
+                                //metronome.playScore(score: score)
+                                //print(melody.name)
+                                let transposed = melody.transpose(base: firstNote)
+                                AudioSamplerPlayer.getShared().stopAll()
+                                AudioSamplerPlayer.getShared().playNotes(notes: transposed)
+                            }) {
+                                Text(melody.name)
+                                    .padding()
+                                    .foregroundColor(selectedMelodyId == melody.id ? .white : .primary)
+                                    .background(selectedMelodyId == melody.id ? Color.blue : Color.clear)
+                                    .cornerRadius(8)
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+        }
+    }
+}
+
 struct IntervalAnswerView: View {
     let contentSection:ContentSection
     private var questionType:QuestionType
@@ -331,7 +371,8 @@ struct IntervalAnswerView: View {
     private var answer:Answer
     private let intervals:Intervals
     private let grade:Int
-    
+    private let melodies = Melodies.shared
+
     init(contentSection:ContentSection, score:Score, answer:Answer, questionType:QuestionType, refresh:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.score = score
@@ -341,6 +382,17 @@ struct IntervalAnswerView: View {
         self.answer = answer
         self.grade = contentSection.getGrade()
         self.intervals = Intervals(grade: grade)
+    }
+    
+    func getMelodies() -> [Melody] {
+        var result:[Melody] = []
+        let timeSlices = score.getAllTimeSlices()
+        if timeSlices.count < 2 {
+            return result
+        }
+        let firstNote = timeSlices[0].getTimeSliceNotes()[0]
+        let halfSteps = timeSlices[1].getTimeSliceNotes()[0].midiNumber - firstNote.midiNumber
+        return melodies.getMelodies(halfSteps: halfSteps)
     }
     
     var body: AnyView {
@@ -372,19 +424,17 @@ struct IntervalAnswerView: View {
                 }
                 
                 HStack {
-                    //if questionType == .intervalAural {
                     Button(action: {
-                        //metronome.setTempo(tempo: 200, context: "Intervals Viz")
                         metronome.playScore(score: score)
                     }) {
                         Text("Hear Interval").defaultButtonStyle()
                     }
                     .padding()
-                    //}
                     
-                    PlayExampleMelody(score: score).padding()
+                    if getMelodies().count > 0 {
+                        ShowMelodiesView(firstNote: score.getAllTimeSlices()[0].getTimeSliceNotes()[0], intervalName: answer.correctIntervalName, melodies: getMelodies())
+                    }
                 }
-                
                 Spacer()
             }
         )

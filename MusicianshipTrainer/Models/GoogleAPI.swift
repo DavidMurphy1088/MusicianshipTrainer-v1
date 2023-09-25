@@ -96,17 +96,15 @@ class GoogleAPI {
         return nil
     }
     
-    func getExampleSheet(onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
-        let examplesSheetKey:String? = getAPIBundleData(key: "ContentSheetID")
-        //let examplesSheetKey:String? = getAPIBundleData(key: "ContentSheetID_TEST")
-        
-        if let examplesSheetKey = examplesSheetKey {
-            let request = DataRequest(callType: .file, id: examplesSheetKey, context: "getExampleSheet", targetExampleKey: nil)
+    func getContentSheet(sheetName:String, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
+        let sheetKey:String? = getAPIBundleData(key: sheetName)
+
+        if let sheetKey = sheetKey {
+            let request = DataRequest(callType: .file, id: sheetKey, context: "getExampleSheet", targetExampleKey: nil)
             var url:String
             url = "https://sheets.googleapis.com/v4/spreadsheets/"
             url +=  request.id
             url += "/values/Sheet1"
-            //var request = request
             request.url = url
             getByAPI(request: request) {status,data in
                 onDone(.success, data)

@@ -6,7 +6,8 @@ class AudioSamplerPlayer {
     static private var shared = AudioSamplerPlayer()
     private var audioEngine = AVAudioEngine()
     private var sampler = AVAudioUnitSampler()
-
+    private var stopPlayingNotes = false
+    
     private init() {
         audioEngine = AVAudioEngine()
         sampler = AVAudioUnitSampler()
@@ -27,6 +28,10 @@ class AudioSamplerPlayer {
     
     static public func reset() {        
         AudioSamplerPlayer.shared = AudioSamplerPlayer()
+    }
+    
+    public func stopPlaying() {
+        stopPlayingNotes = true
     }
     
     public func getSampler() -> AVAudioUnitSampler {
@@ -103,11 +108,15 @@ class AudioSamplerPlayer {
     }
     
     func playNotes(notes: [Note]) {
+        stopPlayingNotes = false
         DispatchQueue.global(qos: .userInitiated).async { [self] in
-            let playTempo = 4.0
+            let playTempo = 16.0
             let pitchAdjust = 0
             var n = 0
             for note in notes {
+                if stopPlayingNotes {
+                    break
+                }
                 let dynamic:Double = 48
                 n += 1
                 sampler.startNote(UInt8(note.midiNumber + pitchAdjust), withVelocity:UInt8(dynamic), onChannel:0)

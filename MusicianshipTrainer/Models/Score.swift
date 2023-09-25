@@ -120,6 +120,12 @@ class Score : ObservableObject {
         return self.totalStaffLineCount
     }
     
+//    func getEntriesForDisplay() -> [ScoreEntry] {
+//        var result:[scoreEntry] = score.scoreEntries
+//        result.append(ScoreEntry())
+//        return result
+//    }
+    
     func getAllTimeSlices() -> [TimeSlice] {
         var result:[TimeSlice] = []
         for scoreEntry in self.scoreEntries {

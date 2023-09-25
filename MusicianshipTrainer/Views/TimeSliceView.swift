@@ -88,7 +88,7 @@ struct TimeSliceView: View {
         }
         if note.midiNumber <= 61  { //C#
             result.append(LedgerLine(offsetVertical: 3 * lineSpacing * 1.0))
-            if note.midiNumber <= 57 {
+            if note.midiNumber <= 58 {
                 result.append(LedgerLine(offsetVertical: 4 * lineSpacing * 1.0))
             }
             if note.midiNumber <= 54 {
@@ -141,12 +141,14 @@ struct TimeSliceView: View {
                 }
             }
             
-            if entry.timeSlice.statusTag == .hilightAsCorrect {
-                VStack {
-                    Text("X")
-                        .font(.title)
-                        .foregroundColor(entry.getColor(staff: staff, log: true))
-                    Spacer()
+            if let timeSlice = entry.timeSlice {
+                if timeSlice.statusTag == .hilightAsCorrect {
+                    VStack {
+                        Text("X")
+                            .font(.title)
+                            .foregroundColor(entry.getColor(staff: staff, log: true))
+                        Spacer()
+                    }
                 }
             }
 
@@ -207,7 +209,7 @@ struct TimeSliceView: View {
                 //Open ellipse
                 //.stroke(color(note: note), lineWidth: 2)
                     .frame(width: noteWidth/3.0, height: noteWidth/3.0)
-                    .position(x: noteFrameWidth/2 + noteWidth/0.75, y: noteEllipseMidpoint - yOffset)
+                    .position(x: noteFrameWidth/2 + noteWidth/0.90, y: noteEllipseMidpoint - yOffset)
                     .foregroundColor(note.getColor(staff: staff))
             }
 
