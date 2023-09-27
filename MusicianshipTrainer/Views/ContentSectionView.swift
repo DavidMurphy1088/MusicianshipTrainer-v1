@@ -270,7 +270,6 @@ struct ContentSectionHeaderView: View {
                     Spacer()
                     Button(action: {
                         DispatchQueue.main.async {
-                            //self.selectedIndex =
                             contentSectionView.randomPick()
                         }
                     }) {
@@ -303,10 +302,15 @@ class NavigationStateManager: ObservableObject {
 struct SectionsNavigationView:View {
     let contentSections:[ContentSection]
     let contentSectionView:ContentSectionView
-    //@Binding var selectedIndex: Int?
-    @State var randomSet = false
+    @Binding var makeRandomChoice:Bool
     @StateObject private var navigationManager = NavigationStateManager()
-
+    
+//    init(contentSections:[ContentSection], contentSectionView:ContentSectionView) {
+//        self.contentSections = contentSections
+//        self.contentSectionView = contentSectionView
+//
+//    }
+//
     func getGradeImage(contentSection: ContentSection) -> Image? {
         var name = ""
         if contentSection.isExamTypeContentSection() {
@@ -342,21 +346,19 @@ struct SectionsNavigationView:View {
         return image
     }
     
-    func randomSelection() {
+    func randomSelection(withDelay:Bool) {
         let range = contentSections.count
         let random = Int.random(in: 0...range-1)
-        print("=====SectionsNavigationView NEW RANDOM=", random, contentSectionView.contentSection.getPath(), contentSections.count)
-
-        let delta = 0.50
+        let delta = 0.40
         DispatchQueue.main.async {
             navigationManager.selectedIndex = random
-            print("=====SectionsNavigationView NEW RANDOM 1", random)
-            DispatchQueue.main.async {//After(deadline: .now() + delta) {
-                print("=====SectionsNavigationView NEW RANDOM 2", random)
-                navigationManager.selectedIndex = nil
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2 * delta) {
-                    print("=====SectionsNavigationView NEW RANDOM 3", random)
-                    navigationManager.selectedIndex = random
+            if withDelay {
+                ///Let the parent view's scroller scroll to the correct row but then force a change of selected index to make the new child view appear
+                DispatchQueue.main.async {//After(deadline: .now() + delta) {
+                    navigationManager.selectedIndex = nil
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2 * delta) {
+                        navigationManager.selectedIndex = random
+                    }
                 }
             }
         }
@@ -383,8 +385,7 @@ struct SectionsNavigationView:View {
                     NavigationLink(destination:
                                     ContentSectionView(contentSection: contentSections[index], contentSectionView: self,
                                                        //parentSelectionIndex: $selectedIndex
-                                                       parentSelectionIndex: $navigationManager.selectedIndex
-                                                      )
+                                                       parentSelectionIndex: $navigationManager.selectedIndex)
                                    ,
                                    tag: index,
                                    //selection: $selectedIndex
@@ -426,9 +427,12 @@ struct SectionsNavigationView:View {
                 .listRowBackground(Color(.secondarySystemBackground))
                 .onChange(of: navigationManager.selectedIndex) { newIndex in
                     if let newIndex = newIndex {
-                        print("=============== SectionsNavigationView .OnChange, is scrolling", newIndex)
                         proxy.scrollTo(newIndex)
                     }
+                }
+                .onChange(of: makeRandomChoice) { newState in
+                    makeRandomChoice = false
+                    self.randomSelection(withDelay: false)
                 }
             }
         }
@@ -619,8 +623,8 @@ struct ContentSectionView: View {
     @State var answer:Answer = Answer(ctx: "ContentSectionView")//, questionMode: .practice)
     @Binding var parentSelectionIndex:Int?
     @State var isShowingConfiguration:Bool = false
-    //@State var sectionIndex: Int?
     @StateObject private var navigationManager = NavigationStateManager()
+    @State var random:Bool = false
 
     let id = UUID()
     
@@ -638,25 +642,7 @@ struct ContentSectionView: View {
     
     func randomPick() {
         let range = contentSection.subSections.count
-        let random = Int.random(in: 0...range-1)
-        print("=====ContentSectionView", contentSection.getPath(), contentSection.subSections.count, random)
-        //self.sectionIndex = random
-//        DispatchQueue.main.async {//After(deadline: .now() + 0.1) {
-//            navigationManager.selectedIndex = 25
-//        }
-        let delta = 0.5
-        DispatchQueue.main.async {
-            navigationManager.selectedIndex = random
-            print("=====SectionsNavigationView NEW RANDOM 1", random)
-            DispatchQueue.main.async {//After(deadline: .now() + delta) {
-                print("=====SectionsNavigationView NEW RANDOM 2", random)
-                navigationManager.selectedIndex = nil
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2 * delta) {
-                    print("=====SectionsNavigationView NEW RANDOM 3", random)
-                    navigationManager.selectedIndex = random
-                }
-            }
-        }
+        self.random = true
     }
     
 //    func log(v:(any View)) -> Bool {
@@ -671,7 +657,7 @@ struct ContentSectionView: View {
                 if contentSection.isExamTypeContentSection() {
                     //No ContentSectionHeaderView in any exam mode content section except the exam start
                     if contentSection.hasExamModeChildren() {
-                        SectionsNavigationView(contentSections: childSections, contentSectionView: self) //, selectedIndex: $sectionIndex)
+                        SectionsNavigationView(contentSections: childSections, contentSectionView: self, makeRandomChoice: $random)
                     }
                     else {
                         if contentSection.hasNoAnswers() {
@@ -683,17 +669,17 @@ struct ContentSectionView: View {
                         }
                         else {
                             //Exam was taken
-                            SectionsNavigationView(contentSections: childSections, contentSectionView: self)//, selectedIndex: $sectionIndex)
+                            SectionsNavigationView(contentSections: childSections, contentSectionView: self, makeRandomChoice: $random)
                         }
                     }
                 }
                 else {
                     ScrollViewReader { proxy in
-                        ContentSectionHeaderView(contentSection: contentSection, contentSectionView: self) //, selectedIndex: $sectionIndex)
+                        ContentSectionHeaderView(contentSection: contentSection, contentSectionView: self)
                             //.border(Color.red)
                             .padding(.vertical, 0)
                     
-                        SectionsNavigationView(contentSections: childSections, contentSectionView: self) //, selectedIndex: $sectionIndex)
+                        SectionsNavigationView(contentSections: childSections, contentSectionView: self, makeRandomChoice: $random)
                         //.border(Color.blue)
                             .padding(.vertical, 0)
                             .onChange(of: navigationManager.selectedIndex) { newValue in
@@ -718,14 +704,12 @@ struct ContentSectionView: View {
                 //if contentSection.type != "Overview" {
                     HStack {
                         ///Tell the parent to navigate to the next section
-                        //if log(v: self.contentSectionView) {
-                            if let navigationView = self.contentSectionView as? SectionsNavigationView {
-                                Button("Random Example") {
-                                    navigationView.randomSelection()
-                                }
-                                .padding()
+                        if let navigationView = self.contentSectionView as? SectionsNavigationView {
+                            Button("Random Example") {
+                                navigationView.randomSelection(withDelay: true)
                             }
-                        //}
+                            .padding()
+                        }
                         Button("Previous Example") {
                             if self.parentSelectionIndex == nil {
                                 self.parentSelectionIndex = 0
@@ -757,14 +741,9 @@ struct ContentSectionView: View {
         .background(Color(.secondarySystemBackground))
         .onAppear {
             if contentSection.answer111 != nil {
-                //print("ContentSectionView ==== did set answer submitted", answerState)
                 self.answerState = .submittedAnswer
                 self.answer = contentSection.answer111!
             }
-            else {
-                //print("ContentSectionView ==== did NOT set answer submitted", answerState)
-            }
-            
         }
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
         .toolbar {

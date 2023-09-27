@@ -76,7 +76,18 @@ struct ScoreView: View {
         //https://www.hackingwithswift.com/quick-start/swiftui/how-to-detect-device-rotation
         var lineSpacing:Double
         if self.staffLayoutSize.lineSpacing == 0 {
-            lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
+            //if UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
+            if UIDevice.current.userInterfaceIdiom == .phone {
+                lineSpacing = 10.0
+            }
+            else {
+                if UIDevice.current.orientation == .portrait {
+                    lineSpacing = UIScreen.main.bounds.width / 64.0
+                }
+                else {
+                    lineSpacing = UIScreen.main.bounds.width / 128.0
+                }
+            }
         }
         else {
             //make a small change only to force via Published a redraw of the staff views
@@ -88,10 +99,13 @@ struct ScoreView: View {
                 lineSpacing -= 1
             }
         }
-        self.staffLayoutSize.setLineSpacing(lineSpacing)
+        //self.staffLayoutSize.setLineSpacing(lineSpacing) ????????? WHY 
 
-        let ls = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 :
-        UIScreen.main.bounds.width / (score.noteSize == .small ? 64.0 : 48.0)
+        lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ?
+                            10.0 : UIScreen.main.bounds.width / (score.noteSize == .small ? 64.0 : 48.0)
+//        if UIDevice.current.orientation.isLandscape {
+//            lineSpacing = lineSpacing / 1.5
+//        }
 //        if UIDevice.current.orientation.isLandscape {
 //            print("\tLandscape", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
 //        }
@@ -99,7 +113,9 @@ struct ScoreView: View {
 //            print("\tPortrait", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
 //        }
 //        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", ls)
-        self.staffLayoutSize.setLineSpacing(ls)
+        UIGlobals.showDeviceOrientation()
+        print("=====>>setOrientationLineSize", "Context", ctx, "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
+        self.staffLayoutSize.setLineSpacing(lineSpacing)
     }
     
     var body: some View {
@@ -111,7 +127,8 @@ struct ScoreView: View {
             ForEach(score.getStaff(), id: \.self.type) { staff in
                 if !staff.isHidden {
                     StaffView(score: score, staff: staff, staffLayoutSize: staffLayoutSize)
-                        .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                    .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                    //.border(Color .red, width: 4)
                 }
             }
         }

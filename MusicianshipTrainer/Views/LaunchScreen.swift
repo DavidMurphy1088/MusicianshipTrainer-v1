@@ -84,8 +84,8 @@ struct LaunchScreenView: View {
                             //Image("nzmeb_logo_transparent")
                             Image("NZMEB logo aqua bird")
                                 .resizable()
-                                .scaledToFit()
-                                .frame(height: geo.size.width * 0.95)
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: geo.size.width * 0.40)
                                 .opacity(self.opacity.imageOpacity)
                             Spacer()
                         }

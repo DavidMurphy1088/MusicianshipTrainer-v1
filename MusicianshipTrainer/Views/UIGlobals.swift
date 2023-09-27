@@ -48,6 +48,29 @@ class UIGlobals {
     static func getAgeGroup() -> String {
         return UIGlobals.ageGroup == .Group_11Plus ? "11Plus" : "5-10"
     }
+    
+    static func showDeviceOrientation() {
+        let orientation = UIDevice.current.orientation
+        print("showDeviceOrientation --> IS PORTRAIT", orientation.isPortrait,"IS LANDSCAPE", orientation.isLandscape,
+              "isGeneratingDeviceOrientationNotifications", UIDevice.current.isGeneratingDeviceOrientationNotifications,
+              "RAW", orientation.rawValue)
+        switch orientation {
+        case .portrait:
+            print("Portrait")
+        case .portraitUpsideDown:
+            print("Portrait Upside Down")
+        case .landscapeLeft:
+            print("Landscape Left")
+        case .landscapeRight:
+            print("Landscape Right")
+        case .faceUp:
+            print("Face Up")
+        case .faceDown:
+            print("Face Down")
+        default:
+            print("Unknown")
+        }
+    }
 }
 
 struct StandardButtonStyle: ButtonStyle {

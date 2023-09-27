@@ -55,6 +55,8 @@ struct MusicianshipTrainerApp: App {
     var launchTimeSecs = 4.5
 
     init() {
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+
     }
     
     func getStartContentSection() -> ContentSection {

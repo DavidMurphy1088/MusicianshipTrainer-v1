@@ -234,22 +234,27 @@ struct ClapOrPlayPresentView: View {
     func getInstruction(mode:QuestionType, number:Int, grade:Int) -> String? {
         var result = ""
         let bullet = "\u{2022}" + " "
+        var linefeed = "\n"
+        if !UIDevice.current.orientation.isLandscape {
+            UIGlobals.showDeviceOrientation()
+            linefeed = linefeed + "\n"
+        }
         if number == 0 {
             switch mode {
             case .rhythmVisualClap:
                 result += "\(bullet)Look through the given rhythm."
-                result += "\n\n\(bullet)When you are ready to, press Start Recording."
-                result += "\n\n\(bullet)Tap your rhythm on the drum and then press Stop Recording once you have finished."
+                result += "\(linefeed)\(bullet)When you are ready to, press Start Recording."
+                result += "\(linefeed)\(bullet)Tap your rhythm on the drum and then press Stop Recording once you have finished."
                 
             case .rhythmEchoClap:
                 result += "\(bullet)Listen to the given rhythm."
-                result += "\n\n\(bullet)When it has finished you will be able to press Start Recording."
-                result += "\n\n\(bullet)Tap your rhythm on the drum that appears and then press Stop Recording once you have finished."
+                result += "\(linefeed)\(bullet)When it has finished you will be able to press Start Recording."
+                result += "\(linefeed)\(bullet)Tap your rhythm on the drum that appears and then press Stop Recording once you have finished."
 
             case .melodyPlay:
                 result += "\(bullet)Press Start Recording then "
                 result += "play the melody and the final chord."
-                result += "\n\n\(bullet)When you have finished, stop the recording."
+                result += "\(linefeed)\(bullet)When you have finished, stop the recording."
                 
             default:
                 result = ""
@@ -333,76 +338,91 @@ struct ClapOrPlayPresentView: View {
             return false
         }
     }
-
+    
+    func instructionView() -> some View {
+        VStack {
+            if let instruction = self.getInstruction(mode: self.questionType, number: 0, grade: contentSection.getGrade()) {
+                Text(instruction)
+                    .defaultTextStyle()
+                    .padding()
+                    .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                    )
+                    .padding()
+            }
+            if let instruction = self.getInstruction(mode: self.questionType, number: 1, grade: contentSection.getGrade()) {
+                Text(instruction)
+                    .defaultTextStyle()
+                    .padding()
+                    .frame(width:UIScreen.main.bounds.width * 0.9, alignment: .leading)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+                    )
+                    .padding()
+            }
+        }
+    }
+    
     var body: AnyView {
         AnyView(
-            GeometryReader { geo in
-            //VStack  {
+            VStack {
+                if self.isTakingExam() {
+                    Text(" ")
+                }
+                else {
+                    if UIDevice.current.userInterfaceIdiom != .phone {
+                        if questionType == .melodyPlay || questionType == .rhythmEchoClap {
+                            ToolsView(score: score, helpMetronome: helpMetronome())
+                        }
+                        else {
+                            Text(" ")
+                        }
+                    }
+                }
+                
+                if questionType == .rhythmVisualClap || questionType == .melodyPlay {
+                    ScoreSpacerView()
+                    ScoreView(score: score)
+                        .padding()
+                    ScoreSpacerView()
+                }
+                
                 VStack {
-                    if self.isTakingExam() {
-                        Text(" ")
-                    }
-                    else {
-                        if UIDevice.current.userInterfaceIdiom != .phone {
-                            if questionType == .melodyPlay || questionType == .rhythmEchoClap {
-                                ToolsView(score: score, helpMetronome: helpMetronome())
-                            }
-                            else {
-                                Text(" ")
+                    if answerState != .recording {
+                        if self.isTakingExam() {
+                            if self.examInstructions == nil {
+                                Text("Waiting for instructions...").defaultTextStyle().padding()
                             }
                         }
-                    }
-                    
-                    if questionType == .rhythmVisualClap || questionType == .melodyPlay {
-                        ScoreSpacerView()
-                        ScoreView(score: score)
-                            .padding()
-                        ScoreSpacerView()
-                    }
-                    
-                    if let parent = contentSection.parent {
-                        if !parent.isExamTypeContentSection() {
-                            if answerState != .recording {
-                                let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
-                                PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
-                                                  score: score,
-                                                  metronome: metronome,
-                                                  fileName: contentSection.name,
-                                                  onDone: {rhythmHeard = true})
-                            }
-                        }
-                    }
-                    
-                    VStack {
-                        if answerState != .recording {
-                            if self.isTakingExam() {
-                                if self.examInstructions == nil {
-                                    Text("Waiting for instructions...").defaultTextStyle().padding()
+                        else {
+                            if UIDevice.current.userInterfaceIdiom == .pad {
+                                //GeometryReader { geo in
+                                    ///This appears to be the only way to reliably know device orientation :( :( :( :( :(
+//                                    if geo.size.width > geo.size.height {
+//                                        ScrollView {
+//                                            instructionView()...does not work with geo not full screen
+//                                        }
+//                                    }
+//                                    else {
+                                        instructionView()
+                                    .border(.red)
+//                                    }
                                 }
-                            }
-                            else {
-                                if UIDevice.current.userInterfaceIdiom == .pad {
-                                    VStack {
-                                        if let instruction = self.getInstruction(mode: self.questionType, number: 0, grade: contentSection.getGrade()) {
-                                            Text(instruction)
-                                                .defaultTextStyle()
-                                                .padding()
-                                                .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                                                )
-                                                .padding()
-                                        }
-                                        if let instruction = self.getInstruction(mode: self.questionType, number: 1, grade: contentSection.getGrade()) {
-                                            Text(instruction)
-                                                .defaultTextStyle()
-                                                .padding()
-                                                .frame(width:UIScreen.main.bounds.width * 0.9, alignment: .leading)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                                                )
-                                                .padding()
-                                        }
+                                
+                            //}
+                        }
+                        HStack {
+                            if let parent = contentSection.parent {
+                                if !parent.isExamTypeContentSection() {
+                                    if answerState != .recording {
+                                        let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
+                                        PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
+                                                          score: score,
+                                                          metronome: metronome,
+                                                          fileName: contentSection.name,
+                                                          onDone: {rhythmHeard = true})
+                                        .border(.green)
                                     }
                                 }
                             }
@@ -412,7 +432,7 @@ struct ClapOrPlayPresentView: View {
                                     if self.isTakingExam() {
                                         self.audioRecorder.stopPlaying()
                                     }
-
+                                    
                                     answerState = .recording
                                     metronome.stopTicking()
                                     if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
@@ -432,36 +452,41 @@ struct ClapOrPlayPresentView: View {
                                 .disabled(!rhythmHeard && questionType != .melodyPlay)
                             }
                         }
+                        Spacer()//Force vertical alignment
+                    }
+                    
+                    if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
                         
-                        if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
-                            
-                            VStack {
+                        VStack {
+                            GeometryReader { geo in
                                 tappingView
-                                    .frame(height: geo.size.height / 4.0)
+                                    .frame(height: geo.size.height / 2.0)
                             }
-                            .padding()
                         }
-                        
-                        if answerState == .recording {
-                            Button(action: {
-                                answerState = .recorded
-                                if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
-                                    self.isTapping = false
-                                    answer.values = self.tapRecorder.stopRecording(score:score)
-                                    isTapping = false
-                                }
-                                else {
-                                    audioRecorder.stopRecording()
-                                    answer.recordedData = self.audioRecorder.getRecordedAudio(fileName: contentSection.name)
-                                }
-                            }) {
-                                Text("Stop Recording").defaultButtonStyle()
+                        .padding()
+                        .border(.cyan)
+                    }
+                    
+                    if answerState == .recording {
+                        Button(action: {
+                            answerState = .recorded
+                            if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
+                                self.isTapping = false
+                                answer.values = self.tapRecorder.stopRecording(score:score)
+                                isTapping = false
                             }
-                            Spacer()
+                            else {
+                                audioRecorder.stopRecording()
+                                answer.recordedData = self.audioRecorder.getRecordedAudio(fileName: contentSection.name)
+                            }
+                        }) {
+                            Text("Stop Recording").defaultButtonStyle()
                         }
-                        
-                        if answerState == .recorded {
-                            
+                        Spacer()
+                    }
+                    
+                    if answerState == .recorded {
+                        HStack {
                             if replayRecordingAllowed() {
                                 PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                                   score: questionType == .melodyPlay ? nil : getStudentTappingAsAScore(),
@@ -499,30 +524,31 @@ struct ClapOrPlayPresentView: View {
                             }
                             .padding()
                         }
-                    }
-                    Spacer() //Keep - required to align the page from the top
-                //}
                 }
-                .onAppear() {
-                    self.initScore()
-                    if self.isTakingExam() {
-                        self.getExamInstructions()
-                    }
-                    score.setHiddenStaff(num: 1, isHidden: true)
-                    metronome.setTempo(tempo: 90, context: "View init")
-                    if questionType == .rhythmEchoClap || questionType == .melodyPlay {
-                        metronome.setAllowTempoChange(allow: true)
-                    }
-                    else {
-                        metronome.setAllowTempoChange(allow: false)
-                    }
+                
+            //}
+            }
+            .onAppear() {
+                self.initScore()
+                if self.isTakingExam() {
+                    self.getExamInstructions()
                 }
-                .onDisappear() {
-                    //self.audioRecorder.stopPlaying()
-                    //self.metronome.stopPlayingScore()
+                score.setHiddenStaff(num: 1, isHidden: true)
+                metronome.setTempo(tempo: 90, context: "View init")
+                if questionType == .rhythmEchoClap || questionType == .melodyPlay {
+                    metronome.setAllowTempoChange(allow: true)
+                }
+                else {
+                    metronome.setAllowTempoChange(allow: false)
                 }
             }
-            .font(.system(size: UIDevice.current.userInterfaceIdiom == .phone ? UIFont.systemFontSize : UIFont.systemFontSize * 1.6))
+            .onDisappear() {
+                //self.audioRecorder.stopPlaying()
+                //self.metronome.stopPlayingScore()
+            }
+            //Spacer() //Keep - required to align the page from the top
+        }
+        .font(.system(size: UIDevice.current.userInterfaceIdiom == .phone ? UIFont.systemFontSize : UIFont.systemFontSize * 1.6))
         )
     }
 }
@@ -601,9 +627,20 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                     self.answerMetronome.setTempo(tempo: recordedTempo, context: "ClapOrPlayAnswerView")
                     let questionTempo = 90
                     let tolerance = Int(CGFloat(questionTempo) * 0.1)
-                    if recordedTempo < questionTempo - tolerance || recordedTempo > questionTempo + tolerance {
+                    if questionType == .rhythmVisualClap {
                         feedback.feedbackExplanation! +=
-                        " But your tempo of \(recordedTempo) was \(recordedTempo < questionTempo ? "slower" : "faster") than the question tempo \(questionTempo) you heard."
+                        " Your tempo was \(recordedTempo)."
+                    }
+                    if questionType == .rhythmEchoClap {
+                        feedback.feedbackExplanation! +=
+                        " Your tempo was \(recordedTempo) "
+                        if recordedTempo < questionTempo - tolerance || recordedTempo > questionTempo + tolerance {
+                            feedback.feedbackExplanation! +=
+                            "but was \(recordedTempo < questionTempo ? "slower" : "faster") than the question tempo \(questionTempo) you heard."
+                        }
+                        else {
+                            feedback.feedbackExplanation! += "."
+                        }
                     }
                 }
             }
@@ -651,7 +688,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                     ScoreSpacerView()
                 }
 
-                VStack {
+                HStack {
                     PlayRecordingView(buttonLabel: "Hear The Given \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                       score: score,
                                       metronome: answerMetronome,
@@ -670,25 +707,11 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                                               metronome: answerMetronome,
                                               fileName: contentSection.name)
                         }
-                        ///Only reply studnt rhythm from the tapped score so they know exactly what they tapped.
-                        ///So tap hilights wont be seen unless the tapped score is visible but the played back rhythm will be accurate.
-//                        if let fittedScore = self.fittedScore {
-//                            PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-//                                              score: fittedScore,
-//                                              metronome: answerMetronome,
-//                                              fileName: contentSection.name)
-//                        }
+
                     }
                     
-                    Spacer() //Keep - required to align the page from the top
                 }
-//                if let tappingScore = self.tappingScore {
-//                    Text(" TEMP - AS RECORDED ... ")
-//                    ScoreSpacerView()
-//                    ScoreView(score: tappingScore).padding()
-//                    ScoreSpacerView()
-//                }
-
+                Spacer() //Keep - required to align the page from the top
             }
             .onAppear() {
                 if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
@@ -766,7 +789,7 @@ struct ClapOrPlayView: View {
                     answerState: $answerState,
                     answer: $answer,
                     questionType: questionType)
-
+                Spacer()
             }
             else {
                 if shouldShowAnswer() {
@@ -776,8 +799,8 @@ struct ClapOrPlayView: View {
                                          questionType: questionType,
                                          refresh: onRefresh)
                 }
+                Spacer() //Force it to align from the top
             }
-
         }
         .background(UIGlobals.colorBackground)
         .onAppear() {

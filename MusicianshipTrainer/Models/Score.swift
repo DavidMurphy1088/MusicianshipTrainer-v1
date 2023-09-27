@@ -55,6 +55,7 @@ class StudentFeedback : ObservableObject {
 class StaffLayoutSize: ObservableObject {
     @Published var lineSpacing:Double
     static var lastHeight = 0.0
+    
     init (lineSpacing:Double) {
         self.lineSpacing = lineSpacing
     }

@@ -446,7 +446,8 @@ class ContentSection: Codable, Identifiable {
     }
     
     func playExamInstructions() {
-        let filename = "Instructions.wav"
+        //let filename = "Instructions.wav"
+        let filename = "Instructions.m4a"
         var pathSegments = getPathAsArray()
         //remove the exam title from the path
         pathSegments.remove(at: 2)
