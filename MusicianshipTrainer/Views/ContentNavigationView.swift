@@ -42,7 +42,7 @@ struct ContentNavigationView: View {
                     GradeIntroView()
                     ZStack {
                         List(contentSection.subSections) { contentSection in
-                            NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
+                            NavigationLink(destination: ContentSectionView(contentSection: contentSection, contentSectionView: self)) {
                                 //parentsSelectedContentIndex: $selectedContentIndex)) {
                                 ZStack {
                                     HStack {
@@ -100,7 +100,7 @@ struct ContentNavigationView: View {
                 ZStack {
                     Color.red.edgesIgnoringSafeArea(.all)
                     List(contentSection.subSections) { contentSection in
-                        NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {//}, parentsSelectedContentIndex: $selectedContentIndex)) {
+                        NavigationLink(destination: ContentSectionView(contentSection: contentSection, contentSectionView: self)) {
                             VStack {
                                 Text(contentSection.getTitle())
                                     .font(.title2)

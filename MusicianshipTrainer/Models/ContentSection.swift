@@ -444,5 +444,28 @@ class ContentSection: Codable, Identifiable {
         }
         return result
     }
+    
+    func playExamInstructions() {
+        let filename = "Instructions.wav"
+        var pathSegments = getPathAsArray()
+        //remove the exam title from the path
+        pathSegments.remove(at: 2)
+        let googleAPI = GoogleAPI.shared
+        print("==========EXAM Instr PLAY", self.getPath())
+        var dataRecevied = false
+        googleAPI.getFileDataByName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
+            if !dataRecevied {
+                dataRecevied = true
+                DispatchQueue.global(qos: .background).async {
+                    print("==========EXAM Instr PLAY in DISPATCH", self.getPath(), fromCache)
+                    if fromCache {
+                        sleep(2)
+                    }
+                    AudioRecorder.shared.playFromData(data: data!)
+                }
+           }
+        }
+    }
+
 }
 

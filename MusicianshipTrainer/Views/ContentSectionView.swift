@@ -4,6 +4,7 @@ import AVFoundation
 import AVKit
 import UIKit
 
+///The view that runs a specifc example or test
 struct ContentTypeView: View {
     let contentSection:ContentSection
     @Binding var answerState:AnswerState
@@ -134,7 +135,7 @@ struct ContentSectionInstructionsView: UIViewRepresentable {
 
 struct ContentSectionHeaderView: View {
     var contentSection:ContentSection
-    @Binding var selectedIndex: Int?
+    var contentSectionView:ContentSectionView
 
     let googleAPI = GoogleAPI.shared
     @State private var isVideoPresented = false
@@ -190,11 +191,6 @@ struct ContentSectionHeaderView: View {
     func log(contentSection: ContentSection, index:Int?) -> Bool {
         //print(contentSection.getPathTitle(), "index", index)
         return true
-    }
-    
-    func randomSelection(contentSection:ContentSection) -> Int {
-        let range = contentSection.subSections.count
-        return Int.random(in: 0...range-1)
     }
     
     var body: some View {
@@ -274,7 +270,8 @@ struct ContentSectionHeaderView: View {
                     Spacer()
                     Button(action: {
                         DispatchQueue.main.async {
-                            self.selectedIndex = randomSelection(contentSection: self.contentSection)
+                            //self.selectedIndex =
+                            contentSectionView.randomPick()
                         }
                     }) {
                         VStack {
@@ -299,10 +296,17 @@ struct ContentSectionHeaderView: View {
     }
 }
 
+class NavigationStateManager: ObservableObject {
+    @Published var selectedIndex: Int?
+}
+
 struct SectionsNavigationView:View {
     let contentSections:[ContentSection]
-    @Binding var selectedIndex: Int?
-    
+    let contentSectionView:ContentSectionView
+    //@Binding var selectedIndex: Int?
+    @State var randomSet = false
+    @StateObject private var navigationManager = NavigationStateManager()
+
     func getGradeImage(contentSection: ContentSection) -> Image? {
         var name = ""
         if contentSection.isExamTypeContentSection() {
@@ -338,6 +342,26 @@ struct SectionsNavigationView:View {
         return image
     }
     
+    func randomSelection() {
+        let range = contentSections.count
+        let random = Int.random(in: 0...range-1)
+        print("=====SectionsNavigationView NEW RANDOM=", random, contentSectionView.contentSection.getPath(), contentSections.count)
+
+        let delta = 0.50
+        DispatchQueue.main.async {
+            navigationManager.selectedIndex = random
+            print("=====SectionsNavigationView NEW RANDOM 1", random)
+            DispatchQueue.main.async {//After(deadline: .now() + delta) {
+                print("=====SectionsNavigationView NEW RANDOM 2", random)
+                navigationManager.selectedIndex = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2 * delta) {
+                    print("=====SectionsNavigationView NEW RANDOM 3", random)
+                    navigationManager.selectedIndex = random
+                }
+            }
+        }
+    }
+
     func getScore(contentSection: ContentSection) -> Int {
         var score = 0
         for s in contentSection.getNavigableChildSections() {
@@ -350,73 +374,62 @@ struct SectionsNavigationView:View {
         return score
     }
     
-//    func getExamCompleteStatus(contentSection: ContentSection) -> String {
-//        if contentSection.isExamTypeContentSection() {
-//            if contentSection.hasNoAnswers() {
-//                return "Not Started"
-//            }
-//            else {
-//                return "Completed - \(getScore(contentSection: contentSection)) out of \(contentSection.getNavigableChildSections().count)"
-//            }
-//        }
-//        return ""
-//    }
-
     var body: some View {
         VStack {
-//            Button(action: {
-//                self.selectedIndex = 24
-//            }) {
-//                VStack {
-//                    Text("__TEST In SectionsNavigationView__").defaultTextStyle().padding()
-//                }
-//            }
-
-            List(Array(contentSections.indices), id: \.self) { index in
-                ///selection: A bound variable that causes the link to present `destination` when `selection` becomes equal to `tag`
-                ///tag: The value of `selection` that causes the link to present `destination`..
-                NavigationLink(destination:
-                                ContentSectionView(contentSection: contentSections[index],
-                                                   parentSelectionIndex: $selectedIndex),
-                               tag: index,
-                               selection: $selectedIndex) {
-
-                    ZStack {
-                        HStack {
-                            Spacer()
-                            Text(contentSections[index].getTitle())
-                                .font(UIGlobals.navigationFont)
-                                .padding(.vertical, 8) //xxxx
-                            Spacer()
-                            if let rowImage = getGradeImage(contentSection: contentSections[index]) {
-                                HStack {
-                                    Spacer()
-                                    rowImage
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 40.0)
-                                    Text("    ")
+            ScrollViewReader { proxy in
+                List(Array(contentSections.indices), id: \.self) { index in
+                    ///selection: A bound variable that causes the link to present `destination` when `selection` becomes equal to `tag`
+                    ///tag: The value of `selection` that causes the link to present `destination`..
+                    NavigationLink(destination:
+                                    ContentSectionView(contentSection: contentSections[index], contentSectionView: self,
+                                                       //parentSelectionIndex: $selectedIndex
+                                                       parentSelectionIndex: $navigationManager.selectedIndex
+                                                      )
+                                   ,
+                                   tag: index,
+                                   //selection: $selectedIndex
+                                   selection: $navigationManager.selectedIndex
+                    ) {
+                        
+                        ZStack {
+                            HStack {
+                                Spacer()
+                                Text(contentSections[index].getTitle())
+                                    .font(UIGlobals.navigationFont)
+                                    .padding(.vertical, 8) //xxxx
+                                Spacer()
+                                if let rowImage = getGradeImage(contentSection: contentSections[index]) {
+                                    HStack {
+                                        Spacer()
+                                        rowImage
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40.0)
+                                        Text("    ")
+                                    }
                                 }
                             }
+                            ///Required to force SwiftUI's horz line beween Nav links to run full width when text is centered
+                            HStack {
+                                Text("")
+                                Spacer()
+                            }
+                            
                         }
-                        ///Required to force SwiftUI's horz line beween Nav links to run full width when text is centered
-                        HStack {
-                            Text("")
-                            Spacer()
-                        }
-
+                        //.border(Color.green)
                     }
-                    //.border(Color.green)
                 }
-                //.listRowBackground(UIGlobals.colorNavigation)
-                //.listRowBackground(Color(.systemBackground))
-                //.background(UIGlobals.colorNavigation)
-
                 ///This color matches the NavigationView background which cannot be changed.
                 ///i.e. any other colour here causes the navigation link rows to have a different background than the background of the navigationView's own background
+                ///If the random row does not require the ScrollViewReader to scroll then the view for that random row is made visible
+                ///If the random row does require the ScrollViewReader to scroll then it scrolls, goes into the new child view briefly but then exits back to the parent view
                 .listRowBackground(Color(.secondarySystemBackground))
-                ///Does nothing :(
-                //.padding(.vertical, 0)
+                .onChange(of: navigationManager.selectedIndex) { newIndex in
+                    if let newIndex = newIndex {
+                        print("=============== SectionsNavigationView .OnChange, is scrolling", newIndex)
+                        proxy.scrollTo(newIndex)
+                    }
+                }
             }
         }
     }
@@ -535,90 +548,122 @@ struct ExamView: View {
         .navigationBarHidden(isNavigationHidden())
         .onAppear() {
             self.sectionIndex = 0
+            contentSection.playExamInstructions()
         }
     }
 }
 
-struct ContentOverviewView: View {
-    let contentSection:ContentSection
-    let googleAPI = GoogleAPI.shared
-    @State var HTMLcontent: String?
-    
-    init(contentSection:ContentSection) {
-        self.contentSection = contentSection
-    }
-    
-    struct HTMLOverviewView: UIViewRepresentable {
-        var htmlDocument:String
-
-        func makeUIView(context: Context) -> WKWebView {
-            return WKWebView()
-        }
-        
-        func updateUIView(_ uiView: WKWebView, context: Context) {
-            uiView.loadHTMLString(htmlDocument.trimmingCharacters(in: .whitespaces), baseURL: nil)
-        }
-    }
-    
-    func getContent()  {
-        var pathSegments = contentSection.getPathAsArray()
-        pathSegments.append(UIGlobals.getAgeGroup())
-
-        googleAPI.getDocumentByName(pathSegments: pathSegments, name: contentSection.type, reportError: false) {status,document in
-            if status == .success {
-                self.HTMLcontent = document ?? ""
-            }
-            else {
-                self.HTMLcontent = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
-            }
-        }
-    }
-
-    var body: some View {
-        ZStack {
-            Text("Overview").defaultTextStyle()
-            if let content = self.HTMLcontent {
-                HStack {
-                    GeometryReader { geometry in
-                        HTMLOverviewView(htmlDocument: content)
-                            .frame(height: geometry.size.height * 0.8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                            )
-                            .padding()
-                    }
-                }
-            }
-        }
-        .onAppear {
-            getContent()
-        }
-    }
-}
+//struct ContentOverviewView: View {
+//    let contentSection:ContentSection
+//    let googleAPI = GoogleAPI.shared
+//    @State var HTMLcontent: String?
+//
+//    init(contentSection:ContentSection) {
+//        self.contentSection = contentSection
+//    }
+//
+//    struct HTMLOverviewView: UIViewRepresentable {
+//        var htmlDocument:String
+//
+//        func makeUIView(context: Context) -> WKWebView {
+//            return WKWebView()
+//        }
+//
+//        func updateUIView(_ uiView: WKWebView, context: Context) {
+//            uiView.loadHTMLString(htmlDocument.trimmingCharacters(in: .whitespaces), baseURL: nil)
+//        }
+//    }
+//
+//    func getContent()  {
+//        var pathSegments = contentSection.getPathAsArray()
+//        pathSegments.append(UIGlobals.getAgeGroup())
+//
+//        googleAPI.getDocumentByName(pathSegments: pathSegments, name: contentSection.type, reportError: false) {status,document in
+//            if status == .success {
+//                self.HTMLcontent = document ?? ""
+//            }
+//            else {
+//                self.HTMLcontent = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
+//            }
+//        }
+//    }
+//
+//    var body: some View {
+//        ZStack {
+//            Text("Overview").defaultTextStyle()
+//            if let content = self.HTMLcontent {
+//                HStack {
+//                    GeometryReader { geometry in
+//                        HTMLOverviewView(htmlDocument: content)
+//                            .frame(height: geometry.size.height * 0.8)
+//                            .overlay(
+//                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+//                            )
+//                            .padding()
+//                    }
+//                }
+//            }
+//        }
+//        .onAppear {
+//            getContent()
+//        }
+//    }
+//}
 
 struct ContentSectionView: View {
     let contentSection:ContentSection
-    @State private var selectedContentIndex: Int?
+    let contentSectionView: (any View)
     @State private var showNextNavigation: Bool = true
     @State private var endOfSection: Bool = false
     @State var answerState:AnswerState = .notEverAnswered
     @State var answer:Answer = Answer(ctx: "ContentSectionView")//, questionMode: .practice)
     @Binding var parentSelectionIndex:Int?
     @State var isShowingConfiguration:Bool = false
-    @State var sectionIndex: Int?
+    //@State var sectionIndex: Int?
+    @StateObject private var navigationManager = NavigationStateManager()
 
     let id = UUID()
     
-    init (contentSection:ContentSection, parentSelectionIndex:Binding<Int?>) {
+    init (contentSection:ContentSection, contentSectionView:(any View), parentSelectionIndex:Binding<Int?>) {
         self.contentSection = contentSection
         _parentSelectionIndex = parentSelectionIndex
+        self.contentSectionView = contentSectionView
     }
     
-    init (contentSection:ContentSection) {
+    init (contentSection:ContentSection, contentSectionView:(any View)) {
         self.contentSection = contentSection
         _parentSelectionIndex = .constant(nil)
+        self.contentSectionView = contentSectionView
     }
-
+    
+    func randomPick() {
+        let range = contentSection.subSections.count
+        let random = Int.random(in: 0...range-1)
+        print("=====ContentSectionView", contentSection.getPath(), contentSection.subSections.count, random)
+        //self.sectionIndex = random
+//        DispatchQueue.main.async {//After(deadline: .now() + 0.1) {
+//            navigationManager.selectedIndex = 25
+//        }
+        let delta = 0.5
+        DispatchQueue.main.async {
+            navigationManager.selectedIndex = random
+            print("=====SectionsNavigationView NEW RANDOM 1", random)
+            DispatchQueue.main.async {//After(deadline: .now() + delta) {
+                print("=====SectionsNavigationView NEW RANDOM 2", random)
+                navigationManager.selectedIndex = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2 * delta) {
+                    print("=====SectionsNavigationView NEW RANDOM 3", random)
+                    navigationManager.selectedIndex = random
+                }
+            }
+        }
+    }
+    
+//    func log(v:(any View)) -> Bool {
+//        print("=====>>", v)
+//        return true
+//    }
+    
     var body: some View {
         VStack {
             let childSections = contentSection.getNavigableChildSections()
@@ -626,7 +671,7 @@ struct ContentSectionView: View {
                 if contentSection.isExamTypeContentSection() {
                     //No ContentSectionHeaderView in any exam mode content section except the exam start
                     if contentSection.hasExamModeChildren() {
-                        SectionsNavigationView(contentSections: childSections, selectedIndex: $sectionIndex)
+                        SectionsNavigationView(contentSections: childSections, contentSectionView: self) //, selectedIndex: $sectionIndex)
                     }
                     else {
                         if contentSection.hasNoAnswers() {
@@ -638,43 +683,49 @@ struct ContentSectionView: View {
                         }
                         else {
                             //Exam was taken
-                            SectionsNavigationView(contentSections: childSections, selectedIndex: $sectionIndex)
+                            SectionsNavigationView(contentSections: childSections, contentSectionView: self)//, selectedIndex: $sectionIndex)
                         }
                     }
                 }
                 else {
                     ScrollViewReader { proxy in
-                        ContentSectionHeaderView(contentSection: contentSection, selectedIndex: $sectionIndex)
+                        ContentSectionHeaderView(contentSection: contentSection, contentSectionView: self) //, selectedIndex: $sectionIndex)
                             //.border(Color.red)
                             .padding(.vertical, 0)
                     
-                        SectionsNavigationView(contentSections: childSections, selectedIndex: $sectionIndex)
+                        SectionsNavigationView(contentSections: childSections, contentSectionView: self) //, selectedIndex: $sectionIndex)
                         //.border(Color.blue)
                             .padding(.vertical, 0)
-                            .onChange(of: sectionIndex) { newValue in
+                            .onChange(of: navigationManager.selectedIndex) { newValue in
                                 if let newValue = newValue {
-                                    withAnimation {
-                                        proxy.scrollTo(newValue, anchor: .top)
-                                    }
+                                    proxy.scrollTo(newValue, anchor: .top)
                                 }
                             }
                     }
                 }
             }
             else {
-                if contentSection.type == "Overview" {
-                    ContentOverviewView(contentSection: self.contentSection)
-                }
-                else {
+//                if contentSection.type == "Overview" {
+//                    ContentOverviewView(contentSection: self.contentSection)
+//                }
+//                else {
                     ContentTypeView(contentSection: self.contentSection,
                                     answerState: $answerState,
                                     answer: $answer)
-                }
+                //}
             }
             if contentSection.subSections.count == 0 {
-                if contentSection.type != "Overview" {
+                //if contentSection.type != "Overview" {
                     HStack {
                         ///Tell the parent to navigate to the next section
+                        //if log(v: self.contentSectionView) {
+                            if let navigationView = self.contentSectionView as? SectionsNavigationView {
+                                Button("Random Example") {
+                                    navigationView.randomSelection()
+                                }
+                                .padding()
+                            }
+                        //}
                         Button("Previous Example") {
                             if self.parentSelectionIndex == nil {
                                 self.parentSelectionIndex = 0
@@ -699,7 +750,7 @@ struct ContentSectionView: View {
                         }
                         .padding()
                     }
-                }
+                //}
             }
         }
         //.background(UIGlobals.colorNavigationBackground)

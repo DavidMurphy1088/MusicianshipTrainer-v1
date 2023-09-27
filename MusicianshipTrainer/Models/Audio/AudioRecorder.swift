@@ -121,7 +121,6 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     func playFromData(data:Data) {
         do {
             self.audioPlayer = try AVAudioPlayer(data: data)
-            //self.audioPlayer = try AVAudioPlayer(url: audioFilename)
             if self.audioPlayer == nil {
                 Logger.logger.reportError(self, "playFromData, cannot create audio player")
                 return

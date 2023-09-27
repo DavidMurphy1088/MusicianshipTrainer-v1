@@ -220,24 +220,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         }
     }
     
-    func getExamInstructions() {
-        let filename = "Instructions.wav"
-        var pathSegments = self.contentSection.getPathAsArray()
-        //remove the exam title from the path
-        pathSegments.remove(at: 2)
-        googleAPI.getFileDataByName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
-            if examInstructions == nil {
-                examInstructions = data
-                DispatchQueue.global(qos: .background).async {
-                    if fromCache {
-                        sleep(2)
-                    }
-                    audioRecorder.playFromData(data: data!)
-                }
-            }
-        }
-    }
-    
     var body: some View {
         AnyView(
             VStack {
@@ -307,7 +289,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             .onAppear {
                 self.initView()
                 if self.isTakingExam() {
-                    self.getExamInstructions()
+                    self.contentSection.playExamInstructions()
                 }
             }
             .onDisappear() {
@@ -343,7 +325,7 @@ struct ShowMelodiesView: View {
                                 //metronome.playScore(score: score)
                                 //print(melody.name)
                                 let transposed = melody.transpose(base: firstNote)
-                                AudioSamplerPlayer.getShared().stopAll()
+                                AudioSamplerPlayer.getShared().stopPlaying()
                                 AudioSamplerPlayer.getShared().playNotes(notes: transposed)
                             }) {
                                 Text(melody.name)
