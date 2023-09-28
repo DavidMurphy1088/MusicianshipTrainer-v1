@@ -40,7 +40,6 @@ struct PlayRecordingView: View {
     var onStart: (()->Void)?
     var onDone: (()->Void)?
     
-
     var body: some View {
         VStack {
             Button(action: {
@@ -98,7 +97,7 @@ struct ClapOrPlayPresentView: View {
     @State private var helpPopup = false
     @State var isTapping = false
     @State var rhythmHeard:Bool
-    @State private var examInstructions:Data? = nil
+    @State private var examInstructionsStartedStatus = "Waiting for instructions"
 
     var questionType:QuestionType
     //var examMode:Bool
@@ -108,7 +107,6 @@ struct ClapOrPlayPresentView: View {
     init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh_unused:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.score = score
-        self.questionType = questionType
         self.questionType = questionType
         self.rhythmHeard = false
         //self.examMode = contentSection.isInExam()
@@ -213,30 +211,34 @@ struct ClapOrPlayPresentView: View {
         }
     }
     
-    func getExamInstructions() {
-        let filename = "Instructions.wav"
-        var pathSegments = self.contentSection.getPathAsArray()
-        //remove the exam title from the path
-        pathSegments.remove(at: 2)
-        googleAPI.getFileDataByName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
-            if examInstructions == nil {
-                examInstructions = data
-                DispatchQueue.global(qos: .background).async {
-                    if fromCache {
-                        sleep(3)
-                    }
-                    audioRecorder.playFromData(data: data!)
-                }
-            }
-        }
-    }
+//    func getExamInstructions() {
+//        let filename = "Instructions.wav"
+//        var pathSegments = self.contentSection.getPathAsArray()
+//        //remove the exam title from the path
+//        pathSegments.remove(at: 2)
+//        googleAPI.getFileDataByName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
+//            if examInstructions == nil {
+//                examInstructions = data
+//                DispatchQueue.global(qos: .background).async {
+//                    if fromCache {
+//                        sleep(3)
+//                    }
+//                    audioRecorder.playFromData(data: data!, onDone: examInstructionsDone)
+//                }
+//            }
+//        }
+//    }
 
+    func examInstructionsDone(status:RequestStatus) {
+        print("=========== exam instrucions read", status)
+    }
+    
     func getInstruction(mode:QuestionType, number:Int, grade:Int) -> String? {
         var result = ""
         let bullet = "\u{2022}" + " "
         var linefeed = "\n"
         if !UIDevice.current.orientation.isLandscape {
-            UIGlobals.showDeviceOrientation()
+            //UIGlobals.showDeviceOrientation()
             linefeed = linefeed + "\n"
         }
         if number == 0 {
@@ -339,6 +341,11 @@ struct ClapOrPlayPresentView: View {
         }
     }
     
+    func log()->Bool {
+        //UIGlobals.showDeviceOrientation()
+        return true
+    }
+    
     func instructionView() -> some View {
         VStack {
             if let instruction = self.getInstruction(mode: self.questionType, number: 0, grade: contentSection.getGrade()) {
@@ -391,30 +398,19 @@ struct ClapOrPlayPresentView: View {
                 VStack {
                     if answerState != .recording {
                         if self.isTakingExam() {
-                            if self.examInstructions == nil {
-                                Text("Waiting for instructions...").defaultTextStyle().padding()
-                            }
+                            Text(examInstructionsStartedStatus).defaultTextStyle().padding()
                         }
                         else {
                             if UIDevice.current.userInterfaceIdiom == .pad {
-                                //GeometryReader { geo in
-                                    ///This appears to be the only way to reliably know device orientation :( :( :( :( :(
-//                                    if geo.size.width > geo.size.height {
-//                                        ScrollView {
-//                                            instructionView()...does not work with geo not full screen
-//                                        }
-//                                    }
-//                                    else {
-                                        instructionView()
-                                    .border(.red)
-//                                    }
+                                ScrollView {
+                                    instructionView()
+                                    //.border(.red)
                                 }
-                                
-                            //}
+                            }
                         }
                         HStack {
                             if let parent = contentSection.parent {
-                                if !parent.isExamTypeContentSection() {
+                                //if !parent.isExamTypeContentSection() {
                                     if answerState != .recording {
                                         let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
                                         PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
@@ -422,9 +418,9 @@ struct ClapOrPlayPresentView: View {
                                                           metronome: metronome,
                                                           fileName: contentSection.name,
                                                           onDone: {rhythmHeard = true})
-                                        .border(.green)
+                                        //.border(.green)
                                     }
-                                }
+                                //}
                             }
                             
                             if rhythmHeard || questionType == .melodyPlay {
@@ -456,15 +452,14 @@ struct ClapOrPlayPresentView: View {
                     }
                     
                     if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
-                        
                         VStack {
                             GeometryReader { geo in
                                 tappingView
-                                    .frame(height: geo.size.height / 2.0)
+                                    .frame(height: geo.size.height / 1.0)
                             }
                         }
                         .padding()
-                        .border(.cyan)
+                        //.border(.cyan)
                     }
                     
                     if answerState == .recording {
@@ -518,8 +513,10 @@ struct ClapOrPlayPresentView: View {
                                 }
                                 score.setHiddenStaff(num: 1, isHidden: false)
                             }) {
-                                //Stop the UI jumping around when answer.state changes state
-                                Text(answerState == .recorded ? "\(self.isTakingExam() ? "Submit" : "Check") Your Answer" : "")
+                                ///Stop the UI jumping around when answer.state changes state
+                                ///checkOrHear temporaryuntil app can analyse sight reading
+                                let checkOrHear = questionType == .melodyPlay ? "Hear" : "Check"
+                                Text("\(self.isTakingExam() ? "Submit" : "\(checkOrHear)") Your Answer")
                                     .defaultButtonStyle()
                             }
                             .padding()
@@ -531,7 +528,7 @@ struct ClapOrPlayPresentView: View {
             .onAppear() {
                 self.initScore()
                 if self.isTakingExam() {
-                    self.getExamInstructions()
+                    self.contentSection.playExamInstructions(onStarted: examInstructionsAreReading)
                 }
                 score.setHiddenStaff(num: 1, isHidden: true)
                 metronome.setTempo(tempo: 90, context: "View init")
@@ -551,6 +548,16 @@ struct ClapOrPlayPresentView: View {
         .font(.system(size: UIDevice.current.userInterfaceIdiom == .phone ? UIFont.systemFontSize : UIFont.systemFontSize * 1.6))
         )
     }
+    
+    func examInstructionsAreReading(status:RequestStatus) {
+        if status == .success {
+            examInstructionsStartedStatus = ""
+        }
+        else {
+            examInstructionsStartedStatus = "Could not read instructions"
+        }
+        //print("============ exam instrucions read", status)
+    }
 }
 
 struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
@@ -563,7 +570,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     @State var playingCorrect = false
     @State var playingStudent = false
     @State var speechEnabled = false
-    @State var tappingScore:Score?
+    //@State var tappingScore:Score?
     @State var fittedScore:Score?
 
     private var score:Score
@@ -590,12 +597,8 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         }
         
         let tappedScore = tapRecorder.getTappedAsAScore(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
-        
-        self.tappingScore = tappedScore
-        guard let tappingScore = tappingScore else {
-            return
-        }
-        tappingScore.label = "Your Rhythm"
+
+        tappedScore.label = "Your Rhythm"
         
         ///Checks -
         ///1) all notes in the question have taps at the same time location
@@ -605,7 +608,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         ///Otherwise, try to make the studnets tapped score look the same as the question score up until the point of error
         ///(e.g. a long tap might correctly represent either a long note or a short note followed by a rest. So mark the tapped score accordingingly
 
-        score.flagNotesMissingRequiredTap(tappingScore: tappingScore)
+        score.flagNotesMissingRequiredTap(tappingScore: tappedScore)
         
         let fitted = score.fitScoreToQuestionScore(tappedScore:tappedScore)
         self.fittedScore = fitted.0
@@ -625,7 +628,8 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                 if let recordedTempo = tappedScore.tempo {
                     self.answerMetronome.setAllowTempoChange(allow: true)
                     self.answerMetronome.setTempo(tempo: recordedTempo, context: "ClapOrPlayAnswerView")
-                    let questionTempo = 90
+                    //print(Metronome.getMetronomeWithCurrentSettings(ctx: "TESTT").tempo)
+                    let questionTempo = Metronome.getMetronomeWithCurrentSettings(ctx: "for clap answer").tempo
                     let tolerance = Int(CGFloat(questionTempo) * 0.1)
                     if questionType == .rhythmVisualClap {
                         feedback.feedbackExplanation! +=
@@ -701,15 +705,13 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                                           fileName: contentSection.name)
                     }
                     else {
-                        if let tappingScore = self.tappingScore {
+                        if let fittedScore = self.fittedScore {
                             PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                              score: tappingScore,
+                                              score: fittedScore,
                                               metronome: answerMetronome,
                                               fileName: contentSection.name)
                         }
-
                     }
-                    
                 }
                 Spacer() //Keep - required to align the page from the top
             }

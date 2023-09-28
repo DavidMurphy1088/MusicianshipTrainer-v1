@@ -38,9 +38,9 @@ struct PlayExampleMelody : View {
             if let firstNote = firstNote {
                 if let secondNote = secondNote {
                     let melodies = Melodies.shared
-                    let base = firstNote
+                    //let base = firstNote
                     let halfSteps = secondNote.midiNumber - firstNote.midiNumber
-                    let timeSlice = TimeSlice(score: score)
+                    //let timeSlice = TimeSlice(score: score)
                     let melody = melodies.getMelodies(halfSteps: halfSteps)
                     self.melodyName = melodyName
                     player.playNotes(notes: melody[0].notes)
@@ -72,7 +72,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
 
-    @State private var examInstructions:Data? = nil
+    @State private var examInstructionsStartedStatus:String = "Waiting for instructions"
 
     @State var intervalNotes:[Note] = []
     @State private var selectedIntervalName:String?
@@ -130,7 +130,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         }
     }
     
-    func buildAnser(grade:Int) {
+    func buildAnswer(grade:Int) {
         if intervalNotes.count == 0 {
             return
         }
@@ -184,6 +184,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         HStack(alignment: .top)  {
             let columns = intervals.getVisualColumnCount()
             ForEach(0..<columns) { column in
+                Spacer()
                 VStack {
                     let intervalsForColumn = intervals.getVisualColumns(col: column)
                     ForEach(intervalsForColumn, id: \.name) { intervalType in
@@ -204,6 +205,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                     }
                 }
                 .padding(.top, 0)
+                Spacer()
             }
         }
     }
@@ -258,9 +260,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                                 
                  VStack {
                     if isTakingExam() {
-                        if self.examInstructions == nil {
-                            Text("Waiting for instructions...").defaultTextStyle().padding()
-                        }
+                        Text(examInstructionsStartedStatus)
                     }
                     else {
                         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -276,7 +276,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 if answerState == .answered {
                     VStack {
                         Button(action: {
-                            self.buildAnser(grade: contentSection.getGrade())
+                            self.buildAnswer(grade: contentSection.getGrade())
                             answerState = .submittedAnswer
                         }) {
                             Text("\(self.isTakingExam() ? "Submit" : "Check") Your Answer").defaultButtonStyle()
@@ -289,15 +289,23 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             .onAppear {
                 self.initView()
                 if self.isTakingExam() {
-                    self.contentSection.playExamInstructions()
+                    self.contentSection.playExamInstructions(onStarted: examInstructionsAreReading)
                 }
             }
             .onDisappear() {
-                //if self.examMode {
-                    self.audioRecorder.stopPlaying()
-                //}
+                self.audioRecorder.stopPlaying()
             }
         )
+    }
+    
+    func examInstructionsAreReading(status:RequestStatus) {
+        if status == .success {
+            examInstructionsStartedStatus = ""
+        }
+        else {
+            examInstructionsStartedStatus = "Could not read instructions"
+        }
+        //print("============ exam instrucions read", status)
     }
 }
 
@@ -322,8 +330,6 @@ struct ShowMelodiesView: View {
                         ForEach(melodies, id: \.id) { melody in
                             Button(action: {
                                 selectedMelodyId = melody.id
-                                //metronome.playScore(score: score)
-                                //print(melody.name)
                                 let transposed = melody.transpose(base: firstNote)
                                 AudioSamplerPlayer.getShared().stopPlaying()
                                 AudioSamplerPlayer.getShared().playNotes(notes: transposed)

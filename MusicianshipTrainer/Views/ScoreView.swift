@@ -113,8 +113,8 @@ struct ScoreView: View {
 //            print("\tPortrait", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
 //        }
 //        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", ls)
-        UIGlobals.showDeviceOrientation()
-        print("=====>>setOrientationLineSize", "Context", ctx, "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
+        //UIGlobals.showDeviceOrientation()
+        //print("=====>>setOrientationLineSize", "Context", ctx, "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
         self.staffLayoutSize.setLineSpacing(lineSpacing)
     }
     

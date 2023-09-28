@@ -448,7 +448,8 @@ struct ExamView: View {
     @State var answerState:AnswerState = .notEverAnswered
     @State var answer = Answer(ctx: "ExamView")//, questionMode: .examTake)
     @State private var showingConfirm = false
-    
+    @State private var examInstructionsStatus:String = "Waiting for instructions"
+
     init(contentSection:ContentSection, contentSections:[ContentSection]) {
         self.contentSection = contentSection
         self.contentSections = contentSections
@@ -473,9 +474,11 @@ struct ExamView: View {
                 Spacer()
                 Button(action: {
                     self.examBeginning = false
+                    AudioRecorder.shared.stopPlaying()
                 }) {
                     VStack {
-                        Text("The exam has \(contentSections.count) questions").defaultTextStyle().padding()
+                        Text(examInstructionsStatus).padding()
+                        //Text("The exam has \(contentSections.count) questions").defaultTextStyle().padding()
                         Text("Start the Exam").defaultButtonStyle()
                     }
                 }
@@ -499,9 +502,6 @@ struct ExamView: View {
                         .padding()
                         Spacer()
                         Button(action: {
-                            //contentSections[sectionIndex].saveAnswer(answer: answer.copyAnwser())
-                            //contentSection.questionStatus.setStatus(1)
-                            //presentationMode.wrappedValue.dismiss()
                             showingConfirm = true
                         }) {
                             VStack {
@@ -513,11 +513,9 @@ struct ExamView: View {
                                   message: Text("You cannot restart an exam you exit from"),
                                   primaryButton: .destructive(Text("Yes, I'm sure")) {
                                 for s in contentSections {
-                                    //if s.answer111 == nil {
-                                        let answer = Answer(ctx: "cancelled")
-                                        s.answer111 = answer
-                                        s.storeAnswer(answer: answer)
-                                    //}
+                                    let answer = Answer(ctx: "cancelled")
+                                    s.answer111 = answer
+                                    s.storeAnswer(answer: answer)
                                 }
                                 presentationMode.wrappedValue.dismiss()
                             }, secondaryButton: .cancel())
@@ -552,7 +550,16 @@ struct ExamView: View {
         .navigationBarHidden(isNavigationHidden())
         .onAppear() {
             self.sectionIndex = 0
-            contentSection.playExamInstructions()
+            contentSection.playExamInstructions(onStarted: instructionsStarted)
+        }
+    }
+    
+    func instructionsStarted(status:RequestStatus) {
+        if status == .success {
+            examInstructionsStatus = ""
+        }
+        else {
+            examInstructionsStatus = "Cannot read instructions"
         }
     }
 }

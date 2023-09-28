@@ -43,7 +43,6 @@ class ScoreEntry : ObservableObject, Hashable {
     }
 }
 
-
 class StudentFeedback : ObservableObject {
     var correct:Bool = false
     //var indexInError:Int? = nil
@@ -294,9 +293,56 @@ class Score : ObservableObject {
         return totalOffsets <= 0 ? StemDirection.up: StemDirection.down
     }
     
+    func addBeamAndStemCharaceteristics() {
+        guard let timeSlice = self.getLastTimeSlice() else {
+            return
+        }
+        if timeSlice.entries.count == 0 {
+            return
+        }
+        addBeatValues()
+        if let note = timeSlice.entries[0] as? Note {
+            addStemCharaceteristics()
+        }
+    }
+    
+    ///For each time slice calculate its beat number in its bar
+    func addBeatValues() {
+        var beatCtr = 0.0
+        for i in 0..<self.scoreEntries.count {
+            if self.scoreEntries[i] is BarLine {
+                beatCtr = 0
+                continue
+            }
+            if let timeSlice = self.scoreEntries[i] as? TimeSlice {
+                if let value = timeSlice.getValue() {
+                    timeSlice.beatNumber = beatCtr
+                    beatCtr += value
+                }
+            }
+        }
+    }
+
+    ///Determine whether quavers can be beamed within a bar's strong and weak beats
+    func canBeam(timeSignature:TimeSignature, timeSlice:TimeSlice, lastBeat:Double) -> Bool {
+        if timeSignature.top == 4 {
+            if lastBeat >= 2 {
+                if timeSlice.beatNumber < 2 {
+                    return false
+                }
+            }
+        }
+        if timeSignature.top == 3 {
+            if timeSlice.beatNumber.truncatingRemainder(dividingBy: 1) != 0 {
+                return false
+            }
+        }
+        return true
+    }
+    
     ///If the last note added was a quaver, identify any previous adjoining quavers and set them to be joined with a quaver bar
     ///Set the beginning, middle and end quavers for the beam
-    func addStemCharaceteristics() {
+    private func addStemCharaceteristics() {
         let lastNoteIndex = self.scoreEntries.count - 1
         let scoreEntry = self.scoreEntries[lastNoteIndex]
 
@@ -304,14 +350,12 @@ class Score : ObservableObject {
             return
         }
 
-        let timeSlice = scoreEntry as! TimeSlice
-        let notes = timeSlice.getTimeSliceNotes()
+        let lastTimeSlice = scoreEntry as! TimeSlice
+        let notes = lastTimeSlice.getTimeSliceNotes()
         if notes.count == 0 {
             return
         }
-//        if notes[0].getValue() < 1 {
-//            print ("+++++")
-//        }
+
         let lastNote = notes[0]
         lastNote.sequence = self.getAllTimeSlices().count
 
@@ -341,13 +385,16 @@ class Score : ObservableObject {
             }
             let timeSlice = scoreEntry as! TimeSlice
             if timeSlice.entries.count > 0 {
-                if let rest = timeSlice.entries[0] as? Rest {
+                if timeSlice.entries[0] is Rest {
                     break
                 }
             }
             let notes = timeSlice.getTimeSliceNotes()
             if notes.count > 0 {
                 if notes[0].getValue() == Note.VALUE_QUAVER {
+                    if !canBeam(timeSignature: self.timeSignature, timeSlice: timeSlice, lastBeat: lastTimeSlice.beatNumber) {
+                        break
+                    }
                     let note = notes[0]
                     notesUnderBeam.append(note)
                 }
@@ -588,7 +635,7 @@ class Score : ObservableObject {
             }
         }
 
-        print("\nTAPPED Time slices")
+        //print("\nTAPPED Time slices")
         var tappedDurations:[NoteDuration] = []
         var elapsedTime = 0.0
         for t in tappedScore.getAllTimeSlices() {
@@ -597,9 +644,9 @@ class Score : ObservableObject {
             elapsedTime += t.entries[0].getValue()
         }
 
-        for d in tappedDurations {
-            print ("TAP Elapsed", d.elapsed, "type", d.type, "value", d.value)
-        }
+//        for d in tappedDurations {
+//            print ("TAP Elapsed", d.elapsed, "type", d.type, "value", d.value)
+//        }
         
         if tappedDurations.count == 0 {
             let feedback = StudentFeedback()
@@ -661,9 +708,6 @@ class Score : ObservableObject {
             
             if questionTimeSliceValues[questionIndex].type == .note {
                 noteCount += 1
-                if noteCount == 5 {
-                    print("===============", questionTimeSliceValues[questionIndex].value)
-                }
                 var outputValue = questionTimeSliceValues[questionIndex].value
                 let nextSliceIsRest = !isNextTimeSliceANote(fromScoreEntryIndex: questionIndex + 1)
                 let noNextNote = questionIndex == questionTimeSliceValues.count-1

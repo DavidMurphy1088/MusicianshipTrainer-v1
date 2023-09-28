@@ -372,7 +372,8 @@ class ContentSection: Codable, Identifiable {
         var result:[Any] = []
         
         for i in 0..<tuples.count {
-            var tuple = tuples[i].replacingOccurrences(of: "(", with: "")
+            let trimmedTuple = tuples[i].trimmingCharacters(in: .whitespacesAndNewlines)
+            var tuple = trimmedTuple.replacingOccurrences(of: "(", with: "")
             tuple = tuple.replacingOccurrences(of: ")", with: "")
             let parts = tuple.components(separatedBy: ",")
             
@@ -445,26 +446,30 @@ class ContentSection: Codable, Identifiable {
         return result
     }
     
-    func playExamInstructions() {
-        //let filename = "Instructions.wav"
+    func playExamInstructions(onStarted: @escaping (_ status:RequestStatus) -> Void) {
         let filename = "Instructions.m4a"
         var pathSegments = getPathAsArray()
         //remove the exam title from the path
         pathSegments.remove(at: 2)
         let googleAPI = GoogleAPI.shared
-        print("==========EXAM Instr PLAY", self.getPath())
         var dataRecevied = false
         googleAPI.getFileDataByName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
-            if !dataRecevied {
-                dataRecevied = true
-                DispatchQueue.global(qos: .background).async {
-                    print("==========EXAM Instr PLAY in DISPATCH", self.getPath(), fromCache)
-                    if fromCache {
-                        sleep(2)
+            if status == .failed {
+                onStarted(.failed)
+            }
+            else {
+                if !dataRecevied {
+                    dataRecevied = true
+                    onStarted(.success)
+                    DispatchQueue.global(qos: .background).async {
+                        //print("==========EXAM Instr PLAY in DISPATCH", self.getPath(), fromCache)
+                        if fromCache {
+                            sleep(2)
+                        }
+                        AudioRecorder.shared.playFromData(data: data!)
                     }
-                    AudioRecorder.shared.playFromData(data: data!)
                 }
-           }
+            }
         }
     }
 

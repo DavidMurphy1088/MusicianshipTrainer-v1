@@ -18,8 +18,8 @@ class UIGlobals {
     static var colorInstructions = colorInstructionsDefault
     
     ///Color of each test's screen background
-    //static var colorBackground = colorBackgroundDefault
-    static var colorBackground = Color(red: 0.0, green: 0.0, blue: 0.7)
+    static var colorBackground = colorBackgroundDefault
+    //static var colorBackground = Color(red: 0.0, green: 0.0, blue: 0.7)
 
     ///Color of each navigation row in Navigation View. But there is still a navigation color behind these from the NavigationView
     //static var colorNavigation = colorBackgroundDefault //colorNavigationDefault

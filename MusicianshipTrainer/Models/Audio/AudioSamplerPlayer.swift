@@ -17,7 +17,7 @@ class AudioSamplerPlayer {
         do {
             try audioEngine.start()
         } catch {
-            print("Could not start the audio engine: \(error)")
+            Logger.logger.reportError(self, "Could not start the audio engine: \(error)")
         }
         loadSoundFont()
     }
@@ -38,24 +38,7 @@ class AudioSamplerPlayer {
         return sampler
     }
     
-//    public func startSampler() {
-////        print ("=============== START AudioSamplerPlayer =============== ")
-////        do {
-////            try audioEngine.start()
-////        }
-////        catch let error {
-////            Logger.logger.reportError(self, "Cant create MIDI sampler \(error.localizedDescription)")
-////        }
-//   }
-//
-//    func stopSampler() {
-////        print ("=============== STOP AudioSamplerPlayer =============== ")
-////
-//////        for m in 58...74 {
-//////            sampler.stopNote(UInt8(m), onChannel: UInt8(0))
-//////        }
-////        audioEngine.stop()
-//    }
+
     
     private func loadSoundFont() {
         
@@ -78,7 +61,7 @@ class AudioSamplerPlayer {
                 do {
                     try sampler.loadSoundBankInstrument(at: url, program: UInt8(instrumentProgramNumber), bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB), bankLSB: UInt8(kAUSampler_DefaultBankLSB))
 
-                    print("SF2", instrumentProgramNumber)
+                    //print("SF2", instrumentProgramNumber)
                     //Metronome.nextInstrument += 1
                     break
                 }

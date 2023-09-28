@@ -386,6 +386,7 @@ class GoogleAPI {
 
         let rootFolderId = getAPIBundleData(key: "GoogleDriveDataFolderID") //NZMEB
         guard let rootFolderId = rootFolderId else {
+            onDone(.failed, false, nil)
             self.logger.reportError(self, "No folder Id")
             return
         }
@@ -411,6 +412,7 @@ class GoogleAPI {
                             }
                         }
                         else {
+                            onDone(.failed, false, nil)
                             self.logger.reportError(self, "filename:\(fileName) at key:\(cacheKey) does not exist")
                         }
                     }
@@ -422,6 +424,7 @@ class GoogleAPI {
                         }
                         else {
                             if reportError {
+                                onDone(.failed, false, nil)
                                 self.logger.reportError(self, "Cannot find folder for path \(pathSegments[pathIndex]) for filename:\(fileName), key:\(cacheKey)")
                             }
                         }

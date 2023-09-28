@@ -88,7 +88,6 @@ struct MetronomeView: View {
         )
         //.background(UIGlobals.backgroundColorHiliteBox)
         .background(UIGlobals.colorInstructions)
-
     }
 }
 

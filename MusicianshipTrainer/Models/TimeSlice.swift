@@ -11,7 +11,8 @@ class TimeSlice : ScoreEntry {
     var footnote:String?
     var barLine:Int = 0
     private static var idIndex = 0
-    
+    var beatNumber:Double = 0.0 //the beat in the bar that the timeslice is at
+
     init(score:Score?) {
         self.score = score
         self.entries = []
@@ -24,12 +25,19 @@ class TimeSlice : ScoreEntry {
         }
     }
 
+    func getValue() -> Double? {
+        if entries.count > 0 {
+            return entries[0].getValue()
+        }
+        return nil
+    }
+    
     func addNote(n:Note) {
         self.entries.append(n)
         n.timeSlice = self
         if let score = score {
             score.updateStaffs()
-            score.addStemCharaceteristics()
+            score.addBeamAndStemCharaceteristics()
         }
     }
     
@@ -37,7 +45,7 @@ class TimeSlice : ScoreEntry {
         self.entries.append(rest)
         if let score = score {
             score.updateStaffs()
-            //score.addStemCharaceteristics()
+            score.addBeamAndStemCharaceteristics()
         }
     }
 
@@ -46,7 +54,7 @@ class TimeSlice : ScoreEntry {
             self.entries.append(n)
         }
         if let score = score {
-            score.addStemCharaceteristics()
+            score.addBeamAndStemCharaceteristics()
             score.updateStaffs()
         }
     }

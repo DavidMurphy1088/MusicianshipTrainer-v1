@@ -8,7 +8,7 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
     var staffNum:Int //Narrow the display of the note to just one staff
     var timeSlice:TimeSlice?
     var isDotted:Bool = false
-    var sequence:Int = 0 //the note's sequence position
+    var sequence:Int = 0 //the timeslice's sequence position
 
     fileprivate var value:Double = Note.VALUE_QUARTER
 
@@ -22,6 +22,11 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
         //return lhs.midiNumber == rhs.midiNumber
         return lhs.id == rhs.id
     }
+    
+//    func log(ctx:String) -> Bool {
+//        print("====>TimeSliceEntry", ctx, "ID", id, sequence, "hilit", self.hilite)
+//        return true
+//    }
     
     func getValue() -> Double {
         return self.value

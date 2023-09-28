@@ -30,7 +30,7 @@ struct NoteHiliteView: View {
     var body: some View {
         VStack {
             if entry.hilite {
-                //Text("HH")
+                //Text("hHH")
                 Ellipse()
                     .stroke(Color.blue, lineWidth: 3)
                     .frame(width: width, height: width)

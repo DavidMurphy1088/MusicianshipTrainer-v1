@@ -10,6 +10,8 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     var audioRecorder: AVAudioRecorder!
     var audioPlayer: AVAudioPlayer! //best for playing smaller local content
     
+    //var allDoneCallback:((_ status:RequestStatus) -> Void)?
+    
     ///use the same name for all recordings.
     var audioFilenameStatic = "Audio_Recording"
     var avPlayer: AVPlayer? //best for playing remote content, support streaming etc
@@ -145,6 +147,10 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         setStatus("Playback stopped, status:\(flag ? "OK" : "Error")")
+//        if let allDone = self.allDoneCallback {
+//            let status:RequestStatus = flag ? .success : .failed
+//            allDone(status)
+//        }
     }
     
     func getDocumentsDirectory() -> URL {
