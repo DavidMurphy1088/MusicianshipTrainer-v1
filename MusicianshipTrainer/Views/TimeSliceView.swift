@@ -114,33 +114,59 @@ struct TimeSliceView: View {
     
     func RestView(staff:Staff, entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
         ZStack {
-            if entry.getValue() == 1 {
-                //Image(uiImage: makeMono(name: "rest_quarter")!)
-                Image("rest_quarter_grayscale")
-                    .resizable()
-                    .renderingMode(.template)
+
+            if entry.getValue() == 0 {
+                Text("?")
+                    .font(.largeTitle)
                     .foregroundColor(entry.getColor(staff: staff, log: true))
-                    .scaledToFit()
-                    .frame(height: lineSpacing * 3)
+                Spacer()
             }
             else {
-                if entry.getValue() == 2 {
-                    let height = lineSpacing / 2.0
-                    Rectangle()
-                        .fill(entry.getColor(staff: staff, log: true))
-                        .frame(width: lineSpacing * 1.5, height: height)
-                        .offset(y: 0 - height / 2.0)
+                if entry.getValue() == 1 {
+                    Image("rest_quarter_grayscale")
+                        .resizable()
+                        .renderingMode(.template)
+                        .foregroundColor(entry.getColor(staff: staff, log: true))
+                        .scaledToFit()
+                        .frame(height: lineSpacing * 3)
                 }
                 else {
-                    VStack {
-                        Text("R[\(String(format: "%.1f", entry.getValue()))]")
-                            .font(.title)
-                            .foregroundColor(entry.getColor(staff: staff, log: true))
-                        Spacer()
+                    if entry.getValue() == 2 {
+                        let height = lineSpacing / 2.0
+                        Rectangle()
+                            .fill(entry.getColor(staff: staff, log: true))
+                            .frame(width: lineSpacing * 1.5, height: height)
+                            .offset(y: 0 - height / 2.0)
+                    }
+                    else {
+                        if (entry.getValue() == 1.5) {
+                            HStack {
+                                Image("rest_quarter_grayscale")
+                                    .resizable()
+                                    .renderingMode(.template)
+                                    .foregroundColor(entry.getColor(staff: staff, log: true))
+                                    .scaledToFit()
+                                    .frame(height: lineSpacing * 3)
+                            Text(".")
+                                .font(.largeTitle)
+                                .foregroundColor(entry.getColor(staff: staff, log: true))
+                            }
+                        }
+                        else {
+                            VStack {
+                                //Text("R[\(String(format: "%.1f", entry.getValue()))]")
+                                //                                    .font(.title)
+                                //                                    .foregroundColor(entry.getColor(staff: staff, log: true))
+                                Text("?")
+                                    .font(.largeTitle)
+                                    .foregroundColor(entry.getColor(staff: staff, log: true))
+                                Spacer()
+                            }
+                        }
                     }
                 }
             }
-            
+
             if let timeSlice = entry.timeSlice {
                 if timeSlice.statusTag == .hilightAsCorrect {
                     VStack {

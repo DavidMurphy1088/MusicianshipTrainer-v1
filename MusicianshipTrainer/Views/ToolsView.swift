@@ -12,9 +12,9 @@ struct ToolsView: View {
                 MetronomeView(score:score, helpText: helpMetronome, frameHeight: frameHeight)
                     //.padding(.horizontal)
                     .padding()
-                VoiceCounterView(frameHeight: frameHeight)
-                    //.padding(.horizontal)
-                    .padding()
+//                VoiceCounterView(frameHeight: frameHeight)
+//                    //.padding(.horizontal)
+//                    .padding()
             }
         }
     }

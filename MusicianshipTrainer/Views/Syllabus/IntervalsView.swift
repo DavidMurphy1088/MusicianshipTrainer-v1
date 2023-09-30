@@ -137,36 +137,11 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         let staff = score.getStaff()[0]
         let offset1 = intervalNotes[0].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
         let offset2 = intervalNotes[1].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
-        var explanation = ""
+        //var explanation = ""
         
-        if offset1 % 2 == 0 {
-            explanation = "A line to a "
-            if offset2 % 2 == 0 {
-                explanation += "line is a skip"
-            }
-            else {
-                explanation += "space is a step"
-            }
-        }
-        else {
-            explanation = "A space to a "
-            if offset2 % 2 == 0 {
-                explanation += "line is a step"
-//                if grade == 1 {
-//                    explanation += "a step"
-//                }
-//                else {
-//                    explanation += "a step"
-//                }
-            }
-            else {
-                explanation += "space is a skip"
-            }
-        }
-        if grade == 1 {
-            answer.explanation = explanation
-        }
-
+        let explanation = intervals.getExplanation(grade: contentSection.getGrade(), offset1: offset1, offset2: offset2)
+        answer.explanation = explanation
+        
         let interval = abs((intervalNotes[1].midiNumber - intervalNotes[0].midiNumber))
         answer.correct = false
         for intervalType in intervals.intervalTypes {
@@ -185,7 +160,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             let columns = intervals.getVisualColumnCount()
             ForEach(0..<columns) { column in
                 Spacer()
-                VStack {
+                HStack {
                     let intervalsForColumn = intervals.getVisualColumns(col: column)
                     ForEach(intervalsForColumn, id: \.name) { intervalType in
                         Button(action: {

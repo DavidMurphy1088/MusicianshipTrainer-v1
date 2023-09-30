@@ -293,6 +293,7 @@ class GoogleAPI {
     func getDocumentByName(pathSegments:[String],
                        name:String,
                        reportError:Bool,
+                           bypassCache:Bool?=false,
                        onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void)  {
         var cacheKey = ""
         for path in pathSegments {
@@ -302,12 +303,15 @@ class GoogleAPI {
         }
 
         cacheKey += name
-        let (cachedType, data) = dataCache.getData(key: cacheKey)
-        if let data = data {
-            if let document = String(data: data, encoding: .utf8) {
-                onDone(.success, document)
-                if cachedType == .fromMemory {
-                    return
+        let bypass = bypassCache == true
+        if !bypass {
+            let (cachedType, data) = dataCache.getData(key: cacheKey)
+            if let data = data {
+                if let document = String(data: data, encoding: .utf8) {
+                    onDone(.success, document)
+                    if cachedType == .fromMemory {
+                        return
+                    }
                 }
             }
         }

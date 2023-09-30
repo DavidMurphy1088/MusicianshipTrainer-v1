@@ -84,7 +84,7 @@ struct NarrationView : View {
         VStack {
             HStack {
                 Button(action: {
-                    //TTS.shared.speakText(contentSection: contentSection, context: context, htmlContent: htmlDocument)
+                    TTS.shared.speakText(contentSection: contentSection, context: context, htmlContent: htmlDocument)
                 }) {
                     Image(systemName: "speaker.wave.2")
                         .foregroundColor(.blue)
@@ -115,8 +115,10 @@ struct ContentSectionTipsView: View {
     let contentSection: ContentSection
     var body: some View {
         VStack {
-            ContentSectionTipsViewUI(htmlDocument: htmlDocument)
-            NarrationView(contentSection: contentSection, htmlDocument: htmlDocument, context: "ContentSectionTipsView")
+            ZStack {
+                ContentSectionTipsViewUI(htmlDocument: htmlDocument).border(Color.black, width: 1).padding()
+                NarrationView(contentSection: contentSection, htmlDocument: htmlDocument, context: "ContentSectionTipsView")
+            }
         }
     }
 }
@@ -144,26 +146,26 @@ struct ContentSectionHeaderView: View {
     @State private var tipsAndTricksData:String?=nil
     @State private var audioInstructionsFileName:String? = nil
     
-    func getInstructions()  {
+    func getInstructions(bypassCache:Bool)  {
         var pathSegments = contentSection.getPathAsArray()
         if pathSegments.count < 1 {
             return
         }
         let filename = "Instructions" //instructionContent.contentSectionData.data[0]
         pathSegments.append(UIGlobals.getAgeGroup())
-        googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false) {status,document in
+        googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false, bypassCache: bypassCache) {status,document in
             if status == .success {
                 self.instructions = document
             }
         }
     }
     
-    func getTipsAndTricks()  {
+    func getTipsAndTricks(bypassCache: Bool)  {
         let filename = "Tips_Tricks" //tipsAndTricksContent.contentSectionData.data[0]
         var pathSegments = contentSection.getPathAsArray()
         pathSegments.append(UIGlobals.getAgeGroup())
 
-        googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false) {status,document in
+        googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false, bypassCache: true) {status,document in
             if status == .success {
                 self.tipsAndTricksExists = true
                 self.tipsAndTricksData = document
@@ -283,14 +285,29 @@ struct ContentSectionHeaderView: View {
                             }
                         }
                     }
+                    
+                    Spacer()
+                    Button(action: {
+                        DispatchQueue.main.async {
+                            self.getInstructions(bypassCache: true)
+                            self.getTipsAndTricks(bypassCache: true)
+                        }
+                    }) {
+                        VStack {
+                            HStack {
+                                Text("Reload_HTML")
+                                    .font(.title2)
+                            }
+                        }
+                    }
                     Spacer()
                 }
             }
         }
         .onAppear() {
             getAudio()
-            getInstructions()
-            getTipsAndTricks()
+            getInstructions(bypassCache: false)
+            getTipsAndTricks(bypassCache: false)
         }
     }
 }
@@ -564,63 +581,6 @@ struct ExamView: View {
     }
 }
 
-//struct ContentOverviewView: View {
-//    let contentSection:ContentSection
-//    let googleAPI = GoogleAPI.shared
-//    @State var HTMLcontent: String?
-//
-//    init(contentSection:ContentSection) {
-//        self.contentSection = contentSection
-//    }
-//
-//    struct HTMLOverviewView: UIViewRepresentable {
-//        var htmlDocument:String
-//
-//        func makeUIView(context: Context) -> WKWebView {
-//            return WKWebView()
-//        }
-//
-//        func updateUIView(_ uiView: WKWebView, context: Context) {
-//            uiView.loadHTMLString(htmlDocument.trimmingCharacters(in: .whitespaces), baseURL: nil)
-//        }
-//    }
-//
-//    func getContent()  {
-//        var pathSegments = contentSection.getPathAsArray()
-//        pathSegments.append(UIGlobals.getAgeGroup())
-//
-//        googleAPI.getDocumentByName(pathSegments: pathSegments, name: contentSection.type, reportError: false) {status,document in
-//            if status == .success {
-//                self.HTMLcontent = document ?? ""
-//            }
-//            else {
-//                self.HTMLcontent = "<!DOCTYPE html><html>Error:" + (document ?? "") + "</html>"
-//            }
-//        }
-//    }
-//
-//    var body: some View {
-//        ZStack {
-//            Text("Overview").defaultTextStyle()
-//            if let content = self.HTMLcontent {
-//                HStack {
-//                    GeometryReader { geometry in
-//                        HTMLOverviewView(htmlDocument: content)
-//                            .frame(height: geometry.size.height * 0.8)
-//                            .overlay(
-//                                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-//                            )
-//                            .padding()
-//                    }
-//                }
-//            }
-//        }
-//        .onAppear {
-//            getContent()
-//        }
-//    }
-//}
-
 struct ContentSectionView: View {
     let contentSection:ContentSection
     let contentSectionView: (any View)
@@ -664,6 +624,10 @@ struct ContentSectionView: View {
                 if contentSection.isExamTypeContentSection() {
                     //No ContentSectionHeaderView in any exam mode content section except the exam start
                     if contentSection.hasExamModeChildren() {
+                        ContentSectionHeaderView(contentSection: contentSection, contentSectionView: self)
+                            //.border(Color.red)
+                            .padding(.vertical, 0)
+
                         SectionsNavigationView(contentSections: childSections, contentSectionView: self, makeRandomChoice: $random)
                     }
                     else {

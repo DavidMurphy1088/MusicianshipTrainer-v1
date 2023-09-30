@@ -38,8 +38,6 @@ class AudioSamplerPlayer {
         return sampler
     }
     
-
-    
     private func loadSoundFont() {
         
         //https://www.rockhoppertech.com/blog/the-great-avaudiounitsampler-workout/#soundfont
@@ -103,6 +101,9 @@ class AudioSamplerPlayer {
                 let dynamic:Double = 48
                 n += 1
                 sampler.startNote(UInt8(note.midiNumber + pitchAdjust), withVelocity:UInt8(dynamic), onChannel:0)
+                if stopPlayingNotes {
+                    break
+                }
                 let wait = playTempo * 50000.0 * Double(note.getValue())
                 usleep(useconds_t(wait))
             }

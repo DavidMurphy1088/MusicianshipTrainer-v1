@@ -85,4 +85,49 @@ class Intervals {
         }
         return result
     }
+    
+    func getExplanation(grade:Int, offset1:Int, offset2:Int) -> String {
+        var explanation = ""
+        if grade == 1 {
+            if offset1 % 2 == 0 {
+                explanation = "A line to a "
+                if offset2 % 2 == 0 {
+                    explanation += "line is a skip"
+                }
+                else {
+                    explanation += "space is a step"
+                }
+            }
+            else {
+                explanation = "A space to a "
+                if offset2 % 2 == 0 {
+                    explanation += "line is a step"
+                }
+                else {
+                    explanation += "space is a skip"
+                }
+            }
+        }
+        else {
+            if offset1 % 2 == 0 && offset2 % 2 == 0 {
+                explanation = "A line to a line is an odd interval"
+            }
+            else {
+                let x = offset2 % 2
+                print(x)
+                if abs(offset1 % 2) == 1 && abs(offset2 % 2) == 1 {
+                    explanation = "A space to a space is an odd interval"
+                }
+                else {
+                    if offset1 % 2 == 0 {
+                        explanation = "A line to a space is an even interval"
+                    }
+                    else {
+                        explanation = "A space to a line is an even interval"
+                    }
+                }
+            }
+        }
+        return explanation
+    }
 }
