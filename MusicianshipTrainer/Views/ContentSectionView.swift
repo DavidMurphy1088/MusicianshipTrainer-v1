@@ -8,7 +8,6 @@ import UIKit
 struct ContentTypeView: View {
     let contentSection:ContentSection
     @Binding var answerState:AnswerState
-    
     @Binding var answer:Answer
 
     func isNavigationHidden() -> Bool {
@@ -662,50 +661,43 @@ struct ContentSectionView: View {
                 }
             }
             else {
-//                if contentSection.type == "Overview" {
-//                    ContentOverviewView(contentSection: self.contentSection)
-//                }
-//                else {
-                    ContentTypeView(contentSection: self.contentSection,
-                                    answerState: $answerState,
-                                    answer: $answer)
-                //}
+                ContentTypeView(contentSection: self.contentSection,
+                                answerState: $answerState,
+                                answer: $answer)
             }
             if contentSection.subSections.count == 0 {
-                //if contentSection.type != "Overview" {
-                    HStack {
-                        ///Tell the parent to navigate to the next section
-                        if let navigationView = self.contentSectionView as? SectionsNavigationView {
-                            Button("Random Example") {
-                                navigationView.randomSelection(withDelay: true)
-                            }
-                            .padding()
-                        }
-                        Button("Previous Example") {
-                            if self.parentSelectionIndex == nil {
-                                self.parentSelectionIndex = 0
-                            }
-                            else {
-                                if self.parentSelectionIndex! > 0 {
-                                    self.parentSelectionIndex! -= 1
-                                }
-                                else {
-                                    self.parentSelectionIndex = nil
-                                }
-                            }
-                        }
-                        .padding()
-                        Button("Next Example") {
-                            if self.parentSelectionIndex == nil {
-                                self.parentSelectionIndex = 0
-                            }
-                            else {
-                                self.parentSelectionIndex! += 1
-                            }
+                HStack {
+                    ///Tell the parent to navigate to the next section
+                    if let navigationView = self.contentSectionView as? SectionsNavigationView {
+                        Button("Random Example") {
+                            navigationView.randomSelection(withDelay: true)
                         }
                         .padding()
                     }
-                //}
+                    Button("Previous Example") {
+                        if self.parentSelectionIndex == nil {
+                            self.parentSelectionIndex = 0
+                        }
+                        else {
+                            if self.parentSelectionIndex! > 0 {
+                                self.parentSelectionIndex! -= 1
+                            }
+                            else {
+                                self.parentSelectionIndex = nil
+                            }
+                        }
+                    }
+                    .padding()
+                    Button("Next Example") {
+                        if self.parentSelectionIndex == nil {
+                            self.parentSelectionIndex = 0
+                        }
+                        else {
+                            self.parentSelectionIndex! += 1
+                        }
+                    }
+                    .padding()
+                }
             }
         }
         //.background(UIGlobals.colorNavigationBackground)

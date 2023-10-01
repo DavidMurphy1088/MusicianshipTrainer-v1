@@ -349,6 +349,9 @@ struct ClapOrPlayPresentView: View {
     }
     
     func recordingWasStarted() -> Bool {
+        if questionType == .melodyPlay {
+            return false
+        }
         if answerState == .notEverAnswered {
             DispatchQueue.main.async {
                 //sleep(1)
@@ -567,7 +570,6 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     @State var playingCorrect = false
     @State var playingStudent = false
     @State var speechEnabled = false
-    //@State var tappingScore:Score?
     @State var fittedScore:Score?
 
     private var score:Score
@@ -710,6 +712,19 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                         }
                     }
                 }
+                if let fittedScore = fittedScore {
+                    if let studentFeedback = fittedScore.studentFeedback {
+                        if let onRefresh = onRefresh {
+                            if !studentFeedback.correct {
+                                Button(action: {
+                                    onRefresh()
+                                }) {
+                                    Text("Try Again").defaultButtonStyle()
+                                }
+                            }
+                        }
+                    }
+                }
                 Spacer() //Keep - required to align the page from the top
             }
             .onAppear() {
@@ -745,6 +760,7 @@ struct ClapOrPlayView: View {
    
     func onRefresh() {
         DispatchQueue.main.async {
+            answerState = .notEverAnswered
             self.refresh.toggle()
         }
     }

@@ -9,9 +9,8 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     var recordingSession: AVAudioSession!
     var audioRecorder: AVAudioRecorder!
     var audioPlayer: AVAudioPlayer! //best for playing smaller local content
-    
-    //var allDoneCallback:((_ status:RequestStatus) -> Void)?
-    
+    let logger = Logger.logger
+
     ///use the same name for all recordings.
     var audioFilenameStatic = "Audio_Recording"
     var avPlayer: AVPlayer? //best for playing remote content, support streaming etc
@@ -23,12 +22,66 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
             self.status = "AudioRecorder::"+msg
         }
     }
+   
+//    func showMicrophoneAccessAlert() {
+//        let alert = UIAlertController(title: "Microphone Access Denied",
+//                                      message: "Please enable access to the microphone in Settings.",
+//                                      preferredStyle: .alert)
+//
+//        let settingsAction = UIAlertAction(title: "Go to Settings", style: .default) { _ in
+//            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+//                return
+//            }
+//            if UIApplication.shared.canOpenURL(settingsUrl) {
+//                UIApplication.shared.open(settingsUrl, completionHandler: nil)
+//            }
+//        }
+//
+//        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+//
+//        alert.addAction(settingsAction)
+//        alert.addAction(cancelAction)
+//
+//        present(alert, animated: true, completion: nil)
+//    }
+    
+    func checkMicrophonePermission() -> AVAudioSession.RecordPermission {
+        return AVAudioSession.sharedInstance().recordPermission
+    }
+
+    func requestMicrophonePermission(completion: @escaping (Bool) -> Void) {
+        AVAudioSession.sharedInstance().requestRecordPermission { granted in
+            completion(granted)
+        }
+    }
+    func log(_ msg:String) {
+        logger.log(self, msg)
+    }
     
     func startRecording(fileName:String)  {
         recordingSession = AVAudioSession.sharedInstance()
         let outputFileName = audioFilenameStatic
         let audioFilename = getDocumentsDirectory().appendingPathComponent("\(outputFileName).wav")
-        //print("RECORDING TO file:", audioFilename ?? "")
+        //print("RECORDING TO file:", audioFilename ?? "")'
+        
+        let permissionStatus = checkMicrophonePermission()
+        switch permissionStatus {
+        case .granted:
+            log("Mic - Permission granted")
+        case .denied:
+            log("Mic - Permission denied")
+        case .undetermined:
+            log("Mic - Permission undetermined")
+            requestMicrophonePermission { granted in
+                if granted {
+                    self.log("Mic - Permission granted after request")
+                } else {
+                    self.logger.reportError(self, "Mic - Permission denied after request")
+                }
+            }
+        @unknown default:
+            logger.reportError(self, "Mic - Unknown permission status")
+        }
 
         AppDelegate.startAVAudioSession(category: .record)
         
@@ -79,7 +132,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
             Logger.logger.reportError(self, "audioRecorder is nil at stop")
         }
         else {
-            Logger.logger.log(self, "Recording ended - wasRecording? -\(audioRecorder.isRecording) secs:\(String(format: "%.1f", audioRecorder.currentTime))")
+            Logger.logger.log(self, "Recording ended - wasRecording? -\(audioRecorder.isRecording) seconds:\(String(format: "%.1f", audioRecorder.currentTime))")
             setStatus("Recorded time \(String(format: "%.1f", audioRecorder.currentTime)) seconds")
             audioRecorder.stop()
             AppDelegate.startAVAudioSession(category: .playback)

@@ -2,6 +2,25 @@ import SwiftUI
 import CoreData
 import SwiftUI
 
+struct LogView: View {
+    let items: [LogMessage] = Logger.logger.recordedMsgs
+    
+    var body: some View {
+        Text("Log messages")
+        ScrollView {
+            VStack(spacing: 20) {
+                ForEach(items) { item in
+                    HStack {
+                        Text(item.message).padding(0)
+                        Spacer()
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+}
+
 struct ConfigurationView: View {
     @Binding var isPresented: Bool
     @State var colorScore:Color
@@ -19,6 +38,7 @@ struct ConfigurationView: View {
                 
                 Text("Your Configuration").font(.title).padding()
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
+                    .padding()
                 
                 // =================== Age Mode ===================
                 
@@ -33,7 +53,6 @@ struct ConfigurationView: View {
                     else {
                         selectedAge = 1
                     }
-                    //print("OnAppear", selectedAge)
                 }
 //                .overlay(
 //                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
@@ -84,7 +103,9 @@ struct ConfigurationView: View {
                     }
                     .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
                 }
-
+                
+                LogView().border(.black).padding()
+                
                 HStack {
                     Button("Ok") {
                         UIGlobals.colorScore = colorScore
@@ -127,7 +148,7 @@ struct ConfigSelectAgeMode: View {
             }
         }
         //.pickerStyle(DefaultPickerStyle())
-        .pickerStyle(InlinePickerStyle())
+        //.pickerStyle(InlinePickerStyle())
     }
 }
 
