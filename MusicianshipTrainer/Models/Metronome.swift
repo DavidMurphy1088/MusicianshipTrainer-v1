@@ -74,7 +74,7 @@ class Metronome: AudioPlayerUser, ObservableObject  {
     func stopTicking() {
         //self.tickingIsActive = false
         DispatchQueue.main.async {
-            Logger.logger.log(self, "set stopTicking")
+            //Logger.logger.log(self, "set stopTicking")
             self.tickingIsActive = false
         }
     }

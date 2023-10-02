@@ -30,11 +30,12 @@ class DataRequest {
 }
 
 class DataCacheEntry {
-    var wasNil:Bool
+    ///Loaded from UserDefaults or by an external data load
+    var wasLoadedFromExternal:Bool
     var data:Data?
     
-    init(wasNil:Bool, data:Data?) {
-        self.wasNil = wasNil
+    init(wasLoadedFromExternal:Bool, data:Data?) {
+        self.wasLoadedFromExternal = wasLoadedFromExternal
         self.data = data
     }
 }
@@ -42,12 +43,6 @@ class DataCacheEntry {
 class DataCache {
     private var dataCache:[String:DataCacheEntry] = [:]
     private let enabled = true
-    
-    enum CachedType {
-        case fromMemoryCache
-        case fromUSerDefaults
-        case fromNowhere
-    }
     
     func showCaches() {
         print("\n----CACHES")
@@ -59,42 +54,43 @@ class DataCache {
 //        }
     }
     
-    func getData(key: String) -> (CachedType, Data?) {
+    func getCacheEntry(_ key:String) -> DataCacheEntry? {
+        return self.dataCache[key]
+    }
+
+    func hasCacheKey(_ key:String) -> Bool {
+        return self.dataCache.keys.contains(key)
+    }
+
+    func getData(key: String) -> Data? {
         if !enabled {
-            return (.fromNowhere, nil)
+            return nil
         }
         else {
             if self.dataCache.keys.contains(key) {
                 if let cacheEntry = self.dataCache[key] {
-                    return (.fromMemoryCache, cacheEntry.data)
+                    return cacheEntry.data
                 }
                 else {
-                    return (.fromMemoryCache, nil)
+                    return nil
                 }
             }
             let data = UserDefaults.standard.data(forKey: key)
-            if let data = data {
-                setData(key: key, data: data)
-                return (.fromUSerDefaults, data)
-            }
-            else {
-                return (.fromNowhere, nil)
-            }
+            self.dataCache[key] = DataCacheEntry(wasLoadedFromExternal: false, data: data)
+            //if let data = data {
+            return data
+            //}
+            //else {
+                //return nil
+            //}
         }
     }
-    
-    func setData(key:String, data:Data) {
-        self.dataCache[key] = DataCacheEntry(wasNil: false, data: data)
+
+    func setFromExternalData(key:String, data:Data?) {
+        self.dataCache[key] = DataCacheEntry(wasLoadedFromExternal: true, data: data)
         UserDefaults.standard.set(data, forKey: key)
     }
     
-    func setDataNil(key:String) {
-        //showCaches()
-        ///Cannot set to nil since that removes the key.
-        ///We want to know that the data we looked for was not found previously
-        self.dataCache[key] = DataCacheEntry(wasNil: true, data: nil)
-        UserDefaults.standard.set(nil, forKey: key)
-    }
 }
 
 class GoogleAPI {
@@ -154,13 +150,14 @@ class GoogleAPI {
     private func getByAPI(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         
         if let key = request.targetExampleKey {
-            let (cachedType, data) = dataCache.getData(key: key)
+            let data = dataCache.getData(key: key)
             if let data = data {
                 onDone(.success, data)
-                if cachedType == .fromMemoryCache {
-                    return
+                if let entry = dataCache.getCacheEntry(key) {
+                    if entry.wasLoadedFromExternal {
+                        return
+                    }
                 }
-                ///Continue loading below to reload memory cache if data changed in cloud
             }
         }
         
@@ -191,7 +188,7 @@ class GoogleAPI {
                             return
                         }
                         if let key = request.targetExampleKey {
-                            self.dataCache.setData(key: key, data: responseData)
+                            self.dataCache.setFromExternalData(key: key, data: responseData)
                         }
                         onDone(.success, data)
                     }
@@ -336,25 +333,38 @@ class GoogleAPI {
         let bypass = bypassCache == true
         var log = false
 
-        if name == "Tips_Tricks" {
+        if name == "Parents" {
             log = true
         }
         if !bypass {
-            ///If we get data from either cache or defaults just return it immediatly
-            let (cachedType, data) = dataCache.getData(key: cacheKey)
+            ///If we get data from either cache or defaults return it, otherwise try once to load it externally
+            let data = dataCache.getData(key: cacheKey)
+            
+            var loadedFromExternal = false
+            if let entry = dataCache.getCacheEntry(cacheKey) {
+                if entry.wasLoadedFromExternal {
+                    loadedFromExternal = true
+                }
+            }
+
             if let data = data {
                 if let document = String(data: data, encoding: .utf8) {
                     onDone(.success, document)
                 }
+                else {
+                    onDone(.failed, nil)
+                }
             }
             else {
-                onDone(.failed, nil)
+                if loadedFromExternal {
+                    onDone(.failed, nil)
+                }
             }
-            ///If we have already looked it up and its nil dont look for the data again
-            if cachedType == .fromMemoryCache {
+            ///If we have not tried an external load of the data load it now
+            ///(Or if we have non nil data from UserDefaults but have not refreshed that data one time to check it has not changed)
+            if loadedFromExternal {
                 return
             }
-            ///If we've never looked up the data then look it up and fill the cache
         }
         if log {
             logger.log(self, "start load \(cacheKey)")
@@ -378,14 +388,14 @@ class GoogleAPI {
                             log = log
                         }
                         if let document = document {
-                            self.dataCache.setData(key: cacheKey, data: document.data(using: .utf8)!)
+                            self.dataCache.setFromExternalData(key: cacheKey, data: document.data(using: .utf8)!)
                             onDone(.success, document)
                         }
                         else {
                             if reportError {
                                 self.logger.reportError(self, "No data for file:[\(name)] in path:[\(cacheKey)]")
                             }
-                            self.dataCache.setDataNil(key: cacheKey)
+                            self.dataCache.setFromExternalData(key: cacheKey, data: nil)
                             onDone(.failed, nil)
                         }
                     })
@@ -422,31 +432,32 @@ class GoogleAPI {
         }
 
         cacheKey += fileName
-//        let (cachedType, data) = dataCache.getData(key: cacheKey)
-//        if cachedType == .fromMemory {
-//            if let data = data {
-//                onDone(.success, true, data)
-//            }
-//            else {
-//                onDone(.failed, true, nil)
-//            }
-//            return
-//        }
-
-        ///If we get data from either cache or defaults just return it immediatly
-        let (cachedType, data) = dataCache.getData(key: cacheKey)
-        if let data = data {
-            if let document = String(data: data, encoding: .utf8) {
-                onDone(.success, true, data)
+        let data = dataCache.getData(key: cacheKey)
+        var loadedFromExternal = false
+        if let entry = dataCache.getCacheEntry(cacheKey) {
+            if entry.wasLoadedFromExternal {
+                loadedFromExternal = true
             }
         }
-        onDone(.failed, true, nil)
-        ///If we have already looked it up and its nil return nil but dont look for the data again
-        if cachedType == .fromMemoryCache {
+
+        if let data = data {
+//            if let document = String(data: data, encoding: .utf8) {
+//                onDone(.success, dataCache.hasCacheKey(cacheKey), data)
+//            }
+//            else {
+//                onDone(.failed, dataCache.hasCacheKey(cacheKey), nil)
+//            }
+            onDone(.success, dataCache.hasCacheKey(cacheKey), data)
+        }
+        else {
+            if loadedFromExternal {
+                onDone(.failed, dataCache.hasCacheKey(cacheKey), nil)
+            }
+        }
+        if loadedFromExternal {
             return
         }
-        ///If we've never looked up the data then look it up and fill the cache...
-
+        
         let rootFolderId = getAPIBundleData(key: "GoogleDriveDataFolderID") //NZMEB
         guard let rootFolderId = rootFolderId else {
             onDone(.failed, false, nil)
@@ -469,14 +480,14 @@ class GoogleAPI {
                             let request = DataRequest(callType: .file, id: fileId, context: "getFileDataByName:\(fileName)", targetExampleKey: nil)
                             self.getDataByID(request: request) { status, data in
                                 if let data = data {
-                                    self.dataCache.setData(key: cacheKey, data: data)
+                                    self.dataCache.setFromExternalData(key: cacheKey, data: data)
                                     onDone(status, false, data)
                                 }
                             }
                         }
                         else {
                             onDone(.failed, false, nil)
-                            self.dataCache.setDataNil(key: cacheKey)
+                            self.dataCache.setFromExternalData(key: cacheKey, data :nil)
                             self.logger.reportError(self, "filename:\(fileName) at key:\(cacheKey) does not exist")
                         }
                     }
@@ -593,7 +604,7 @@ class GoogleAPI {
                         }
                         let data = textContent.data(using: .utf8)
                         if let data = data {
-                            self.dataCache.setData(key: name, data: data)
+                            self.dataCache.setFromExternalData(key: name, data: data)
                             //self.dataCache[name] = data
                         }
                         onDone(.success, textContent)

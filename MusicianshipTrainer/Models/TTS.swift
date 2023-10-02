@@ -30,11 +30,11 @@ class TTS : AudioPlayerUser {
         }
         isSpeaking = true
         let cacheKey = contentSection.getPath() + "/" + context
-        let (cachedType, data) = dataCache.getData(key: cacheKey)
+        let data = dataCache.getData(key: cacheKey)
         var playAudio = true
         if let data = data {
             play(data: data)
-            if cachedType == .fromMemoryCache {
+            if dataCache.hasCacheKey(cacheKey) {
                 return
             }
             playAudio = false
@@ -81,7 +81,7 @@ class TTS : AudioPlayerUser {
                 if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                     let audioContent = jsonResponse["audioContent"] as? String,
                     let audioData = Data(base64Encoded: audioContent) {
-                    self.dataCache.setData(key: cacheKey, data: audioData)
+                    self.dataCache.setFromExternalData(key: cacheKey, data: audioData)
                     if playAudio {
                         self.play(data: audioData)
                     }

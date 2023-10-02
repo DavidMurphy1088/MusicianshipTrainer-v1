@@ -32,7 +32,9 @@ struct ContentNavigationView: View {
     let contentSection:ContentSection
     @State private var isShowingConfiguration = false
     @State private var selectedContentIndex: Int? = 0 //has to be optional for the case nothing is selected
-
+    func testFunc() {
+        
+    }
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             NavigationView {
@@ -42,7 +44,7 @@ struct ContentNavigationView: View {
                     GradeIntroView()
                     ZStack {
                         List(contentSection.subSections) { contentSection in
-                            NavigationLink(destination: ContentSectionView(contentSection: contentSection, contentSectionView: self)) {
+                            NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                                 //parentsSelectedContentIndex: $selectedContentIndex)) {
                                 ZStack {
                                     HStack {
@@ -62,7 +64,6 @@ struct ContentNavigationView: View {
                             .padding(.vertical, 4)
                         }
                         //.listRowBackground(Color.yellow)
-                        //.border(Color.red, width: 4)
                         .sheet(isPresented: $isShowingConfiguration) {
                             ConfigurationView(isPresented: $isShowingConfiguration,
                                               colorScore: UIGlobals.colorScore,
@@ -100,7 +101,7 @@ struct ContentNavigationView: View {
                 ZStack {
                     Color.red.edgesIgnoringSafeArea(.all)
                     List(contentSection.subSections) { contentSection in
-                        NavigationLink(destination: ContentSectionView(contentSection: contentSection, contentSectionView: self)) {
+                        NavigationLink(destination: ContentSectionView(contentSection: contentSection)) {
                             VStack {
                                 Text(contentSection.getTitle())
                                     .font(.title2)

@@ -713,19 +713,21 @@ class Score : ObservableObject {
                 let noNextNote = questionIndex == questionTimeSliceValues.count-1
                 
                 if !errorsFlagged {
-                    if !nextSliceIsRest || tappedDurations[tapIndex].value < questionTimeSliceValues[questionIndex].value {
-                        if tapIndex < tappedDurations.count   {
-                            if tappedDurations[tapIndex].value != questionTimeSliceValues[questionIndex].value {
-                                let name = TimeSliceEntry.getValueName(value:questionTimeSliceValues[questionIndex].value)
-                                let tapName = TimeSliceEntry.getValueName(value:tappedDurations[tapIndex].value)
-                                //explanation = "The question note here [\(questionTimeSliceDurations[questionIndex].duration)] is a \(name) but your tap[ \(tappedDurations[tapIndex].duration)] was a \(tapName)"
-                                explanation = "The question note here is a \(name) but your tap was a \(tapName)"
-                                outputValue = tappedDurations[tapIndex].value
-                                outTimeSlice.statusTag = .inError
-                                if let correct = questionTimeSliceValues[questionIndex].timeSlice {
-                                    correct.setStatusTag(.hilightAsCorrect)
+                    if tapIndex < tappedDurations.count {
+                        if !nextSliceIsRest || tappedDurations[tapIndex].value < questionTimeSliceValues[questionIndex].value {
+                            if tapIndex < tappedDurations.count   {
+                                if tappedDurations[tapIndex].value != questionTimeSliceValues[questionIndex].value {
+                                    let name = TimeSliceEntry.getValueName(value:questionTimeSliceValues[questionIndex].value)
+                                    let tapName = TimeSliceEntry.getValueName(value:tappedDurations[tapIndex].value)
+                                    //explanation = "The question note here [\(questionTimeSliceDurations[questionIndex].duration)] is a \(name) but your tap[ \(tappedDurations[tapIndex].duration)] was a \(tapName)"
+                                    explanation = "The question note here is a \(name) but your tap was a \(tapName)"
+                                    outputValue = tappedDurations[tapIndex].value
+                                    outTimeSlice.statusTag = .inError
+                                    if let correct = questionTimeSliceValues[questionIndex].timeSlice {
+                                        correct.setStatusTag(.hilightAsCorrect)
+                                    }
+                                    errorsFlagged = true
                                 }
-                                errorsFlagged = true
                             }
                         }
                     }

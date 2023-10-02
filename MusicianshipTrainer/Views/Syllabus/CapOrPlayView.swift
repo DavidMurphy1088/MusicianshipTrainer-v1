@@ -290,22 +290,22 @@ struct ClapOrPlayPresentView: View {
         return true
     }
          
-    func replayRecordingAllowed() -> Bool {
-        guard let parent = contentSection.parent else {
-            return true
-        }
-        if parent.isExamTypeContentSection() {
-            //|| answerState == .notEverAnswered {
-            ///Only allowed when section is exam but student is in exam review mode
-            if contentSection.answer111 == nil {
-                return false
-            }
-            else {
-                return true
-            }
-        }
-        return true
-    }
+//    func replayRecordingAllowed() -> Bool {
+//        guard let parent = contentSection.parent else {
+//            return true
+//        }
+//        if parent.isExamTypeContentSection() {
+//            //|| answerState == .notEverAnswered {
+//            ///Only allowed when section is exam but student is in exam review mode
+//            if contentSection.answer111 == nil {
+//                return false
+//            }
+//            else {
+//                return true
+//            }
+//        }
+//        return true
+//    }
     
     func isTakingExam() -> Bool {
         guard let parent = contentSection.parent else {
@@ -317,10 +317,6 @@ struct ClapOrPlayPresentView: View {
         else {
             return false
         }
-    }
-    
-    func log()->Bool {
-        return true
     }
     
     func instructionView() -> some View {
@@ -386,6 +382,81 @@ struct ClapOrPlayPresentView: View {
         return next
     }
     
+    func log()->Bool {
+        //print("=============Clap Present", "taking exam:", self.isTakingExam(), "answer state", self.answerState)
+        return true
+    }
+    
+    func buttonsView() -> some View {
+        HStack {
+            if contentSection.parent != nil {
+                if !self.isTakingExam() || questionType == .rhythmEchoClap {
+                    if answerState != .recording {
+                        let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
+                        PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
+                                          score: score,
+                                          metronome: metronome,
+                                          fileName: contentSection.name,
+                                          onDone: {rhythmHeard = true})
+                    }
+                }
+            }
+            if answerState == .recorded {
+                if !self.isTakingExam() {
+                    PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
+                                      score: questionType == .melodyPlay ? nil : getStudentTappingAsAScore(),
+                                      metronome: self.metronome,
+                                      fileName: contentSection.name,
+                                      onStart: ({
+                        if questionType != .melodyPlay {
+                            if let recordedScore = getStudentTappingAsAScore() {
+                                if let recordedtempo = recordedScore.tempo {
+                                    metronome.setTempo(tempo: recordedtempo, context:"start hear student")
+                                }
+                            }
+                        }
+                    }),
+                    onDone: ({
+                        //recording was played at the student's tempo and now reset metronome
+                        metronome.setTempo(tempo: self.questionTempo, context: "end hear student")
+                    })
+                    )
+                }
+            }
+        }
+    }
+    
+    func recordingStartView() -> some View {
+        VStack {
+            ///For echo clap present the tapping view right after the rhythm is heard (without requiring a button press)
+            if questionType == .melodyPlay || questionType == .rhythmVisualClap || !recordingWasStarted() {
+                Button(action: {
+                    if self.isTakingExam() {
+                        self.audioRecorder.stopPlaying()
+                    }
+                    answerState = .recording
+                    metronome.stopTicking()
+                    if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
+                        self.isTapping = true
+                        tapRecorder.startRecording(metronomeLeadIn: false, metronomeTempoAtRecordingStart: metronome.tempo)
+                    } else {
+                        audioRecorder.startRecording(fileName: contentSection.name)
+                    }
+                }) {
+                    if answerState == .recorded {
+                        if !self.isTakingExam()  {
+                            Text("Redo Recording").defaultButtonStyle()
+                        }
+                    }
+                    else {
+                        Text("Start Recording").defaultButtonStyle()
+                    }
+                }
+                .disabled(!rhythmHeard && questionType != .melodyPlay)
+            }
+        }
+    }
+    
     var body: AnyView {
         AnyView(
             VStack {
@@ -405,8 +476,7 @@ struct ClapOrPlayPresentView: View {
 
                 if questionType == .rhythmVisualClap || questionType == .melodyPlay {
                     ScoreSpacerView()
-                    ScoreView(score: score)
-                        .padding()
+                    ScoreView(score: score).padding()
                     ScoreSpacerView()
                 }
                 
@@ -420,66 +490,10 @@ struct ClapOrPlayPresentView: View {
                                 instructionView()
                             }
                         }
-                        HStack {
-                            if contentSection.parent != nil {
-                                if answerState != .recording {
-                                    let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
-                                    PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
-                                                      score: score,
-                                                      metronome: metronome,
-                                                      fileName: contentSection.name,
-                                                      onDone: {rhythmHeard = true})
-                                    //.border(.green)
-                                }
-                            }
-                            if answerState == .recorded {
-                                if replayRecordingAllowed() {
-                                    PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                                      score: questionType == .melodyPlay ? nil : getStudentTappingAsAScore(),
-                                                      metronome: self.metronome,
-                                                      fileName: contentSection.name,
-                                                      onStart: ({
-                                        if questionType != .melodyPlay {
-                                            if let recordedScore = getStudentTappingAsAScore() {
-                                                if let recordedtempo = recordedScore.tempo {
-                                                    metronome.setTempo(tempo: recordedtempo, context:"start hear student")
-                                                }
-                                            }
-                                        }
-                                    }),
-                                    onDone: ({
-                                        //recording was played at the student's tempo and now reset metronome
-                                        metronome.setTempo(tempo: self.questionTempo, context: "end hear student")
-                                    })
-                                    )
-                                }
-                            }
-                        }
+                        buttonsView()
                         Text(" ")
-                        
                         if rhythmHeard || questionType == .melodyPlay || questionType == .rhythmVisualClap {
-                            VStack {
-                                ///For echo clap present the tapping view right after the rhythm is heard (without requiring a button press)
-                                if questionType == .melodyPlay || questionType == .rhythmVisualClap || !recordingWasStarted() {
-                                    Button(action: {
-                                        if self.isTakingExam() {
-                                            self.audioRecorder.stopPlaying()
-                                        }
-                                        answerState = .recording
-                                        metronome.stopTicking()
-                                        if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
-                                            self.isTapping = true
-                                            tapRecorder.startRecording(metronomeLeadIn: false, metronomeTempoAtRecordingStart: metronome.tempo)
-                                        } else {
-                                            audioRecorder.startRecording(fileName: contentSection.name)
-                                        }
-                                    }) {
-                                        Text(answerState == .notEverAnswered ? "Start Recording" : "Redo Recording")
-                                            .defaultButtonStyle()
-                                    }
-                                    .disabled(!rhythmHeard && questionType != .melodyPlay)
-                                }
-                            }
+                            recordingStartView()
                         }
                     }
                     
@@ -507,25 +521,25 @@ struct ClapOrPlayPresentView: View {
                             .padding()
                         }
                     }
-                    
-                    if answerState == .recorded {
-                        HStack {
-                            Button(action: {
-                                answerState = .submittedAnswer
-                                if questionType == .melodyPlay {
-                                    answer.correct = true
+                    if log() {
+                        if answerState == .recorded {
+                            HStack {
+                                Button(action: {
+                                    answerState = .submittedAnswer
+                                    if questionType == .melodyPlay {
+                                        answer.correct = true
+                                    }
+                                    else {
+                                        answer.correct = rhythmIsCorrect()
+                                    }
+                                    score.setHiddenStaff(num: 1, isHidden: false)
+                                }) {
+                                    Text(nextStepText()).defaultButtonStyle()
                                 }
-                                else {
-                                    answer.correct = rhythmIsCorrect()
-                                }
-                                score.setHiddenStaff(num: 1, isHidden: false)
-                            }) {
-                                Text(nextStepText())
-                                    .defaultButtonStyle()
+                                .padding()
                             }
-                            .padding()
                         }
-                }
+                    }
             }
             .onAppear() {
                 self.initScore()
@@ -566,7 +580,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
     @ObservedObject var answerMetronome:Metronome
-
+    
     @State var playingCorrect = false
     @State var playingStudent = false
     @State var speechEnabled = false
@@ -575,17 +589,14 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     private var score:Score
     private var questionType:QuestionType
     private var answer:Answer
-    
     let questionTempo = 90
-    var onRefresh: (() -> Void)? = nil
     
-    init(contentSection:ContentSection, score:Score, answer:Answer, questionType:QuestionType, refresh:(() -> Void)? = nil) {
+    init(contentSection:ContentSection, score:Score, answer:Answer, questionType:QuestionType) {
         self.contentSection = contentSection
         self.score = score
         self.questionType = questionType
         self.answerMetronome = Metronome.getMetronomeWithCurrentSettings(ctx:"ClapOrPlayAnswerView")
         //print(Metronome.getMetronomeWithCurrentSettings(ctx: "TEST").tempo)
-        self.onRefresh = refresh
         self.answer = answer
         answerMetronome.setSpeechEnabled(enabled: self.speechEnabled)
     }
@@ -687,7 +698,6 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                     Text(" ")
                     ScoreSpacerView()
                     ScoreView(score: fittedScore).padding()
-                        //.border(Color .red)
                     ScoreSpacerView()
                 }
 
@@ -712,17 +722,33 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                         }
                     }
                 }
-                if let fittedScore = fittedScore {
-                    if let studentFeedback = fittedScore.studentFeedback {
-                        if let onRefresh = onRefresh {
-                            if !studentFeedback.correct {
-                                Button(action: {
-                                    onRefresh()
-                                }) {
-                                    Text("Try Again").defaultButtonStyle()
-                                }
-                            }
+                HStack {
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected((parent.selectedIndex ?? 0) + 1)
                         }
+                    }) {
+                        Text("Next ").defaultButtonStyle()
+                    }
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        
+                        if let parent = parent {
+                            let c = parent.subSections.count
+                            let r = Int.random(in: 0...c)
+                            parent.setSelected(r)
+                        }
+                    }) {
+                        Text("Random").defaultButtonStyle()
+                    }
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected(parent.selectedIndex ?? 0)
+                        }
+                    }) {
+                        Text("Try Again").defaultButtonStyle()
                     }
                 }
                 Spacer() //Keep - required to align the page from the top
@@ -747,29 +773,18 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
 struct ClapOrPlayView: View {
     let contentSection: ContentSection
     @ObservedObject var logger = Logger.logger
-
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
-
-    @State var refresh:Bool = false
-
     let id = UUID()
     let questionType:QuestionType
     
     @State var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5, noteSize: .small)
-   
-    func onRefresh() {
-        DispatchQueue.main.async {
-            answerState = .notEverAnswered
-            self.refresh.toggle()
-        }
-    }
 
     init(questionType:QuestionType, contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>) {
         self.questionType = questionType
         self.contentSection = contentSection
         _answerState = answerState
-        _answer = answer
+        _answer = answer        
     }
     
     func shouldShowAnswer() -> Bool {
@@ -803,6 +818,7 @@ struct ClapOrPlayView: View {
                     answerState: $answerState,
                     answer: $answer,
                     questionType: questionType)
+                .frame(width: UIScreen.main.bounds.width)
                 Spacer()
             }
             else {
@@ -810,8 +826,7 @@ struct ClapOrPlayView: View {
                     ClapOrPlayAnswerView(contentSection: contentSection,
                                          score: score,
                                          answer: answer,
-                                         questionType: questionType,
-                                         refresh: onRefresh)
+                                         questionType: questionType)
                 }
                 Spacer() //Force it to align from the top
             }

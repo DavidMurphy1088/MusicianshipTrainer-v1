@@ -26,7 +26,8 @@ class ContentSectionData: Codable {
     }
 }
 
-class ContentSection: Codable, Identifiable {
+class ContentSection: ObservableObject, Identifiable { //Codable,
+    @Published var selectedIndex:Int?
     var id = UUID()
     var parent:ContentSection?
     var name: String
@@ -60,6 +61,25 @@ class ContentSection: Codable, Identifiable {
         }
         self.level = level
         self.index = 0
+    }
+    
+    func setSelected(_ i:Int) {
+        DispatchQueue.main.async {
+            if self.selectedIndex != nil {
+                if true || i == self.selectedIndex {
+                    self.selectedIndex = nil
+                    DispatchQueue.global(qos: .background).async {
+                        sleep(1)
+                        DispatchQueue.main.async {
+                            self.selectedIndex = i
+                        }
+                    }
+                }
+                else {
+                    self.selectedIndex = i
+                }
+            }
+        }
     }
     
     func getGrade() -> Int {
@@ -465,7 +485,7 @@ class ContentSection: Codable, Identifiable {
                         if data != nil {
                             if fromCache {
                                 ///Dont start speaking at the instant the view is loaded
-                                sleep(2)
+                                sleep(1)
                             }
                         }
                         AudioRecorder.shared.playFromData(data: data!)
