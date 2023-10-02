@@ -29,38 +29,71 @@ class DataRequest {
     }
 }
 
+class DataCacheEntry {
+    var wasNil:Bool
+    var data:Data?
+    
+    init(wasNil:Bool, data:Data?) {
+        self.wasNil = wasNil
+        self.data = data
+    }
+}
+
 class DataCache {
-    private var dataCache:[String:Data?] = [:]
+    private var dataCache:[String:DataCacheEntry] = [:]
     private let enabled = true
     
     enum CachedType {
-        case fromMemory
-        case fromDefaults
+        case fromMemoryCache
+        case fromUSerDefaults
+        case fromNowhere
+    }
+    
+    func showCaches() {
+        print("\n----CACHES")
+        for (key, value) in self.dataCache {
+            print("  Cache - Key: \(key), Value: \(value)")
+        }
+//        for (key, value) in UserDefaults.standard.dictionaryRepresentation() {
+//            print("  User def - Key: \(key), Value: \(value)")
+//        }
     }
     
     func getData(key: String) -> (CachedType, Data?) {
         if !enabled {
-            return (.fromDefaults, nil)
+            return (.fromNowhere, nil)
         }
         else {
-            if let data = self.dataCache[key] {
-                return (.fromMemory, data)
-            }
-            else {
-                let data = UserDefaults.standard.data(forKey: key)
-                if let data = data {
-                    return (.fromDefaults, data)
+            if self.dataCache.keys.contains(key) {
+                if let cacheEntry = self.dataCache[key] {
+                    return (.fromMemoryCache, cacheEntry.data)
                 }
                 else {
-                    return (.fromDefaults, nil)
+                    return (.fromMemoryCache, nil)
                 }
+            }
+            let data = UserDefaults.standard.data(forKey: key)
+            if let data = data {
+                setData(key: key, data: data)
+                return (.fromUSerDefaults, data)
+            }
+            else {
+                return (.fromNowhere, nil)
             }
         }
     }
     
     func setData(key:String, data:Data) {
-        self.dataCache[key] = data
+        self.dataCache[key] = DataCacheEntry(wasNil: false, data: data)
         UserDefaults.standard.set(data, forKey: key)
+    }
+    
+    func setDataNil(key:String) {
+        //showCaches()
+        ///Cannot set to nil since that removes the key.
+        ///We want to know that the data we looked for was not found previously
+        self.dataCache[key] = DataCacheEntry(wasNil: true, data: nil)
+        UserDefaults.standard.set(nil, forKey: key)
     }
 }
 
@@ -121,15 +154,13 @@ class GoogleAPI {
     private func getByAPI(request:DataRequest, onDone: @escaping (_ status:RequestStatus, _ data:Data?) -> Void) {
         
         if let key = request.targetExampleKey {
-            let (cachedType, cachedData) = dataCache.getData(key: key)
-            if let data = cachedData {
+            let (cachedType, data) = dataCache.getData(key: key)
+            if let data = data {
                 onDone(.success, data)
-                if cachedType == .fromMemory {
+                if cachedType == .fromMemoryCache {
                     return
                 }
-                else {
-                    //continue loading below to reload memory cache if data changed in cloud
-                }
+                ///Continue loading below to reload memory cache if data changed in cloud
             }
         }
         
@@ -291,42 +322,49 @@ class GoogleAPI {
     ///Drill down through all folders in the content section path to find the named file
     ///When its found return its data
     func getDocumentByName(pathSegments:[String],
-                       name:String,
-                       reportError:Bool,
+                           name:String,
+                           reportError:Bool,
                            bypassCache:Bool?=false,
-                       onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void)  {
+                           onDone: @escaping (_ status:RequestStatus, _ document:String?) -> Void)  {
         var cacheKey = ""
         for path in pathSegments {
             if path.count > 0 {
                 cacheKey += path + "."
             }
         }
-
         cacheKey += name
         let bypass = bypassCache == true
+        var log = false
+
+        if name == "Tips_Tricks" {
+            log = true
+        }
         if !bypass {
+            ///If we get data from either cache or defaults just return it immediatly
             let (cachedType, data) = dataCache.getData(key: cacheKey)
             if let data = data {
                 if let document = String(data: data, encoding: .utf8) {
                     onDone(.success, document)
-                    if cachedType == .fromMemory {
-                        return
-                    }
                 }
             }
+            else {
+                onDone(.failed, nil)
+            }
+            ///If we have already looked it up and its nil dont look for the data again
+            if cachedType == .fromMemoryCache {
+                return
+            }
+            ///If we've never looked up the data then look it up and fill the cache
         }
-
+        if log {
+            logger.log(self, "start load \(cacheKey)")
+        }
         let rootFolderId = getAPIBundleData(key: "GoogleDriveDataFolderID") //NZMEB
         guard let rootFolderId = rootFolderId else {
             self.logger.reportError(self, "No folder Id")
             return
         }
         
-//        let reversed = pathSegments.reversed()
-//        var paths:[String] = []
-//        for path in reversed {
-//            paths.append(path.trimmingCharacters(in: .whitespacesAndNewlines))
-//        }
         var pathIndex = 0
 
         var folderId = rootFolderId
@@ -336,6 +374,9 @@ class GoogleAPI {
                 if pathIndex == pathSegments.count {
                     self.getFileTextContentsByNameInFolder(folderId: folderId, name: name, reportError: reportError, onDone: {status, document in
                         semaphore.signal()
+                        if log {
+                            log = log
+                        }
                         if let document = document {
                             self.dataCache.setData(key: cacheKey, data: document.data(using: .utf8)!)
                             onDone(.success, document)
@@ -344,6 +385,7 @@ class GoogleAPI {
                             if reportError {
                                 self.logger.reportError(self, "No data for file:[\(name)] in path:[\(cacheKey)]")
                             }
+                            self.dataCache.setDataNil(key: cacheKey)
                             onDone(.failed, nil)
                         }
                     })
@@ -368,7 +410,7 @@ class GoogleAPI {
         }
     }
     
-    func getFileDataByName(pathSegments:[String],
+    func getAudioDataByFileName(pathSegments:[String],
                        fileName:String,
                        reportError:Bool,
                            onDone: @escaping (_ status:RequestStatus, _ fromCache:Bool, _ document:Data?) -> Void)  {
@@ -380,13 +422,30 @@ class GoogleAPI {
         }
 
         cacheKey += fileName
+//        let (cachedType, data) = dataCache.getData(key: cacheKey)
+//        if cachedType == .fromMemory {
+//            if let data = data {
+//                onDone(.success, true, data)
+//            }
+//            else {
+//                onDone(.failed, true, nil)
+//            }
+//            return
+//        }
+
+        ///If we get data from either cache or defaults just return it immediatly
         let (cachedType, data) = dataCache.getData(key: cacheKey)
         if let data = data {
-            onDone(.success, true, data)
-            if cachedType == .fromMemory {
-                return
+            if let document = String(data: data, encoding: .utf8) {
+                onDone(.success, true, data)
             }
         }
+        onDone(.failed, true, nil)
+        ///If we have already looked it up and its nil return nil but dont look for the data again
+        if cachedType == .fromMemoryCache {
+            return
+        }
+        ///If we've never looked up the data then look it up and fill the cache...
 
         let rootFolderId = getAPIBundleData(key: "GoogleDriveDataFolderID") //NZMEB
         guard let rootFolderId = rootFolderId else {
@@ -417,6 +476,7 @@ class GoogleAPI {
                         }
                         else {
                             onDone(.failed, false, nil)
+                            self.dataCache.setDataNil(key: cacheKey)
                             self.logger.reportError(self, "filename:\(fileName) at key:\(cacheKey) does not exist")
                         }
                     }
@@ -576,7 +636,7 @@ class GoogleAPI {
             }
         }
         catch {
-            self.logger.log(self, "failed load")
+            self.logger.reportError(self, "failed load")
         }
         return nil
     }

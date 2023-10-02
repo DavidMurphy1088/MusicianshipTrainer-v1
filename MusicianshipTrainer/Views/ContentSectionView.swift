@@ -97,7 +97,7 @@ struct NarrationView : View {
     }
 }
 
-struct ContentSectionTipsViewUI: UIViewRepresentable {
+struct ContentSectionWebViewUI: UIViewRepresentable {
     var htmlDocument:String
     
     func makeUIView(context: Context) -> WKWebView {
@@ -109,13 +109,13 @@ struct ContentSectionTipsViewUI: UIViewRepresentable {
     }
 }
 
-struct ContentSectionTipsView: View {
+struct ContentSectionWebView: View {
     let htmlDocument:String
     let contentSection: ContentSection
     var body: some View {
         VStack {
             ZStack {
-                ContentSectionTipsViewUI(htmlDocument: htmlDocument).border(Color.black, width: 1).padding()
+                ContentSectionWebViewUI(htmlDocument: htmlDocument).border(Color.black, width: 1).padding()
                 NarrationView(contentSection: contentSection, htmlDocument: htmlDocument, context: "ContentSectionTipsView")
             }
         }
@@ -143,6 +143,8 @@ struct ContentSectionHeaderView: View {
     @State private var instructions:String? = nil
     @State private var tipsAndTricksExists = false
     @State private var tipsAndTricksData:String?=nil
+    @State private var parentsExists = false
+    @State private var parentsData:String?=nil
     @State private var audioInstructionsFileName:String? = nil
     
     func getInstructions(bypassCache:Bool)  {
@@ -159,12 +161,12 @@ struct ContentSectionHeaderView: View {
         }
     }
     
-    func getTipsAndTricks(bypassCache: Bool)  {
-        let filename = "Tips_Tricks" //tipsAndTricksContent.contentSectionData.data[0]
+    func getTipsTricksData(bypassCache: Bool)  {
+        let filename = "Tips_Tricks"
         var pathSegments = contentSection.getPathAsArray()
         pathSegments.append(UIGlobals.getAgeGroup())
 
-        googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false, bypassCache: true) {status,document in
+        googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false, bypassCache: bypassCache) {status,document in
             if status == .success {
                 self.tipsAndTricksExists = true
                 self.tipsAndTricksData = document
@@ -172,6 +174,19 @@ struct ContentSectionHeaderView: View {
         }
     }
     
+    func getParentsData(bypassCache: Bool)  {
+        let filename = "Parents"
+        var pathSegments = contentSection.getPathAsArray()
+        pathSegments.append(UIGlobals.getAgeGroup())
+
+        googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false, bypassCache: bypassCache) {status,document in
+            if status == .success {
+                self.parentsExists = true
+                self.parentsData = document
+            }
+        }
+    }
+
     func getAudio()  {
         let audioContent = contentSection.getChildSectionByType(type: "Audio")
         if let audioContent = audioContent {
@@ -222,12 +237,12 @@ struct ContentSectionHeaderView: View {
                     }
                 }
             }
-               
-            if tipsAndTricksExists {
-                HStack {
+            
+            HStack {
+                if tipsAndTricksExists {
                     Spacer()
-                    NavigationLink(destination: ContentSectionTipsView(htmlDocument: tipsAndTricksData!, contentSection: contentSection)) {
-                        HStack {
+                    NavigationLink(destination: ContentSectionWebView(htmlDocument: tipsAndTricksData!, contentSection: contentSection)) {
+                        VStack {
                             Text("Tips and Tricks")
                                 .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                             Image(systemName: "questionmark.circle")
@@ -236,12 +251,11 @@ struct ContentSectionHeaderView: View {
                         }
                     }
                     Spacer()
-
                     Button(action: {
                         isVideoPresented.toggle()
                     }) {
                         VStack {
-                            HStack {
+                            VStack {
                                 Text("Video")
                                     .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                                 Image(systemName: "video")
@@ -253,7 +267,7 @@ struct ContentSectionHeaderView: View {
                     .sheet(isPresented: $isVideoPresented) {
                         let urlStr = "https://storage.googleapis.com/musicianship_trainer/NZMEB/" +
                         contentSection.getPath() + "." + UIGlobals.getAgeGroup() + ".video.mp4"
-                    //https://storage.googleapis.com/musicianship_trainer/NZMEB/Grade%201.PracticeMode.Sight%20Reading.11Plus.video.mp4
+                        //https://storage.googleapis.com/musicianship_trainer/NZMEB/Grade%201.PracticeMode.Sight%20Reading.11Plus.video.mp4
                         //Grade 1.PracticeMode.Sight Reading.11Plus.video.mp4
                         let allowedCharacterSet = CharacterSet.urlQueryAllowed
                         if let encodedString = urlStr.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) {
@@ -267,7 +281,9 @@ struct ContentSectionHeaderView: View {
                             }
                         }
                     }
-
+                }
+                
+                if contentSection.getPathAsArray().count > 1 {
                     Spacer()
                     Button(action: {
                         DispatchQueue.main.async {
@@ -275,38 +291,53 @@ struct ContentSectionHeaderView: View {
                         }
                     }) {
                         VStack {
-                            HStack {
+                            VStack {
                                 Text("Random Pick")
                                     .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                                 Image(systemName: "tornado")
                                     .foregroundColor(.blue)
-                                    .font(.largeTitle)
+                                    .font(.title)
                             }
                         }
                     }
-                    
-                    Spacer()
-                    Button(action: {
-                        DispatchQueue.main.async {
-                            self.getInstructions(bypassCache: true)
-                            self.getTipsAndTricks(bypassCache: true)
-                        }
-                    }) {
-                        VStack {
-                            HStack {
-                                Text("Reload_HTML")
-                                    .font(.title2)
-                            }
-                        }
-                    }
-                    Spacer()
                 }
+                
+                if parentsExists {
+                    Spacer()
+                    NavigationLink(destination: ContentSectionWebView(htmlDocument: parentsData!, contentSection: contentSection)) {
+                        VStack {
+                            Text("Parents")
+                                .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
+                            Image(systemName: "text.bubble")
+                                .foregroundColor(.blue)
+                                .font(.title)
+                        }
+                    }
+                }
+                Spacer()
             }
+            
+            Button(action: {
+                DispatchQueue.main.async {
+                    self.getInstructions(bypassCache: true)
+                    self.getTipsTricksData(bypassCache: true)
+                    self.getParentsData(bypassCache: true)
+                }
+            }) {
+                VStack {
+                        Text("ReloadHTML")
+                            .font(.title3)
+                            .padding(0)
+                }
+                .padding(0)
+            }
+            
         }
         .onAppear() {
             getAudio()
             getInstructions(bypassCache: false)
-            getTipsAndTricks(bypassCache: false)
+            getTipsTricksData(bypassCache: false)
+            getParentsData(bypassCache: false)
         }
     }
 }

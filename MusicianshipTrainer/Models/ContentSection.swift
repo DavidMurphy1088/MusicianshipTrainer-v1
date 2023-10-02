@@ -453,7 +453,7 @@ class ContentSection: Codable, Identifiable {
         pathSegments.remove(at: 2)
         let googleAPI = GoogleAPI.shared
         var dataRecevied = false
-        googleAPI.getFileDataByName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
+        googleAPI.getAudioDataByFileName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
             if status == .failed {
                 onStarted(.failed)
             }
@@ -462,9 +462,11 @@ class ContentSection: Codable, Identifiable {
                     dataRecevied = true
                     onStarted(.success)
                     DispatchQueue.global(qos: .background).async {
-                        //print("==========EXAM Instr PLAY in DISPATCH", self.getPath(), fromCache)
-                        if fromCache {
-                            sleep(2)
+                        if data != nil {
+                            if fromCache {
+                                ///Dont start speaking at the instant the view is loaded
+                                sleep(2)
+                            }
                         }
                         AudioRecorder.shared.playFromData(data: data!)
                     }

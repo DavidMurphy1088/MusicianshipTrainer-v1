@@ -30,11 +30,11 @@ class TTS : AudioPlayerUser {
         }
         isSpeaking = true
         let cacheKey = contentSection.getPath() + "/" + context
-        let (cachedType, cachedData) = dataCache.getData(key: cacheKey)
+        let (cachedType, data) = dataCache.getData(key: cacheKey)
         var playAudio = true
-        if let data = cachedData {
+        if let data = data {
             play(data: data)
-            if cachedType == .fromMemory {
+            if cachedType == .fromMemoryCache {
                 return
             }
             playAudio = false
