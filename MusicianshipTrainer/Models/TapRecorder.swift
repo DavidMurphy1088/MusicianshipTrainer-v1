@@ -143,7 +143,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
                         }
                     }
                 }
-                let timeSlice = outputScore.addTimeSlice()
+                let timeSlice = outputScore.createTimeSlice()
                 let note = Note(timeSlice:timeSlice, num: 0, value: tappedValue, staffNum: 0)
                 note.setIsOnlyRhythm(way: true)
                 timeSlice.addNote(n: note)

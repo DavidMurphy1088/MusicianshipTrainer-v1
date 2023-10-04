@@ -125,20 +125,25 @@ class Key : Equatable, Hashable {
     }
     
     func firstScaleNote() -> Int {
-        var note = Note.MIDDLE_C
-        if keySig.accidentalCount > 0 {
-            if self.keySig.accidentalType == AccidentalType.sharp {
-                note = keySig.sharps[keySig.accidentalCount-1] + 2
-            }
-            else {
-                //note = keySig.flats[keySig.accidentalCount-1] - 6
-            }
+
+        var base = 60
+        switch keySig.accidentalCount {
+        case 0:
+            base = 48
+        case 1:
+            base = 43
+        case 2:
+            base = 50
+        case 3:
+            base = 45
+        case 4:
+            base = 40
+        case 5:
+            base = 47
+        default:
+            base = 60
         }
-        if self.type == KeyType.minor {
-            note -= 3
-        }
-        note = Note.getClosestOctave(note: note, toPitch: 45)
-        return note
+        return base
     }
     
 //    func makeKeyTriad(value:Double, staffNum:Int) -> [Note] {

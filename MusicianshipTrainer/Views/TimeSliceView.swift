@@ -88,7 +88,7 @@ struct TimeSliceView: View {
         }
         if note.midiNumber <= 61  { //C#
             result.append(LedgerLine(offsetVertical: 3 * lineSpacing * 1.0))
-            if note.midiNumber <= 58 {
+            if note.midiNumber <= 57 {
                 result.append(LedgerLine(offsetVertical: 4 * lineSpacing * 1.0))
             }
             if note.midiNumber <= 54 {
@@ -114,7 +114,6 @@ struct TimeSliceView: View {
     
     func RestView(staff:Staff, entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
         ZStack {
-
             if entry.getValue() == 0 {
                 Text("?")
                     .font(.largeTitle)
@@ -153,14 +152,31 @@ struct TimeSliceView: View {
                             }
                         }
                         else {
-                            VStack {
-                                //Text("R[\(String(format: "%.1f", entry.getValue()))]")
-                                //                                    .font(.title)
-                                //                                    .foregroundColor(entry.getColor(staff: staff, log: true))
-                                Text("?")
-                                    .font(.largeTitle)
-                                    .foregroundColor(entry.getColor(staff: staff, log: true))
-                                Spacer()
+                            if (entry.getValue() == 4.0) {
+                                let height = lineSpacing / 2.0
+                                Rectangle()
+                                    .fill(entry.getColor(staff: staff, log: true))
+                                    .frame(width: lineSpacing * 1.5, height: height)
+                                    .offset(y: 0 - height * 1.5)
+                            }
+                            else {
+                                if (entry.getValue() == 0.5 ){
+                                    Image("rest_quaver")
+                                        .resizable()
+                                        .renderingMode(.template)
+                                        .foregroundColor(entry.getColor(staff: staff, log: true))
+                                        .scaledToFit()
+                                        .frame(height: lineSpacing * 2)
+
+                                }
+                                else {
+                                    VStack {
+                                        Text("?")
+                                            .font(.largeTitle)
+                                            .foregroundColor(entry.getColor(staff: staff, log: true))
+                                        Spacer()
+                                    }
+                                }
                             }
                         }
                     }
@@ -209,6 +225,7 @@ struct TimeSliceView: View {
                     .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
                     .position(x: noteFrameWidth/2 - lineSpacing * (timeSlice.anyNotesRotated() ? 3.0 : 2.0),
                               y: noteEllipseMidpoint + yOffset)
+                    .foregroundColor(note.getColor(staff: staff))
 
             }
             if [Note.VALUE_QUARTER, Note.VALUE_QUAVER].contains(noteValueUnDotted )  {

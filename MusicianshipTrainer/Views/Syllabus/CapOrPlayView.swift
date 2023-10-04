@@ -112,47 +112,12 @@ struct ClapOrPlayPresentView: View {
     }
     
     func initScore() {
-        let exampleData = contentSection.parseData(score:score)
+        let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (questionType == .rhythmVisualClap || questionType == .rhythmEchoClap) ? 1 : 5)
+        self.score.setStaff(num: 0, staff: staff)
+        contentSection.parseData(score: score, staff:staff, onlyRhythm: self.questionType == .rhythmVisualClap || self.questionType == .rhythmEchoClap)
         self.rhythmHeard = self.questionType == .rhythmVisualClap ? true : false
-        var staff:Staff?
-        
-        if let entries = exampleData {
-            for entry in entries {
-                if entry is KeySignature {
-                    let keySignature = entry as! KeySignature
-                    score.key = Key(type: .major, keySig: keySignature)
-                }
-                if entry is TimeSignature {
-                    let ts = entry as! TimeSignature
-                    score.timeSignature = ts
-                }
-                if entry is StaffCharacteristics {
-                    staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (questionType == .rhythmVisualClap || questionType == .rhythmEchoClap) ? 1 : 5)
-                    score.setStaff(num: 0, staff: staff!)
-                }
-                if entry is Note {
-                    let timeSlice = score.addTimeSlice()
-                    let note = entry as! Note
-                    note.staffNum = 0
-                    note.setIsOnlyRhythm(way: questionType == .rhythmVisualClap || questionType == .rhythmEchoClap ? true : false)
-                    timeSlice.addNote(n: note)
-                }
-                if entry is BarLine {
-                    score.addBarLine()
-                }
-                if entry is Rest {
-                    let timeSlice = score.addTimeSlice()
-                    timeSlice.addRest(rest: entry as! Rest)
-                }
-            }
-        }
-        
-        if staff == nil {
-            staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (questionType == .rhythmVisualClap || questionType == .rhythmEchoClap) ? 1 : 5)
-            score.setStaff(num: 0, staff: staff!)
-        }
-        
-        if questionType == .melodyPlay {
+
+        if false && questionType == .melodyPlay {
             if let lastTimeSlice = score.getLastTimeSlice() {
                 ///Place tonic on last timeslice
                 ///Place dominant on previous bar
@@ -387,11 +352,33 @@ struct ClapOrPlayPresentView: View {
         return true
     }
     
+    func shouldPlayRecording() ->Bool {
+        var play = false
+        if self.isTakingExam() {
+            if questionType == .rhythmEchoClap && answerState != .recorded{
+                play = true
+            }
+        }
+        else {
+            play = true
+        }
+        return play
+    }
+    
     func buttonsView() -> some View {
         HStack {
+            if self.isTakingExam() && answerState != .recorded {
+                Button(action: {
+                    self.contentSection.playExamInstructions(withDelay: true, onStarted: examInstructionsAreReading)
+                }) {
+                    Text("Hear Instructions").defaultButtonStyle()
+                }
+                .padding()
+            }
+
             if contentSection.parent != nil {
-                if !self.isTakingExam() || questionType == .rhythmEchoClap {
-                    if answerState != .recording {
+                if answerState != .recording {
+                    if shouldPlayRecording() {
                         let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
                         PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
                                           score: score,
@@ -544,7 +531,7 @@ struct ClapOrPlayPresentView: View {
             .onAppear() {
                 self.initScore()
                 if self.isTakingExam() {
-                    self.contentSection.playExamInstructions(onStarted: examInstructionsAreReading)
+                    self.contentSection.playExamInstructions(withDelay: true, onStarted: examInstructionsAreReading)
                 }
                 score.setHiddenStaff(num: 1, isHidden: true)
                 metronome.setTempo(tempo: 90, context: "View init")
@@ -556,7 +543,7 @@ struct ClapOrPlayPresentView: View {
                 }
             }
             .onDisappear() {
-                //self.audioRecorder.stopPlaying()
+                self.audioRecorder.stopPlaying()
                 //self.metronome.stopPlayingScore()
             }
         }
@@ -673,7 +660,53 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         //}
         return practiceText
     }
-
+    
+    func nextButtons(answerWasCorrect:Bool) -> some View {
+        HStack {
+            if answerWasCorrect {
+                Spacer()
+                Button(action: {
+                    if let parent = self.contentSection.parent {
+                        let c = parent.subSections.count
+                        let r = Int.random(in: 0...c)
+                        parent.setSelected(r)
+                    }
+                }) {
+                    Text("Try A Shuffle Question").defaultButtonStyle()
+                }
+                Spacer()
+                Button(action: {
+                    let parent = self.contentSection.parent
+                    if let parent = parent {
+                        parent.setSelected((parent.selectedIndex ?? 0) + 1)
+                    }
+                }) {
+                    Text("Next Question").defaultButtonStyle()
+                }
+                Spacer()
+                Button(action: {
+                    let parent = self.contentSection.parent
+                    if let parent = parent {
+                        parent.setSelected((parent.selectedIndex ?? 0) - 1)
+                    }
+                }) {
+                    Text("Previous").defaultButtonStyle()
+                }
+                Spacer()
+            }
+            else {
+                Button(action: {
+                    let parent = self.contentSection.parent
+                    if let parent = parent {
+                        parent.setSelected(parent.selectedIndex ?? 0)
+                    }
+                }) {
+                    Text("Try Again").defaultButtonStyle()
+                }
+            }
+        }
+    }
+    
     var body: AnyView {
         AnyView(
             VStack {
@@ -722,35 +755,13 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                         }
                     }
                 }
-                HStack {
-                    Button(action: {
-                        let parent = self.contentSection.parent
-                        if let parent = parent {
-                            parent.setSelected((parent.selectedIndex ?? 0) + 1)
-                        }
-                    }) {
-                        Text("Next ").defaultButtonStyle()
-                    }
-                    Button(action: {
-                        let parent = self.contentSection.parent
-                        
-                        if let parent = parent {
-                            let c = parent.subSections.count
-                            let r = Int.random(in: 0...c)
-                            parent.setSelected(r)
-                        }
-                    }) {
-                        Text("Random").defaultButtonStyle()
-                    }
-                    Button(action: {
-                        let parent = self.contentSection.parent
-                        if let parent = parent {
-                            parent.setSelected(parent.selectedIndex ?? 0)
-                        }
-                    }) {
-                        Text("Try Again").defaultButtonStyle()
+                
+                if let fittedScore = self.fittedScore {
+                    if let studentFeedback = fittedScore.studentFeedback {
+                        nextButtons(answerWasCorrect: studentFeedback.correct)
                     }
                 }
+                
                 Spacer() //Keep - required to align the page from the top
             }
             .onAppear() {
@@ -764,6 +775,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
             }
             .onDisappear() {
                 score.clearTaggs() //clear tags from any previous attempt
+                audioRecorder.stopPlaying()
                 //Metronome.shared.stopTicking()
             }
         )

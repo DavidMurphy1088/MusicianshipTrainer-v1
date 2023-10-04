@@ -72,7 +72,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
 
-    @State private var examInstructionsStartedStatus:String = "Waiting for instructions"
+    @State private var examInstructionsStartedStatus:String? = nil
 
     @State var intervalNotes:[Note] = []
     @State private var selectedIntervalName:String?
@@ -93,40 +93,20 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         _answerState = answerState
         _answer = answer
         self.grade = contentSection.getGrade()
-        self.intervals = Intervals(grade: grade)
+        self.intervals = Intervals(grade: grade, questionType: questionType)
+        //initView()
     }
 
     func initView() {
-        let exampleData = contentSection.parseData(score: score) //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
-        
         let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5)
         self.score.setStaff(num: 0, staff: staff)
-        let chord:Chord = Chord()
-        if let entries = exampleData {
-            for entry in entries {
-                if entry is KeySignature {
-                    let keySignature = entry as! KeySignature
-                    //Publishing changes from within view updates is not allowed, this will cause undefined behavior.
-                    score.setKey(key: Key(type: .major, keySig: keySignature))
-                }
-
-                if entry is Note {
-                    let timeSlice = self.score.addTimeSlice()
-                    let note = entry as! Note
-                    timeSlice.addNote(n: note)
-                    intervalNotes.append(note)
-                    if questionType == .intervalAural {
-                        chord.addNote(note: Note(timeSlice: timeSlice, num: note.midiNumber, value: 2, staffNum: 0, accidental: note.accidental))
-                    }
-                }
-                if entry is TimeSignature {
-                    let ts = entry as! TimeSignature
-                    score.timeSignature = ts
-                }
+        contentSection.parseData(score: score, staff:staff, onlyRhythm: false) //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
+        
+        for timeSlice in score.getAllTimeSlices() {
+            if timeSlice.getTimeSliceNotes().count > 0 {
+                let note = timeSlice.getTimeSliceNotes()[0]
+                intervalNotes.append(note)
             }
-        }
-        if chord.getNotes().count > 0 {
-            score.addTimeSlice().addChord(c: chord)
         }
     }
     
@@ -160,7 +140,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             let columns = intervals.getVisualColumnCount()
             ForEach(0..<columns) { column in
                 Spacer()
-                HStack {
+                VStack {
                     let intervalsForColumn = intervals.getVisualColumns(col: column)
                     ForEach(intervalsForColumn, id: \.name) { intervalType in
                         Button(action: {
@@ -169,13 +149,8 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                             answer.selectedIntervalName = intervalType.name
                         }) {
                             Text(intervalType.name)
-                                .defaultButtonStyle()
+                                .defaultButtonStyle(enabled: scoreWasPlayed || questionType == .intervalVisual)
                                 .padding()
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(scoreWasPlayed ? Color.black : Color.clear, lineWidth: 1)
-                                        .background(selectedIntervalName == intervalType.name ? UIGlobals.colorInstructions : Color.clear)
-                                )
                         }
                     }
                 }
@@ -201,17 +176,31 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         AnyView(
             VStack {
                 VStack {
+                    
                     ScoreSpacerView() //keep for top ledger line notes
                     if UIDevice.current.userInterfaceIdiom == .pad {
                         ScoreSpacerView()
                     }
                     //keep the score in the UI for consistent UIlayout between various usages of this view
-                    ScoreView(score: score).padding().opacity(questionType == .intervalAural ? 0.0 : 1.0)
+                    if questionType == .intervalVisual {
+                        ScoreView(score: score).padding().opacity(questionType == .intervalAural ? 0.0 : 1.0)
+                    }
                     if UIDevice.current.userInterfaceIdiom == .pad {
                         ScoreSpacerView()
                         ScoreSpacerView()
                         ScoreSpacerView()
                     }
+                    
+                    if isTakingExam() {
+                        Button(action: {
+                            audioRecorder.stopPlaying()
+                            self.contentSection.playExamInstructions(withDelay:false, onStarted: examInstructionsAreReading)
+                        }) {
+                            Text("Hear The Instructions").defaultButtonStyle()
+                        }
+                        Text(" ")
+                    }
+
                     if questionType == .intervalAural {
                         VStack {
                             Text("").padding()
@@ -221,25 +210,33 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                                 })
                                 self.scoreWasPlayed = true
                             }) {
-                                Text("Hear The Interval").defaultButtonStyle()
+                                ///In exam wait to hear instructions
+                                Text("Hear The Interval").defaultButtonStyle(enabled: !self.isTakingExam() || examInstructionsStartedStatus != nil)
                             }
                             .padding()
                             Text("").padding()
                         }
-                        .overlay(
-                            RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                        )
-                        .background(UIGlobals.colorScore)
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+//                        )
+//                        .background(UIGlobals.colorScore)
                     }
                 }
                                 
                  VStack {
                     if isTakingExam() {
-                        Text(examInstructionsStartedStatus)
+                        if let status = examInstructionsStartedStatus {
+                            Text(status)
+                        }
+                        else {
+                            Text("Waiting for Instructions..")
+                        }
                     }
                     else {
-                        if UIDevice.current.userInterfaceIdiom == .pad {
-                            Text("Please select the correct interval").defaultTextStyle().padding()
+                        if scoreWasPlayed {
+                            if UIDevice.current.userInterfaceIdiom == .pad {
+                                Text("Please select the correct interval").defaultTextStyle().padding()
+                            }
                         }
                     }
                     HStack {
@@ -264,7 +261,8 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             .onAppear {
                 self.initView()
                 if self.isTakingExam() {
-                    self.contentSection.playExamInstructions(onStarted: examInstructionsAreReading)
+                    ///Delay on narrating if audio is delivered fast from cache and view only just loaded
+                    self.contentSection.playExamInstructions(withDelay: true, onStarted: examInstructionsAreReading)
                 }
             }
             .onDisappear() {
@@ -344,7 +342,7 @@ struct IntervalAnswerView: View {
         self.questionType = questionType
         self.answer = answer
         self.grade = contentSection.getGrade()
-        self.intervals = Intervals(grade: grade)
+        self.intervals = Intervals(grade: grade, questionType: questionType)
     }
     
     func getMelodies() -> [Melody] {
@@ -358,6 +356,52 @@ struct IntervalAnswerView: View {
         return melodies.getMelodies(halfSteps: halfSteps)
     }
     
+    func nextButtons(answerWasCorrect:Bool) -> some View {
+        HStack {
+            if answerWasCorrect {
+                Spacer()
+                Button(action: {
+                    if let parent = self.contentSection.parent {
+                        let c = parent.subSections.count
+                        let r = Int.random(in: 0...c)
+                        parent.setSelected(r)
+                    }
+                }) {
+                    Text("Try A Shuffle Question").defaultButtonStyle()
+                }
+                Spacer()
+                Button(action: {
+                    let parent = self.contentSection.parent
+                    if let parent = parent {
+                        parent.setSelected((parent.selectedIndex ?? 0) + 1)
+                    }
+                }) {
+                    Text("Next Question").defaultButtonStyle()
+                }
+                Spacer()
+                Button(action: {
+                    let parent = self.contentSection.parent
+                    if let parent = parent {
+                        parent.setSelected((parent.selectedIndex ?? 0) - 1)
+                    }
+                }) {
+                    Text("Previous").defaultButtonStyle()
+                }
+                Spacer()
+            }
+            else {
+                Button(action: {
+                    let parent = self.contentSection.parent
+                    if let parent = parent {
+                        parent.setSelected(parent.selectedIndex ?? 0)
+                    }
+                }) {
+                    Text("Try Again").defaultButtonStyle()
+                }
+            }
+        }
+    }
+        
     var body: AnyView {
         AnyView(
             VStack {
@@ -398,7 +442,15 @@ struct IntervalAnswerView: View {
                         ShowMelodiesView(firstNote: score.getAllTimeSlices()[0].getTimeSliceNotes()[0], intervalName: answer.correctIntervalName, melodies: getMelodies())
                     }
                 }
-                Spacer()
+                
+                if true || answer.correct {
+                    Text("")
+                    nextButtons(answerWasCorrect: answer.correct)
+                    Spacer()
+                }
+                else {
+                    Spacer()
+                }
             }
         )
     }

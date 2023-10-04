@@ -71,6 +71,9 @@ struct ContentTypeView: View {
             }
         }
         .navigationBarHidden(isNavigationHidden())
+        .onDisappear() {
+            AudioRecorder.shared.stopPlaying()
+        }
     }
 }
 
@@ -93,6 +96,9 @@ struct NarrationView : View {
                 Spacer()
             }
             Spacer()
+        }
+        .onDisappear() {
+            TTS.shared.stop()
         }
     }
 }
@@ -339,12 +345,15 @@ struct ContentSectionHeaderView: View {
             getTipsTricksData(bypassCache: false)
             getParentsData(bypassCache: false)
         }
+        .onDisappear() {
+            AudioRecorder.shared.stopPlaying()
+        }
     }
 }
-
-class NavigationStateManager: ObservableObject {
-    @Published var selectedIndex: Int?
-}
+//
+//class NavigationStateManager: ObservableObject {
+//    @Published var selectedIndex: Int?
+//}
 
 struct SectionsNavigationView:View {
     @ObservedObject var contentSection:ContentSection
@@ -478,10 +487,9 @@ struct SectionsNavigationView:View {
                         proxy.scrollTo(newIndex)
                     }
                 }
-//                .onChange(of: makeRandomChoice) { newState in
-//                    makeRandomChoice = false
-//                    self.randomSelection(withDelay: false)
-//                }
+                .onDisappear() {
+                    AudioRecorder.shared.stopPlaying()
+                }
             }
         }
     }
@@ -601,8 +609,12 @@ struct ExamView: View {
         .navigationBarHidden(isNavigationHidden())
         .onAppear() {
             self.sectionIndex = 0
-            contentSection.playExamInstructions(onStarted: instructionsStarted)
+            contentSection.playExamInstructions(withDelay:true, onStarted: instructionsStarted)
         }
+        .onDisappear() {
+            AudioRecorder.shared.stopPlaying()
+        }
+
     }
     
     func instructionsStarted(status:RequestStatus) {
@@ -676,11 +688,6 @@ struct ContentSectionView: View {
                         SectionsNavigationView(contentSection: contentSection)
                         //.border(Color.blue)
                             .padding(.vertical, 0)
-//                            .onChange(of: navigationManager.selectedIndex) { newValue in
-//                                if let newValue = newValue {
-//                                    proxy.scrollTo(newValue, anchor: .top)
-//                                }
-//                            }
                     }
                 }
             }
@@ -689,40 +696,6 @@ struct ContentSectionView: View {
                                 answerState: $answerState,
                                 answer: $answer)
             }
-//            if contentSection.subSections.count == 0 {
-//                HStack {
-//                    ///Tell the parent to navigate to the next section
-//                    if let navigationView = self.contentSectionView as? SectionsNavigationView {
-//                        Button("Random Example") {
-//                            navigationView.randomSelection(withDelay: true)
-//                        }
-//                        .padding()
-//                    }
-//                    Button("Previous Example") {
-//                        if self.parentSelectionIndex == nil {
-//                            self.parentSelectionIndex = 0
-//                        }
-//                        else {
-//                            if self.parentSelectionIndex! > 0 {
-//                                self.parentSelectionIndex! -= 1
-//                            }
-//                            else {
-//                                self.parentSelectionIndex = nil
-//                            }
-//                        }
-//                    }
-//                    .padding()
-//                    Button("Next Example") {
-//                        if self.parentSelectionIndex == nil {
-//                            self.parentSelectionIndex = 0
-//                        }
-//                        else {
-//                            self.parentSelectionIndex! += 1
-//                        }
-//                    }
-//                    .padding()
-//                }
-//            }
         }
         //.background(UIGlobals.colorNavigationBackground)
         .background(Color(.secondarySystemBackground))
@@ -731,6 +704,9 @@ struct ContentSectionView: View {
                 self.answerState = .submittedAnswer
                 self.answer = contentSection.answer111!
             }
+        }
+        .onDisappear() {
+            AudioRecorder.shared.stopPlaying()
         }
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
         .toolbar {

@@ -45,6 +45,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         self.name = name
         self.isActive = isActive
         self.type = type
+
         if data == nil {
             self.contentSectionData = ContentSectionData(row: 0, type: "", data: [])
         }
@@ -72,6 +73,12 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                         sleep(1)
                         DispatchQueue.main.async {
                             self.selectedIndex = i
+                            DispatchQueue.global(qos: .background).async {
+                                sleep(1)
+                                DispatchQueue.main.async {
+                                    self.selectedIndex = i
+                                }
+                            }
                         }
                     }
                 }
@@ -374,99 +381,174 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         return true
     }
     
-    func parseData(score:Score, warnNotFound:Bool=true) -> [Any]! {
+    func parseData(score:Score, staff:Staff, onlyRhythm:Bool, warnNotFound:Bool=true) {//} -> [Any]! {
         let data = self.contentSectionData.data
         guard data != nil else {
             if warnNotFound {
                 Logger.logger.reportError(self, "No data for content section:[\(self.getPath())]")
             }
-            return nil
-        }
-        //let tuples:[String] = data!
-        let tuples:[String] = data
-        
-        if type == "I" {
-            return [tuples[0]]
+            return 
         }
 
-        var result:[Any] = []
+        let tuples:[String] = data
         
         for i in 0..<tuples.count {
             let trimmedTuple = tuples[i].trimmingCharacters(in: .whitespacesAndNewlines)
             var tuple = trimmedTuple.replacingOccurrences(of: "(", with: "")
             tuple = tuple.replacingOccurrences(of: ")", with: "")
             let parts = tuple.components(separatedBy: ",")
-            
-            //Fixed
-            
+
             if i == 0 {
                 var keySigCount = 0
-                result.append(KeySignature(type: .sharp, keyName: parts[0]))
+                let keySignature = KeySignature(type: .sharp, keyName: parts[0])
+                score.key = Key(type: .major, keySig: keySignature)
                 continue
             }
             if i == 1 {
                 if parts.count == 1 {
                     let ts = TimeSignature(top: 4, bottom: 4)
                     ts.isCommonTime = true
-                    result.append(ts)
+                    //result.append(ts)
+                    score.timeSignature = ts
                     continue
                 }
 
                 if parts.count == 2 {
-                    result.append(TimeSignature(top: Int(parts[0]) ?? 0, bottom: Int(parts[1]) ?? 0))
+                    let ts = TimeSignature(top: Int(parts[0]) ?? 0, bottom: Int(parts[1]) ?? 0)
+                    //result.append()
+                    score.timeSignature = ts
                     continue
                 }
                 Logger.logger.reportError(self, "Unknown time signature tuple at \(i) :  \(self.getTitle()) \(tuple)")
                 continue
             }
-            if i == 2 {
-                if parts.count == 1 {
-                    if let lines = Int(parts[0]) {
-                        result.append(StaffCharacteristics(lines: lines))
-                        continue
-                    }
-                }
-                Logger.logger.reportError(self, "Unknown staff line tuple at \(i) :  \(self.getTitle()) tuple:[\(tuple)]")
-                continue
-            }
-            
-            // Repeating
             
             if parts.count == 1  {
                 if parts[0] == "B" {
-                    result.append(BarLine())
+                    score.addBarLine()
+                    //result.append(BarLine())
                 }
                 continue
             }
             
             if parts.count == 2  {
                 if parts[0] == "R" {
+                    let timeSlice = score.createTimeSlice()
                     let restValue = Double(parts[1]) ?? 1
-                    result.append(Rest(timeSlice: TimeSlice(score: score), value: restValue, staffNum: 0))
+                    let rest = Rest(timeSlice: timeSlice, value: restValue, staffNum: 0)
+                    timeSlice.addRest(rest: rest)
                     continue
                 }
             }
 
-            if parts.count == 2 || parts.count == 3  {
-                let notePitch:Int? = Int(parts[0])
-                if let notePitch = notePitch {
-                    let value = Double(parts[1]) ?? 1
-                    var accidental:Int?
-                    if parts.count == 3 {
-                        if let acc = Int(parts[2]) {
-                            accidental = acc
+            if parts.count == 2 || parts.count == 3 || parts.count == 4 {
+                var notePitch:Int?
+                var value:Double?
+                var accidental:Int?
+                var triad:String?
+
+                for i in 0..<parts.count {
+                    if i == 0 {
+                        notePitch = Int(parts[i])
+                        continue
+                    }
+                    if i == 1 {
+                        value = Double(parts[i]) ?? 1
+                        continue
+                    }
+                    let accidental = Int(parts[i])
+                    if accidental == nil {
+                        if ["V","I"].contains(parts[i]) {
+                            triad = parts[i]
                         }
                     }
-                    result.append(Note(timeSlice: TimeSlice(score: score), num: notePitch, value: value, staffNum: 0, accidental: accidental))
+                }
+                if let notePitch = notePitch {
+                    if let value = value {
+                        let timeSlice = score.createTimeSlice()                        
+                        let note = Note(timeSlice: timeSlice, num: onlyRhythm ? 71 : notePitch, value: value, staffNum: 0, accidental: accidental)
+                        note.staffNum = 0
+                        note.isOnlyRhythmNote = onlyRhythm
+                        
+                        timeSlice.addNote(n: note)
+                        if let triad = triad {
+                            addTriad(score: score, timeSlice: timeSlice, note: note, triad: triad, value: note.getValue())
+                        }
+                    }
                 }
                 continue
             }
             Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(self.getTitle()) \(tuple)")
         }
-        return result
+        fillBaseClefRests(score: score)
     }
     
-    func playExamInstructions(onStarted: @escaping (_ status:RequestStatus) -> Void) {
+    ///Sight Reading adds 1 or 2 chords to the base clef so we need to show it. But that base clef needs rests where th chords arent
+    func fillBaseClefRests(score:Score) {
+        var hasChords = false
+        for slice in score.getAllTimeSlices() {
+            if slice.entries.count > 1 {
+                hasChords = true
+                break
+            }
+        }
+        if !hasChords {
+            return
+        }
+        var newBar = true
+        var seenFirstChord = false
+        for entry in score.scoreEntries {
+            if entry is BarLine {
+                newBar = true
+                continue
+            }
+            if let slice = entry as? TimeSlice {
+                if slice.entries.count > 1 {
+                    seenFirstChord = true
+                }
+
+                if slice.entries.count == 1 {
+                    var rest:Rest?
+                    if seenFirstChord {
+                        let tsEntry = slice.entries[0]
+                        rest = Rest(timeSlice: slice, value: tsEntry.getValue(), staffNum: 1)
+                    }
+                    else {
+                        if newBar {
+                            rest = Rest(timeSlice: slice, value: 4.0, staffNum: 1)
+                        }
+                    }
+                    if let rest = rest {
+                        rest.staffNum = 1
+                        slice.addRest(rest: rest)
+                    }
+
+                }
+                newBar = false
+            }
+        }
+    }
+    
+    func addTriad(score:Score, timeSlice:TimeSlice, note:Note, triad:String, value:Double) {
+        let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: 5)
+        //bstaff.isHidden = true
+        score.setStaff(num: 1, staff: bstaff)
+        let key = score.key
+        print("===", key.firstScaleNote(), key.getScaleStartMidi())
+        
+        var pitch = key.firstScaleNote()
+        if triad == "V" {
+            pitch += 7
+        }
+        let root = Note(timeSlice:timeSlice, num: pitch, staffNum: 0)
+        timeSlice.setTags(high: root.getNoteName(), low: triad)
+
+        for i in [0,4,7] {
+            timeSlice.addNote(n: Note(timeSlice: timeSlice, num: pitch + i, value:value, staffNum: 1))
+        }
+    }
+    
+    func playExamInstructions(withDelay:Bool, onStarted: @escaping (_ status:RequestStatus) -> Void) {
         let filename = "Instructions.m4a"
         var pathSegments = getPathAsArray()
         //remove the exam title from the path
@@ -485,7 +567,9 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                         if data != nil {
                             if fromCache {
                                 ///Dont start speaking at the instant the view is loaded
-                                sleep(1)
+                                if withDelay {
+                                    sleep(1)
+                                }
                             }
                         }
                         AudioRecorder.shared.playFromData(data: data!)

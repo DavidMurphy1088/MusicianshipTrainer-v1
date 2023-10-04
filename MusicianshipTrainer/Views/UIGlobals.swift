@@ -85,12 +85,12 @@ struct StandardButtonStyle: ButtonStyle {
 
 extension Text {
     
-    func defaultButtonStyle() -> some View {
+    func defaultButtonStyle(enabled:Bool = true) -> some View {
         self
             .font(UIDevice.current.userInterfaceIdiom == .pad ? UIGlobals.font : UIGlobals.fontiPhone)
             .foregroundColor(.white)
             .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
-            .background(.blue)
+            .background(enabled ? .blue : .gray)
             .cornerRadius(UIGlobals.cornerRadius)
     }
     
@@ -107,7 +107,6 @@ extension Text {
                 //.background(selectedIntervalIndex == index ? Color(.systemTeal) : Color.clear)
                 .background(selected ? UIGlobals.colorInstructions : Color.clear)
         )
-
     }
 }
 

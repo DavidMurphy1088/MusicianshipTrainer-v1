@@ -53,6 +53,8 @@ class TimeSliceEntry : ObservableObject, Equatable, Hashable {
 //        }
         if out == nil {
             out = Color(staffNum == staff.staffNum ? .black : .clear)
+            //out = Color(.black)
+
         }
 //        if let log = log {
 //            if log {
@@ -185,7 +187,7 @@ class Note : TimeSliceEntry, Comparable {
     
     static let MIDDLE_C = 60 //Midi pitch for C4
     static let OCTAVE = 12
-    static let noteNames:[Character] = ["A", "B", "C", "D", "E", "F", "G"]
+    //static let noteNames:[Character] = ["A", "B", "C", "D", "E", "F", "G"]
     
     static let VALUE_QUAVER = 0.5
     static let VALUE_QUARTER = 1.0
@@ -239,15 +241,43 @@ class Note : TimeSliceEntry, Comparable {
         
     }
 
-    static func staffNoteName(idx:Int) -> Character {
-        if idx >= 0 {
-            return self.noteNames[idx % noteNames.count]
-        }
-        else {
-            return self.noteNames[noteNames.count - (abs(idx) % noteNames.count)]
-        }
-    }
+//    static func staffNoteName(idx:Int) -> Character {
+//        if idx >= 0 {
+//            return self.noteNames[idx % noteNames.count]
+//        }
+//        else {
+//            return self.noteNames[noteNames.count - (abs(idx) % noteNames.count)]
+//        }
+//    }
+    
+    func getNoteName() -> String {
+        var name = ""
+        let note = self.midiNumber % 12
+        switch note {
+        case 0:
+            name = "C"
+        case 2:
+            name = "D"
+        case 4:
+            name = "E"
+        case 5:
+            name = "F"
+        case 6:
+            name = "F#"
+        case 7:
+            name = "G"
+        case 9:
+            name = "A"
+        case 11:
+            name = "B"
 
+        default:
+            name = ""
+        }
+        print("NOTE Name ====", self.midiNumber, name)
+        return name
+    }
+    
     static func getAllOctaves(note:Int) -> [Int] {
         var notes:[Int] = []
         for n in 0...88 {
@@ -345,10 +375,11 @@ class Note : TimeSliceEntry, Comparable {
     ///accidentail. In that case the note must shift down 1 unit of offset.
     ///
     func getNoteDisplayCharacteristics(staff:Staff) -> NoteStaffPlacement {
-//        if self.midiNumber == 60 {
+        
+//        if self.midiNumber == 56 && staff.staffNum == 0 {
 //            print("X")
 //        }
-
+        
         let defaultNoteData = staff.getNoteViewPlacement(note: self)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
         var offsetAccidental:Int? = nil
@@ -386,6 +417,7 @@ class Note : TimeSliceEntry, Comparable {
             }
         }
         let placement = NoteStaffPlacement(midi: defaultNoteData.midi, offsetFroMidLine: offsetFromMiddle, accidental: offsetAccidental)
+        //print("========Characteristics", self.midiNumber, self.midiNumber, "acc:", placement.accidental, "off", placement.offsetFromStaffMidline, staff.staffNum)
         return placement
     }
 }

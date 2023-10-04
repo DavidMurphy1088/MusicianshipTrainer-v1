@@ -165,10 +165,10 @@ class ExampleData : ObservableObject {
                         else {
                             contentData = []
                         }
-
+                        let name = keyData.trimmingCharacters(in: .whitespacesAndNewlines)
                         let contentSection = ContentSection(
                             parent: parent,
-                            name: keyData.trimmingCharacters(in: .whitespacesAndNewlines),
+                            name: name,
                             type: contentType.trimmingCharacters(in: .whitespacesAndNewlines),
                             data: ContentSectionData(row: rowNum,
                                                      type: contentType.trimmingCharacters(in: .whitespacesAndNewlines),

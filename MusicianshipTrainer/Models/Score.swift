@@ -116,6 +116,13 @@ class Score : ObservableObject {
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
     }
     
+    init(score:Score) {
+        self.id = UUID()
+        self.timeSignature = score.timeSignature
+        self.noteSize = score.noteSize
+        totalStaffLineCount = score.totalStaffLineCount
+    }
+
     func getTotalStaffLineCount() -> Int {
         return self.totalStaffLineCount
     }
@@ -256,13 +263,18 @@ class Score : ObservableObject {
         }        
     }
     
-    func addTimeSlice() -> TimeSlice {
+    func createTimeSlice() -> TimeSlice {
         let ts = TimeSlice(score: self)
         ts.sequence = self.scoreEntries.count
         self.scoreEntries.append(ts)
         return ts
     }
     
+//    func addTimeSlice(timeslice:TimeSlice) {
+//        timeslice.sequence = self.scoreEntries.count
+//        self.scoreEntries.append(timeslice)
+//    }
+
     func addBarLine() {
         let barLine = BarLine()
         barLine.sequence = self.scoreEntries.count
@@ -455,7 +467,7 @@ class Score : ObservableObject {
         var cnt = 0
         for entry in from.scoreEntries {
             if let fromTs = entry as? TimeSlice {
-                let ts = self.addTimeSlice()
+                let ts = self.createTimeSlice()
                 for t in fromTs.getTimeSliceEntries() {
                     if let note = t as? Note {
                         ts.addNote(n: Note(note: note))
@@ -704,7 +716,7 @@ class Score : ObservableObject {
 //            }
 //            print("         Qi", questionIndex, "Ti", tapIndex)
             
-            let outTimeSlice = outputScore.addTimeSlice()
+            let outTimeSlice = outputScore.createTimeSlice()
             
             if questionTimeSliceValues[questionIndex].type == .note {
                 noteCount += 1
