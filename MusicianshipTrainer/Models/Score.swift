@@ -144,6 +144,14 @@ class Score : ObservableObject {
         return result
     }
     
+    func debugScore(_ ctx:String) {
+        print("SCORE=====", ctx)
+        for t in self.getAllTimeSlices() {
+            let note = t.entries[0] as? Note
+            print("  Seq", t.sequence, "typ", type(of: t.entries[0]), "Value", t.getValue() ?? "", "beamType", note?.beamType ?? "__",
+                  "beamEnd", note?.beamEndNote ?? "__")
+        }
+    }
     //return the first timeslice index of where the scores differ
     func getFirstDifferentTimeSlice(compareScore:Score) -> Int? {
          var result:Int? = nil
@@ -260,7 +268,7 @@ class Score : ObservableObject {
         DispatchQueue.main.async {
             self.key = key
             self.updateStaffs()
-        }        
+        }
     }
     
     func createTimeSlice() -> TimeSlice {
@@ -336,7 +344,7 @@ class Score : ObservableObject {
     }
 
     ///Determine whether quavers can be beamed within a bar's strong and weak beats
-    func canBeam(timeSignature:TimeSignature, timeSlice:TimeSlice, lastBeat:Double) -> Bool {
+    func canBeBeamedTo(timeSignature:TimeSignature, timeSlice:TimeSlice, lastBeat:Double) -> Bool {
         if timeSignature.top == 4 {
             if lastBeat >= 2 {
                 if timeSlice.beatNumber < 2 {
@@ -345,9 +353,7 @@ class Score : ObservableObject {
             }
         }
         if timeSignature.top == 3 {
-            if timeSlice.beatNumber.truncatingRemainder(dividingBy: 1) != 0 {
-                return false
-            }
+            return true
         }
         return true
     }
@@ -404,7 +410,7 @@ class Score : ObservableObject {
             let notes = timeSlice.getTimeSliceNotes()
             if notes.count > 0 {
                 if notes[0].getValue() == Note.VALUE_QUAVER {
-                    if !canBeam(timeSignature: self.timeSignature, timeSlice: timeSlice, lastBeat: lastTimeSlice.beatNumber) {
+                    if !canBeBeamedTo(timeSignature: self.timeSignature, timeSlice: timeSlice, lastBeat: lastTimeSlice.beatNumber) {
                         break
                     }
                     let note = notes[0]
@@ -415,8 +421,36 @@ class Score : ObservableObject {
                 }
             }
         }
+        if lastNote.midiNumber == 69 {
+            print("========")
+        }
+
+        var totalValueUnderBeam = 0.0
+        for note in notesUnderBeam {
+            totalValueUnderBeam += note.getValue()
+        }
         
-        //Determine if the quaver group has up or down stems based on the overall staff placement of the group
+        if totalValueUnderBeam.truncatingRemainder(dividingBy: 1) != 0 {
+            ///Discard the beam group because cant beam to an off-beat note
+            notesUnderBeam = []
+            notesUnderBeam.append(lastNote)
+        }
+//        else {
+//            if timeSignature.top == 4 {
+//                if notesUnderBeam.count > 0 {
+//                    if let timeSlice = notesUnderBeam[notesUnderBeam.count-1].timeSlice {
+//                        let startBeatNumber = timeSlice.beatNumber
+//                        let rem = startBeatNumber.truncatingRemainder(dividingBy: 2)
+//                        if rem != 0 {
+//                            notesUnderBeam = []
+//                            notesUnderBeam.append(lastNote)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
+        ///Determine if the quaver group has up or down stems based on the overall staff placement of the group
         var totalOffset = 0
         for note in notesUnderBeam {
             let placement = staff.getNoteViewPlacement(note: note)
@@ -460,6 +494,7 @@ class Score : ObservableObject {
             requiredBeamPosition += beamSlope
             note.stemDirection = totalOffset > 0 ? .down : .up
         }
+        debugScore("end of beaming")
     }
     
     func copyEntries(from:Score, count:Int? = nil) {
@@ -816,3 +851,4 @@ class Score : ObservableObject {
         }
     }
 }
+

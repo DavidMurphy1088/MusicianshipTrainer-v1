@@ -196,10 +196,12 @@ class Note : TimeSliceEntry, Comparable {
 
     var midiNumber:Int
     var isOnlyRhythmNote = false
-    var accidental:Int? = nil //< 0 = flat, ==0 natural, > 0 sharp    
-    var rotated:Bool = false //true if note must be displayed vertically rotated due to closeness to a neighbor.
+    var accidental:Int? = nil ///< 0 = flat, ==0 natural, > 0 sharp
+    var rotated:Bool = false ///true if note must be displayed vertically rotated due to closeness to a neighbor.
     
+    ///Quavers in a beam have either a start, middle or end beam type. A standlone quaver type has type beamEnd. A non quaver has beam type none.
     var beamType:QuaverBeamType = .none
+    
     var stemDirection:StemDirection = .up
     var stemLength:Double = 0.0
     
@@ -316,10 +318,7 @@ class Note : TimeSliceEntry, Comparable {
     
     ///Find the first note for this quaver group
     func getBeamStartNote(score:Score, np: NoteLayoutPositions) -> Note {
-//        if self.midiNumber == 72 {
-//            print("X")
-//        }
-
+        //print("getBeamStartNote ========", self.midiNumber, self.beamType)
         let endNote = self
         if endNote.beamType != .end {
             return endNote
@@ -343,7 +342,12 @@ class Note : TimeSliceEntry, Comparable {
                                 break
                             }
                             else {
-                                if note.getValue() != Note.VALUE_QUAVER {
+                                if note.getValue() == Note.VALUE_QUAVER {
+                                    if note.beamType == .end {
+                                        break
+                                    }
+                                }
+                                else {
                                     break
                                 }
                             }

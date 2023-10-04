@@ -540,6 +540,14 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         if triad == "V" {
             pitch += 7
         }
+        if pitch < 41 {
+            pitch += 12
+        }
+        else {
+            if pitch > 52 {
+                pitch -= 12
+            }
+        }
         let root = Note(timeSlice:timeSlice, num: pitch, staffNum: 0)
         timeSlice.setTags(high: root.getNoteName(), low: triad)
 

@@ -46,8 +46,8 @@ class Intervals {
             intervalTypes.append(IntervalType(intervals:[3,4], name: "Third", explanation: [""]))
         }
         if grade >= 2 {
-            intervalTypes.append(IntervalType(intervals:[5,6], name: "Fourth", explanation: ["",""]))
-            intervalTypes.append(IntervalType(intervals:[7], name: "Fifth", explanation: [""]))
+            intervalTypes.append(IntervalType(intervals:[5], name: "Fourth", explanation: ["",""]))
+            intervalTypes.append(IntervalType(intervals:[6,7], name: "Fifth", explanation: [""]))
         }
         if grade >= 3 && questionType == .intervalVisual {
             intervalTypes.append(IntervalType(intervals:[8,9], name: "Sixth", explanation: ["",""]))
