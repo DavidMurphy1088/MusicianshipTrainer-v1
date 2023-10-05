@@ -15,39 +15,56 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
         UINavigationBar.appearance().standardAppearance = appearance
         
+        let status = AVCaptureDevice.authorizationStatus(for: .audio)
+        var statusMsg = ""
+        switch status {
+        case .authorized:
+            statusMsg = "The user has previously granted access to the microphone."
+        case .notDetermined:
+            statusMsg = "The user has not yet been asked to grant microphone access."
+        case .denied:
+            statusMsg = "The user has previously denied access."
+        case .restricted:
+            statusMsg = "The user can't grant access due to restrictions."
+        @unknown default:
+            statusMsg = "unknown \(status)"
+        }
+        Logger.logger.log(self, "Microphone access:\(statusMsg))")
         return true
     }
     
     //Never appears to be called?
     //App somehow independently does UI to ask permission
-    func requestMicrophonePermission() {
-        AVAudioSession.sharedInstance().requestRecordPermission { (granted) in
-            if granted {
-                Logger.logger.log(self, "Microphone usage granted")
-            } else {
-                Logger.logger.reportError(self, "Microphone Usage not granted")
-            }
-        }
-    }
-    
-    static func startAVAudioSession(category: AVAudioSession.Category) {
-        do {
-            try AVAudioSession.sharedInstance().setCategory(category, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-        }
-        catch let error {
-            Logger.logger.reportError(self, "Set AVAudioSession category failed", error)
-        }
-    }
+//    func requestMicrophonePermission() {
+//        AVAudioSession.sharedInstance().requestRecordPermission { (granted) in
+//            if granted {
+//                Logger.logger.log(self, "Microphone usage granted")
+//            } else {
+//                Logger.logger.reportError(self, "Microphone Usage not granted")
+//            }
+//        }
+//    }
+//    
+//    static func startAVAudioSession(category: AVAudioSession.Category) {
+//        do {
+//            try AVAudioSession.sharedInstance().setCategory(category, mode: .default)
+//            try AVAudioSession.sharedInstance().setActive(true)
+//        }
+//        catch let error {
+//            Logger.logger.reportError(self, "Set AVAudioSession category failed", error)
+//        }
+//    }
 }
 
 @main
 struct MusicianshipTrainerApp: App {
     @StateObject var launchScreenState = LaunchScreenStateManager()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @ObservedObject var logger = Logger.logger
+    //@ObservedObject
+    var logger = Logger.logger
     static let productionMode = true
-    @ObservedObject var exampleData = ExampleData.shared1
+    //@ObservedObject
+    var exampleData = ExampleData.sharedExampleData
     //product licensed by grade 14Jun23
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
     static let root:ContentSection = ContentSection(parent: nil, name: "", type: "")
@@ -56,7 +73,8 @@ struct MusicianshipTrainerApp: App {
 
     init() {
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-
+        //Playback supposedly gives better playpay than plan and record. So only set record when needed
+        AudioManager.shared.setSession(.playback)
     }
     
     func getStartContentSection() -> ContentSection {

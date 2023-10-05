@@ -321,7 +321,7 @@ class Score : ObservableObject {
             return
         }
         addBeatValues()
-        if let note = timeSlice.entries[0] as? Note {
+        if timeSlice.entries[0] is Note {
             addStemCharaceteristics()
         }
     }

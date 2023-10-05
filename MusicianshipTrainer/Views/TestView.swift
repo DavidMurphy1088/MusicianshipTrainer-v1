@@ -29,7 +29,7 @@ struct TestView: View {
             HStack {
                 Button(action: {
                     Cache.shared.clearCache()
-                    ExampleData.shared1.loadData()
+                    ExampleData.sharedExampleData.loadData()
                 }) {
                     Text("Refresh Content").padding()
                 }.padding()

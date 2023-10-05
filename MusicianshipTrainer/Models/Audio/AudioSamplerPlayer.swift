@@ -4,12 +4,11 @@ import AVFoundation
 
 class AudioSamplerPlayer {
     static private var shared = AudioSamplerPlayer()
-    private var audioEngine = AVAudioEngine()
     private var sampler = AVAudioUnitSampler()
     private var stopPlayingNotes = false
     
     private init() {
-        audioEngine = AVAudioEngine()
+        let audioEngine = AudioManager.shared.audioEngine
         sampler = AVAudioUnitSampler()
         audioEngine.attach(sampler)
         audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
@@ -26,7 +25,10 @@ class AudioSamplerPlayer {
         return AudioSamplerPlayer.shared
     }
     
-    static public func reset() {        
+    static public func reset() {
+        let audioEngine = AudioManager.shared.audioEngine
+        audioEngine.disconnectNodeInput(getShared().sampler )
+        audioEngine.disconnectNodeOutput(getShared().sampler )
         AudioSamplerPlayer.shared = AudioSamplerPlayer()
     }
     
@@ -39,19 +41,13 @@ class AudioSamplerPlayer {
     }
     
     private func loadSoundFont() {
-        
         //https://www.rockhoppertech.com/blog/the-great-avaudiounitsampler-workout/#soundfont
         //https://sites.google.com/site/soundfonts4u/
         let soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
-        //let soundFontNames = [("Piano", "marcato strings"), ("Guitar", "GuitarAcoustic")]
-        //var soundFontNames = [("Piano", "Dore Mark's (SF) Fazioli-v2.5.sf2"), ("Guitar", "GuitarAcoustic")]
         let samplerFileName = soundFontNames[0].1
         
-        AppDelegate.startAVAudioSession(category: .playback)
-//        midiSampler = AVAudioUnitSampler()
-//        audioEngine.attach(midiSampler)
-//        audioEngine.connect(midiSampler, to:audioEngine.mainMixerNode, format:audioEngine.mainMixerNode.outputFormat(forBus: 0))
-        //18May23 -For some unknown reason and after hours of investiagtion this loadSoundbank must oocur before every play, not jut at init time
+        //AppDelegate.startAVAudioSession(category: .playback)
+        //18May23 -For some unknown reason and after hours of investiagtion this loadSoundbank must oocur before every play, not just at init time
         
         if let url = Bundle.main.url(forResource:samplerFileName, withExtension:"sf2") {
             let ins = 0
@@ -65,7 +61,6 @@ class AudioSamplerPlayer {
                 }
                 catch {
                 }
-                
             }
         }
         else {

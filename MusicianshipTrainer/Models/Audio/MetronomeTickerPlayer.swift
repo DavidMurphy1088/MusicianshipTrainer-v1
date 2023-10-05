@@ -8,7 +8,7 @@ enum TickType {
 }
 
 /// Provide sampled audio as ticks for metronome
-class AudioTicker {
+class MetronomeTickerPlayer {
     private var timeSignature:TimeSignature
     
     //Use an array so that sound n+1 can start before n finishes. Required for faster tempos and short note values.

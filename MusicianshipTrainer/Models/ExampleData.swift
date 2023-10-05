@@ -1,7 +1,7 @@
 import Foundation
 
 class ExampleData : ObservableObject {
-    static var shared1 = ExampleData()
+    static var sharedExampleData = ExampleData()
     var logger = Logger.logger
     //private var loadedDataDictionary:[String: ContentSectionData ] = [:]
     private let googleAPI = GoogleAPI.shared

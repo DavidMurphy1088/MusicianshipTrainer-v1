@@ -66,7 +66,7 @@ class Metronome: AudioPlayerUser, ObservableObject  {
         DispatchQueue.main.async {
             self.tickingIsActive = true
             if !self.isThreadRunning {
-                self.startThreadRunning(timeSignature: score.timeSignature)
+                self.startPlayThreadRunning(timeSignature: score.timeSignature)
             }
         }
     }
@@ -175,7 +175,7 @@ class Metronome: AudioPlayerUser, ObservableObject  {
         }
         nextScoreIndex = 1
         if !self.isThreadRunning {
-            startThreadRunning(timeSignature: score.timeSignature)
+            startPlayThreadRunning(timeSignature: score.timeSignature)
         }
     }
     
@@ -186,13 +186,18 @@ class Metronome: AudioPlayerUser, ObservableObject  {
         }
     }
 
-    private func startThreadRunning(timeSignature:TimeSignature) {
+    private func startPlayThreadRunning(timeSignature:TimeSignature) {
         self.isThreadRunning = true
+        AudioManager.shared.setSession(.playback)
+        ///This is required but dont know why. Without it the audio sampler does not sound notes after the app records an audio.
+        ///
+        AudioSamplerPlayer.reset()
         let midiSampler = AudioSamplerPlayer.getShared().getSampler()
+        
         //AudioSamplerPlayer.getShared().startSampler()
 
-        let audioTickerMetronomeTick:AudioTicker = AudioTicker(timeSignature: timeSignature, tickStyle: true)
-        let audioClapper:AudioTicker = AudioTicker(timeSignature: timeSignature, tickStyle: false)
+        let audioTickerMetronomeTick:MetronomeTickerPlayer = MetronomeTickerPlayer(timeSignature: timeSignature, tickStyle: true)
+        let audioClapper:MetronomeTickerPlayer = MetronomeTickerPlayer(timeSignature: timeSignature, tickStyle: false)
 
         DispatchQueue.global(qos: .userInitiated).async { [self] in
             var loopCtr = 0

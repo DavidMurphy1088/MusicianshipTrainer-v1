@@ -36,7 +36,7 @@
 		7B40B7F52A54DF9000CA7FC4 /* ContentSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D72A54DF8F00CA7FC4 /* ContentSection.swift */; };
 		7B40B7F62A54DF9000CA7FC4 /* Chord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D82A54DF8F00CA7FC4 /* Chord.swift */; };
 		7B40B7F72A54DF9000CA7FC4 /* Metronome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D92A54DF8F00CA7FC4 /* Metronome.swift */; };
-		7B40B7FC2A54DF9000CA7FC4 /* AudioTicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7DF2A54DF8F00CA7FC4 /* AudioTicker.swift */; };
+		7B40B7FC2A54DF9000CA7FC4 /* MetronomeTickerPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7DF2A54DF8F00CA7FC4 /* MetronomeTickerPlayer.swift */; };
 		7B40B7FF2A54DF9000CA7FC4 /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E22A54DF8F00CA7FC4 /* AudioRecorder.swift */; };
 		7B40B8002A54DF9000CA7FC4 /* ClapRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E32A54DF8F00CA7FC4 /* ClapRecorder.swift */; };
 		7B40B8032A54DF9000CA7FC4 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7E62A54DF8F00CA7FC4 /* Note.swift */; };
@@ -95,6 +95,7 @@
 		7BC657BE2A5AC7D400F8CADD /* TinyHTTPServer in Frameworks */ = {isa = PBXBuildFile; productRef = 7BC657BD2A5AC7D400F8CADD /* TinyHTTPServer */; };
 		7BD1E5B82A5671AC009AD7E8 /* GoogleAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD1E5B72A5671AC009AD7E8 /* GoogleAPI.swift */; };
 		7BD1E5BA2A57D088009AD7E8 /* StaffCharacteristics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */; };
+		7BE044102ACE6FB600AED99B /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE0440F2ACE6FB600AED99B /* AudioManager.swift */; };
 		7BF30A0C2ABD1CF800B43DDC /* AudioPlayerUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF30A0B2ABD1CF800B43DDC /* AudioPlayerUser.swift */; };
 		7BFA20A12A555D90000A09CD /* GoogleAPI in Resources */ = {isa = PBXBuildFile; fileRef = 7BFA20A02A555D90000A09CD /* GoogleAPI */; };
 		7BFD93B02A5FA9E3002878D3 /* NameToTitleMap.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7BFD93AF2A5FA9E3002878D3 /* NameToTitleMap.plist */; };
@@ -152,7 +153,7 @@
 		7B40B7D72A54DF8F00CA7FC4 /* ContentSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentSection.swift; sourceTree = "<group>"; };
 		7B40B7D82A54DF8F00CA7FC4 /* Chord.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Chord.swift; sourceTree = "<group>"; };
 		7B40B7D92A54DF8F00CA7FC4 /* Metronome.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Metronome.swift; sourceTree = "<group>"; };
-		7B40B7DF2A54DF8F00CA7FC4 /* AudioTicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioTicker.swift; sourceTree = "<group>"; };
+		7B40B7DF2A54DF8F00CA7FC4 /* MetronomeTickerPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetronomeTickerPlayer.swift; sourceTree = "<group>"; };
 		7B40B7E22A54DF8F00CA7FC4 /* AudioRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		7B40B7E32A54DF8F00CA7FC4 /* ClapRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClapRecorder.swift; sourceTree = "<group>"; };
 		7B40B7E62A54DF8F00CA7FC4 /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
@@ -207,6 +208,7 @@
 		7BC42EB72A550F6C004FE117 /* Todo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Todo; sourceTree = "<group>"; };
 		7BD1E5B72A5671AC009AD7E8 /* GoogleAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAPI.swift; sourceTree = "<group>"; };
 		7BD1E5B92A57D088009AD7E8 /* StaffCharacteristics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaffCharacteristics.swift; sourceTree = "<group>"; };
+		7BE0440F2ACE6FB600AED99B /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		7BF30A0B2ABD1CF800B43DDC /* AudioPlayerUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerUser.swift; sourceTree = "<group>"; };
 		7BFA20A02A555D90000A09CD /* GoogleAPI */ = {isa = PBXFileReference; lastKnownFileType = text; path = GoogleAPI; sourceTree = "<group>"; };
 		7BFD93AF2A5FA9E3002878D3 /* NameToTitleMap.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = NameToTitleMap.plist; sourceTree = "<group>"; };
@@ -269,12 +271,12 @@
 		7B28078A2A5508D200C70EF4 /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
-				7B2807A62A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 */,
 				7B2807922A5508D200C70EF4 /* clap-single-inspectorj.wav */,
 				7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */,
 				7B0A64DB2A62B50C0091A24A /* marcato strings.sf2 */,
 				7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */,
 				7B2807942A5508D200C70EF4 /* Mechanical metronome - Low.aif */,
+				7B2807A62A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 */,
 				7B2807902A5508D200C70EF4 /* open-clap_F_minor.wav */,
 				7B2807952A5508D200C70EF4 /* simplemelodypiano.wav */,
 			);
@@ -341,9 +343,10 @@
 			children = (
 				7BF30A0A2ABD1C0500B43DDC /* Deprecated */,
 				7B40B7E22A54DF8F00CA7FC4 /* AudioRecorder.swift */,
-				7B40B7DF2A54DF8F00CA7FC4 /* AudioTicker.swift */,
+				7B40B7DF2A54DF8F00CA7FC4 /* MetronomeTickerPlayer.swift */,
 				7B12C3842A7B2F6B00B4D430 /* AudioSamplerPlayer.swift */,
 				7BF30A0B2ABD1CF800B43DDC /* AudioPlayerUser.swift */,
+				7BE0440F2ACE6FB600AED99B /* AudioManager.swift */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -808,7 +811,7 @@
 				7B30C7CB2AB522C100BD7378 /* Intervals.swift in Sources */,
 				7B40B8382A54E52A00CA7FC4 /* ViewProtocol.swift in Sources */,
 				7BA8B70B2AB3D8D900AE7692 /* TTS.swift in Sources */,
-				7B40B7FC2A54DF9000CA7FC4 /* AudioTicker.swift in Sources */,
+				7B40B7FC2A54DF9000CA7FC4 /* MetronomeTickerPlayer.swift in Sources */,
 				7B40B82E2A54E52A00CA7FC4 /* TimeSliceView.swift in Sources */,
 				7B40B8352A54E52A00CA7FC4 /* TestView.swift in Sources */,
 				7B40B7F32A54DF9000CA7FC4 /* Logger.swift in Sources */,
@@ -820,6 +823,7 @@
 				7B40B7F02A54DF9000CA7FC4 /* ExampleData.swift in Sources */,
 				7B40B7EF2A54DF9000CA7FC4 /* TapRecorder.swift in Sources */,
 				7B40B8052A54DF9000CA7FC4 /* NotePositions.swift in Sources */,
+				7BE044102ACE6FB600AED99B /* AudioManager.swift in Sources */,
 				7B4F644B2A54DC6000727710 /* MusicianshipTrainerApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

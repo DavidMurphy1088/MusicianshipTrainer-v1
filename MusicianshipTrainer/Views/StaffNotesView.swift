@@ -82,9 +82,6 @@ struct StemView: View {
                 notes.append(n)
             }
         }
-//        if notes[0].sequence > 6 {
-//            print("SSSSS")
-//        }
         return notes
     }
 

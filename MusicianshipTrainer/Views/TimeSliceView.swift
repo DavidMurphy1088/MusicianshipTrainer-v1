@@ -75,8 +75,10 @@ struct TimeSliceView: View {
         var offsetVertical:Double
     }
     
-    func getLedgerLines(note:Note, noteWidth:Double, lineSpacing:Double) -> [LedgerLine] {
+    func getLedgerLines(staff:Staff, note:Note, noteWidth:Double, lineSpacing:Double) -> [LedgerLine] {
         var result:[LedgerLine] = []
+        let p = note.getNoteDisplayCharacteristics(staff: staff)
+        print("====", staff.staffNum, note.midiNumber, p.offsetFromStaffMidline )
         if note.midiNumber >= 81 { //A5
             result.append(LedgerLine(offsetVertical: 3 * lineSpacing * -1.0))
             if note.midiNumber >= 84 {
@@ -257,8 +259,8 @@ struct TimeSliceView: View {
             }
 
             if !note.isOnlyRhythmNote {
-                if staff.type == .treble {
-                    ForEach(getLedgerLines(note: note, noteWidth: noteWidth, lineSpacing: lineSpacing), id: \.id) { line in
+                //if staff.type == .treble {
+                    ForEach(getLedgerLines(staff: staff, note: note, noteWidth: noteWidth, lineSpacing: lineSpacing), id: \.id) { line in
                         let y = geometry.size.height/2.0 + line.offsetVertical
                         let x = noteFrameWidth/2 - noteWidth - (note.rotated ? noteWidth : 0)
                         Path { path in
@@ -267,7 +269,7 @@ struct TimeSliceView: View {
                         }
                         .stroke(note.getColor(staff: staff), lineWidth: 1)
                     }
-                }
+                //}
             }
         }
     }
