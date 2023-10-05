@@ -469,8 +469,10 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                         let note = Note(timeSlice: timeSlice, num: onlyRhythm ? 71 : notePitch, value: value, staffNum: 0, accidental: accidental)
                         note.staffNum = 0
                         note.isOnlyRhythmNote = onlyRhythm
-                        
                         timeSlice.addNote(n: note)
+                        //let note1 = Note(timeSlice: timeSlice, num: onlyRhythm ? 71 : notePitch - 24, value: value, staffNum: 0, accidental: accidental)
+                        //note1.staffNum = 1
+                        //timeSlice.addNote(n: note1)
                         if let triad = triad {
                             addTriad(score: score, timeSlice: timeSlice, note: note, triad: triad, value: note.getValue())
                         }

@@ -78,24 +78,18 @@ struct TimeSliceView: View {
     func getLedgerLines(staff:Staff, note:Note, noteWidth:Double, lineSpacing:Double) -> [LedgerLine] {
         var result:[LedgerLine] = []
         let p = note.getNoteDisplayCharacteristics(staff: staff)
-        print("====", staff.staffNum, note.midiNumber, p.offsetFromStaffMidline )
-        if note.midiNumber >= 81 { //A5
-            result.append(LedgerLine(offsetVertical: 3 * lineSpacing * -1.0))
-            if note.midiNumber >= 84 {
-                result.append(LedgerLine(offsetVertical: 4 * lineSpacing * -1.0))
-            }
-            if note.midiNumber >= 88 {
-                result.append(LedgerLine(offsetVertical: 5 * lineSpacing * -1.0))
-            }
-        }
-        if note.midiNumber <= 61  { //C#
+
+        if p.offsetFromStaffMidline <= -6 {
             result.append(LedgerLine(offsetVertical: 3 * lineSpacing * 1.0))
-            if note.midiNumber <= 57 {
-                result.append(LedgerLine(offsetVertical: 4 * lineSpacing * 1.0))
-            }
-            if note.midiNumber <= 54 {
-                result.append(LedgerLine(offsetVertical: 5 * lineSpacing * 1.0))
-            }
+        }
+        if p.offsetFromStaffMidline <= -8 {
+            result.append(LedgerLine(offsetVertical: 4 * lineSpacing * 1.0))
+        }
+        if p.offsetFromStaffMidline >= 6 {
+            result.append(LedgerLine(offsetVertical: 3 * lineSpacing * -1.0))
+        }
+        if p.offsetFromStaffMidline >= 8 {
+            result.append(LedgerLine(offsetVertical: 4 * lineSpacing * -1.0))
         }
         return result
     }
