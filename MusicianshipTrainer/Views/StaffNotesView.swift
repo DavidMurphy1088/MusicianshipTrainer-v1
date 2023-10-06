@@ -45,7 +45,6 @@ struct StemView: View {
         if notes.count > 0 {
             len = notes[0].stemLength * lineSpacing.lineSpacing
         }
-        //print(s, "      StemView:: length:", len, lineSpacing.lineSpacing)
         return len
     }
     
@@ -67,11 +66,6 @@ struct StemView: View {
     }
 
 //    func log(note:Note, d:Double) -> Bool {
-//        //if staff.type == .bass {
-//            //print(self.staff.staffNum)
-//            print(note.getNoteDisplayCharacteristics(staff: staff).midi, note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline)
-//        print("  ", d)
-//        //}
 //        return true
 //    }
     
@@ -198,8 +192,7 @@ struct StaffNotesView: View {
                 let yStartNoteStemTip = yStartNoteMiddle + stemLength * stemDirection
                 let p1 = CGPoint(x:xEndMid, y: yEndNoteStemTip)
                 let p2 = CGPoint(x:xStartMid, y:yStartNoteStemTip)
-//                print("-----------getBeamLine forEndNote", endNote.sequence, "pos count", noteLayoutPositions.positions.count, "line", p1, p2)
-//                print("  endNote:", String(format: "%.3f", endNotePos.minX), " startNote", String(format: "%.3f", startNotePos.minX))
+                //print("  endNote:", String(format: "%.3f", endNotePos.minX), " startNote", String(format: "%.3f", startNotePos.minX))
                 return (p1, p2)
             }
         }

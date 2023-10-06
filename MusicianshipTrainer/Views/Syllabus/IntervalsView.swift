@@ -94,7 +94,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         _answer = answer
         self.grade = contentSection.getGrade()
         self.intervals = Intervals(grade: grade, questionType: questionType)
-        //initView()
     }
 
     func initView() {
@@ -102,11 +101,27 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         self.score.setStaff(num: 0, staff: staff)
         contentSection.parseData(score: score, staff:staff, onlyRhythm: false) //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
         
+        var timeslice:TimeSlice?
+        var chord:Chord?
+        if questionType == .intervalAural {
+            timeslice = score.createTimeSlice()
+            chord = Chord()
+        }
         for timeSlice in score.getAllTimeSlices() {
             if timeSlice.getTimeSliceNotes().count > 0 {
                 let note = timeSlice.getTimeSliceNotes()[0]
                 intervalNotes.append(note)
+                if let chord = chord {
+                    chord.addNote(note: Note(timeSlice: timeSlice, num: note.midiNumber, value:2, staffNum: note.staffNum))
+                }
             }
+            if let chord = chord {
+                timeslice?.addChord(c: chord)
+            }
+            if intervalNotes.count >= 2 {
+                break
+            }
+
         }
     }
     
@@ -278,7 +293,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         else {
             examInstructionsStartedStatus = "Could not read instructions"
         }
-        //print("============ exam instrucions read", status)
     }
 }
 
@@ -521,7 +535,6 @@ struct IntervalView: View {
             }
         }
         .onAppear() {
-            //print("==========================Interval View On Appear State:", answerState, "answer", answer.correctInterval, answer.selectedInterval)
         }
         .background(UIGlobals.colorBackground)
         //.border(Color.red)

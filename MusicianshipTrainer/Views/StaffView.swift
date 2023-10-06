@@ -154,9 +154,7 @@ struct StaffView: View {
     init (score:Score, staff:Staff, staffLayoutSize:StaffLayoutSize) {
         self.score = score
         self.staff = staff
-        //self.staffHeight = staffHeight
         self.staffLayoutSize = staffLayoutSize
-        //print("  StaffView init::lineSpace", lineSpacing)
     }
     
     func clefWidth() -> Double {

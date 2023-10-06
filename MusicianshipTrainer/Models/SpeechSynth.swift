@@ -14,20 +14,13 @@ class SpeechSynthesizer {
         if voiceToUse == nil {
             let voices = AVSpeechSynthesisVoice.speechVoices()
             for voice in voices {
-                
-                //print(voice.gender.rawValue, voice.name)
                 if voice.name.contains("Saman") {//"Saman"
-                    // print("                 ===========", voice.gender, voice.name, voice.quality)
-                    
-                    //print(voice.gender.rawValue, voice.name)
                     if voice.name.contains("Saman") {//"Saman"
-                        //print("                 ===========", voice.gender, voice.name, voice.quality)
                         voiceToUse = voice
                     }
                 }
             }
         }
-        logger.log(self, "Using voice \(voiceToUse?.name)")
     }
     
     func speakWord(_ word: String) {
@@ -84,8 +77,6 @@ struct VoiceListView: View {
                 Button(action: {
                     selectedVoice = voice
                     speakWord("Hello World", withVoice: voice)
-                    //print("\n", ctr, selectedVoice, selectedVoice?.gender.rawValue, selectedVoice?.name, selectedVoice?.quality )
-                    //print("\n", ctr, selectedVoice, selectedVoice?.gender.rawValue, selectedVoice?.name, selectedVoice?.quality )
                     ctr += 1
                 }) {
                     Text(voice.language)

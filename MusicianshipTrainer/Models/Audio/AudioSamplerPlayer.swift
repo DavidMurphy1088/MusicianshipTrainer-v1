@@ -46,17 +46,13 @@ class AudioSamplerPlayer {
         let soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
         let samplerFileName = soundFontNames[0].1
         
-        //AppDelegate.startAVAudioSession(category: .playback)
-        //18May23 -For some unknown reason and after hours of investiagtion this loadSoundbank must oocur before every play, not just at init time
+        ///18May23 -For some unknown reason and after hours of investiagtion this loadSoundbank must oocur before every play, not just at init time
         
         if let url = Bundle.main.url(forResource:samplerFileName, withExtension:"sf2") {
             let ins = 0
             for instrumentProgramNumber in ins..<256 {
                 do {
                     try sampler.loadSoundBankInstrument(at: url, program: UInt8(instrumentProgramNumber), bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB), bankLSB: UInt8(kAUSampler_DefaultBankLSB))
-
-                    //print("SF2", instrumentProgramNumber)
-                    //Metronome.nextInstrument += 1
                     break
                 }
                 catch {

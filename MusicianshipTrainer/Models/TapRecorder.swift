@@ -197,6 +197,10 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
     //Read the user's tapped rhythm and return a score representing the ticks they ticked
     func getTappedAsAScore(timeSignatue:TimeSignature, questionScore:Score, tapValues:[Double]) -> Score {
         let recordedTempo = getTempoFromRecordingStart(tapValues: tapValues, questionScore: questionScore)
+        //let recordedTempo = 60
+        ///G3,2,43 let tapValues = [0.5,0.5,1.5,0.5,   1.0,2.0,   0.5,0.5, 1, 3, 2]
+        ///
+        //let tapValues:[Double] = [1,1,1,1,1,1]
         let tappedScore = self.makeScoreFromTaps(questionScore: questionScore, questionTempo: recordedTempo, tapValues: tapValues) //, tapValues: self.tapValues1)
         tappedScore.tempo = recordedTempo
         return tappedScore

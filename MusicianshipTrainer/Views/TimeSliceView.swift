@@ -9,17 +9,19 @@ struct BarLineView: View {
     var staffLayoutSize:StaffLayoutSize
 
     var body: some View {
+        ///For some unfathomable reason the bar line does not show if its not in a gemetry reader (-:
         GeometryReader { geometry in
             Rectangle()
                 .fill(Color.black)
                 .frame(width: 1.0, height: 4.0 * Double(staffLayoutSize.lineSpacing))
                 .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
-                
         }
-        .frame(maxWidth: Double(staffLayoutSize.lineSpacing)  * 1.0)
+        //.frame(maxWidth: Double(staffLayoutSize.lineSpacing)  * 1.0)
+        .frame(minWidth: Double(staffLayoutSize.lineSpacing)  * 1.1)
         //.border(Color.red)
     }
 }
+
 
 struct NoteHiliteView: View {
     @ObservedObject var entry:TimeSliceEntry
@@ -78,31 +80,34 @@ struct TimeSliceView: View {
     func getLedgerLines(staff:Staff, note:Note, noteWidth:Double, lineSpacing:Double) -> [LedgerLine] {
         var result:[LedgerLine] = []
         let p = note.getNoteDisplayCharacteristics(staff: staff)
-
+        
         if p.offsetFromStaffMidline <= -6 {
             result.append(LedgerLine(offsetVertical: 3 * lineSpacing * 1.0))
         }
         if p.offsetFromStaffMidline <= -8 {
             result.append(LedgerLine(offsetVertical: 4 * lineSpacing * 1.0))
         }
+        if p.offsetFromStaffMidline <= -10 {
+            result.append(LedgerLine(offsetVertical: 5 * lineSpacing * 1.0))
+        }
+        
         if p.offsetFromStaffMidline >= 6 {
             result.append(LedgerLine(offsetVertical: 3 * lineSpacing * -1.0))
         }
         if p.offsetFromStaffMidline >= 8 {
             result.append(LedgerLine(offsetVertical: 4 * lineSpacing * -1.0))
         }
+        if p.offsetFromStaffMidline >= 10 {
+            result.append(LedgerLine(offsetVertical: 5 * lineSpacing * -1.0))
+        }
         return result
     }
     
     func getTimeSliceEntries() -> [TimeSliceEntry] {
-        //        print("====Notes", notes.notes.count)
-        //        for n in notes.notes {
-        //            print("  ==Note", n.midiNumber, n.sequence)
-        //        }
         var result:[TimeSliceEntry] = []
         for n in self.timeSlice.entries {
             //if n is Note {
-                result.append(n)
+            result.append(n)
             //}
         }
         return result
@@ -110,6 +115,7 @@ struct TimeSliceView: View {
     
     func RestView(staff:Staff, entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
         ZStack {
+            
             if entry.getValue() == 0 {
                 Text("?")
                     .font(.largeTitle)
@@ -142,9 +148,9 @@ struct TimeSliceView: View {
                                     .foregroundColor(entry.getColor(staff: staff, log: true))
                                     .scaledToFit()
                                     .frame(height: lineSpacing * 3)
-                            Text(".")
-                                .font(.largeTitle)
-                                .foregroundColor(entry.getColor(staff: staff, log: true))
+                                Text(".")
+                                    .font(.largeTitle)
+                                    .foregroundColor(entry.getColor(staff: staff, log: true))
                             }
                         }
                         else {
@@ -163,7 +169,7 @@ struct TimeSliceView: View {
                                         .foregroundColor(entry.getColor(staff: staff, log: true))
                                         .scaledToFit()
                                         .frame(height: lineSpacing * 2)
-
+                                    
                                 }
                                 else {
                                     VStack {
@@ -178,30 +184,37 @@ struct TimeSliceView: View {
                     }
                 }
             }
-
-            if let timeSlice = entry.timeSlice {
-                if timeSlice.statusTag == .hilightAsCorrect {
-                    VStack {
-                        Text("X")
-                            .font(.title)
-                            .foregroundColor(entry.getColor(staff: staff, log: true))
-                        Spacer()
-                    }
-                }
-            }
-
+            
         }
         //.border(Color.red)
     }
     
-    func RestView1(staff:Staff, entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
-        ZStack {
-            Text("R")
-                .font(.title)
-                .foregroundColor(entry.getColor(staff: staff))
-        }
+    //    func RestView1(staff:Staff, entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
+    //        ZStack {
+    //            Text("R")
+    //                .font(.title)
+    //                .foregroundColor(entry.getColor(staff: staff))
+    //        }
+    //    }
+    
+    func xx(red:[Int], green:[Int], blue:[Int]) -> Color  {
+        var rd = Int.random(in: 0...20)
+        //rd = 0.0
+        let r = Double(red[0]) / 256.0 //+ rd
+        let g = Double(green[0] - rd) / 256.0
+        let b = Double(blue[0]  - rd) / 256.0
+        return Color(red:r, green:g, blue:b)
     }
-
+    
+    func colorx() -> Color {
+        //let m = Double.random(in: 1...1.4)
+        let n = 240
+        let redRange = [n,n]
+        let greenRange = [n,n]
+        let blueRange = [n,n]
+        return xx(red: redRange, green: greenRange, blue: blueRange)
+    }
+    
     func NoteView(note:Note, noteFrameWidth:Double, geometry: GeometryProxy) -> some View {
         ZStack {
             let placement = note.getNoteDisplayCharacteristics(staff: staff)
@@ -209,7 +222,14 @@ struct TimeSliceView: View {
             let accidental = placement.accidental
             let noteEllipseMidpoint:Double = geometry.size.height/2.0 - Double(offsetFromStaffMiddle) * lineSpacing / 2.0
             let noteValueUnDotted = note.isDotted ? note.getValue() * 2.0/3.0 : note.getValue()
-
+            VStack {
+                GeometryReader { geo in
+                    Rectangle()
+                        .fill(colorx())     // Fill with blue color
+                        .frame(width: geo.size.width, height: 40) // Set dimensions of the box
+                    Spacer()
+                }
+            }
             if staff.staffNum == 0 {
                 NoteHiliteView(entry: note, x: noteFrameWidth/2, y: noteEllipseMidpoint, width: noteWidth * 1.5)
             }
@@ -246,9 +266,9 @@ struct TimeSliceView: View {
                 let yOffset = offsetFromStaffMiddle % 2 == 0 ? lineSpacing / 3.0 : 0
                 Ellipse()
                 //Open ellipse
-                //.stroke(color(note: note), lineWidth: 2)
                     .frame(width: noteWidth/3.0, height: noteWidth/3.0)
-                    .position(x: noteFrameWidth/2 + noteWidth/0.90, y: noteEllipseMidpoint - yOffset)
+                    //.position(x: noteFrameWidth/2 + noteWidth/0.90, y: noteEllipseMidpoint - yOffset)
+                    .position(x: noteFrameWidth/2 + noteWidth/1.1, y: noteEllipseMidpoint - yOffset)
                     .foregroundColor(note.getColor(staff: staff))
             }
 

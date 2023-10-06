@@ -83,7 +83,6 @@
 		7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F52A68F63B00EA088E /* Cache.swift */; };
 		7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */; };
 		7BA8B70B2AB3D8D900AE7692 /* TTS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA8B70A2AB3D8D900AE7692 /* TTS.swift */; };
-		7BB835462A5548750083C1C0 /* Firestore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB835452A5548750083C1C0 /* Firestore.swift */; };
 		7BB835492A5555130083C1C0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB835482A5555130083C1C0 /* FirebaseFirestore */; };
 		7BC42EB22A550F39004FE117 /* AudioNotes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB12A550F39004FE117 /* AudioNotes */; };
 		7BC42EB42A550F4E004FE117 /* GPTQuestions in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB32A550F4E004FE117 /* GPTQuestions */; };
@@ -201,7 +200,6 @@
 		7B8EF2F52A68F63B00EA088E /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
 		7BA8B70A2AB3D8D900AE7692 /* TTS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTS.swift; sourceTree = "<group>"; };
-		7BB835452A5548750083C1C0 /* Firestore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore.swift; sourceTree = "<group>"; };
 		7BC42EB12A550F39004FE117 /* AudioNotes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AudioNotes; sourceTree = "<group>"; };
 		7BC42EB32A550F4E004FE117 /* GPTQuestions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GPTQuestions; sourceTree = "<group>"; };
 		7BC42EB52A550F62004FE117 /* Notes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
@@ -314,7 +312,6 @@
 				7B40B7D82A54DF8F00CA7FC4 /* Chord.swift */,
 				7B40B7D72A54DF8F00CA7FC4 /* ContentSection.swift */,
 				7B40B7D22A54DF8F00CA7FC4 /* ExampleData.swift */,
-				7BB835452A5548750083C1C0 /* Firestore.swift */,
 				7BD1E5B72A5671AC009AD7E8 /* GoogleAPI.swift */,
 				7B30C7CA2AB522C100BD7378 /* Intervals.swift */,
 				7B40B7E72A54DF8F00CA7FC4 /* Key.swift */,
@@ -773,7 +770,6 @@
 				7B73B7BC2A6FB7030097BAA8 /* ExamView.swift in Sources */,
 				7B40B83E2A54E52A00CA7FC4 /* LaunchScreen.swift in Sources */,
 				7B40B8362A54E52A00CA7FC4 /* ToolsView.swift in Sources */,
-				7BB835462A5548750083C1C0 /* Firestore.swift in Sources */,
 				7B40B8002A54DF9000CA7FC4 /* ClapRecorder.swift in Sources */,
 				7B40B82C2A54E52A00CA7FC4 /* ContentNavigationView.swift in Sources */,
 				7B40B8042A54DF9000CA7FC4 /* Key.swift in Sources */,

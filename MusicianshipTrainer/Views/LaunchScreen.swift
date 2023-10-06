@@ -35,7 +35,6 @@ class Opacity : ObservableObject {
             DispatchQueue.main.async {
                 let opacity = sin((self.duration * Double.pi * 1.0) / self.launchTimeSecs)
                 self.imageOpacity = opacity
-                //print("called", self.duration, "opacity", String(format: "%.2f", opacity))
                 if self.duration >= self.launchTimeSecs {
                     self.timer?.invalidate()
                 }

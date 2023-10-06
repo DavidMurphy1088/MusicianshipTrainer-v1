@@ -25,11 +25,11 @@ class TimeSlice : ScoreEntry {
         }
     }
 
-    func getValue() -> Double? {
+    func getValue() -> Double {
         if entries.count > 0 {
             return entries[0].getValue()
         }
-        return nil
+        return 0
     }
     
     func addNote(n:Note) {

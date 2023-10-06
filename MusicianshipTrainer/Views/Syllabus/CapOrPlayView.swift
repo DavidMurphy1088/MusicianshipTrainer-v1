@@ -175,7 +175,6 @@ struct ClapOrPlayPresentView: View {
     }
     
     func examInstructionsDone(status:RequestStatus) {
-        print("=========== exam instrucions read", status)
     }
     
     func getInstruction(mode:QuestionType, number:Int, grade:Int) -> String? {
@@ -194,7 +193,7 @@ struct ClapOrPlayPresentView: View {
                 
             case .rhythmEchoClap:
                 result += "\(bullet)Listen to the given rhythm."
-                result += "\(linefeed)\(bullet)When it has finished you will be able to press Start Recording."
+                //result += "\(linefeed)\(bullet)When it has finished you will be able to press Start Recording."
                 result += "\(linefeed)\(bullet)Tap your rhythm on the drum that appears and then press Stop Recording once you have finished."
 
             case .melodyPlay:
@@ -583,7 +582,6 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         self.score = score
         self.questionType = questionType
         self.answerMetronome = Metronome.getMetronomeWithCurrentSettings(ctx:"ClapOrPlayAnswerView")
-        //print(Metronome.getMetronomeWithCurrentSettings(ctx: "TEST").tempo)
         self.answer = answer
         answerMetronome.setSpeechEnabled(enabled: self.speechEnabled)
     }
@@ -594,7 +592,6 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         }
         
         let tappedScore = tapRecorder.getTappedAsAScore(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
-
         tappedScore.label = "Your Rhythm"
         
         ///Checks -
@@ -625,7 +622,6 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                 if let recordedTempo = tappedScore.tempo {
                     self.answerMetronome.setAllowTempoChange(allow: true)
                     self.answerMetronome.setTempo(tempo: recordedTempo, context: "ClapOrPlayAnswerView")
-                    //print(Metronome.getMetronomeWithCurrentSettings(ctx: "TESTT").tempo)
                     let questionTempo = Metronome.getMetronomeWithCurrentSettings(ctx: "for clap answer").tempo
                     let tolerance = Int(CGFloat(questionTempo) * 0.1)
                     if questionType == .rhythmVisualClap {

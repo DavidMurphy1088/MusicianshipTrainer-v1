@@ -157,7 +157,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                 self.answer111 = answer
             }
             catch {
-                //print("Failed to read answer JSON: \(error)")
+                //Logger.logger.reportError(self, "Failed to parse JSON \(error)")
             }
         }
         else {
@@ -356,7 +356,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     }
 
     func getChildSectionByType(type: String) -> ContentSection? {
-        //print("getChildSectionByType", name, type)
         if self.type == type {
             return self
         }
@@ -533,10 +532,8 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     
     func addTriad(score:Score, timeSlice:TimeSlice, note:Note, triad:String, value:Double) {
         let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: 5)
-        //bstaff.isHidden = true
         score.setStaff(num: 1, staff: bstaff)
         let key = score.key
-        print("===", key.firstScaleNote(), key.getScaleStartMidi())
         
         var pitch = key.firstScaleNote()
         if triad == "V" {

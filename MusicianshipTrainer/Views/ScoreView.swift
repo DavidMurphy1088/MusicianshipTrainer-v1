@@ -20,21 +20,25 @@ struct FeedbackView: View {
                     .foregroundColor(Color.red)
                     .padding()
             }
-//            if let index = studentFeedback.indexInError {
-//                    Text("Wrong rhythm here")// at note: \(index)").padding()
-//            }
-        }
-        if let feedbackExplanation = studentFeedback.feedbackExplanation {
-            VStack {
-                Text(feedbackExplanation)
-                    .defaultTextStyle()
+            //            if let index = studentFeedback.indexInError {
+            //                    Text("Wrong rhythm here")// at note: \(index)").padding()
+            //            }
+            //}
+            if let feedbackExplanation = studentFeedback.feedbackExplanation {
+                VStack {
+                    //ScrollView {
+                    Text(feedbackExplanation)
+                        .defaultTextStyle()
+                        .fixedSize(horizontal: false, vertical: true)
                     //.lineLimit(nil)
+                    //}
+                }
             }
-        }
-        if let feedbackNote = studentFeedback.feedbackNotes {
-            VStack {
-                Text(feedbackNote)
-                    .defaultTextStyle()
+            if let feedbackNote = studentFeedback.feedbackNotes {
+                VStack {
+                    Text(feedbackNote)
+                        .defaultTextStyle()
+                }
             }
         }
     }
@@ -50,7 +54,6 @@ struct ScoreView: View {
         self.staffLayoutSize = StaffLayoutSize(lineSpacing: UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0)
         self.staffLayoutSize.lineSpacing = 0.0
         setOrientationLineSize(ctx: "ScoreView::init")
-        //print("SCORE VIEW INIT", "width::", UIScreen.main.bounds.width, "line spacing", lineSpacing.value)
     }
     
     func getFrameHeight() -> Double {

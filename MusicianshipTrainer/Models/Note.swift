@@ -276,7 +276,6 @@ class Note : TimeSliceEntry, Comparable {
         default:
             name = ""
         }
-        print("NOTE Name ====", self.midiNumber, name)
         return name
     }
     
@@ -379,11 +378,7 @@ class Note : TimeSliceEntry, Comparable {
     ///accidentail. In that case the note must shift down 1 unit of offset.
     ///
     func getNoteDisplayCharacteristics(staff:Staff) -> NoteStaffPlacement {
-        
-//        if self.midiNumber == 56 && staff.staffNum == 0 {
-//            print("X")
-//        }
-        
+
         let defaultNoteData = staff.getNoteViewPlacement(note: self)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
         var offsetAccidental:Int? = nil
