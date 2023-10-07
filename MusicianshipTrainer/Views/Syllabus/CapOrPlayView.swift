@@ -105,74 +105,23 @@ struct ClapOrPlayPresentView: View {
 
     init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh_unused:(() -> Void)? = nil) {
         self.contentSection = contentSection
-        self.score = score
+        //self.score = score
         self.questionType = questionType
         _answerState = answerState
         _answer = answer
+        self.score = score
+        self.score.debugScore("ClapOrPlayPresentView", withBeam: false)
+        if score.staffs.count > 1 {
+            self.score.staffs[1].isHidden = true
+        }
+        self.rhythmHeard = self.questionType == .rhythmVisualClap ? true : false
     }
     
-    func initScore() {
-        let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (questionType == .rhythmVisualClap || questionType == .rhythmEchoClap) ? 1 : 5)
-        self.score.setStaff(num: 0, staff: staff)
-        contentSection.parseData(score: score, staff:staff, onlyRhythm: self.questionType == .rhythmVisualClap || self.questionType == .rhythmEchoClap)
-        self.rhythmHeard = self.questionType == .rhythmVisualClap ? true : false
-
-        if false && questionType == .melodyPlay {
-            if let lastTimeSlice = score.getLastTimeSlice() {
-                ///Place tonic on last timeslice
-                ///Place dominant on previous bar
-                var lastNote:Note? = nil
-                if lastTimeSlice.getTimeSliceNotes().count > 0 {
-                    lastNote = lastTimeSlice.getTimeSliceNotes()[0]
-                }
-                let entries = score.scoreEntries
-                var barCount = 0
-                for i in stride(from: entries.count - 2, through: 0, by: -1) {
-                    if entries[i] is BarLine {
-                        barCount += 1
-                        if let nextTimeSlice:TimeSlice = entries[i+1] as? TimeSlice {
-                            let scaleStartMidi = score.key.getScaleStartMidi()
-                            if barCount == 1 {
-                                if let lastNote = lastNote {
-                                    nextTimeSlice.addTriadAt(timeSlice:lastTimeSlice, rootNoteMidi: scaleStartMidi, value: lastNote.getValue(), staffNum: 1)
-                                    let keyTag:String = score.key.getKeyTagName()
-                                    nextTimeSlice.setTags(high: keyTag, low: "I")
-                                }
-                            }
-                            if contentSection.getGrade() == 2 {
-                                if barCount == 2 {
-                                    let dominant:String
-                                    switch score.key.keySig.accidentalCount {
-                                    case 1:
-                                        dominant = "D"
-                                    case 2:
-                                        dominant = "A"
-                                    case 3:
-                                        dominant = "E"
-                                    case 4:
-                                        dominant = "B"
-                                    default:
-                                        dominant = "G"
-                                    }
-                                    if let lastNote = lastNote {
-                                        nextTimeSlice.addTriadAt(timeSlice:lastTimeSlice, rootNoteMidi: scaleStartMidi - 5, value: lastNote.getValue(), staffNum: 1)
-                                        let keyTag:String = dominant
-                                        nextTimeSlice.setTags(high: keyTag, low: "V")
-                                    }
-                                }
-                            }
-                        }
-                        if barCount >= 2 {
-                            break
-                        }
-                    }
-                }
-            }
-            let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: questionType == .rhythmVisualClap ? 1 : 5)
-            bstaff.isHidden = true
-            score.setStaff(num: 1, staff: bstaff)
-        }
-    }
+//    func initScore() {
+////        let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (questionType == .rhythmVisualClap || questionType == .rhythmEchoClap) ? 1 : 5)
+////        self.score.setStaff(num: 0, staff: staff)
+//
+//    }
     
     func examInstructionsDone(status:RequestStatus) {
     }
@@ -431,14 +380,16 @@ struct ClapOrPlayPresentView: View {
                 }) {
                     if answerState == .recorded {
                         if !self.isTakingExam()  {
-                            Text("Redo Recording").defaultButtonStyle()
+                            Text("Redo Recording")
+                                .defaultButtonStyle(enabled: rhythmHeard || questionType != .intervalAural)
                         }
                     }
                     else {
-                        Text("Start Recording").defaultButtonStyle()
+                        Text("Start Recording")
+                            .defaultButtonStyle(enabled: rhythmHeard || questionType != .intervalAural)
                     }
                 }
-                .disabled(!rhythmHeard && questionType != .melodyPlay)
+                .disabled(!(rhythmHeard || questionType != .intervalAural))
             }
         }
     }
@@ -528,11 +479,11 @@ struct ClapOrPlayPresentView: View {
                     }
             }
             .onAppear() {
-                self.initScore()
+                //self.initScore()
                 if self.isTakingExam() {
                     self.contentSection.playExamInstructions(withDelay: true, onStarted: examInstructionsAreReading)
                 }
-                score.setHiddenStaff(num: 1, isHidden: true)
+                //score.setHiddenStaff(num: 1, isHidden: true)
                 metronome.setTempo(tempo: 90, context: "View init")
                 if questionType == .rhythmEchoClap || questionType == .melodyPlay {
                     metronome.setAllowTempoChange(allow: true)
@@ -658,46 +609,50 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     }
     
     func nextButtons(answerWasCorrect:Bool) -> some View {
-        HStack {
-            if answerWasCorrect {
-                Spacer()
-                Button(action: {
-                    if let parent = self.contentSection.parent {
-                        let c = parent.subSections.count
-                        let r = Int.random(in: 0...c)
-                        parent.setSelected(r)
+        VStack {
+            Text(" ")
+            HStack {
+                if answerWasCorrect {
+                    Spacer()
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected((parent.selectedIndex ?? 0) + 1)
+                        }
+                    }) {
+                        Text("Next").defaultButtonStyle()
                     }
-                }) {
-                    Text("Try A Shuffle Question").defaultButtonStyle()
+                    Spacer()
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected((parent.selectedIndex ?? 0) - 1)
+                        }
+                    }) {
+                        Text("Previous").defaultButtonStyle()
+                    }
+                    
+                    Spacer()
+                    Button(action: {
+                        if let parent = self.contentSection.parent {
+                            let c = parent.subSections.count
+                            let r = Int.random(in: 0...c)
+                            parent.setSelected(r)
+                        }
+                    }) {
+                        Text("Shuffle").defaultButtonStyle()
+                    }
+                    Spacer()
                 }
-                Spacer()
-                Button(action: {
-                    let parent = self.contentSection.parent
-                    if let parent = parent {
-                        parent.setSelected((parent.selectedIndex ?? 0) + 1)
+                else {
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected(parent.selectedIndex ?? 0)
+                        }
+                    }) {
+                        Text("Try Again").defaultButtonStyle()
                     }
-                }) {
-                    Text("Next Question").defaultButtonStyle()
-                }
-                Spacer()
-                Button(action: {
-                    let parent = self.contentSection.parent
-                    if let parent = parent {
-                        parent.setSelected((parent.selectedIndex ?? 0) - 1)
-                    }
-                }) {
-                    Text("Previous").defaultButtonStyle()
-                }
-                Spacer()
-            }
-            else {
-                Button(action: {
-                    let parent = self.contentSection.parent
-                    if let parent = parent {
-                        parent.setSelected(parent.selectedIndex ?? 0)
-                    }
-                }) {
-                    Text("Try Again").defaultButtonStyle()
                 }
             }
         }
@@ -786,13 +741,16 @@ struct ClapOrPlayView: View {
     let id = UUID()
     let questionType:QuestionType
     
-    @State var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5, noteSize: .small)
+    ///@State properties are automatically initialized by SwiftUI. You're not supposed to give them initial values in your custom initializers. By removing @State, you're allowed to manage the property's initialization yourself, as you've done in your init().
+    var score:Score
 
     init(questionType:QuestionType, contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>) {
         self.questionType = questionType
         self.contentSection = contentSection
         _answerState = answerState
-        _answer = answer        
+        _answer = answer
+        self.score = contentSection.parseData(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
+        //self.score.debugScore("ClapOrPlayView", withBeam: false)
     }
     
     func shouldShowAnswer() -> Bool {
@@ -817,7 +775,7 @@ struct ClapOrPlayView: View {
         }
     }
 
-     var body: some View {
+    var body: some View {
         VStack {
             if answerState  != .submittedAnswer {
                 ClapOrPlayPresentView(
@@ -841,7 +799,6 @@ struct ClapOrPlayView: View {
         }
         .background(UIGlobals.colorBackground)
         .onAppear() {
-            //AudioSamplerPlayer.shared.startSampler()
         }
         .onDisappear {
             let metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "")

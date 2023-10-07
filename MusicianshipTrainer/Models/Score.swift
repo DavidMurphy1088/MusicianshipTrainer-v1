@@ -2,7 +2,7 @@ import Foundation
 import AVKit
 import AVFoundation
 
-class ScoreEntry : ObservableObject, Hashable {
+class ScoreEntry : ObservableObject, Identifiable, Hashable {
     let id = UUID()
     var sequence:Int = 0
 
@@ -77,16 +77,16 @@ class StaffLayoutSize: ObservableObject {
 
 class Score : ObservableObject {
     let id:UUID
-    //static var shared = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5)
-    var timeSignature:TimeSignature
-    let ledgerLineCount =  2 //3//4 is required to represent low E
     
-    @Published var key:Key = Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.sharp, keyName: ""))
+    var timeSignature:TimeSignature
+    @Published var key:Key// = Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.sharp, keyName: ""))
+    
     @Published var showNotes = true
     @Published var showFootnotes = false
     @Published var studentFeedback:StudentFeedback? = nil
     @Published var scoreEntries:[ScoreEntry] = []
     
+    let ledgerLineCount =  2 //3//4 is required to represent low E
     var staffs:[Staff] = []
     
     var tempo:Int?
@@ -107,11 +107,12 @@ class Score : ObservableObject {
     }
     let noteSize:NoteSize
     
-    init(timeSignature:TimeSignature, linesPerStaff:Int, noteSize:NoteSize) {
+    init(key:Key, timeSignature:TimeSignature, linesPerStaff:Int, noteSize:NoteSize) {
         self.id = UUID()
         self.timeSignature = timeSignature
         self.noteSize = noteSize
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
+        self.key = key //Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.sharp, keyName: keyName))
     }
     
     init(score:Score) {
@@ -119,6 +120,7 @@ class Score : ObservableObject {
         self.timeSignature = score.timeSignature
         self.noteSize = score.noteSize
         totalStaffLineCount = score.totalStaffLineCount
+        self.key = score.key
     }
 
     func getTotalStaffLineCount() -> Int {
@@ -143,7 +145,7 @@ class Score : ObservableObject {
     }
     
     func debugScore(_ ctx:String, withBeam:Bool) {
-        print("\nSCORE=====", ctx)
+        print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
             if t.entries.count == 0 {
                 print("ZERO ENTRIES")
@@ -351,9 +353,9 @@ class Score : ObservableObject {
             }
         }
         if timeSignature.top == 3 {
-            return true
+            return Int(timeSlice.beatNumber) == Int(lastBeat)
         }
-        return true
+        return false
     }
     
     ///If the last note added was a quaver, identify any previous adjoining quavers and set them to be joined with a quaver bar
@@ -651,7 +653,7 @@ class Score : ObservableObject {
     }
     
     func fitScoreToQuestionScore_old(tappedScore:Score) -> (Score, StudentFeedback) {
-        let outputScore = Score(timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: self.noteSize)
+        let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: self.noteSize)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
         
@@ -677,7 +679,7 @@ class Score : ObservableObject {
         var tappedDurations:[NoteDuration] = []
         var elapsedTime = 0.0
         for t in tappedScore.getAllTimeSlices() {
-            var dur = NoteDuration(timeSlice: t, elapsed: elapsedTime, value: t.entries[0].getValue(), type: .note)
+            let dur = NoteDuration(timeSlice: t, elapsed: elapsedTime, value: t.entries[0].getValue(), type: .note)
             tappedDurations.append(dur)
             elapsedTime += t.entries[0].getValue()
         }
@@ -704,7 +706,7 @@ class Score : ObservableObject {
                 if timeSlice.getTimeSliceEntries().count > 0 {
                     let entry = timeSlice.getTimeSliceEntries()[0]
                     if let note = entry as? Note {
-                        var noteValue = note.getValue()
+                        let noteValue = note.getValue()
                         questionTimeSliceValues.append(NoteDuration(timeSlice: timeSlice, elapsed: elapsedTime, value:noteValue, type: .note))
                         //restTotalValue = 0
                     }
@@ -715,7 +717,7 @@ class Score : ObservableObject {
                     elapsedTime += entry.getValue()
                 }
             }
-            if let bar = scoreEntry as? BarLine {
+            if scoreEntry is BarLine {
                 questionTimeSliceValues.append(NoteDuration(timeSlice: nil, elapsed: elapsedTime, value:0, type: .bar))
             }
         }
@@ -790,7 +792,7 @@ class Score : ObservableObject {
             
             if questionTimeSliceValues[questionIndex].type == .rest {
                 var outputValue = questionTimeSliceValues[questionIndex].value
-                var nextSliceIsNote = isNextTimeSliceANote(fromScoreEntryIndex: questionIndex + 1)
+                let nextSliceIsNote = isNextTimeSliceANote(fromScoreEntryIndex: questionIndex + 1)
 
                 if nextSliceIsNote {
                     expectedTapValue += questionTimeSliceValues[questionIndex].value
@@ -846,7 +848,7 @@ class Score : ObservableObject {
     
     ///Return a score based on the question score but modified to show where a tapped duration differs from the question
     func fitScoreToQuestionScore(tappedScore:Score) -> (Score, StudentFeedback) {
-        let outputScore = Score(timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: self.noteSize)
+        let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: self.noteSize)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
             

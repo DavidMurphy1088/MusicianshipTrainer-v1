@@ -127,7 +127,7 @@ struct ScoreView: View {
                 FeedbackView(score: score, studentFeedback: feedback)
             }
             
-            ForEach(score.getStaff(), id: \.self.type) { staff in
+            ForEach(score.getStaff(), id: \.self.id) { staff in
                 if !staff.isHidden {
                     StaffView(score: score, staff: staff, staffLayoutSize: staffLayoutSize)
                     .frame(height: staffLayoutSize.getStaffHeight(score: score))

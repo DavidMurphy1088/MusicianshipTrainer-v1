@@ -65,20 +65,23 @@ struct StemView: View {
         return (stemDirection * -1.0 * getNoteWidth())
     }
 
-//    func log(note:Note, d:Double) -> Bool {
-//        return true
-//    }
+    func log(_ ctx:String) -> Bool {
+        print("=============StemView log", ctx)
+        return true
+    }
     
     func getStaffNotes(staff:Staff) -> [Note] {
         var notes:[Note] = []
         for n in self.notes {
             if n.staffNum == staff.staffNum {
                 notes.append(n)
+                //break
             }
         }
+
         return notes
     }
-
+    
     var body: some View {
         GeometryReader { geo in
             VStack {
@@ -108,23 +111,31 @@ struct StemView: View {
                     else {
                         ///This code assumes the stem for a chord wont (yet) be under a quaver beam
                         //let furthestFromMidline = self.getFurthestFromMidline(noteArray: staffNotes)
-                        ZStack {
-                            ForEach(staffNotes, id: \.self) { note in
-                                let stemDirection = note.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: furthestFromMidline)
-                                let midX:Double = (geo.size.width + (midPointXOffset(notes: staffNotes, staff: staff, stemDirection: stemDirection))) / 2.0
-                                let midY = geo.size.height / 2.0
-                                let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
 
-                                if note.getValue() != Note.VALUE_WHOLE {
-                                    // LINE SPACING is ZERO for some unknown reason for chords in BASE CLEFF, no stem shows????
-                                    let offsetY = CGFloat(note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
-                                    Path { path in
-                                        path.move(to: CGPoint(x: midX, y: midY - offsetY))
-                                        path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
+                        ZStack {
+                            //HStack {
+                                ForEach(staffNotes) { note in
+                                    let pp = note.getNoteDisplayCharacteristics(staff: staff)
+                                
+                                    let stemDirection = note.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: furthestFromMidline)
+                                    let midX:Double = (geo.size.width + (midPointXOffset(notes: staffNotes, staff: staff, stemDirection: stemDirection))) / 2.0
+                                    let midY = geo.size.height / 2.0
+                                    let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
+                                    
+                                    if note.getValue() != Note.VALUE_WHOLE {
+                                        // LINE SPACING is ZERO for some unknown reason for chords in BASE CLEFF, no stem shows????
+                                        let offsetY = CGFloat(note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                                        if log(" \(note.sequence) \(note.midiNumber) \(note.stemLength) OFFSET \(pp.offsetFromStaffMidline) Y_OFFSET \(offsetY) \(note.id)") {
+                                            Path { path in
+                                                path.move(to: CGPoint(x: midX, y: midY - offsetY))
+                                                path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
+                                            }
+                                            .stroke(staffNotes[0].getColor(staff: staff), lineWidth: 1.5)
+                                            //.stroke(Color(.red), lineWidth: 1.5)
+                                        }
                                     }
-                                    .stroke(staffNotes[0].getColor(staff: staff), lineWidth: 1.5)
                                 }
-                            }
+                            //}
                         }
                     }
                 }
@@ -262,7 +273,7 @@ struct StaffNotesView: View {
             //let lineSpacing = self.getLineSpacing()
             let noteWidth = getLineSpacing() * 1.2
             HStack(spacing: 0) { //HStack - score entries display along the staff
-                ForEach(score.scoreEntries, id: \.self) { entry in
+                ForEach(score.scoreEntries) { entry in
                     VStack { //VStack - required in forEach closure
                         if entry is TimeSlice {
                             let entries = entry as! TimeSlice
@@ -320,7 +331,7 @@ struct StaffNotesView: View {
                     ZStack {
                         ZStack {
                             //let log = log(notes: noteLayoutPositions.positions)
-                            ForEach(noteLayoutPositions.positions.sorted(by: { $0.key.sequence < $1.key.sequence }), id: \.key) {
+                            ForEach(noteLayoutPositions.positions.sorted(by: { $0.key.sequence < $1.key.sequence }), id: \.key.id) {
                                 endNote, endNotePos in
                                 if endNote.beamType == .end {
                                     let startNote = endNote.getBeamStartNote(score: score, np:noteLayoutPositions)

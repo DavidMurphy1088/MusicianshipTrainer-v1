@@ -87,6 +87,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     let googleAPI = GoogleAPI.shared
     
     init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh:(() -> Void)? = nil) {
+        //self.score = contentSection.parseData(onlyRhythm: false)
         self.contentSection = contentSection
         self.score = score
         self.questionType = questionType
@@ -99,7 +100,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     func initView() {
         let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5)
         self.score.setStaff(num: 0, staff: staff)
-        contentSection.parseData(score: score, staff:staff, onlyRhythm: false) //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
+//        contentSection.parseData(score: score, staff:staff, onlyRhythm: false) //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
         
         var timeslice:TimeSlice?
         var chord:Chord?
@@ -115,13 +116,9 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                     chord.addNote(note: Note(timeSlice: timeSlice, num: note.midiNumber, value:2, staffNum: note.staffNum))
                 }
             }
-            if let chord = chord {
-                timeslice?.addChord(c: chord)
-            }
-            if intervalNotes.count >= 2 {
-                break
-            }
-
+        }
+        if let chord = chord {
+            timeslice?.addChord(c: chord)
         }
     }
     
@@ -314,7 +311,7 @@ struct ShowMelodiesView: View {
             .popover(isPresented: $showingMelodies, arrowEdge: .trailing) {
                 VStack {
                     HStack {
-                        ForEach(melodies, id: \.id) { melody in
+                        ForEach(melodies) { melody in
                             Button(action: {
                                 selectedMelodyId = melody.id
                                 let transposed = melody.transpose(base: firstNote)
@@ -371,46 +368,49 @@ struct IntervalAnswerView: View {
     }
     
     func nextButtons(answerWasCorrect:Bool) -> some View {
-        HStack {
-            if answerWasCorrect {
-                Spacer()
-                Button(action: {
-                    if let parent = self.contentSection.parent {
-                        let c = parent.subSections.count
-                        let r = Int.random(in: 0...c)
-                        parent.setSelected(r)
+        VStack {
+            Text(" ")            
+            HStack {
+                if answerWasCorrect {
+                    Spacer()
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected((parent.selectedIndex ?? 0) + 1)
+                        }
+                    }) {
+                        Text("Next").defaultButtonStyle()
                     }
-                }) {
-                    Text("Try A Shuffle Question").defaultButtonStyle()
+                    Spacer()
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected((parent.selectedIndex ?? 0) - 1)
+                        }
+                    }) {
+                        Text("Previous").defaultButtonStyle()
+                    }
+                    Spacer()
+                    Button(action: {
+                        if let parent = self.contentSection.parent {
+                            let c = parent.subSections.count
+                            let r = Int.random(in: 0...c)
+                            parent.setSelected(r)
+                        }
+                    }) {
+                        Text("Shuffle").defaultButtonStyle()
+                    }
+                    Spacer()
                 }
-                Spacer()
-                Button(action: {
-                    let parent = self.contentSection.parent
-                    if let parent = parent {
-                        parent.setSelected((parent.selectedIndex ?? 0) + 1)
+                else {
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected(parent.selectedIndex ?? 0)
+                        }
+                    }) {
+                        Text("Try Again").defaultButtonStyle()
                     }
-                }) {
-                    Text("Next Question").defaultButtonStyle()
-                }
-                Spacer()
-                Button(action: {
-                    let parent = self.contentSection.parent
-                    if let parent = parent {
-                        parent.setSelected((parent.selectedIndex ?? 0) - 1)
-                    }
-                }) {
-                    Text("Previous").defaultButtonStyle()
-                }
-                Spacer()
-            }
-            else {
-                Button(action: {
-                    let parent = self.contentSection.parent
-                    if let parent = parent {
-                        parent.setSelected(parent.selectedIndex ?? 0)
-                    }
-                }) {
-                    Text("Try Again").defaultButtonStyle()
                 }
             }
         }
@@ -473,11 +473,12 @@ struct IntervalAnswerView: View {
 struct IntervalView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     let contentSection:ContentSection
+    ///@State properties are automatically initialized by SwiftUI. You're not supposed to give them initial values in your custom initializers. By removing @State, you're allowed to manage the property's initialization yourself, as you've done in your init().
+    var score:Score
+    
     @ObservedObject var logger = Logger.logger
     @Binding var answerState:AnswerState
     @Binding var answer:Answer 
-
-    @State var score:Score = Score(timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 5, noteSize: .large) //neds to be @state to pass it around
 
     let id = UUID()
     let questionType:QuestionType
@@ -487,6 +488,7 @@ struct IntervalView: View {
         self.contentSection = contentSection
         _answerState = answerState
         _answer = answer
+        score = contentSection.parseData(staffCount: 1, onlyRhythm: false)
     }
     
     func shouldShowAnswer() -> Bool {

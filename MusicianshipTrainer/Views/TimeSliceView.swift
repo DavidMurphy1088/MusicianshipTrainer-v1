@@ -72,7 +72,7 @@ struct TimeSliceView: View {
         }
     }
     
-    struct LedgerLine:Hashable {
+    struct LedgerLine:Hashable, Identifiable {
         var id = UUID()
         var offsetVertical:Double
     }
@@ -189,32 +189,25 @@ struct TimeSliceView: View {
         //.border(Color.red)
     }
     
-    //    func RestView1(staff:Staff, entry:TimeSliceEntry, lineSpacing:Double, geometry:GeometryProxy) -> some View {
-    //        ZStack {
-    //            Text("R")
-    //                .font(.title)
-    //                .foregroundColor(entry.getColor(staff: staff))
-    //        }
-    //    }
-    
-    func xx(red:[Int], green:[Int], blue:[Int]) -> Color  {
-        var rd = Int.random(in: 0...20)
-        //rd = 0.0
-        let r = Double(red[0]) / 256.0 //+ rd
-        let g = Double(green[0] - rd) / 256.0
-        let b = Double(blue[0]  - rd) / 256.0
-        return Color(red:r, green:g, blue:b)
-    }
-    
-    func colorx() -> Color {
-        //let m = Double.random(in: 1...1.4)
-        let n = 240
-        let redRange = [n,n]
-        let greenRange = [n,n]
-        let blueRange = [n,n]
-        return xx(red: redRange, green: greenRange, blue: blueRange)
-    }
-    
+
+//    func xx(red:[Int], green:[Int], blue:[Int]) -> Color  {
+//        var rd = Int.random(in: 0...20)
+//        //rd = 0.0
+//        let r = Double(red[0]) / 256.0 //+ rd
+//        let g = Double(green[0] - rd) / 256.0
+//        let b = Double(blue[0]  - rd) / 256.0
+//        return Color(red:r, green:g, blue:b)
+//    }
+//
+//    func colorx() -> Color {
+//        //let m = Double.random(in: 1...1.4)
+//        let n = 240
+//        let redRange = [n,n]
+//        let greenRange = [n,n]
+//        let blueRange = [n,n]
+//        return xx(red: redRange, green: greenRange, blue: blueRange)
+//    }
+//
     func NoteView(note:Note, noteFrameWidth:Double, geometry: GeometryProxy) -> some View {
         ZStack {
             let placement = note.getNoteDisplayCharacteristics(staff: staff)
@@ -222,14 +215,15 @@ struct TimeSliceView: View {
             let accidental = placement.accidental
             let noteEllipseMidpoint:Double = geometry.size.height/2.0 - Double(offsetFromStaffMiddle) * lineSpacing / 2.0
             let noteValueUnDotted = note.isDotted ? note.getValue() * 2.0/3.0 : note.getValue()
-            VStack {
-                GeometryReader { geo in
-                    Rectangle()
-                        .fill(colorx())     // Fill with blue color
-                        .frame(width: geo.size.width, height: 40) // Set dimensions of the box
-                    Spacer()
-                }
-            }
+//            VStack {
+            ///hilight errors
+//                GeometryReader { geo in
+//                    Rectangle()
+//                        .fill(colorx())     // Fill with blue color
+//                        .frame(width: geo.size.width, height: 40) // Set dimensions of the box
+//                    Spacer()
+//                }
+//            }
             if staff.staffNum == 0 {
                 NoteHiliteView(entry: note, x: noteFrameWidth/2, y: noteEllipseMidpoint, width: noteWidth * 1.5)
             }
@@ -274,7 +268,7 @@ struct TimeSliceView: View {
 
             if !note.isOnlyRhythmNote {
                 //if staff.type == .treble {
-                    ForEach(getLedgerLines(staff: staff, note: note, noteWidth: noteWidth, lineSpacing: lineSpacing), id: \.id) { line in
+                    ForEach(getLedgerLines(staff: staff, note: note, noteWidth: noteWidth, lineSpacing: lineSpacing)) { line in
                         let y = geometry.size.height/2.0 + line.offsetVertical
                         let x = noteFrameWidth/2 - noteWidth - (note.rotated ? noteWidth : 0)
                         Path { path in
@@ -293,7 +287,7 @@ struct TimeSliceView: View {
             ZStack {
                 let noteFrameWidth = geometry.size.width * 1.0 //center the note in the space allocated by the parent for this note's view
 
-                ForEach(getTimeSliceEntries(), id: \.self) { entry in
+                ForEach(getTimeSliceEntries(), id: \.id) { entry in
                     VStack {
                         if entry is Note {
                             NoteView(note: entry as! Note, noteFrameWidth: noteFrameWidth, geometry: geometry)

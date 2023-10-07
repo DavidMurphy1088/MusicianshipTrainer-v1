@@ -298,7 +298,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             }
         }
 
-        //print("==========getTitte no Map", self.name, self.level)
         return self.name
     }
     
@@ -380,13 +379,18 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         return true
     }
     
-    func parseData(score:Score, staff:Staff, onlyRhythm:Bool, warnNotFound:Bool=true) {//} -> [Any]! {
+    func parseData(staffCount:Int, onlyRhythm:Bool, warnNotFound:Bool=true) -> Score {
         let data = self.contentSectionData.data
+        var key:Key?
+        var timeSignature:TimeSignature?
+        var score:Score?
+        let defaultScore = Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1, noteSize: .small)
+        
         guard data != nil else {
             if warnNotFound {
                 Logger.logger.reportError(self, "No data for content section:[\(self.getPath())]")
             }
-            return 
+            return defaultScore
         }
 
         let tuples:[String] = data
@@ -400,43 +404,57 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             if i == 0 {
                 var keySigCount = 0
                 let keySignature = KeySignature(type: .sharp, keyName: parts[0])
-                score.key = Key(type: .major, keySig: keySignature)
+                key = Key(type: .major, keySig: keySignature)
                 continue
             }
             if i == 1 {
                 if parts.count == 1 {
                     let ts = TimeSignature(top: 4, bottom: 4)
                     ts.isCommonTime = true
-                    //result.append(ts)
-                    score.timeSignature = ts
+                    timeSignature = ts
                     continue
                 }
 
                 if parts.count == 2 {
                     let ts = TimeSignature(top: Int(parts[0]) ?? 0, bottom: Int(parts[1]) ?? 0)
                     //result.append()
-                    score.timeSignature = ts
+                    timeSignature = ts
                     continue
                 }
                 Logger.logger.reportError(self, "Unknown time signature tuple at \(i) :  \(self.getTitle()) \(tuple)")
                 continue
             }
             
+            if score == nil {
+                if let key = key {
+                    if let timeSignature = timeSignature {
+                        score = Score(key: key, timeSignature: timeSignature, linesPerStaff: 5, noteSize: .small)
+                        for i in 0..<staffCount {
+                            let staff = Staff(score: score!, type: .treble, staffNum: i, linesInStaff: onlyRhythm ? 1 : 5)
+                            score!.setStaff(num: i, staff: staff)
+                        }
+                    }
+                }
+            }
+            
             if parts.count == 1  {
                 if parts[0] == "B" {
-                    score.addBarLine()
-                    //result.append(BarLine())
+                    if let score = score {
+                        score.addBarLine()
+                    }
                 }
                 continue
             }
             
             if parts.count == 2  {
                 if parts[0] == "R" {
-                    let timeSlice = score.createTimeSlice()
-                    let restValue = Double(parts[1]) ?? 1
-                    let rest = Rest(timeSlice: timeSlice, value: restValue, staffNum: 0)
-                    timeSlice.addRest(rest: rest)
-                    continue
+                    if let score = score {
+                        let timeSlice = score.createTimeSlice()
+                        let restValue = Double(parts[1]) ?? 1
+                        let rest = Rest(timeSlice: timeSlice, value: restValue, staffNum: 0)
+                        timeSlice.addRest(rest: rest)
+                        continue
+                    }
                 }
             }
 
@@ -464,16 +482,18 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                 }
                 if let notePitch = notePitch {
                     if let value = value {
-                        let timeSlice = score.createTimeSlice()                        
-                        let note = Note(timeSlice: timeSlice, num: onlyRhythm ? 71 : notePitch, value: value, staffNum: 0, accidental: accidental)
-                        note.staffNum = 0
-                        note.isOnlyRhythmNote = onlyRhythm
-                        timeSlice.addNote(n: note)
-                        //let note1 = Note(timeSlice: timeSlice, num: onlyRhythm ? 71 : notePitch - 24, value: value, staffNum: 0, accidental: accidental)
-                        //note1.staffNum = 1
-                        //timeSlice.addNote(n: note1)
-                        if let triad = triad {
-                            addTriad(score: score, timeSlice: timeSlice, note: note, triad: triad, value: note.getValue())
+                        if let score = score {
+                            let timeSlice = score.createTimeSlice()
+                            let note = Note(timeSlice: timeSlice, num: onlyRhythm ? 71 : notePitch, value: value, staffNum: 0, accidental: accidental)
+                            note.staffNum = 0
+                            note.isOnlyRhythmNote = onlyRhythm
+                            timeSlice.addNote(n: note)
+                            //let note1 = Note(timeSlice: timeSlice, num: onlyRhythm ? 71 : notePitch - 24, value: value, staffNum: 0, accidental: accidental)
+                            //note1.staffNum = 1
+                            //timeSlice.addNote(n: note1)
+                            if let triad = triad {
+                                addTriad(score: score, timeSlice: timeSlice, note: note, triad: triad, value: note.getValue())
+                            }
                         }
                     }
                 }
@@ -481,7 +501,14 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             }
             Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(self.getTitle()) \(tuple)")
         }
-        fillBaseClefRests(score: score)
+        //fillBaseClefRests(score: score)
+        if let score = score {
+            score.debugScore("ContentSection Parse", withBeam: false)
+            return score
+        }
+        else {
+            return defaultScore
+        }
     }
     
     ///Sight Reading adds 1 or 2 chords to the base clef so we need to show it. But that base clef needs rests where th chords arent

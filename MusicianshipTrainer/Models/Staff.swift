@@ -96,6 +96,7 @@ class NoteOffsetsInStaffByKey {
                 accidental = Int(accStr)
             }
             let placement = NoteStaffPlacement(midi:0, offsetFroMidLine: offset, accidental: accidental)
+
             return placement
         }
         else {
@@ -105,7 +106,7 @@ class NoteOffsetsInStaffByKey {
     }
 }
 
-class Staff : ObservableObject {
+class Staff : ObservableObject, Identifiable {
     let id = UUID()
     @Published var publishUpdate = 0
     @Published var noteLayoutPositions:NoteLayoutPositions //.getShared()
@@ -150,7 +151,7 @@ class Staff : ObservableObject {
         if score.key.keySig.accidentalCount == 5 {
             keyNumber = 11
         }
-
+        
         for noteValue in 0...highestNoteValue {
             //Fix - longer? - offset should be from middle C, notes should be displayed on both staffs from a single traversal of the score's timeslices
             
@@ -159,19 +160,27 @@ class Staff : ObservableObject {
             if noteValue < middleNoteValue - 6 * Note.OCTAVE || noteValue >= middleNoteValue + 6 * Note.OCTAVE {
                 continue
             }
-//            if noteValue == 73 || noteValue == 72 {
-//                var debug = 72
-//            }
+
+            //            if noteValue == 73 || noteValue == 72 {
+            //                var debug = 72
+            //            }
             var offsetFromTonic = (noteValue - Note.MIDDLE_C) % Note.OCTAVE
             if offsetFromTonic < 0 {
                 offsetFromTonic = 12 + offsetFromTonic
             }
+//            if noteValue == 75 || noteValue == 74 {
+//                print("===========")
+//            }
             guard let noteOffset = noteOffsetsInStaffByKey.getValue(scaleDegree: offsetFromTonic, keyNum: keyNumber) else {
                 Logger.logger.reportError(self, "No note offset data for note \(noteValue)")
                 break
             }
             var offsetFromMidLine = noteOffset.offsetFromStaffMidline
-            
+//            if noteValue == 75 || noteValue == 74 {
+//                print ("=======IN ", noteValue, noteOffset.offsetFromStaffMidline,
+//                       "Offset", placement.offsetFromStaffMidline, "Acci", placement.accidental)
+//            }
+
             var octave:Int
             let referenceNote = type == .treble ? Note.MIDDLE_C : Note.MIDDLE_C - 2 * Note.OCTAVE
             if noteValue >= referenceNote {
@@ -187,6 +196,11 @@ class Staff : ObservableObject {
             
             placement.accidental = noteOffset.accidental
             noteStaffPlacement[noteValue] = placement
+//            if noteValue == 75 || noteValue == 74 {
+//                print ("=======OUT ", noteValue, noteOffset.offsetFromStaffMidline,
+//                       "Offset", placement.offsetFromStaffMidline, "Acci", placement.accidental)
+//            }
+
         }
     }
     

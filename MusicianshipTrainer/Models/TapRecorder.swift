@@ -112,7 +112,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
 
     ///Make a playable score of notes from the tap intervals
     func makeScoreFromTaps(questionScore:Score, questionTempo:Int, tapValues: [Double]) -> Score {
-        let outputScore = Score(timeSignature: questionScore.timeSignature, linesPerStaff: 1, noteSize: questionScore.noteSize)
+        let outputScore = Score(key: questionScore.key, timeSignature: questionScore.timeSignature, linesPerStaff: 1, noteSize: questionScore.noteSize)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
         

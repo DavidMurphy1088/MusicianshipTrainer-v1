@@ -1,7 +1,7 @@
 
 import Foundation
 
-class Melody {
+class Melody : Identifiable {
     let id = UUID()
     let halfSteps:Int
     let name:String

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-class TimeSliceEntry : ObservableObject, Equatable, Hashable {
+class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
     @Published var hilite = false
 
     let id = UUID()
@@ -183,11 +183,9 @@ class NoteStaffPlacement {
     }
 }
 
-class Note : TimeSliceEntry, Comparable {
-    
+class Note : TimeSliceEntry, Comparable {    
     static let MIDDLE_C = 60 //Midi pitch for C4
     static let OCTAVE = 12
-    //static let noteNames:[Character] = ["A", "B", "C", "D", "E", "F", "G"]
     
     static let VALUE_QUAVER = 0.5
     static let VALUE_QUARTER = 1.0
@@ -380,6 +378,7 @@ class Note : TimeSliceEntry, Comparable {
     func getNoteDisplayCharacteristics(staff:Staff) -> NoteStaffPlacement {
 
         let defaultNoteData = staff.getNoteViewPlacement(note: self)
+        //print("============>>>", self.midiNumber, defaultNoteData.offsetFromStaffMidline, defaultNoteData.accidental)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
         var offsetAccidental:Int? = nil
         
