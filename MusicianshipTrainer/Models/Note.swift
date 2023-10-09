@@ -58,7 +58,6 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
         }
 //        if let log = log {
 //            if log {
-//                print("======================================", type(of: self), timeSlice.statusTag, "scoreid", timeSlice.score.id)
 //            }
 //        }
         return out!
@@ -315,7 +314,6 @@ class Note : TimeSliceEntry, Comparable {
     
     ///Find the first note for this quaver group
     func getBeamStartNote(score:Score, np: NoteLayoutPositions) -> Note {
-        //print("getBeamStartNote ========", self.midiNumber, self.beamType)
         let endNote = self
         if endNote.beamType != .end {
             return endNote
@@ -376,9 +374,7 @@ class Note : TimeSliceEntry, Comparable {
     ///accidentail. In that case the note must shift down 1 unit of offset.
     ///
     func getNoteDisplayCharacteristics(staff:Staff) -> NoteStaffPlacement {
-
         let defaultNoteData = staff.getNoteViewPlacement(note: self)
-        //print("============>>>", self.midiNumber, defaultNoteData.offsetFromStaffMidline, defaultNoteData.accidental)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
         var offsetAccidental:Int? = nil
         
@@ -415,7 +411,6 @@ class Note : TimeSliceEntry, Comparable {
             }
         }
         let placement = NoteStaffPlacement(midi: defaultNoteData.midi, offsetFroMidLine: offsetFromMiddle, accidental: offsetAccidental)
-        //print("========Characteristics", self.midiNumber, self.midiNumber, "acc:", placement.accidental, "off", placement.offsetFromStaffMidline, staff.staffNum)
         return placement
     }
 }

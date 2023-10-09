@@ -22,7 +22,6 @@ struct BarLineView: View {
     }
 }
 
-
 struct NoteHiliteView: View {
     @ObservedObject var entry:TimeSliceEntry
     var x:CGFloat

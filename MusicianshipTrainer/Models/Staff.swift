@@ -168,18 +168,13 @@ class Staff : ObservableObject, Identifiable {
             if offsetFromTonic < 0 {
                 offsetFromTonic = 12 + offsetFromTonic
             }
-//            if noteValue == 75 || noteValue == 74 {
-//                print("===========")
-//            }
+
             guard let noteOffset = noteOffsetsInStaffByKey.getValue(scaleDegree: offsetFromTonic, keyNum: keyNumber) else {
                 Logger.logger.reportError(self, "No note offset data for note \(noteValue)")
                 break
             }
             var offsetFromMidLine = noteOffset.offsetFromStaffMidline
-//            if noteValue == 75 || noteValue == 74 {
-//                print ("=======IN ", noteValue, noteOffset.offsetFromStaffMidline,
-//                       "Offset", placement.offsetFromStaffMidline, "Acci", placement.accidental)
-//            }
+
 
             var octave:Int
             let referenceNote = type == .treble ? Note.MIDDLE_C : Note.MIDDLE_C - 2 * Note.OCTAVE
@@ -196,11 +191,6 @@ class Staff : ObservableObject, Identifiable {
             
             placement.accidental = noteOffset.accidental
             noteStaffPlacement[noteValue] = placement
-//            if noteValue == 75 || noteValue == 74 {
-//                print ("=======OUT ", noteValue, noteOffset.offsetFromStaffMidline,
-//                       "Offset", placement.offsetFromStaffMidline, "Acci", placement.accidental)
-//            }
-
         }
     }
     

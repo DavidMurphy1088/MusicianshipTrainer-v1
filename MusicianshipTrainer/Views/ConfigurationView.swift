@@ -40,7 +40,7 @@ struct ConfigurationView: View {
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
                     .padding()
                 
-                // =================== Age Mode ===================
+                // ------------ Age Mode ---------------
                 
                 VStack {
                     Text("Select Your Age Group").font(.title).padding()
@@ -60,7 +60,7 @@ struct ConfigurationView: View {
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
                 .padding()
                 
-                // =================== Colors ===================
+                // ------------------- Colors ----------------
                 
                 HStack {
                     VStack {
@@ -68,7 +68,7 @@ struct ConfigurationView: View {
                             .fill(colorBackground)
                             .frame(width: colorCircleSize, height: colorCircleSize)
                         
-                        ColorPicker("Background-Select a Colour", selection: $colorBackground, supportsOpacity: false)
+                        ColorPicker("Background\nSelect a Colour", selection: $colorBackground, supportsOpacity: false)
                         
                         Button("Reset") {
                             colorBackground = UIGlobals.colorBackgroundDefault
@@ -81,7 +81,7 @@ struct ConfigurationView: View {
                             .fill(colorScore)
                             .frame(width: colorCircleSize, height: colorCircleSize)
                         
-                        ColorPicker("Score-Select a Colour", selection: $colorScore, supportsOpacity: false)
+                        ColorPicker("Score\nSelect a Colour", selection: $colorScore, supportsOpacity: false)
                         
                         Button("Reset") {
                             colorScore = UIGlobals.colorDefault
@@ -94,7 +94,7 @@ struct ConfigurationView: View {
                             .fill(colorInstructions)
                             .frame(width: colorCircleSize, height: colorCircleSize)
                         
-                        ColorPicker("Instructions-Select a Colour", selection: $colorInstructions, supportsOpacity: false)
+                        ColorPicker("Instructions\nSelect a Colour", selection: $colorInstructions, supportsOpacity: false)
 
                         Button("Reset") {
                             colorInstructions = UIGlobals.colorInstructions
@@ -104,7 +104,7 @@ struct ConfigurationView: View {
                     .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
                 }
                 
-                LogView().border(.black).padding()
+                //LogView().border(.black).padding()
                 
                 HStack {
                     Button("Ok") {

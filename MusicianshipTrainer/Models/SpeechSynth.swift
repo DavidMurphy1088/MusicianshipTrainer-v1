@@ -61,8 +61,6 @@ class SpeechSynthesizer {
 //    }
 //}
 
-//===========================
-
 struct VoiceListView: View {
     @State private var selectedVoice: AVSpeechSynthesisVoice?
     @State private var isSpeaking: Bool = false

@@ -26,6 +26,7 @@ class ExampleData : ObservableObject {
                         let jsonData = try JSONDecoder().decode(JSONSheet.self, from: data)
                         let sheetRows = jsonData.values
                         self.loadSheetData(sheetRows: sheetRows)
+                        Logger.logger.log(self, "Loaded \(sheetRows.count) sheet rows")
                         MusicianshipTrainerApp.root.debug()
                         self.setDataReady(way: status)
                     }

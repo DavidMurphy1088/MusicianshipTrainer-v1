@@ -153,11 +153,11 @@ class Score : ObservableObject {
             }
             let note = t.entries[0] as? Note
             if withBeam {
-                print("  Seq", t.sequence, "typ", type(of: t.entries[0]), "Value", t.getValue() ?? "", "beamType", note?.beamType ?? "__",
-                      "beamEnd", note?.beamEndNote ?? "__")
+                print("  Seq", t.sequence, "type:", type(of: t.entries[0]), "midi:", note?.midiNumber ?? "0", "Value:", t.getValue() ?? "", "[beamType:", note?.beamType ?? "__",
+                      "beamEnd", note?.beamEndNote ?? "__", "]")
             }
             else {
-                print("  Seq", t.sequence, "typ", type(of: t.entries[0]), "midi", note?.midiNumber ?? "0", "Value", t.getValue() ?? "")
+                print("  Seq", t.sequence, "type:", type(of: t.entries[0]), "midi:", note?.midiNumber ?? "0", "Value:", t.getValue() ?? "")
             }
         }
     }
@@ -344,16 +344,19 @@ class Score : ObservableObject {
     }
 
     ///Determine whether quavers can be beamed within a bar's strong and weak beats
-    func canBeBeamedTo(timeSignature:TimeSignature, timeSlice:TimeSlice, lastBeat:Double) -> Bool {
+    func canBeBeamedTo(timeSignature:TimeSignature, startBeamTimeSlice:TimeSlice, lastBeat:Double) -> Bool {
         if timeSignature.top == 4 {
-            if lastBeat >= 2 {
-                if timeSlice.beatNumber < 2 {
-                    return false
-                }
+
+            let startBeatInt = Int(startBeamTimeSlice.beatNumber)
+            if lastBeat > 2 {
+                return [2, 3].contains(startBeatInt)
+            }
+            else {
+                return [0, 1].contains(startBeatInt)
             }
         }
         if timeSignature.top == 3 {
-            return Int(timeSlice.beatNumber) == Int(lastBeat)
+            return Int(startBeamTimeSlice.beatNumber) == Int(lastBeat)
         }
         return false
     }
@@ -410,7 +413,7 @@ class Score : ObservableObject {
             let notes = timeSlice.getTimeSliceNotes()
             if notes.count > 0 {
                 if notes[0].getValue() == Note.VALUE_QUAVER {
-                    if !canBeBeamedTo(timeSignature: self.timeSignature, timeSlice: timeSlice, lastBeat: lastTimeSlice.beatNumber) {
+                    if !canBeBeamedTo(timeSignature: self.timeSignature, startBeamTimeSlice: timeSlice, lastBeat: lastTimeSlice.beatNumber) {
                         break
                     }
                     let note = notes[0]
@@ -422,31 +425,32 @@ class Score : ObservableObject {
             }
         }
 
+        ///Check if beam is valid
         var totalValueUnderBeam = 0.0
+        var valid = true
+
         for note in notesUnderBeam {
+//            if note.beamType == .start {
+//                if note.timeSlice?.beatNumber.truncatingRemainder(dividingBy: 1.0) != 0 {
+//                    valid = false
+//                    break
+//                }
+//            }
             totalValueUnderBeam += note.getValue()
         }
         
-        if totalValueUnderBeam.truncatingRemainder(dividingBy: 1) != 0 {
+        if valid {
+            valid = totalValueUnderBeam.truncatingRemainder(dividingBy: 1) == 0
+        }
+            
+        ///Its not valid so unbeam
+        if !valid {
             ///Discard the beam group because cant beam to an off-beat note
             notesUnderBeam = []
             notesUnderBeam.append(lastNote)
         }
-//        else {
-//            if timeSignature.top == 4 {
-//                if notesUnderBeam.count > 0 {
-//                    if let timeSlice = notesUnderBeam[notesUnderBeam.count-1].timeSlice {
-//                        let startBeatNumber = timeSlice.beatNumber
-//                        let rem = startBeatNumber.truncatingRemainder(dividingBy: 2)
-//                        if rem != 0 {
-//                            notesUnderBeam = []
-//                            notesUnderBeam.append(lastNote)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-
+        
+        
         ///Determine if the quaver group has up or down stems based on the overall staff placement of the group
         var totalOffset = 0
         for note in notesUnderBeam {
@@ -488,7 +492,36 @@ class Score : ObservableObject {
             requiredBeamPosition += beamSlope
             note.stemDirection = totalOffset > 0 ? .down : .up
         }
-        //debugScore("end of beaming")
+        
+        ///Check no stranded beam starts. Every beam start must have a beam end so it is rendered correctly.
+        ///Quavers under beams only have their stems rendered by the presence of an end note in their beam group
+
+        func noteInTS(_ tsIndex:Int) -> Note? {
+            if tsIndex < self.getAllTimeSlices().count {
+                let ts = getAllTimeSlices()[tsIndex]
+                if ts.getTimeSliceNotes().count > 0 {
+                    return ts.getTimeSliceNotes()[0]
+                }
+            }
+            return nil
+        }
+
+        for i in 0..<getAllTimeSlices().count {
+            let note = noteInTS(i)
+            if let note = note {
+                if note.beamType == .start {
+                    let nextNote = noteInTS(i+1)
+                    if let nextNote = nextNote {
+                        if !([QuaverBeamType.end, QuaverBeamType.middle].contains(nextNote.beamType)) {
+                            note.beamType = .end
+                            break
+                        }
+                    }
+                }
+            }
+        }
+
+        //debugScore("end of beaming", withBeam: true)
     }
     
     func copyEntries(from:Score, count:Int? = nil) {
@@ -520,46 +553,6 @@ class Score : ObservableObject {
         }
     }
 
-    // ================= Student feedback =================
-    
-    
-//    func constuctFeedback(scoreToCompare:Score, timeSliceNumber:Int?, questionTempo:Int,
-//                          metronomeTempoAtStartRecording:Int, allowTempoVariation:Bool) -> StudentFeedback {
-//        let feedback = StudentFeedback()
-//        if let timeSliceNumber = timeSliceNumber {
-//            let exampleTimeSlices = getAllTimeSlices()
-//            let exampleTimeSlice = exampleTimeSlices[timeSliceNumber]
-//            if exampleTimeSlice.getTimeSliceEntries().count > 0 {
-//                let exampleNote = exampleTimeSlice.getTimeSliceEntries()[0]
-//                //if let exampleNote = exampleNote {
-//                let studentTimeSlices = scoreToCompare.getAllTimeSlices()
-//                if studentTimeSlices.count > timeSliceNumber {
-//                    let studentTimeSlice = studentTimeSlices[timeSliceNumber]
-//                    let studentNote = studentTimeSlice.getTimeSliceEntries()[0]
-//                    //if let studentNote = studentNote {
-//                    feedback.feedbackExplanation = "The example rhythm was a \(exampleNote.getNoteValueName()). "
-//                    feedback.feedbackExplanation! += "Your rhythm was a \(studentNote.getNoteValueName())."
-//                    feedback.indexInError = studentNote.sequence
-//                    //}
-//                }
-//                //}
-//            }
-//            feedback.correct = false
-//        }
-//        else {
-//            feedback.correct = true
-//            feedback.feedbackExplanation = "Good Job!"
-//            if let recordedTempo = scoreToCompare.recordedTempo {
-//                C
-//                if !allowTempoVariation && abs(recordedTempo - metronomeTempoAtStartRecording) > tolerance {
-//                    feedback.feedbackExplanation = "But your tempo of \(recordedTempo) was \(recordedTempo < metronomeTempoAtStartRecording ? "slower" : "faster") than the metronome tempo \(metronomeTempoAtStartRecording) you heard."
-//                }
-//            }
-//        }
-//        feedback.tempo = recordedTempo
-//        return feedback
-//    }
-    
     func errorCount() -> Int {
         var cnt = 0
         for timeSlice in self.getAllTimeSlices() {
@@ -749,9 +742,6 @@ class Score : ObservableObject {
 //            print("         Qi", questionIndex, "Ti", tapIndex)
             
             let outTimeSlice = outputScore.createTimeSlice()
-            if questionIndex == 10 {
-                print("======")
-            }
             if questionTimeSliceValues[questionIndex].type == .note {
                 noteCount += 1
                 var outputValue = questionTimeSliceValues[questionIndex].value
@@ -854,7 +844,6 @@ class Score : ObservableObject {
             
         var errorsFlagged = false
 
-        tappedScore.debugScore("Tapped  ", withBeam: false)
         self.debugScore("Question", withBeam: false)
         let outputScoreTimeSliceValues = outputScore.scoreEntries
         var tapIndex = 0
@@ -933,7 +922,7 @@ class Score : ObservableObject {
                 tapIndex += 1
             }
         }
-        outputScore.debugScore("Output  ", withBeam: false)
+        //outputScore.debugScore("Output  ", withBeam: false)
 
         let feedback = StudentFeedback()
         feedback.feedbackExplanation = explanation

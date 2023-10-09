@@ -93,4 +93,5 @@ class TimeSlice : ScoreEntry {
         }
         return false
     }
+    
 }

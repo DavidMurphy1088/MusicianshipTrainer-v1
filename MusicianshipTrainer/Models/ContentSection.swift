@@ -2,6 +2,12 @@ import Foundation
 import AVFoundation
 import Combine
 
+enum ExamStatus {
+    case notInExam
+    case inExam
+    case inExamReview
+}
+
 class QuestionStatus: Codable, ObservableObject {
     //@Published
     var status:Int = 0
@@ -335,7 +341,24 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         }
         return path.reversed()
     }
-
+    
+    func getExamTakingStatus() -> ExamStatus {
+        guard let parent = parent else {
+            return .notInExam
+        }
+        if parent.isExamTypeContentSection() {
+            if answer111 == nil {
+                return .inExam
+            }
+            else {
+                return .inExamReview
+            }
+        }
+        else {
+            return .notInExam
+        }
+    }
+    
     func getPathTitle() -> String {
         var title = ""
         var section = self
@@ -503,7 +526,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         }
         //fillBaseClefRests(score: score)
         if let score = score {
-            score.debugScore("ContentSection Parse", withBeam: false)
+            //score.debugScore("ContentSection Parse", withBeam: false)
             return score
         }
         else {

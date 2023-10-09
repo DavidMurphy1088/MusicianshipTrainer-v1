@@ -498,7 +498,6 @@ struct SectionsNavigationView:View {
 struct ExamView: View {
     @Environment(\.presentationMode) var presentationMode
     let contentSection:ContentSection
-    //let contentSections:[ContentSection]
     @State var sectionIndex = 0
     @State var examBeginning = true
     @State var answerState:AnswerState = .notEverAnswered
@@ -506,9 +505,8 @@ struct ExamView: View {
     @State private var showingConfirm = false
     @State private var examInstructionsStatus:String = "Waiting for exam aural instructions"
     
-    init(contentSection:ContentSection) {//}, contentSections:[ContentSection]) {
+    init(contentSection:ContentSection) {
         self.contentSection = contentSection
-        //self.contentSections = contentSections
     }
     
     func showAnswer() -> Int {

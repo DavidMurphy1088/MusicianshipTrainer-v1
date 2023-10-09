@@ -208,7 +208,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                             audioRecorder.stopPlaying()
                             self.contentSection.playExamInstructions(withDelay:false, onStarted: examInstructionsAreReading)
                         }) {
-                            Text("Hear The Instructions").defaultButtonStyle()
+                            Text("Repeat The Instructions").defaultButtonStyle()
                         }
                         Text(" ")
                     }
@@ -457,8 +457,8 @@ struct IntervalAnswerView: View {
                     }
                 }
                 
-                if true || answer.correct {
-                    Text("")
+                if contentSection.getExamTakingStatus() == .notInExam {
+                    Spacer()
                     nextButtons(answerWasCorrect: answer.correct)
                     Spacer()
                 }

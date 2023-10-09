@@ -65,11 +65,10 @@ struct StemView: View {
         return (stemDirection * -1.0 * getNoteWidth())
     }
 
-    func log(_ ctx:String) -> Bool {
-        print("=============StemView log", ctx)
-        return true
-    }
-    
+//    func log(_ ctx:String) -> Bool {
+//        return true
+//    }
+//
     func getStaffNotes(staff:Staff) -> [Note] {
         var notes:[Note] = []
         for n in self.notes {
@@ -113,29 +112,23 @@ struct StemView: View {
                         //let furthestFromMidline = self.getFurthestFromMidline(noteArray: staffNotes)
 
                         ZStack {
-                            //HStack {
-                                ForEach(staffNotes) { note in
-                                    let pp = note.getNoteDisplayCharacteristics(staff: staff)
+                            ForEach(staffNotes) { note in
+                                let pp = note.getNoteDisplayCharacteristics(staff: staff)
+                            
+                                let stemDirection = note.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: furthestFromMidline)
+                                let midX:Double = (geo.size.width + (midPointXOffset(notes: staffNotes, staff: staff, stemDirection: stemDirection))) / 2.0
+                                let midY = geo.size.height / 2.0
+                                let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
                                 
-                                    let stemDirection = note.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: furthestFromMidline)
-                                    let midX:Double = (geo.size.width + (midPointXOffset(notes: staffNotes, staff: staff, stemDirection: stemDirection))) / 2.0
-                                    let midY = geo.size.height / 2.0
-                                    let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
-                                    
-                                    if note.getValue() != Note.VALUE_WHOLE {
-                                        // LINE SPACING is ZERO for some unknown reason for chords in BASE CLEFF, no stem shows????
-                                        let offsetY = CGFloat(note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
-                                        if log(" \(note.sequence) \(note.midiNumber) \(note.stemLength) OFFSET \(pp.offsetFromStaffMidline) Y_OFFSET \(offsetY) \(note.id)") {
-                                            Path { path in
-                                                path.move(to: CGPoint(x: midX, y: midY - offsetY))
-                                                path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
-                                            }
-                                            .stroke(staffNotes[0].getColor(staff: staff), lineWidth: 1.5)
-                                            //.stroke(Color(.red), lineWidth: 1.5)
-                                        }
+                                if note.getValue() != Note.VALUE_WHOLE {
+                                    let offsetY = CGFloat(note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                                    Path { path in
+                                        path.move(to: CGPoint(x: midX, y: midY - offsetY))
+                                        path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
                                     }
+                                    .stroke(staffNotes[0].getColor(staff: staff), lineWidth: 1.5)
                                 }
-                            //}
+                            }
                         }
                     }
                 }
@@ -324,7 +317,7 @@ struct StaffNotesView: View {
             }
             .coordinateSpace(name: "HStack")
 
-            // ==================== Quaver beams =================
+            // ---------- Quaver beams ------------
             
             if staff.staffNum == 0 {
                 GeometryReader { geo in

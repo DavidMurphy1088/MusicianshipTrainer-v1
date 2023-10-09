@@ -263,7 +263,6 @@ class Metronome: AudioPlayerUser, ObservableObject  {
 
                             
                             //determine what time slice comes on the next tick. e.g. possibly for a long note the current time slice needs > 1 tick
-                            //print("============", nextScoreIndex, currentNoteTimeToLive, currentRestTimeToLive, "idx")
                             currentNoteTimeToLive -= self.shortestNoteValue
                             if currentNoteTimeToLive <= 0 {
                                 //look for the next note (or rest) to play

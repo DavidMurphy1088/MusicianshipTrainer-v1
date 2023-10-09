@@ -40,18 +40,19 @@ class Intervals {
     var intervalsPerColumn:Int
     
     init(grade:Int, questionType:QuestionType) {
+        let ageGroup = UIGlobals.getAgeGroup()
         self.intervalTypes = []
         if grade >= 1 {
-            intervalTypes.append(IntervalType(intervals:[1,2], name: "Second", explanation: ["",""]))
-            intervalTypes.append(IntervalType(intervals:[3,4], name: "Third", explanation: [""]))
+            intervalTypes.append(IntervalType(intervals:[1,2], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Second" : "2nd", explanation: ["",""]))
+            intervalTypes.append(IntervalType(intervals:[3,4], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Third" : "3rd", explanation: [""]))
         }
         if grade >= 2 {
-            intervalTypes.append(IntervalType(intervals:[5], name: "Fourth", explanation: ["",""]))
-            intervalTypes.append(IntervalType(intervals:[6,7], name: "Fifth", explanation: [""]))
+            intervalTypes.append(IntervalType(intervals:[5], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fourth" : "4th", explanation: ["",""]))
+            intervalTypes.append(IntervalType(intervals:[6,7], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fifth" : "5th", explanation: [""]))
         }
         if grade >= 3 && questionType == .intervalVisual {
-            intervalTypes.append(IntervalType(intervals:[8,9], name: "Sixth", explanation: ["",""]))
-            intervalTypes.append(IntervalType(intervals:[10,11], name: "Seventh", explanation: [""]))
+            intervalTypes.append(IntervalType(intervals:[8,9], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Sixth" : "6th", explanation: ["",""]))
+            intervalTypes.append(IntervalType(intervals:[10,11], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Seventh" : "7th", explanation: [""]))
             intervalTypes.append(IntervalType(intervals:[12], name: "Octave", explanation: [""]))
         }
         self.intervalsPerColumn = Int(Double((self.intervalTypes.count + 1)) / 2.0)
