@@ -157,7 +157,9 @@ class Score : ObservableObject {
                       "beamEnd", note?.beamEndNote ?? "__", "]")
             }
             else {
-                print("  Seq", t.sequence, "type:", type(of: t.entries[0]), "midi:", note?.midiNumber ?? "0", "Value:", t.getValue() ?? "")
+                print("  Seq", t.sequence, "type:", type(of: t.entries[0]), "midi:",
+                      note?.midiNumber ?? "0", "Value:", t.getValue() ?? "","status", t.statusTag
+                )
             }
         }
     }
@@ -346,7 +348,6 @@ class Score : ObservableObject {
     ///Determine whether quavers can be beamed within a bar's strong and weak beats
     func canBeBeamedTo(timeSignature:TimeSignature, startBeamTimeSlice:TimeSlice, lastBeat:Double) -> Bool {
         if timeSignature.top == 4 {
-
             let startBeatInt = Int(startBeamTimeSlice.beatNumber)
             if lastBeat > 2 {
                 return [2, 3].contains(startBeatInt)
@@ -357,6 +358,15 @@ class Score : ObservableObject {
         }
         if timeSignature.top == 3 {
             return Int(startBeamTimeSlice.beatNumber) == Int(lastBeat)
+        }
+        if timeSignature.top == 2 {
+            let startBeatInt = Int(startBeamTimeSlice.beatNumber)
+            if lastBeat > 1 {
+                return [1].contains(startBeatInt)
+            }
+            else {
+                return [0].contains(startBeatInt)
+            }
         }
         return false
     }
@@ -495,7 +505,6 @@ class Score : ObservableObject {
         
         ///Check no stranded beam starts. Every beam start must have a beam end so it is rendered correctly.
         ///Quavers under beams only have their stems rendered by the presence of an end note in their beam group
-
         func noteInTS(_ tsIndex:Int) -> Note? {
             if tsIndex < self.getAllTimeSlices().count {
                 let ts = getAllTimeSlices()[tsIndex]
@@ -567,64 +576,65 @@ class Score : ObservableObject {
     }
     
     ///Compare this score to an input tapped score.
-    ///Look for notes in the question score that did have a tap at their time offset and flag them.
+    ///Look for notes in the question score that did not have a tap at their time offset and flag them.
     ///Flag taps that are not associated with notes - extraneous taps
-    func flagNotesMissingRequiredTap(tappingScore:Score) {
-        let questionTimeSlices = self.getAllTimeSlices()
-        let tappedTimeSlices = tappingScore.getAllTimeSlices()
-        var runningQuestionTime = 0.0
-        
-        var questionScoreWasFlagged = false
-
-        for timeSlice in tappingScore.getAllTimeSlices() {
-            timeSlice.setStatusTag(.inError)
-        }
-        
-        ///Check every question entry note has a tap at the same time location
-        var noteCtr = 0
-        for questionSlice in questionTimeSlices {
-            var questionNote:TimeSliceEntry? = nil
-            if questionSlice.entries.count > 0 {
-                let questionEntry = questionSlice.entries[0]
-                questionNote = questionEntry as? Note
-                if questionNote == nil {
-                    ///Dont check that a rest has an associated tapped value
-                    runningQuestionTime += questionEntry.getValue()
-                    continue
-                }
-            }
-            else {
-                continue
-            }
-            noteCtr += 1
-            if noteCtr == 11 {
-                var t = 0.0
-                for tappedTimeSlice in tappedTimeSlices {
-                    t += tappedTimeSlice.entries[0].getValue()
-                }
-            }
-            ///Look for a tap at this question time
-            var tapLocation = 0.0
-            var tappedFound = false
-            for tappedTimeSlice in tappedTimeSlices {
-                if tapLocation == runningQuestionTime {
-                    tappedFound = true
-                    tappedTimeSlice.setStatusTag(.noTag)
-                    break
-                }
-                else {
-                    if tapLocation > runningQuestionTime {
-                        break
-                    }
-                }
-                if tappedTimeSlice.entries.count > 0 {
-                    tapLocation += tappedTimeSlice.entries[0].getValue()
-                }
-            }
-                        
-            runningQuestionTime += questionNote!.getValue()
-        }
-    }
+//    func flagNotesMissingRequiredTap(tappingScore:Score) {
+//        let questionTimeSlices = self.getAllTimeSlices()
+//        let tappedTimeSlices = tappingScore.getAllTimeSlices()
+//        var runningQuestionTime = 0.0
+//        
+//        var questionScoreWasFlagged = false
+//
+//        for timeSlice in tappingScore.getAllTimeSlices() {
+//            timeSlice.setStatusTag(.inError)
+//        }
+//        
+//        ///Check every question entry note has a tap at the same time location
+//        var noteCtr = 0
+//        for questionSlice in questionTimeSlices {
+//            var questionNote:TimeSliceEntry? = nil
+//            if questionSlice.entries.count > 0 {
+//                let questionEntry = questionSlice.entries[0]
+//                questionNote = questionEntry as? Note
+//                if questionNote == nil {
+//                    ///Dont check that a rest has an associated tapped value
+//                    runningQuestionTime += questionEntry.getValue()
+//                    continue
+//                }
+//            }
+//            else {
+//                continue
+//            }
+//            noteCtr += 1
+//            if noteCtr == 11 {
+//                var t = 0.0
+//                for tappedTimeSlice in tappedTimeSlices {
+//                    t += tappedTimeSlice.entries[0].getValue()
+//                }
+//            }
+//            ///Look for a tap at this question time
+//            var tapLocation = 0.0
+//            //var tappedFound1 = false
+//            for tappedTimeSlice in tappedTimeSlices {
+//                if tapLocation == runningQuestionTime {
+//                    //tappedFound1 = true
+//                    tappedTimeSlice.setStatusTag(.noTag)
+//                    break
+//                }
+//                else {
+//                    if tapLocation > runningQuestionTime {
+//                        break
+//                    }
+//                }
+//                if tappedTimeSlice.entries.count > 0 {
+//                    tapLocation += tappedTimeSlice.entries[0].getValue()
+//                }
+//            }
+//                        
+//            runningQuestionTime += questionNote!.getValue()
+//        }
+//        debugScore("=========", withBeam: false)
+//    }
     
     func isNextTimeSliceANote(fromScoreEntryIndex:Int) -> Bool {
         if fromScoreEntryIndex > self.scoreEntries.count - 1 {
@@ -844,7 +854,7 @@ class Score : ObservableObject {
             
         var errorsFlagged = false
 
-        self.debugScore("Question", withBeam: false)
+        //self.debugScore("Question", withBeam: false)
         let outputScoreTimeSliceValues = outputScore.scoreEntries
         var tapIndex = 0
         var explanation = ""

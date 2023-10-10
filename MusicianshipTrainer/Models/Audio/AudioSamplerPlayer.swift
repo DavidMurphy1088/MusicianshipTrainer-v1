@@ -43,8 +43,10 @@ class AudioSamplerPlayer {
     private func loadSoundFont() {
         //https://www.rockhoppertech.com/blog/the-great-avaudiounitsampler-workout/#soundfont
         //https://sites.google.com/site/soundfonts4u/
-        let soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
-        let samplerFileName = soundFontNames[0].1
+        //let soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
+        let soundFontNames = [("Piano", "VS_Upright_Piano_lite"), ("Guitar", "GuitarAcoustic"), ("Flute", "FLUTE2")]
+        
+        let samplerFileName = soundFontNames[2].1
         
         ///18May23 -For some unknown reason and after hours of investiagtion this loadSoundbank must oocur before every play, not just at init time
         
@@ -53,6 +55,7 @@ class AudioSamplerPlayer {
             for instrumentProgramNumber in ins..<256 {
                 do {
                     try sampler.loadSoundBankInstrument(at: url, program: UInt8(instrumentProgramNumber), bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB), bankLSB: UInt8(kAUSampler_DefaultBankLSB))
+                    //sampler.
                     break
                 }
                 catch {

@@ -131,7 +131,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         do {
             let jsonData = try encoder.encode(answer)
             let jsonString = String(data: jsonData, encoding: .utf8)
-            //let fileManager =
             let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
             if let documentsURL = documentsURL {
                 let fileName = self.getPath() + ".txt"

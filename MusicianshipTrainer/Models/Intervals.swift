@@ -47,8 +47,8 @@ class Intervals {
             intervalTypes.append(IntervalType(intervals:[3,4], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Third" : "3rd", explanation: [""]))
         }
         if grade >= 2 {
-            intervalTypes.append(IntervalType(intervals:[5], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fourth" : "4th", explanation: ["",""]))
-            intervalTypes.append(IntervalType(intervals:[6,7], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fifth" : "5th", explanation: [""]))
+            intervalTypes.append(IntervalType(intervals:[5,6], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fourth" : "4th", explanation: ["",""]))
+            intervalTypes.append(IntervalType(intervals:[7], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fifth" : "5th", explanation: [""]))
         }
         if grade >= 3 && questionType == .intervalVisual {
             intervalTypes.append(IntervalType(intervals:[8,9], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Sixth" : "6th", explanation: ["",""]))

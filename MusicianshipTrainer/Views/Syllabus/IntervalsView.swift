@@ -129,7 +129,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         let staff = score.getStaff()[0]
         let offset1 = intervalNotes[0].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
         let offset2 = intervalNotes[1].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
-        //var explanation = ""
         
         let explanation = intervals.getExplanation(grade: contentSection.getGrade(), offset1: offset1, offset2: offset2)
         answer.explanation = explanation
@@ -376,19 +375,30 @@ struct IntervalAnswerView: View {
                     Button(action: {
                         let parent = self.contentSection.parent
                         if let parent = parent {
-                            parent.setSelected((parent.selectedIndex ?? 0) + 1)
-                        }
-                    }) {
-                        Text("Next").defaultButtonStyle()
-                    }
-                    Spacer()
-                    Button(action: {
-                        let parent = self.contentSection.parent
-                        if let parent = parent {
                             parent.setSelected((parent.selectedIndex ?? 0) - 1)
                         }
                     }) {
-                        Text("Previous").defaultButtonStyle()
+                        HStack {
+                            Image(systemName: "arrow.left")
+                                .foregroundColor(.blue)
+                                .font(.largeTitle)
+                            Text("Previous").defaultButtonStyle()
+                        }
+                    }
+                    Spacer()
+
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected((parent.selectedIndex ?? 0) + 1)
+                        }
+                    }) {
+                        HStack {
+                            Text("Next").defaultButtonStyle()
+                            Image(systemName: "arrow.right")
+                                .foregroundColor(.blue)
+                                .font(.largeTitle)
+                        }
                     }
                     Spacer()
                     Button(action: {
@@ -398,7 +408,12 @@ struct IntervalAnswerView: View {
                             parent.setSelected(r)
                         }
                     }) {
-                        Text("Shuffle").defaultButtonStyle()
+                        HStack {
+                            Text("Shuffle").defaultButtonStyle()
+                            Image(systemName: "arrow.up")
+                                .foregroundColor(.blue)
+                                .font(.largeTitle)
+                        }
                     }
                     Spacer()
                 }

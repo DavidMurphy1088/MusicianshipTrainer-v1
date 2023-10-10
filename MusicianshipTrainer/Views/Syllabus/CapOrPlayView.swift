@@ -198,9 +198,12 @@ struct ClapOrPlayPresentView: View {
         guard let tapValues = answer.values else {
             return false
         }
-        let tappingScore = tapRecorder.getTappedAsAScore(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
-        score.flagNotesMissingRequiredTap(tappingScore: tappingScore)
-        return true
+        let tappedScore = tapRecorder.getTappedAsAScore(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
+        let fittedScore = score.fitScoreToQuestionScore(tappedScore:tappedScore).0
+        if fittedScore.errorCount() == 0 && fittedScore.getAllTimeSlices().count > 0 {
+            return true
+        }
+        return false
     }
          
 //    func replayRecordingAllowed() -> Bool {
@@ -544,7 +547,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         ///Otherwise, try to make the studnets tapped score look the same as the question score up until the point of error
         ///(e.g. a long tap might correctly represent either a long note or a short note followed by a rest. So mark the tapped score accordingingly
 
-        score.flagNotesMissingRequiredTap(tappingScore: tappedScore)
+        //score.flagNotesMissingRequiredTap(tappingScore: tappedScore)
         
         let fitted = score.fitScoreToQuestionScore(tappedScore:tappedScore)
         self.fittedScore = fitted.0
@@ -608,21 +611,31 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                     Button(action: {
                         let parent = self.contentSection.parent
                         if let parent = parent {
-                            parent.setSelected((parent.selectedIndex ?? 0) + 1)
-                        }
-                    }) {
-                        Text("Next").defaultButtonStyle()
-                    }
-                    Spacer()
-                    Button(action: {
-                        let parent = self.contentSection.parent
-                        if let parent = parent {
                             parent.setSelected((parent.selectedIndex ?? 0) - 1)
                         }
                     }) {
-                        Text("Previous").defaultButtonStyle()
+                        HStack {
+                            Image(systemName: "arrow.left")
+                                .foregroundColor(.blue)
+                                .font(.largeTitle)
+                            Text("Previous").defaultButtonStyle()
+                        }
                     }
-                    
+                    Spacer()
+
+                    Button(action: {
+                        let parent = self.contentSection.parent
+                        if let parent = parent {
+                            parent.setSelected((parent.selectedIndex ?? 0) + 1)
+                        }
+                    }) {
+                        HStack {
+                            Text("Next").defaultButtonStyle()
+                            Image(systemName: "arrow.right")
+                                .foregroundColor(.blue)
+                                .font(.largeTitle)
+                        }
+                    }
                     Spacer()
                     Button(action: {
                         if let parent = self.contentSection.parent {
@@ -631,7 +644,12 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                             parent.setSelected(r)
                         }
                     }) {
-                        Text("Shuffle").defaultButtonStyle()
+                        HStack {
+                            Text("Shuffle").defaultButtonStyle()
+                            Image(systemName: "arrow.up")
+                                .foregroundColor(.blue)
+                                .font(.largeTitle)
+                        }
                     }
                     Spacer()
                 }
