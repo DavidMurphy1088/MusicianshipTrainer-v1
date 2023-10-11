@@ -34,20 +34,12 @@ class Metronome: AudioPlayerUser, ObservableObject  {
     static func getMetronomeWithSettings(initialTempo:Int, allowChangeTempo:Bool, ctx:String) -> Metronome {
         shared.setTempo(tempo: initialTempo, context: "getMetronomeWithSettings - \(ctx)")
         shared.allowChangeTempo = allowChangeTempo
-        //print("** Get Metronome, WithSettings (Specific), ID:", "tempo:", Metronome.shared.tempo, ctx)
         return Metronome.shared
     }
 
     static func getMetronomeWithCurrentSettings(ctx:String) -> Metronome {
-        //print("** Get Metronome, Current Settings, ID:", "tempo:", Metronome.shared.tempo, ctx)
         return Metronome.shared
     }
-//
-//    static func getMetronomeWithStandardSettings(ctx:String) -> Metronome {
-//        let met = Metronome.getMetronomeWithSettings(initialTempo: 60, allowChangeTempo: false, ctx: "getMetronomeWithStandardSettings - \(ctx)")
-//        print("** Get Metronome, Standard Settings, ID:", "tempo:", met.tempo)
-//        return met
-//    }
 
     private init() {
         super.init(parent: "Metronome")
@@ -81,7 +73,6 @@ class Metronome: AudioPlayerUser, ObservableObject  {
 
     func setTempo(tempo: Int, context:String, allowBeyondLimits:Bool = false) {
         //https://theonlinemetronome.com/blogs/12/tempo-markings-defined
-        //print("------> SET Metronome START, SET TEMPO ctr:", self.setCtr, "ctx:[\(context)]",  "\tcurrent:", self.tempo, "\trequested:", tempo)
 
         var tempoToSet:Int
         var maxTempo = self.tempoMaximumSetting
@@ -145,8 +136,6 @@ class Metronome: AudioPlayerUser, ObservableObject  {
         DispatchQueue.main.async {
             self.tempo = tempoToSet
             self.tempoName = name
-            //print("------> SET Metronome END  , SET TEMPO ctr:", self.setCtr, "ctx:[\(context)]",  "\tcurrent:", self.tempo, "\trequested:", tempo)
-
         }
     }
     
@@ -209,7 +198,6 @@ class Metronome: AudioPlayerUser, ObservableObject  {
             
             while keepRunning {
                 noteValueSpeechWord = nil
-                //print("\nthread loop", loopCtr, "score:", score, "next ts:", nextScoreTimeSlice, "firstNote", firstNote)
 
                 // sound the metronome tick. %2 because its counting at quaver intervals
                 // Make sure score playing is synched to the metronome tick
@@ -241,7 +229,6 @@ class Metronome: AudioPlayerUser, ObservableObject  {
                                                 audioClapper.soundTick(noteValue: note.getValue(), silent: false)
                                             }
                                             else {
-                                                //print(" --- Score play note", loopCtr, "next score time slice", nextScoreTimeSlice)
                                                 //if let audioPlayer = midiSampler {
                                                 midiSampler.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
                                                 //}

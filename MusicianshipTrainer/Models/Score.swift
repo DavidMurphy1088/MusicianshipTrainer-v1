@@ -687,10 +687,9 @@ class Score : ObservableObject {
             elapsedTime += t.entries[0].getValue()
         }
 
-        for d in tappedDurations {
-            print ("=== TAP Elapsed", d.elapsed, "type", d.type, "value", d.value)
-
-        }
+//        for d in tappedDurations {
+//            print ("=== TAP Elapsed", d.elapsed, "type", d.type, "value", d.value)
+//        }
         if tappedDurations.count == 0 {
             let feedback = StudentFeedback()
             feedback.feedbackExplanation = "There were no taps"
@@ -725,11 +724,11 @@ class Score : ObservableObject {
             }
         }
         
-        print("\nQuestion")
-        for d in questionTimeSliceValues {
-            print ("--- QUE Elapsed", d.elapsed, "type", d.type, "value", d.value)
-        }
-        
+//        print("\nQuestion")
+//        for d in questionTimeSliceValues {
+//            print ("--- QUE Elapsed", d.elapsed, "type", d.type, "value", d.value)
+//        }
+//
         var errorsFlagged = false
         var tapIndex = 0
         var explanation:String? = nil
@@ -742,15 +741,7 @@ class Score : ObservableObject {
                 outputScore.addBarLine()
                 continue
             }
-            
-//            let q = questionTimeSliceValues[questionIndex]
-//            print("==question", "elap", q.elapsed, q.type, "val", q.value)
-//            if tapIndex < tappedDurations.count {
-//                let t = tappedDurations[tapIndex]
-//                print("    ===Tap", "elap", t.elapsed, t.type, "val", t.value )
-//            }
-//            print("         Qi", questionIndex, "Ti", tapIndex)
-            
+
             let outTimeSlice = outputScore.createTimeSlice()
             if questionTimeSliceValues[questionIndex].type == .note {
                 noteCount += 1

@@ -17,7 +17,7 @@ class Answer : Codable,Identifiable {
     var explanation = ""
 
     ///Intervals
-    //var correctInterval = 0
+    var correctIntervalHalfSteps = 0
     var correctIntervalName = ""
     var selectedIntervalName = ""
     
@@ -39,6 +39,7 @@ class Answer : Codable,Identifiable {
         //a.selectedInterval = self.selectedInterval
         //a.correctInterval = self.correctInterval
         a.correctIntervalName = self.correctIntervalName
+        a.correctIntervalHalfSteps = self.correctIntervalHalfSteps
         a.selectedIntervalName = self.selectedIntervalName
         a.explanation = self.explanation
         a.values = self.values

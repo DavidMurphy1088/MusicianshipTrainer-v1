@@ -408,12 +408,12 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         var score:Score?
         let defaultScore = Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1, noteSize: .small)
         
-        guard data != nil else {
-            if warnNotFound {
-                Logger.logger.reportError(self, "No data for content section:[\(self.getPath())]")
-            }
-            return defaultScore
-        }
+//        guard data != nil else {
+//            if warnNotFound {
+//                Logger.logger.reportError(self, "No data for content section:[\(self.getPath())]")
+//            }
+//            return defaultScore
+//        }
 
         let tuples:[String] = data
         
@@ -424,7 +424,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             let parts = tuple.components(separatedBy: ",")
 
             if i == 0 {
-                var keySigCount = 0
                 let keySignature = KeySignature(type: .sharp, keyName: parts[0])
                 key = Key(type: .major, keySig: keySignature)
                 continue

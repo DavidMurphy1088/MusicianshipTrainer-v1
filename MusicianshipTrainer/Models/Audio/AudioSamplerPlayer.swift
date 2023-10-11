@@ -32,10 +32,6 @@ class AudioSamplerPlayer {
         AudioSamplerPlayer.shared = AudioSamplerPlayer()
     }
     
-    public func stopPlaying() {
-        stopPlayingNotes = true
-    }
-    
     public func getSampler() -> AVAudioUnitSampler {
         return sampler
     }
@@ -46,7 +42,7 @@ class AudioSamplerPlayer {
         //let soundFontNames = [("Piano", "Nice-Steinway-v3.8"), ("Guitar", "GuitarAcoustic")]
         let soundFontNames = [("Piano", "VS_Upright_Piano_lite"), ("Guitar", "GuitarAcoustic"), ("Flute", "FLUTE2")]
         
-        let samplerFileName = soundFontNames[2].1
+        let samplerFileName = soundFontNames[0].1
         
         ///18May23 -For some unknown reason and after hours of investiagtion this loadSoundbank must oocur before every play, not just at init time
         
@@ -73,7 +69,12 @@ class AudioSamplerPlayer {
 //            Logger.logger.reportError(self, "Cant create MIDI sampler \(error.localizedDescription)")
 //        }
     }
-
+    
+    public func stopPlaying()  {
+        AudioSamplerPlayer.reset()
+        stopPlayingNotes = true
+    }
+    
     func play(note: UInt8) {
         sampler.startNote(note, withVelocity: 127, onChannel: 0)
     }

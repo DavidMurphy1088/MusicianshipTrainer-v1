@@ -49,7 +49,6 @@ struct StemView: View {
     }
     
     func getNoteWidth() -> Double {
-        //print("      StemView:: spacing", lineSpacing.value)
         return lineSpacing.lineSpacing * 1.2
     }
 
@@ -196,7 +195,6 @@ struct StaffNotesView: View {
                 let yStartNoteStemTip = yStartNoteMiddle + stemLength * stemDirection
                 let p1 = CGPoint(x:xEndMid, y: yEndNoteStemTip)
                 let p2 = CGPoint(x:xStartMid, y:yStartNoteStemTip)
-                //print("  endNote:", String(format: "%.3f", endNotePos.minX), " startNote", String(format: "%.3f", startNotePos.minX))
                 return (p1, p2)
             }
         }
@@ -348,7 +346,6 @@ struct StaffNotesView: View {
         }
         .coordinateSpace(name: "ZStack0")
         .onAppear() {
-            //print("StaffNotesView .onAppear: num:", viewNum, "\tlineSpacing:", staffLayoutSize.lineSpacing)
         }
         .onDisappear() {
            // NoteLayoutPositions.reset()

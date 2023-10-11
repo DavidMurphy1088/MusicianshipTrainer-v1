@@ -114,8 +114,7 @@ class Intervals {
                 explanation = "A line to a line is an odd interval"
             }
             else {
-//                let x = offset2 % 2
-//                print(x)
+
                 if abs(offset1 % 2) == 1 && abs(offset2 % 2) == 1 {
                     explanation = "A space to a space is an odd interval"
                 }

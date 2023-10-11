@@ -21,7 +21,6 @@ class Key : Equatable, Hashable {
         var result:Bool = false
         for n in keySig.sharps {
             let octaves = Note.getAllOctaves(note: n)
-            //print("  ", n, octaves)
             if octaves.contains(note) {
                 result = true
                 break

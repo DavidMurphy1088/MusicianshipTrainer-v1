@@ -103,6 +103,7 @@ class ExampleData : ObservableObject {
                 }
                 melody.notes.append(Note(timeSlice: nil, num:pitch, value:Double(value), staffNum: 0))
             }
+            melody.data = Array(rowCells.dropFirst(3))
             Melodies.shared.addMelody(melody: melody)
         }
     }
@@ -185,7 +186,6 @@ class ExampleData : ObservableObject {
                                 contentSection.loadAnswer()
                             }
                         }
-                        //print("\nRow:", rowNum, "Index:", cellIndex, rowCells)
                         //MusicianshipTrainerApp.root.debug()
                     }
                 }

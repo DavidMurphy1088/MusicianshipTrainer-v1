@@ -390,8 +390,6 @@ class Note : TimeSliceEntry, Comparable {
                 let targetNoteStaffPlacement = staff.noteStaffPlacement[targetOffsetIndex]
                 let adjustOffset = defaultNoteStaffPlacement.offsetFromStaffMidline - targetNoteStaffPlacement.offsetFromStaffMidline
                 offsetFromMiddle -= adjustOffset
-//                print("===>Adjust note:", note.midiNumber, "adjOffset:", adjustOffset,
-//                      "defaultOffset:", defaultNoteData.offsetFromStaffMidline, "newOffset:", offsetFromMiddle)
             }
         }
         else {
