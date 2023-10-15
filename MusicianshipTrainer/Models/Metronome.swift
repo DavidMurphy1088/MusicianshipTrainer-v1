@@ -27,7 +27,7 @@ class Metronome: AudioPlayerUser, ObservableObject  {
     private var currentNoteTimeToLive = 0.0
 
     //the shortest note value which is used to set the metronome's thread firing frequency
-    private let shortestNoteValue = Note.VALUE_QUAVER
+    private let shortestNoteValue = Note.VALUE_SEMIQUAVER
     private let speech = SpeechSynthesizer.shared
     private var onDoneFunction:(()->Void)? = nil
     
@@ -175,149 +175,6 @@ class Metronome: AudioPlayerUser, ObservableObject  {
         }
     }
 
-    private func startPlayThreadRunning(timeSignature:TimeSignature) {
-        self.isThreadRunning = true
-        AudioManager.shared.setSession(.playback)
-        ///This is required but dont know why. Without it the audio sampler does not sound notes after the app records an audio.
-        ///
-        AudioSamplerPlayer.reset()
-        let midiSampler = AudioSamplerPlayer.getShared().getSampler()
-        
-        //AudioSamplerPlayer.getShared().startSampler()
-
-        let audioTickerMetronomeTick:MetronomeTickerPlayer = MetronomeTickerPlayer(timeSignature: timeSignature, tickStyle: true)
-        let audioClapper:MetronomeTickerPlayer = MetronomeTickerPlayer(timeSignature: timeSignature, tickStyle: false)
-
-        DispatchQueue.global(qos: .userInitiated).async { [self] in
-            var loopCtr = 0
-            var keepRunning = true
-            var currentTimeValue = 0.0
-            var noteValueSpeechWord:String? = nil
-            var ticksPlayed = 0
-            var firstNote = true
-            
-            while keepRunning {
-                noteValueSpeechWord = nil
-
-                // sound the metronome tick. %2 because its counting at quaver intervals
-                // Make sure score playing is synched to the metronome tick
-
-                if loopCtr % 2 == 0 {
-                    if self.tickingIsActive {
-                        audioTickerMetronomeTick.soundTick(silent: false)
-                        ticksPlayed += 1
-                    }
-                }
-                
-                //sound the next note
-
-                if (firstNote && loopCtr % 2 == 0) || (!firstNote) {
-                    if let score = score {
-                        firstNote = false
-                        if let timeSlice = nextScoreTimeSlice {
-                            var noteInChordNum = 0
-                            //let entry = timeSlice.entries[0]
-                            if timeSlice.entries.count > 0 {
-                                let entry = timeSlice.entries[0]
-                                if currentNoteTimeToLive >= entry.getValue() {
-                                    if entry is Rest {
-                                        audioClapper.soundTick(noteValue: entry.getValue(), silent: true)
-                                    }
-                                    else {
-                                        for note in timeSlice.getTimeSliceNotes() {
-                                            if note.isOnlyRhythmNote  {
-                                                audioClapper.soundTick(noteValue: note.getValue(), silent: false)
-                                            }
-                                            else {
-                                                //if let audioPlayer = midiSampler {
-                                                midiSampler.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
-                                                //}
-                                            }
-                                            if noteInChordNum == 0 && note.getValue() < 1.0 {
-                                                noteValueSpeechWord = "and"
-                                            }
-                                            noteInChordNum += 1
-                                        }
-                                    }
-                                    
-                                    entry.setHilite(hilite: true)
-                                    DispatchQueue.global(qos: .background).async {
-                                        Thread.sleep(forTimeInterval: 0.5)
-                                        entry.setHilite(hilite: false)
-                                    }
-                                }
-                            }
-
-                            
-                            //determine what time slice comes on the next tick. e.g. possibly for a long note the current time slice needs > 1 tick
-                            currentNoteTimeToLive -= self.shortestNoteValue
-                            if currentNoteTimeToLive <= 0 {
-                                //look for the next note (or rest) to play
-                                nextScoreTimeSlice = nil
-                                while nextScoreIndex < score.scoreEntries.count {
-                                    let entry = score.scoreEntries[nextScoreIndex]
-                                    if entry is TimeSlice {
-                                        nextScoreTimeSlice = entry as! TimeSlice
-                                        if nextScoreTimeSlice!.entries.count > 0 {
-                                            nextScoreIndex += 1
-                                            //currentNoteTimeToLive = nextScoreTimeSlice!.getNotes()[0].getValue()
-                                            currentNoteTimeToLive = nextScoreTimeSlice!.entries[0].getValue()
-                                            break
-                                        }
-                                    }
-                                    if let barLine = entry as? BarLine {
-                                        currentTimeValue = 0
-                                    }
-                                    nextScoreIndex += 1
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if speechEnabled {
-                    if loopCtr % 2 == 0 {
-                        let word = noteCountSpeechWord(currentTimeValue: currentTimeValue)
-                        speech.speakWord(word)
-                    }
-                    else {
-                        //quavers say 'and'
-                        if noteValueSpeechWord != nil {
-                            speech.speakWord(noteValueSpeechWord!)
-                        }
-                    }
-                }
-                currentTimeValue += shortestNoteValue
-                
-                if score == nil {
-                    firstNote = true
-                }
-                else {
-                    if nextScoreTimeSlice == nil {
-                        if self.onDoneFunction != nil {
-                            self.onDoneFunction!()
-                        }
-                        self.onDoneFunction = nil
-                        score = nil
-                        firstNote = true
-                    }
-                }
-
-                if !tickingIsActive {
-                    keepRunning = score != nil
-                }
-
-                if keepRunning {
-                    let sleepTime = (60.0 / Double(self.tempo)) * shortestNoteValue
-                    Thread.sleep(forTimeInterval: sleepTime)
-                    loopCtr += 1
-                }
-            }
-            self.isThreadRunning = false
-            //print("====>Thread ENDED")
-        }
-    }
-
     func noteCountSpeechWord(currentTimeValue:Double) -> String {
         var word = ""
         if currentTimeValue.truncatingRemainder(dividingBy: 1) == 0 {
@@ -344,5 +201,143 @@ class Metronome: AudioPlayerUser, ObservableObject  {
         return word
     }
     
+    private func startPlayThreadRunning(timeSignature:TimeSignature) {
+        self.isThreadRunning = true
+        AudioManager.shared.setSession(.playback)
+        ///This is required but dont know why. Without it the audio sampler does not sound notes after the app records an audio.
+        AudioSamplerPlayer.reset()
+        let midiSampler = AudioSamplerPlayer.getShared().getSampler()
+        let audioTickerMetronomeTick:MetronomeTickerPlayer = MetronomeTickerPlayer(timeSignature: timeSignature, tickStyle: true)
+        let audioClapper:MetronomeTickerPlayer = MetronomeTickerPlayer(timeSignature: timeSignature, tickStyle: false)
+
+        DispatchQueue.global(qos: .userInitiated).async { [self] in
+            var loopCtr = 0
+            var keepRunning = true
+            var currentTimeValue = 0.0
+            //var noteValueSpeechWord:String? = nil
+            var ticksPlayed = 0
+            var firstNote = true
+            var tieWasFound = false
+            let sleepTime = (60.0 / Double(self.tempo)) * shortestNoteValue
+//            guard let score = score else {
+//                return
+//            }
+            while keepRunning {
+                //noteValueSpeechWord = nil
+                ///Sound the metronome tick. %2 because its counting at quaver intervals
+                ///Make sure score playing is synched to the metronome tick
+                if loopCtr % 2 == 0 {
+                    if self.tickingIsActive {
+                        audioTickerMetronomeTick.soundTick(silent: false)
+                        ticksPlayed += 1
+                    }
+                }
+                
+                ///Sound the next note
+                if (firstNote && loopCtr % 2 == 0) || (!firstNote) {
+                    if let score = score {
+                        firstNote = false
+                        if let timeSlice = nextScoreTimeSlice {
+                            if timeSlice.entries.count > 0 {
+                                let entry = timeSlice.entries[0]
+                                if currentNoteTimeToLive >= entry.getValue() {
+                                    if entry is Rest {
+                                        audioClapper.soundTick(noteValue: entry.getValue(), silent: true)
+                                    }
+                                    else {
+                                        for note in timeSlice.getTimeSliceNotes() {
+                                            if tieWasFound {
+                                                tieWasFound = false
+                                            }
+                                            else {
+                                                if note.isOnlyRhythmNote  {
+                                                    audioClapper.soundTick(noteValue: note.getValue(), silent: false)
+                                                }
+                                                else {
+                                                    midiSampler.startNote(UInt8(note.midiNumber), withVelocity:64, onChannel:UInt8(0))
+                                                }
+                                                note.setHilite(hilite: true)
+                                                DispatchQueue.global(qos: .background).async {
+                                                    Thread.sleep(forTimeInterval: 0.5)
+                                                    note.setHilite(hilite: false)
+                                                }
+                                            }
+//                                            if noteInChordNum == 0 && note.getValue() < 1.0 {
+//                                                noteValueSpeechWord = "and"
+//                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            //determine what time slice comes on the next tick. e.g. possibly for a long note the current time slice needs > 1 tick
+                            currentNoteTimeToLive -= self.shortestNoteValue
+                            if currentNoteTimeToLive <= 0 {
+                                //look for the next note (or rest) to play
+                                nextScoreTimeSlice = nil
+                                while nextScoreIndex < score.scoreEntries.count {
+                                    let entry = score.scoreEntries[nextScoreIndex]
+                                    if entry is TimeSlice {
+                                        nextScoreTimeSlice = entry as! TimeSlice
+                                        if nextScoreTimeSlice!.entries.count > 0 {
+                                            nextScoreIndex += 1
+                                            //currentNoteTimeToLive = nextScoreTimeSlice!.getNotes()[0].getValue()
+                                            currentNoteTimeToLive = nextScoreTimeSlice!.entries[0].getValue()
+                                            break
+                                        }
+                                    }
+                                    if entry is BarLine {
+                                        currentTimeValue = 0
+                                    }
+                                    if entry is Tie {
+                                        tieWasFound = true
+                                    }
+                                    nextScoreIndex += 1
+                                }
+                            }
+                        }
+                    }
+                }
+
+//                if speechEnabled {
+//                    if loopCtr % 2 == 0 {
+//                        let word = noteCountSpeechWord(currentTimeValue: currentTimeValue)
+//                        speech.speakWord(word)
+//                    }
+//                    else {
+//                        //quavers say 'and'
+//                        if noteValueSpeechWord != nil {
+//                            speech.speakWord(noteValueSpeechWord!)
+//                        }
+//                    }
+//                }
+                currentTimeValue += shortestNoteValue
+                if score == nil {
+                    firstNote = true
+                }
+                else {
+                    if nextScoreTimeSlice == nil {
+                        if self.onDoneFunction != nil {
+                            self.onDoneFunction!()
+                        }
+                        self.onDoneFunction = nil
+                        score = nil
+                        firstNote = true
+                    }
+                }
+
+                if !tickingIsActive {
+                    keepRunning = score != nil
+                }
+
+                if keepRunning {
+                    let sleepTime = (60.0 / Double(self.tempo)) * shortestNoteValue
+                    Thread.sleep(forTimeInterval: sleepTime)
+                    loopCtr += 1
+                }
+            }
+            self.isThreadRunning = false
+        }
+    }
 }
 

@@ -72,7 +72,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     
     func setSelected(_ i:Int) {
         DispatchQueue.main.async {
-            if self.selectedIndex != nil {
+            //if self.selectedIndex != nil {
                 if true || i == self.selectedIndex {
                     self.selectedIndex = nil
                     DispatchQueue.global(qos: .background).async {
@@ -92,7 +92,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                     self.selectedIndex = i
                 }
             }
-        }
+        //}
     }
     
     func getGrade() -> Int {
@@ -416,6 +416,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
 //        }
 
         let tuples:[String] = data
+        var tieWasFound = false
         
         for i in 0..<tuples.count {
             let trimmedTuple = tuples[i].trimmingCharacters(in: .whitespacesAndNewlines)
@@ -464,9 +465,14 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                         score.addBarLine()
                     }
                 }
+                if parts[0] == "T" {
+                    if let score = score {
+                        score.addTie()
+                    }
+                }
                 continue
             }
-            
+
             if parts.count == 2  {
                 if parts[0] == "R" {
                     if let score = score {

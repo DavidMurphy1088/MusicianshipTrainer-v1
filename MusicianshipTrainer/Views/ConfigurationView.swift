@@ -25,10 +25,13 @@ struct ConfigurationView: View {
     @Binding var isPresented: Bool
     @State var colorScore:Color
     @State var colorBackground:Color
-    @State var colorInstructions:Color// = Color.white
+    @State var colorInstructions:Color
+    @State var showReloadHTMLButton: Bool
+
     @State private var selectedOption: Int? = nil
     @State var ageGroup:AgeGroup
     @State var selectedAge:Int = 0
+        
     let ages = ["5-10", "11Plus"]
     let colorCircleSize = 60.0
     
@@ -104,6 +107,15 @@ struct ConfigurationView: View {
                     .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
                 }
                 
+                Button(action: {
+                    showReloadHTMLButton.toggle()
+                }) {
+                    HStack {
+                        Image(systemName: showReloadHTMLButton ? "checkmark.square" : "square")
+                        Text("Show Reload HTML Button?")
+                    }
+                }
+                
                 //LogView().border(.black).padding()
                 
                 HStack {
@@ -113,6 +125,7 @@ struct ConfigurationView: View {
                         UIGlobals.colorBackground = colorBackground
                         
                         UIGlobals.ageGroup = selectedAge == 0 ? .Group_5To10 : .Group_11Plus
+                        UIGlobals.showReloadHTMLButton = showReloadHTMLButton
                         Settings.shared.saveConfig()
                         isPresented = false
                     }

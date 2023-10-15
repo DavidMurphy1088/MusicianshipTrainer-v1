@@ -97,7 +97,7 @@ struct ClapOrPlayPresentView: View {
     @State private var helpPopup = false
     @State var isTapping = false
     @State var rhythmHeard:Bool = false
-    @State private var examInstructionsStartedStatus = "Waiting for instructions"
+    @State private var examInstructionsStartedStatus = "Waiting for Instructions..."
 
     var questionType:QuestionType
     let questionTempo = 90
@@ -414,7 +414,7 @@ struct ClapOrPlayPresentView: View {
                 VStack {
                     if answerState != .recording {
                         if contentSection.getExamTakingStatus() == .inExam {
-                            Text(examInstructionsStartedStatus).defaultTextStyle().padding()
+                            Text(examInstructionsStartedStatus).font(.title).padding()
                         }
                         else {
                             if UIDevice.current.userInterfaceIdiom == .pad {

@@ -115,13 +115,13 @@ class Score : ObservableObject {
         self.key = key //Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.sharp, keyName: keyName))
     }
     
-    init(score:Score) {
-        self.id = UUID()
-        self.timeSignature = score.timeSignature
-        self.noteSize = score.noteSize
-        totalStaffLineCount = score.totalStaffLineCount
-        self.key = score.key
-    }
+//    init(score:Score) {
+//        self.id = UUID()
+//        self.timeSignature = score.timeSignature
+//        self.noteSize = score.noteSize
+//        totalStaffLineCount = score.totalStaffLineCount
+//        self.key = score.key
+//    }
 
     func getTotalStaffLineCount() -> Int {
         return self.totalStaffLineCount
@@ -144,7 +144,7 @@ class Score : ObservableObject {
         return result
     }
     
-    func debugScore(_ ctx:String, withBeam:Bool) {
+    func debugScore1(_ ctx:String, withBeam:Bool) {
         print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
             if t.entries.count == 0 {
@@ -157,8 +157,13 @@ class Score : ObservableObject {
                       "beamEnd", note?.beamEndNote ?? "__", "]")
             }
             else {
-                print("  Seq", t.sequence, "type:", type(of: t.entries[0]), "midi:",
-                      note?.midiNumber ?? "0", "Value:", t.getValue() ?? "","status", t.statusTag
+                print("  Seq", t.sequence,
+                      "[type:", type(of: t.entries[0]), "]",
+                      "[midi:",note?.midiNumber ?? "0", "]",
+                      "[Value:",note?.getValue(),"]",
+                      "[stem:",note?.stemDirection ?? "none", note?.stemLength ?? "none", "]",
+                      t.getValue() ?? "","status",
+                      t.statusTag
                 )
             }
         }
@@ -288,6 +293,12 @@ class Score : ObservableObject {
         self.scoreEntries.append(barLine)
     }
     
+    func addTie() {
+        let tie = Tie()
+        tie.sequence = self.scoreEntries.count
+        self.scoreEntries.append(tie)
+    }
+
     func clear() {
         self.scoreEntries = []
         for staff in staffs  {
@@ -399,6 +410,10 @@ class Score : ObservableObject {
             for note in notes {
                 note.stemDirection = stemDirection
                 note.stemLength = stemLengthLines
+                ///Dont try yet to beam semiquavers
+                if lastNote.getValue() == Note.VALUE_SEMIQUAVER {
+                    note.beamType = .end
+                }
             }
             return
         }
@@ -529,7 +544,6 @@ class Score : ObservableObject {
                 }
             }
         }
-
         //debugScore("end of beaming", withBeam: true)
     }
     
@@ -574,67 +588,6 @@ class Score : ObservableObject {
         }
         return cnt
     }
-    
-    ///Compare this score to an input tapped score.
-    ///Look for notes in the question score that did not have a tap at their time offset and flag them.
-    ///Flag taps that are not associated with notes - extraneous taps
-//    func flagNotesMissingRequiredTap(tappingScore:Score) {
-//        let questionTimeSlices = self.getAllTimeSlices()
-//        let tappedTimeSlices = tappingScore.getAllTimeSlices()
-//        var runningQuestionTime = 0.0
-//        
-//        var questionScoreWasFlagged = false
-//
-//        for timeSlice in tappingScore.getAllTimeSlices() {
-//            timeSlice.setStatusTag(.inError)
-//        }
-//        
-//        ///Check every question entry note has a tap at the same time location
-//        var noteCtr = 0
-//        for questionSlice in questionTimeSlices {
-//            var questionNote:TimeSliceEntry? = nil
-//            if questionSlice.entries.count > 0 {
-//                let questionEntry = questionSlice.entries[0]
-//                questionNote = questionEntry as? Note
-//                if questionNote == nil {
-//                    ///Dont check that a rest has an associated tapped value
-//                    runningQuestionTime += questionEntry.getValue()
-//                    continue
-//                }
-//            }
-//            else {
-//                continue
-//            }
-//            noteCtr += 1
-//            if noteCtr == 11 {
-//                var t = 0.0
-//                for tappedTimeSlice in tappedTimeSlices {
-//                    t += tappedTimeSlice.entries[0].getValue()
-//                }
-//            }
-//            ///Look for a tap at this question time
-//            var tapLocation = 0.0
-//            //var tappedFound1 = false
-//            for tappedTimeSlice in tappedTimeSlices {
-//                if tapLocation == runningQuestionTime {
-//                    //tappedFound1 = true
-//                    tappedTimeSlice.setStatusTag(.noTag)
-//                    break
-//                }
-//                else {
-//                    if tapLocation > runningQuestionTime {
-//                        break
-//                    }
-//                }
-//                if tappedTimeSlice.entries.count > 0 {
-//                    tapLocation += tappedTimeSlice.entries[0].getValue()
-//                }
-//            }
-//                        
-//            runningQuestionTime += questionNote!.getValue()
-//        }
-//        debugScore("=========", withBeam: false)
-//    }
     
     func isNextTimeSliceANote(fromScoreEntryIndex:Int) -> Bool {
         if fromScoreEntryIndex > self.scoreEntries.count - 1 {

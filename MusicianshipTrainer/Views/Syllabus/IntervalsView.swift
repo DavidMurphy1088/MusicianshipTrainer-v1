@@ -10,61 +10,6 @@ struct ScoreSpacerView: View {
     }
 }
 
-//struct PlayExampleMelody1 : View {
-//    let score:Score
-//    @State private var showExamplePopover = false
-//    @State var melodyName: String = ""
-//    let player = AudioSamplerPlayer.getShared()
-//
-//    var body : some View {
-//        Button(action: {
-//            showExamplePopover = true
-//            var secondNote:Note?
-//            var firstNote:Note?
-//            for timeSlice in score.getAllTimeSlices() {
-//                let notes = timeSlice.getTimeSliceNotes()
-//                if notes.count > 0 {
-//                    let note = notes[0]
-//                    if firstNote == nil {
-//                        firstNote = note
-//                    }
-//                    else {
-//                        if secondNote == nil {
-//                            secondNote = note
-//                        }
-//                    }
-//                }
-//            }
-//            if let firstNote = firstNote {
-//                if let secondNote = secondNote {
-//                    let melodies = Melodies.shared
-//                    //let base = firstNote
-//                    let halfSteps = secondNote.midiNumber - firstNote.midiNumber
-//                    //let timeSlice = TimeSlice(score: score)
-//                    let melody = melodies.getMelodies(halfSteps: halfSteps)
-//                    self.melodyName = melodyName
-//                    player.playNotes(notes: melody[0].notes)
-//                }
-//            }
-//        }) {
-//            Text("Hear Melody").defaultButtonStyle()
-//        }
-//        .alert(isPresented: $showExamplePopover) {
-//            Alert(title: Text("Example"),
-//                  //message: Text(songName).font(.title),
-//                  message: Text(self.melodyName).font(.title),
-//                  dismissButton: .default(Text("OK")))
-//        }
-//        .onAppear() {
-//            //AudioSamplerPlayer.shared.startSampler()
-//        }
-//        .onDisappear() {
-//            //AudioSamplerPlayer.shared.stopSampler()
-//        }
-//    }
-//    
-//}
-
 struct IntervalPresentView: View { //}, QuestionPartProtocol {
     let contentSection:ContentSection
     var grade:Int
@@ -133,10 +78,10 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         let explanation = intervals.getExplanation(grade: contentSection.getGrade(), offset1: offset1, offset2: offset2)
         answer.explanation = explanation
         
-        let interval = abs((intervalNotes[1].midiNumber - intervalNotes[0].midiNumber))
+        let interval = intervalNotes[1].midiNumber - intervalNotes[0].midiNumber
         answer.correct = false
         for intervalType in intervals.intervalTypes {
-            if intervalType.intervals.contains(interval) {
+            if intervalType.intervals.contains(abs(interval)) {
                 answer.correctIntervalName = intervalType.name
                 answer.correctIntervalHalfSteps = interval
                 if answer.correctIntervalName == answer.selectedIntervalName {
@@ -188,7 +133,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         AnyView(
             VStack {
                 VStack {
-                    
                     ScoreSpacerView() //keep for top ledger line notes
                     if UIDevice.current.userInterfaceIdiom == .pad {
                         ScoreSpacerView()
@@ -204,6 +148,12 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                     }
                     
                     if isTakingExam() {
+                        if let status = examInstructionsStartedStatus {
+                            Text(status).font(.title)
+                        }
+                        else {
+                            Text("Waiting for Instructions...").font(.title)
+                        }
                         Button(action: {
                             audioRecorder.stopPlaying()
                             self.contentSection.playExamInstructions(withDelay:false, onStarted: examInstructionsAreReading)
@@ -236,15 +186,8 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                 }
                                 
                  VStack {
-                    if isTakingExam() {
-                        if let status = examInstructionsStartedStatus {
-                            Text(status)
-                        }
-                        else {
-                            Text("Waiting for Instructions..")
-                        }
-                    }
-                    else {
+
+                    if !isTakingExam() {
                         if scoreWasPlayed {
                             if UIDevice.current.userInterfaceIdiom == .pad {
                                 Text("Please select the correct interval").defaultTextStyle().padding()
@@ -293,161 +236,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     }
 }
 
-struct MelodyScoreView: View {
-    let basePitch:Int
-    let interval:Int
-    let melody:Melody
-    @State var score:Score?
-    let metronome = Metronome.getMetronomeWithSettings(initialTempo: 60, allowChangeTempo: false, ctx:"Melody example")
-    
-    init(basePitch:Int, interval:Int, melody:Melody) {
-        self.basePitch = basePitch
-        self.interval = interval
-        self.melody = melody
-    }
-    
-    var body: some View {
-        VStack {
-            if let score = score {
-                ScoreView(score: score)
-                Text("")
-                Text("")
-                Text("")
-                Text("")
-                Text("")
-                Text("")
-                Text("")
-                Button(action: {
-                    metronome.playScore(score: score)
-                }) {
-                    HStack {
-                        Image(systemName: "play")
-                            .foregroundColor(.blue)
-                            .font(.largeTitle)
-                    }
-                }
-            }
-        }
-        .onAppear {
-            let contentData = ContentSectionData(row:0, type: "", data: melody.data)
-            let contentSection = ContentSection(parent: nil, name: "", type: "", data:contentData, isActive:true)
-            score = contentSection.parseData(staffCount: 1, onlyRhythm: false)
-            
-            func getNote(_ ts:TimeSlice) -> Note? {
-                if ts.entries.count > 0 {
-                    if let note = ts.entries[0] as? Note {
-                        return note
-                    }
-                }
-                return nil
-            }
-            
-            if let score = score {
-                ///Mark the notes that demonstrate the interval
-                ///Calculate the requied pitch adjust
-                var previousNote:Note?
-                var firstIntervalNoteFound = false
-                var pitchAdjust:Int = 0
-                
-                for ts in score.getAllTimeSlices() {
-                    if let note = getNote(ts) {
-                        if let previousNote = previousNote {
-                            if note.midiNumber - previousNote.midiNumber == interval {
-                                ts.statusTag = .hilightAsCorrect
-                                previousNote.timeSlice?.statusTag = .hilightAsCorrect
-                                if !firstIntervalNoteFound {
-                                    firstIntervalNoteFound = true
-                                    pitchAdjust = basePitch - previousNote.midiNumber
-                                }
-                                //score.debugScore("melody ex1", withBeam: false)
-                            }
-                        }
-                        previousNote = note
-                    }
-                }
-                
-                ///Transpose the melody to demonstrate the chosen interval at the same pitch as the question
-                for ts in score.getAllTimeSlices() {
-                    if let note = getNote(ts) {
-                        note.midiNumber += pitchAdjust
-                    }
-                }
-
-                var ts = score.getAllTimeSlices()[1]
-                metronome.playScore(score: score, onDone: {
-                    //self.scoreWasPlayed = true
-                })
-            }
-        }
-        .onDisappear() {
-            metronome.stopPlayingScore()
-        }
-    }
-}
-
-struct ShowMelodiesView: View {
-    let firstNote:Note
-    let intervalName:String
-    let interval:Int
-    let melodies:[Melody]
-    @State var selectedMelodyId:UUID?
-    @State var showingMelodies = false
-    @State var playing = false
-    //@State var transposed:[Note] = []
-    @State var selectedMelody:Melody?
-    
-    var body: some View {
-        VStack {
-            Button(action: {
-                showingMelodies = true
-            }) {
-                Text("Hear Melody").defaultButtonStyle()
-            }
-            .padding()
-            .popover(isPresented: $showingMelodies, arrowEdge: .trailing) {
-                VStack {
-                    VStack {
-                        ForEach(melodies) { melody in
-                            Button(action: {
-                                selectedMelodyId = melody.id
-                                selectedMelody = melody
-                                if playing {
-                                    DispatchQueue.main.async {
-                                        playing = false
-//                                        sleep(2)
-//                                        DispatchQueue.main.async {
-//                                            playing = true
-//                                        }
-                                    }
-                                }
-                                else {
-                                    playing = true
-                                }
-                            }) {
-                                Text(melody.name)
-                                    .padding()
-                                    .foregroundColor(selectedMelodyId == melody.id ? .white : .primary)
-                                    .background(selectedMelodyId == melody.id ? Color.blue : Color.clear)
-                                    .cornerRadius(8)
-                            }
-                        }
-                    }
-                }
-                .padding()
-                .popover(isPresented: $playing, arrowEdge: .trailing) {
-                    VStack {
-                        if let selectedMelody = selectedMelody {
-                            MelodyScoreView(basePitch: firstNote.midiNumber, interval:interval, melody: selectedMelody)
-                                .padding()
-                        }
-                    }
-                    .frame(width: UIScreen.main.bounds.width/1.5, height: UIScreen.main.bounds.height/3.0)
-                }
-            }
-        }
-    }
-}
-
 struct IntervalAnswerView: View {
     let contentSection:ContentSection
     private var questionType:QuestionType
@@ -472,7 +260,7 @@ struct IntervalAnswerView: View {
     }
     
     func getMelodies() -> [Melody] {
-        var result:[Melody] = []
+        let result:[Melody] = []
         let timeSlices = score.getAllTimeSlices()
         if timeSlices.count < 2 {
             return result

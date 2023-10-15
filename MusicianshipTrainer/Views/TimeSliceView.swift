@@ -189,24 +189,6 @@ struct TimeSliceView: View {
     }
     
 
-//    func xx(red:[Int], green:[Int], blue:[Int]) -> Color  {
-//        var rd = Int.random(in: 0...20)
-//        //rd = 0.0
-//        let r = Double(red[0]) / 256.0 //+ rd
-//        let g = Double(green[0] - rd) / 256.0
-//        let b = Double(blue[0]  - rd) / 256.0
-//        return Color(red:r, green:g, blue:b)
-//    }
-//
-//    func colorx() -> Color {
-//        //let m = Double.random(in: 1...1.4)
-//        let n = 240
-//        let redRange = [n,n]
-//        let greenRange = [n,n]
-//        let blueRange = [n,n]
-//        return xx(red: redRange, green: greenRange, blue: blueRange)
-//    }
-//
     func NoteView(note:Note, noteFrameWidth:Double, geometry: GeometryProxy) -> some View {
         ZStack {
             let placement = note.getNoteDisplayCharacteristics(staff: staff)
@@ -237,7 +219,7 @@ struct TimeSliceView: View {
                     .foregroundColor(note.getColor(staff: staff))
 
             }
-            if [Note.VALUE_QUARTER, Note.VALUE_QUAVER].contains(noteValueUnDotted )  {
+            if [Note.VALUE_QUARTER, Note.VALUE_QUAVER, Note.VALUE_SEMIQUAVER].contains(noteValueUnDotted )  {
                 Ellipse()
                 //Closed ellipse
                     .foregroundColor(note.getColor(staff: staff))

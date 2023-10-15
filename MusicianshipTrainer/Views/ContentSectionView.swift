@@ -289,24 +289,27 @@ struct ContentSectionHeaderView: View {
                     }
                 }
                 
-//                if contentSection.getPathAsArray().count > 1 {
-//                    Spacer()
-//                    Button(action: {
-//                        DispatchQueue.main.async {
-//                            contentSectionView.randomPick()
-//                        }
-//                    }) {
-//                        VStack {
-//                            VStack {
-//                                Text("Random Pick")
-//                                    .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
-//                                Image(systemName: "tornado")
-//                                    .foregroundColor(.blue)
-//                                    .font(.title)
-//                            }
-//                        }
-//                    }
-//                }
+                if contentSection.getPathAsArray().count > 2 {
+                    Spacer()
+                    Button(action: {
+                        DispatchQueue.main.async {
+                            //contentSectionView.randomPick()
+                            let c = contentSection.subSections.count
+                            let r = Int.random(in: 0...c)
+                            contentSection.setSelected(r)
+                        }
+                    }) {
+                        VStack {
+                            VStack {
+                                Text("Random Pick")
+                                    .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
+                                Image(systemName: "tornado")
+                                    .foregroundColor(.blue)
+                                    .font(.title)
+                            }
+                        }
+                    }
+                }
                 
                 if parentsExists {
                     Spacer()
@@ -322,20 +325,22 @@ struct ContentSectionHeaderView: View {
                 }
                 Spacer()
             }
-            
-            Button(action: {
-                DispatchQueue.main.async {
-                    self.getInstructions(bypassCache: true)
-                    self.getTipsTricksData(bypassCache: true)
-                    self.getParentsData(bypassCache: true)
-                }
-            }) {
-                VStack {
+            if UIGlobals.showReloadHTMLButton {
+                Button(action: {
+                    DispatchQueue.main.async {
+                        self.getInstructions(bypassCache: true)
+                        self.getTipsTricksData(bypassCache: true)
+                        self.getParentsData(bypassCache: true)
+                    }
+                }) {
+                    VStack {
+                        Text("")
                         Text("ReloadHTML")
                             .font(.title3)
                             .padding(0)
+                    }
+                    .padding(0)
                 }
-                .padding(0)
             }
             
         }
@@ -503,7 +508,7 @@ struct ExamView: View {
     @State var answerState:AnswerState = .notEverAnswered
     @State var answer = Answer(ctx: "ExamView")//, questionMode: .examTake)
     @State private var showingConfirm = false
-    @State private var examInstructionsStatus:String = "Waiting for exam aural instructions"
+    @State private var examInstructionsStatus:String = "Waiting for Exam Instructions..."
     
     init(contentSection:ContentSection) {
         self.contentSection = contentSection
@@ -535,7 +540,7 @@ struct ExamView: View {
                     AudioRecorder.shared.stopPlaying()
                 }) {
                     VStack {
-                        Text(examInstructionsStatus).padding()
+                        Text(examInstructionsStatus).padding().font(.title)
                         //Text("The exam has \(contentSections.count) questions").defaultTextStyle().padding()
                         Text("Start the Exam").defaultButtonStyle()
                     }
@@ -723,6 +728,7 @@ struct ContentSectionView: View {
                               colorScore: UIGlobals.colorScore,
                               colorBackground: UIGlobals.colorBackground,
                               colorInstructions: UIGlobals.colorInstructions,
+                              showReloadHTMLButton: UIGlobals.showReloadHTMLButton,
                               ageGroup: UIGlobals.ageGroup)
         }
     }

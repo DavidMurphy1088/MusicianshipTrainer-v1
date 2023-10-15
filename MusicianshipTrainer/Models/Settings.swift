@@ -6,6 +6,7 @@ enum UserDefaultKeys {
     static let selectedColorInstructions = "SelectedColorInstructions"
     static let selectedColorBackground = "SelectedColorBackground"
     static let selectedAgeGroup = "SelectedAgeGroup"
+    static let showReloadHTMLButton = "showReloadHTMLButton"
 }
 
 extension UserDefaults {
@@ -36,7 +37,29 @@ extension UserDefaults {
         let age  = data.withUnsafeBytes { $0.load(as: Int.self) }
         return age == 0 ? .Group_5To10 : .Group_11Plus
     }
+    
+    func setShowReloadHTMLButton(key:String, _ way: Bool) {
+        set(way, forKey: key)
+        log()
+    }
+    
+    func getShowReloadHTMLButton(key:String) -> Bool {
+        log()
+        guard let data = data(forKey: key) else {
+            return false
+        }
+        let on  = data.withUnsafeBytes { $0.load(as: Bool.self) }
+        return on
+    }
+    
+    func log() {
+        let userDefaults = UserDefaults.standard
+        let allValues = userDefaults.dictionaryRepresentation()
 
+        for (key, value) in allValues {
+            print("Key: \(key), Value: \(value)")
+        }
+    }
 }
 
 extension Color {
@@ -71,6 +94,8 @@ class Settings {
         if let retrievedAgeGroup = UserDefaults.standard.getSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup) {
             UIGlobals.ageGroup = retrievedAgeGroup
         }
+        UIGlobals.showReloadHTMLButton = UserDefaults.standard.getShowReloadHTMLButton(key: UserDefaultKeys.showReloadHTMLButton)
+
     }
     
     func saveConfig() {
@@ -78,6 +103,7 @@ class Settings {
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorInstructions, UIGlobals.colorInstructions)
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorBackground, UIGlobals.colorBackground)
         UserDefaults.standard.setSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup, UIGlobals.ageGroup)
+        UserDefaults.standard.setShowReloadHTMLButton(key: UserDefaultKeys.showReloadHTMLButton, UIGlobals.showReloadHTMLButton)
     }
     
 }

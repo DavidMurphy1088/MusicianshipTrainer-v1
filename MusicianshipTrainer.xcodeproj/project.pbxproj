@@ -78,10 +78,10 @@
 		7B4F646C2A54DC6200727710 /* MusicianshipTrainerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */; };
 		7B4F646E2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */; };
 		7B55FD192A9F0B3D00F069F4 /* Courgette-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7B55FD182A9F0B3D00F069F4 /* Courgette-Regular.ttf */; };
-		7B73B7BC2A6FB7030097BAA8 /* ExamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73B7BB2A6FB7030097BAA8 /* ExamView.swift */; };
 		7B73B7BE2A7112E80097BAA8 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73B7BD2A7112E80097BAA8 /* Answer.swift */; };
 		7B8426162AD5584E00A74C9A /* 4U-Upright Piano-v1.0.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7B8426152AD5584E00A74C9A /* 4U-Upright Piano-v1.0.sf2 */; };
 		7B84261C2AD55C0700A74C9A /* VS_Upright_Piano_lite.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7B84261B2AD55C0700A74C9A /* VS_Upright_Piano_lite.sf2 */; };
+		7B8426222AD7CE2900A74C9A /* MelodyScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8426212AD7CE2900A74C9A /* MelodyScoreView.swift */; };
 		7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F52A68F63B00EA088E /* Cache.swift */; };
 		7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */; };
 		7BA8B70B2AB3D8D900AE7692 /* TTS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA8B70A2AB3D8D900AE7692 /* TTS.swift */; };
@@ -197,10 +197,10 @@
 		7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITests.swift; sourceTree = "<group>"; };
 		7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		7B55FD182A9F0B3D00F069F4 /* Courgette-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Courgette-Regular.ttf"; sourceTree = "<group>"; };
-		7B73B7BB2A6FB7030097BAA8 /* ExamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExamView.swift; sourceTree = "<group>"; };
 		7B73B7BD2A7112E80097BAA8 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
 		7B8426152AD5584E00A74C9A /* 4U-Upright Piano-v1.0.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "4U-Upright Piano-v1.0.sf2"; sourceTree = "<group>"; };
 		7B84261B2AD55C0700A74C9A /* VS_Upright_Piano_lite.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = VS_Upright_Piano_lite.sf2; sourceTree = "<group>"; };
+		7B8426212AD7CE2900A74C9A /* MelodyScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MelodyScoreView.swift; sourceTree = "<group>"; };
 		7B8EF2F52A68F63B00EA088E /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
 		7BA8B70A2AB3D8D900AE7692 /* TTS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTS.swift; sourceTree = "<group>"; };
@@ -384,8 +384,8 @@
 				7B40B8232A54E52A00CA7FC4 /* ViewProtocol.swift */,
 				7B40B8242A54E52A00CA7FC4 /* CapOrPlayView.swift */,
 				7B40B8252A54E52A00CA7FC4 /* HelpView.swift */,
-				7B73B7BB2A6FB7030097BAA8 /* ExamView.swift */,
 				7B40B8262A54E52A00CA7FC4 /* IntervalsView.swift */,
+				7B8426212AD7CE2900A74C9A /* MelodyScoreView.swift */,
 			);
 			path = Syllabus;
 			sourceTree = "<group>";
@@ -775,7 +775,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B73B7BC2A6FB7030097BAA8 /* ExamView.swift in Sources */,
 				7B40B83E2A54E52A00CA7FC4 /* LaunchScreen.swift in Sources */,
 				7B40B8362A54E52A00CA7FC4 /* ToolsView.swift in Sources */,
 				7B40B8002A54DF9000CA7FC4 /* ClapRecorder.swift in Sources */,
@@ -818,6 +817,7 @@
 				7B40B7FC2A54DF9000CA7FC4 /* MetronomeTickerPlayer.swift in Sources */,
 				7B40B82E2A54E52A00CA7FC4 /* TimeSliceView.swift in Sources */,
 				7B40B8352A54E52A00CA7FC4 /* TestView.swift in Sources */,
+				7B8426222AD7CE2900A74C9A /* MelodyScoreView.swift in Sources */,
 				7B40B7F32A54DF9000CA7FC4 /* Logger.swift in Sources */,
 				7B40B7FF2A54DF9000CA7FC4 /* AudioRecorder.swift in Sources */,
 				7B40B8312A54E52A00CA7FC4 /* PianoView.swift in Sources */,
@@ -986,7 +986,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 24;
+				CURRENT_PROJECT_VERSION = 27;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;
@@ -1020,7 +1020,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 24;
+				CURRENT_PROJECT_VERSION = 27;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;

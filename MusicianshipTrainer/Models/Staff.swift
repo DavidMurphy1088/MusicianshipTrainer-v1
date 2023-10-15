@@ -109,7 +109,7 @@ class NoteOffsetsInStaffByKey {
 class Staff : ObservableObject, Identifiable {
     let id = UUID()
     @Published var publishUpdate = 0
-    @Published var noteLayoutPositions:NoteLayoutPositions //.getShared()
+    @Published var noteLayoutPositions:NoteLayoutPositions 
     @Published var isHidden:Bool = false
 
     let score:Score

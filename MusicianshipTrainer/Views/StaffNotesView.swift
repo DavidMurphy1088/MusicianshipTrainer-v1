@@ -246,6 +246,16 @@ struct StaffNotesView: View {
                     .scaledToFit()
                     .frame(height: height)
                     .position(x: line.0.x + width / 3.0 , y: line.1.y + height / 3.5 - flippedHeightOffset)
+                
+                if endNote.getValue() == Note.VALUE_SEMIQUAVER {
+                    getQuaverImage(note:startNote)
+                        .resizable()
+                        .renderingMode(.template)
+                        .foregroundColor(startNote.getColor(staff: staff))
+                        .scaledToFit()
+                        .frame(height: height)
+                        .position(x: line.0.x + width / 3.0 , y: line.1.y + height / 3.5 - flippedHeightOffset + lineSpacing)
+                }
             }
             else {
                 //A paired quaver
@@ -321,7 +331,7 @@ struct StaffNotesView: View {
                 GeometryReader { geo in
                     ZStack {
                         ZStack {
-                            //let log = log(notes: noteLayoutPositions.positions)
+                            //let log = log(noteLayoutPositions: noteLayoutPositions)
                             ForEach(noteLayoutPositions.positions.sorted(by: { $0.key.sequence < $1.key.sequence }), id: \.key.id) {
                                 endNote, endNotePos in
                                 if endNote.beamType == .end {
@@ -352,5 +362,12 @@ struct StaffNotesView: View {
         }
     }
     
+//    func log(noteLayoutPositions:NoteLayoutPositions) -> Bool {
+//        print("StaffNotesView ========")
+//        for n in noteLayoutPositions.positions.keys {
+//            print("  StaffNotesView ========", n.sequence, n.midiNumber, "BeamType", n.beamType, "BeamEnd", n.beamEndNote)
+//        }
+//        return true
+//    }
 }
 

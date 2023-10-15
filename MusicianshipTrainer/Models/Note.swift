@@ -74,11 +74,11 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
         hasher.combine(id)
     }
     
-    func setHilite(hilite: Bool) {
-        DispatchQueue.main.async {
-            self.hilite = hilite
-        }
-    }
+//    func setHilite(hilite: Bool) {
+//        DispatchQueue.main.async {
+//            self.hilite = hilite
+//        }
+//    }
     
     func getNoteValueName() -> String {
         var name = self.isDotted ? "dotted " : ""
@@ -126,6 +126,9 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
 }
 
 class BarLine : ScoreEntry {
+}
+
+class Tie : ScoreEntry {
 }
 
 class Rest : TimeSliceEntry {    
@@ -186,6 +189,7 @@ class Note : TimeSliceEntry, Comparable {
     static let MIDDLE_C = 60 //Midi pitch for C4
     static let OCTAVE = 12
     
+    static let VALUE_SEMIQUAVER = 0.25
     static let VALUE_QUAVER = 0.5
     static let VALUE_QUARTER = 1.0
     static let VALUE_HALF = 2.0
@@ -231,7 +235,13 @@ class Note : TimeSliceEntry, Comparable {
         self.accidental = note.accidental
         self.isOnlyRhythmNote = note.isOnlyRhythmNote
     }
-
+    
+    func setHilite(hilite: Bool) {
+        DispatchQueue.main.async {
+            self.hilite = hilite
+        }
+    }
+        
     func setIsOnlyRhythm(way: Bool) {
         self.isOnlyRhythmNote = way
         if self.isOnlyRhythmNote {

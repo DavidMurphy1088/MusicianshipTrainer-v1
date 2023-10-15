@@ -69,6 +69,7 @@ struct ContentNavigationView: View {
                                               colorScore: UIGlobals.colorScore,
                                               colorBackground: UIGlobals.colorBackground,
                                               colorInstructions: UIGlobals.colorInstructions,
+                                              showReloadHTMLButton: UIGlobals.showReloadHTMLButton,
                                               ageGroup: UIGlobals.ageGroup)
                         }
                     }
@@ -117,6 +118,7 @@ struct ContentNavigationView: View {
                                           colorScore: UIGlobals.colorScore,
                                           colorBackground: UIGlobals.colorBackground,
                                           colorInstructions: UIGlobals.colorInstructions,
+                                          showReloadHTMLButton: UIGlobals.showReloadHTMLButton,
                                           ageGroup: UIGlobals.ageGroup
                         )
                     }

@@ -49,6 +49,7 @@ class UIGlobals {
     static func getAgeGroup() -> String {
         return UIGlobals.ageGroup == .Group_11Plus ? AgeGroup11Plus : "5-10"
     }
+    static var showReloadHTMLButton = false
     
     static func showDeviceOrientation() {
         let orientation = UIDevice.current.orientation
