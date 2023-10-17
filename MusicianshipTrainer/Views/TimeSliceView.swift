@@ -205,7 +205,7 @@ struct TimeSliceView: View {
 //                    Spacer()
 //                }
 //            }
-            if staff.staffNum == 0 {
+            if note.staffNum == staff.staffNum  {
                 NoteHiliteView(entry: note, x: noteFrameWidth/2, y: noteEllipseMidpoint, width: noteWidth * 1.5)
             }
 

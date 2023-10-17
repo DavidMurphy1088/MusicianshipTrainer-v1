@@ -520,6 +520,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                             //timeSlice.addNote(n: note1)
                             if let triad = triad {
                                 addTriad(score: score, timeSlice: timeSlice, note: note, triad: triad, value: note.getValue())
+                                score.debugScore("=============", withBeam: false)
                             }
                         }
                     }
@@ -539,50 +540,50 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     }
     
     ///Sight Reading adds 1 or 2 chords to the base clef so we need to show it. But that base clef needs rests where th chords arent
-    func fillBaseClefRests(score:Score) {
-        var hasChords = false
-        for slice in score.getAllTimeSlices() {
-            if slice.entries.count > 1 {
-                hasChords = true
-                break
-            }
-        }
-        if !hasChords {
-            return
-        }
-        var newBar = true
-        var seenFirstChord = false
-        for entry in score.scoreEntries {
-            if entry is BarLine {
-                newBar = true
-                continue
-            }
-            if let slice = entry as? TimeSlice {
-                if slice.entries.count > 1 {
-                    seenFirstChord = true
-                }
-
-                if slice.entries.count == 1 {
-                    var rest:Rest?
-                    if seenFirstChord {
-                        let tsEntry = slice.entries[0]
-                        rest = Rest(timeSlice: slice, value: tsEntry.getValue(), staffNum: 1)
-                    }
-                    else {
-                        if newBar {
-                            rest = Rest(timeSlice: slice, value: 4.0, staffNum: 1)
-                        }
-                    }
-                    if let rest = rest {
-                        rest.staffNum = 1
-                        slice.addRest(rest: rest)
-                    }
-
-                }
-                newBar = false
-            }
-        }
-    }
+//    func fillBaseClefRests(score:Score) {
+//        var hasChords = false
+//        for slice in score.getAllTimeSlices() {
+//            if slice.entries.count > 1 {
+//                hasChords = true
+//                break
+//            }
+//        }
+//        if !hasChords {
+//            return
+//        }
+//        var newBar = true
+//        var seenFirstChord = false
+//        for entry in score.scoreEntries {
+//            if entry is BarLine {
+//                newBar = true
+//                continue
+//            }
+//            if let slice = entry as? TimeSlice {
+//                if slice.entries.count > 1 {
+//                    seenFirstChord = true
+//                }
+//
+//                if slice.entries.count == 1 {
+//                    var rest:Rest?
+//                    if seenFirstChord {
+//                        let tsEntry = slice.entries[0]
+//                        rest = Rest(timeSlice: slice, value: tsEntry.getValue(), staffNum: 1)
+//                    }
+//                    else {
+//                        if newBar {
+//                            rest = Rest(timeSlice: slice, value: 4.0, staffNum: 1)
+//                        }
+//                    }
+//                    if let rest = rest {
+//                        rest.staffNum = 1
+//                        slice.addRest(rest: rest)
+//                    }
+//
+//                }
+//                newBar = false
+//            }
+//        }
+//    }
     
     func addTriad(score:Score, timeSlice:TimeSlice, note:Note, triad:String, value:Double) {
         let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: 5)

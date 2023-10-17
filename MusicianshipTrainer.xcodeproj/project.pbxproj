@@ -11,7 +11,6 @@
 		7B0659C82A6C96B4007A71CA /* Google_OAuth2_Keys_OLD.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B0659C72A6C96B4007A71CA /* Google_OAuth2_Keys_OLD.json */; };
 		7B0659CC2A6C9967007A71CA /* Google_OAuth2_Keys.json in Resources */ = {isa = PBXBuildFile; fileRef = 7B0659CB2A6C9967007A71CA /* Google_OAuth2_Keys.json */; };
 		7B0A64CF2A61562B0091A24A /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0A64CE2A61562B0091A24A /* Settings.swift */; };
-		7B0A64DC2A62B50C0091A24A /* marcato strings.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7B0A64DB2A62B50C0091A24A /* marcato strings.sf2 */; };
 		7B12C3832A7B2B3800B4D430 /* Melodies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B12C3822A7B2B3800B4D430 /* Melodies.swift */; };
 		7B12C3852A7B2F6B00B4D430 /* AudioSamplerPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B12C3842A7B2F6B00B4D430 /* AudioSamplerPlayer.swift */; };
 		7B2807992A5508D300C70EF4 /* Mechanical metronome - High.aif in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */; };
@@ -22,7 +21,6 @@
 		7B28079E2A5508D300C70EF4 /* Playing.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807912A5508D200C70EF4 /* Playing.html */; };
 		7B28079F2A5508D300C70EF4 /* clap-single-inspectorj.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807922A5508D200C70EF4 /* clap-single-inspectorj.wav */; };
 		7B2807A12A5508D300C70EF4 /* Mechanical metronome - Low.aif in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807942A5508D200C70EF4 /* Mechanical metronome - Low.aif */; };
-		7B2807A22A5508D300C70EF4 /* simplemelodypiano.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807952A5508D200C70EF4 /* simplemelodypiano.wav */; };
 		7B2807A32A5508D300C70EF4 /* Intervals Aural.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807962A5508D200C70EF4 /* Intervals Aural.html */; };
 		7B2807A42A5508D300C70EF4 /* Echo Clap.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807972A5508D200C70EF4 /* Echo Clap.html */; };
 		7B2807A72A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807A62A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 */; };
@@ -79,7 +77,6 @@
 		7B4F646E2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */; };
 		7B55FD192A9F0B3D00F069F4 /* Courgette-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7B55FD182A9F0B3D00F069F4 /* Courgette-Regular.ttf */; };
 		7B73B7BE2A7112E80097BAA8 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B73B7BD2A7112E80097BAA8 /* Answer.swift */; };
-		7B8426162AD5584E00A74C9A /* 4U-Upright Piano-v1.0.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7B8426152AD5584E00A74C9A /* 4U-Upright Piano-v1.0.sf2 */; };
 		7B84261C2AD55C0700A74C9A /* VS_Upright_Piano_lite.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 7B84261B2AD55C0700A74C9A /* VS_Upright_Piano_lite.sf2 */; };
 		7B8426222AD7CE2900A74C9A /* MelodyScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8426212AD7CE2900A74C9A /* MelodyScoreView.swift */; };
 		7B8EF2F62A68F63B00EA088E /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F52A68F63B00EA088E /* Cache.swift */; };
@@ -129,7 +126,6 @@
 		7B0659C72A6C96B4007A71CA /* Google_OAuth2_Keys_OLD.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Google_OAuth2_Keys_OLD.json; sourceTree = "<group>"; };
 		7B0659CB2A6C9967007A71CA /* Google_OAuth2_Keys.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Google_OAuth2_Keys.json; sourceTree = "<group>"; };
 		7B0A64CE2A61562B0091A24A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
-		7B0A64DB2A62B50C0091A24A /* marcato strings.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "marcato strings.sf2"; sourceTree = "<group>"; };
 		7B12C3822A7B2B3800B4D430 /* Melodies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Melodies.swift; sourceTree = "<group>"; };
 		7B12C3842A7B2F6B00B4D430 /* AudioSamplerPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSamplerPlayer.swift; sourceTree = "<group>"; };
 		7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mechanical metronome - High.aif"; sourceTree = "<group>"; };
@@ -140,7 +136,6 @@
 		7B2807912A5508D200C70EF4 /* Playing.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Playing.html; sourceTree = "<group>"; };
 		7B2807922A5508D200C70EF4 /* clap-single-inspectorj.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "clap-single-inspectorj.wav"; sourceTree = "<group>"; };
 		7B2807942A5508D200C70EF4 /* Mechanical metronome - Low.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mechanical metronome - Low.aif"; sourceTree = "<group>"; };
-		7B2807952A5508D200C70EF4 /* simplemelodypiano.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = simplemelodypiano.wav; sourceTree = "<group>"; };
 		7B2807962A5508D200C70EF4 /* Intervals Aural.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "Intervals Aural.html"; sourceTree = "<group>"; };
 		7B2807972A5508D200C70EF4 /* Echo Clap.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "Echo Clap.html"; sourceTree = "<group>"; };
 		7B2807A62A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Nice-Steinway-v3.8.sf2"; sourceTree = "<group>"; };
@@ -198,7 +193,6 @@
 		7B4F646D2A54DC6200727710 /* MusicianshipTrainerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		7B55FD182A9F0B3D00F069F4 /* Courgette-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Courgette-Regular.ttf"; sourceTree = "<group>"; };
 		7B73B7BD2A7112E80097BAA8 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
-		7B8426152AD5584E00A74C9A /* 4U-Upright Piano-v1.0.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "4U-Upright Piano-v1.0.sf2"; sourceTree = "<group>"; };
 		7B84261B2AD55C0700A74C9A /* VS_Upright_Piano_lite.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = VS_Upright_Piano_lite.sf2; sourceTree = "<group>"; };
 		7B8426212AD7CE2900A74C9A /* MelodyScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MelodyScoreView.swift; sourceTree = "<group>"; };
 		7B8EF2F52A68F63B00EA088E /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
@@ -273,15 +267,12 @@
 		7B28078A2A5508D200C70EF4 /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
-				7B8426152AD5584E00A74C9A /* 4U-Upright Piano-v1.0.sf2 */,
 				7B2807922A5508D200C70EF4 /* clap-single-inspectorj.wav */,
 				7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */,
-				7B0A64DB2A62B50C0091A24A /* marcato strings.sf2 */,
 				7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */,
 				7B2807942A5508D200C70EF4 /* Mechanical metronome - Low.aif */,
 				7B2807A62A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 */,
 				7B2807902A5508D200C70EF4 /* open-clap_F_minor.wav */,
-				7B2807952A5508D200C70EF4 /* simplemelodypiano.wav */,
 				7B84261B2AD55C0700A74C9A /* VS_Upright_Piano_lite.sf2 */,
 			);
 			path = Sounds;
@@ -630,8 +621,6 @@
 				7B28079D2A5508D300C70EF4 /* open-clap_F_minor.wav in Resources */,
 				7BFD93B02A5FA9E3002878D3 /* NameToTitleMap.plist in Resources */,
 				7B2807992A5508D300C70EF4 /* Mechanical metronome - High.aif in Resources */,
-				7B2807A22A5508D300C70EF4 /* simplemelodypiano.wav in Resources */,
-				7B0A64DC2A62B50C0091A24A /* marcato strings.sf2 in Resources */,
 				7B28079E2A5508D300C70EF4 /* Playing.html in Resources */,
 				7B0659C82A6C96B4007A71CA /* Google_OAuth2_Keys_OLD.json in Resources */,
 				7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */,
@@ -639,7 +628,6 @@
 				7B0659CC2A6C9967007A71CA /* Google_OAuth2_Keys.json in Resources */,
 				7B4F64522A54DC6100727710 /* Preview Assets.xcassets in Resources */,
 				7B55FD192A9F0B3D00F069F4 /* Courgette-Regular.ttf in Resources */,
-				7B8426162AD5584E00A74C9A /* 4U-Upright Piano-v1.0.sf2 in Resources */,
 				7BC42EB22A550F39004FE117 /* AudioNotes in Resources */,
 				7B4F644F2A54DC6100727710 /* Assets.xcassets in Resources */,
 				7B28079A2A5508D300C70EF4 /* Intervals Visual.html in Resources */,

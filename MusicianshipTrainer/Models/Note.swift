@@ -12,7 +12,7 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
 
     fileprivate var value:Double = Note.VALUE_QUARTER
 
-    init(timeSlice:TimeSlice?, value:Double, staffNum: Int) {
+    init(timeSlice:TimeSlice?, value:Double, staffNum: Int = 0) {
         self.value = value
         self.staffNum = staffNum
         self.timeSlice = timeSlice

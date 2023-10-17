@@ -144,7 +144,7 @@ class Score : ObservableObject {
         return result
     }
     
-    func debugScore1(_ ctx:String, withBeam:Bool) {
+    func debugScore(_ ctx:String, withBeam:Bool) {
         print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
             if t.entries.count == 0 {
@@ -161,6 +161,7 @@ class Score : ObservableObject {
                       "[type:", type(of: t.entries[0]), "]",
                       "[midi:",note?.midiNumber ?? "0", "]",
                       "[Value:",note?.getValue(),"]",
+                      "[Staff:",note?.staffNum,"]",
                       "[stem:",note?.stemDirection ?? "none", note?.stemLength ?? "none", "]",
                       t.getValue() ?? "","status",
                       t.statusTag
@@ -324,7 +325,6 @@ class Score : ObservableObject {
                 totalOffsets += placement.offsetFromStaffMidline
             }
         }
-        //return Array(repeating: totalOffsets < 0 ? StemDirection.up : StemDirection.down, count: notes.count)
         return totalOffsets <= 0 ? StemDirection.up: StemDirection.down
     }
     
@@ -872,6 +872,7 @@ class Score : ObservableObject {
                     }
                 }
                 let outputNote = Note(timeSlice: outputTimeSlice, num: questionNote.midiNumber, value: outputNoteValue, staffNum: questionNote.staffNum)
+                outputNote.setIsOnlyRhythm(way: questionNote.isOnlyRhythmNote)
                 outputTimeSlice.addNote(n: outputNote)
                 tapIndex += 1
             }

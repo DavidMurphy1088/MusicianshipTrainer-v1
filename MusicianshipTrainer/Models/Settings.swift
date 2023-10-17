@@ -39,17 +39,15 @@ extension UserDefaults {
     }
     
     func setShowReloadHTMLButton(key:String, _ way: Bool) {
+        print(">=====\(key)====")
         set(way, forKey: key)
         log()
     }
     
     func getShowReloadHTMLButton(key:String) -> Bool {
         log()
-        guard let data = data(forKey: key) else {
-            return false
-        }
-        let on  = data.withUnsafeBytes { $0.load(as: Bool.self) }
-        return on
+        print("<=====\(key)====")
+        return bool(forKey: key)
     }
     
     func log() {

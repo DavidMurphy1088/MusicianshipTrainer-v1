@@ -73,7 +73,6 @@ struct StemView: View {
         for n in self.notes {
             if n.staffNum == staff.staffNum {
                 notes.append(n)
-                //break
             }
         }
 
