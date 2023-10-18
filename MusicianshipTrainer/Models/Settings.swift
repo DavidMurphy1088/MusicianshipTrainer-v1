@@ -7,6 +7,7 @@ enum UserDefaultKeys {
     static let selectedColorBackground = "SelectedColorBackground"
     static let selectedAgeGroup = "SelectedAgeGroup"
     static let showReloadHTMLButton = "showReloadHTMLButton"
+    static let useTestData = "useTestData"
 }
 
 extension UserDefaults {
@@ -44,9 +45,15 @@ extension UserDefaults {
         log()
     }
     
+    func setUseTestData(key:String, _ way: Bool) {
+        set(way, forKey: key)
+    }
+    
     func getShowReloadHTMLButton(key:String) -> Bool {
-        log()
-        print("<=====\(key)====")
+        return bool(forKey: key)
+    }
+    
+    func getUseTestData(key:String) -> Bool {
         return bool(forKey: key)
     }
     
@@ -93,6 +100,7 @@ class Settings {
             UIGlobals.ageGroup = retrievedAgeGroup
         }
         UIGlobals.showReloadHTMLButton = UserDefaults.standard.getShowReloadHTMLButton(key: UserDefaultKeys.showReloadHTMLButton)
+        UIGlobals.useTestData = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useTestData)
 
     }
     
@@ -102,6 +110,7 @@ class Settings {
         UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorBackground, UIGlobals.colorBackground)
         UserDefaults.standard.setSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup, UIGlobals.ageGroup)
         UserDefaults.standard.setShowReloadHTMLButton(key: UserDefaultKeys.showReloadHTMLButton, UIGlobals.showReloadHTMLButton)
+        UserDefaults.standard.setUseTestData(key: UserDefaultKeys.useTestData, UIGlobals.useTestData)
     }
     
 }

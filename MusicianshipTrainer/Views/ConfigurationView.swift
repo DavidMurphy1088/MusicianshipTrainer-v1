@@ -27,6 +27,7 @@ struct ConfigurationView: View {
     @State var colorBackground:Color
     @State var colorInstructions:Color
     @State var showReloadHTMLButton: Bool
+    @State var useTestData: Bool
 
     @State private var selectedOption: Int? = nil
     @State var ageGroup:AgeGroup
@@ -116,6 +117,15 @@ struct ConfigurationView: View {
                     }
                 }
                 
+                Button(action: {
+                    useTestData.toggle()
+                }) {
+                    HStack {
+                        Image(systemName: useTestData ? "checkmark.square" : "square")
+                        Text("Use Test Data?")
+                    }
+                }
+                
                 //LogView().border(.black).padding()
                 
                 HStack {
@@ -126,6 +136,7 @@ struct ConfigurationView: View {
                         
                         UIGlobals.ageGroup = selectedAge == 0 ? .Group_5To10 : .Group_11Plus
                         UIGlobals.showReloadHTMLButton = showReloadHTMLButton
+                        UIGlobals.useTestData = useTestData
                         Settings.shared.saveConfig()
                         isPresented = false
                     }

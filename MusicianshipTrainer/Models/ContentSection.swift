@@ -500,7 +500,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                         value = Double(parts[i]) ?? 1
                         continue
                     }
-                    let accidental = Int(parts[i])
+                    accidental = Int(parts[i])
                     if accidental == nil {
                         if ["V","I"].contains(parts[i]) {
                             triad = parts[i]

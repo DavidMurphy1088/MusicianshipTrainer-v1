@@ -218,15 +218,12 @@ class Metronome: AudioPlayerUser, ObservableObject  {
             var ticksPlayed = 0
             var firstNote = true
             var tieWasFound = false
-            let sleepTime = (60.0 / Double(self.tempo)) * shortestNoteValue
-//            guard let score = score else {
-//                return
-//            }
+            //let sleepTime1 = (60.0 / Double(self.tempo)) * shortestNoteValue
+
             while keepRunning {
-                //noteValueSpeechWord = nil
-                ///Sound the metronome tick. %2 because its counting at quaver intervals
+                ///Sound the metronome tick. %4 because its counting at semiquaver intervals
                 ///Make sure score playing is synched to the metronome tick
-                if loopCtr % 2 == 0 {
+                if loopCtr % 4 == 0 {
                     if self.tickingIsActive {
                         audioTickerMetronomeTick.soundTick(silent: false)
                         ticksPlayed += 1

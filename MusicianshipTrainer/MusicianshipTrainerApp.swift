@@ -63,12 +63,11 @@ struct MusicianshipTrainerApp: App {
     //@ObservedObject
     var logger = Logger.logger
     static let productionMode = true
-    //@ObservedObject
+    let settings:Settings = Settings.shared
     var exampleData = ExampleData.sharedExampleData
     //product licensed by grade 14Jun23
     //static let root:ContentSection = ContentSection(parent: nil, type: ContentSection.SectionType.none, name: "Grade 1")
     static let root:ContentSection = ContentSection(parent: nil, name: "", type: "")
-    let settings:Settings = Settings.shared
     var launchTimeSecs = 4.5
 
     init() {

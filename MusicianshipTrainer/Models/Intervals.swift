@@ -1,33 +1,35 @@
 import Foundation
 
-class IntervalType : Comparable, Hashable {
-    var intervals:[Int]
+//class IntervalType1 {
+//    var halfSteps:Int
+//    var notes:Int
+//    init(halfSteps:Int, notes:Int) {
+//        self.halfSteps = halfSteps
+//        self.notes = notes
+//    }
+//}
+
+///The same pitch difference can be a different interval depending on how its written
+///e.g. pitch interval 6 can be an augmented 4th or diminished 5th. They are differentiated by the number of notes the interval spans. i.e. how it is written.
+///e.g. an augmented fourth from midi 60=C 4th spans D,E,F (notes=3) whereas a diminished fifth spans D,E,F,G (notes=4)
+///So pitch difference 6 exists in 2 groups
+class IntervalGroup : Comparable, Hashable {
     var name:String
-    var explanation:[String]
-
-    static func == (lhs: IntervalType, rhs: IntervalType) -> Bool {
-        if lhs.intervals.count > 0 && rhs.intervals.count > 0  {
-            return lhs.intervals[0] == rhs.intervals[0]
-        }
-        else {
-            return false
-        }
-        
+    var intervals:[Int]
+    var noteSpan:Int
+    
+    static func == (lhs: IntervalGroup, rhs: IntervalGroup) -> Bool {
+        return lhs.name == rhs.name
     }
 
-    static func < (lhs: IntervalType, rhs: IntervalType) -> Bool {
-        if lhs.intervals.count > 0 && rhs.intervals.count > 0  {
-            return lhs.intervals[0] < rhs.intervals[0]
-        }
-        else {
-            return false
-        }
+    static func < (lhs: IntervalGroup, rhs: IntervalGroup) -> Bool {
+        return lhs.name < rhs.name
     }
 
-    init(intervals:[Int], name:String, explanation:[String]) {
+    init(name:String, noteSpan:Int, intervals:[Int]) {
         self.intervals = intervals
         self.name = name
-        self.explanation = explanation
+        self.noteSpan = noteSpan
     }
     
     func hash(into hasher: inout Hasher) {
@@ -36,55 +38,64 @@ class IntervalType : Comparable, Hashable {
 }
 
 class Intervals {
-    var intervalTypes:[IntervalType]
+    var intervalNames:[IntervalGroup]
     var intervalsPerColumn:Int
     
     init(grade:Int, questionType:QuestionType) {
         let ageGroup = UIGlobals.getAgeGroup()
-        self.intervalTypes = []
+        self.intervalNames = []
+        
         if grade >= 1 {
-            intervalTypes.append(IntervalType(intervals:[1,2], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Second" : "2nd", explanation: ["",""]))
-            intervalTypes.append(IntervalType(intervals:[3,4], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Third" : "3rd", explanation: [""]))
+            ///Grade 1 calls both minor and major third just a 3rd
+            intervalNames.append(IntervalGroup(name: ageGroup == UIGlobals.AgeGroup11Plus ? "Second" : "2nd", noteSpan: 1, intervals:[1,2,3]))
+            intervalNames.append(IntervalGroup(name: ageGroup == UIGlobals.AgeGroup11Plus ? "Third" : "3rd", noteSpan: 2, intervals:[3,4]))
         }
+
         if grade >= 2 {
-            intervalTypes.append(IntervalType(intervals:[5,6], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fourth" : "4th", explanation: ["",""]))
-            intervalTypes.append(IntervalType(intervals:[7], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fifth" : "5th", explanation: [""]))
+            ///Intervals (visual): The entrant will be shown three notes, and will be asked to identify the intervals as either a second, third, fourth or fifth.
+
+            ///Perfect and augmented 4ths
+            intervalNames.append(IntervalGroup(name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fourth" : "4th", noteSpan: 3, intervals:[5,6]))
+            
+            ///Diminished, perfect and augmented 5ths
+            intervalNames.append(IntervalGroup(name: ageGroup == UIGlobals.AgeGroup11Plus ? "Fifth" : "5th", noteSpan: 4, intervals:[6,7,8]))
+
         }
         if grade >= 3 && questionType == .intervalVisual {
-            intervalTypes.append(IntervalType(intervals:[8,9], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Sixth" : "6th", explanation: ["",""]))
-            intervalTypes.append(IntervalType(intervals:[10,11], name: ageGroup == UIGlobals.AgeGroup11Plus ? "Seventh" : "7th", explanation: [""]))
-            intervalTypes.append(IntervalType(intervals:[12], name: "Octave", explanation: [""]))
+            ///The entrant will be shown three notes, and will be asked to identify the intervals as either a second, third, fourth, fifth, sixth, seventh or octave.
+            intervalNames.append(IntervalGroup(name: ageGroup == UIGlobals.AgeGroup11Plus ? "Sixth" : "6th", noteSpan: 5, intervals:[8,9,10]))
+            intervalNames.append(IntervalGroup(name: ageGroup == UIGlobals.AgeGroup11Plus ? "Seventh" : "7th", noteSpan: 6, intervals:[10,11]))
+            intervalNames.append(IntervalGroup(name: ageGroup == UIGlobals.AgeGroup11Plus ? "Octave" : "Octave", noteSpan: 7, intervals:[12]))
         }
-        self.intervalsPerColumn = Int(Double((self.intervalTypes.count + 1)) / 2.0)
+        self.intervalsPerColumn = Int(Double((self.intervalNames.count + 1)) / 2.0)
         if intervalsPerColumn == 0 {
             intervalsPerColumn = 1
         }
     }
     
-    func getInterval(intervalName:String) -> IntervalType? {
-        //let result = self.intervalTypes.first(where: {$0.intervals.contains(intervalName)})
-        for intervalType in intervalTypes {
-            if intervalType.name == intervalName {
-                return intervalType
+    func getInterval(intervalName:String) -> IntervalGroup? {
+        for group in intervalNames {
+            if group.name == intervalName {
+                return group
             }
         }
         return nil
     }
     
     func getVisualColumnCount() -> Int {
-        return (intervalTypes.count + self.intervalsPerColumn/2) / self.intervalsPerColumn
+        return (intervalNames.count + self.intervalsPerColumn/2) / self.intervalsPerColumn
     }
     
-    func getVisualColumns(col:Int) -> [IntervalType] {
-        var result:[IntervalType] = []
+    func getVisualColumns(col:Int) -> [IntervalGroup] {
+        var result:[IntervalGroup] = []
         let start = col * intervalsPerColumn
         for i in 0..<intervalsPerColumn {
             let index = i + col * intervalsPerColumn
-            if index < intervalTypes.count {
-                result.append(intervalTypes[index])
+            if index < intervalNames.count {
+                result.append(intervalNames[index])
             }
         }
-        return result
+        return result        
     }
     
     func getExplanation(grade:Int, offset1:Int, offset2:Int) -> String {

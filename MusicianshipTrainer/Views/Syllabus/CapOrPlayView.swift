@@ -510,7 +510,8 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
     @ObservedObject var tapRecorder = TapRecorder.shared
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
-    @ObservedObject var answerMetronome:Metronome
+    //@ObservedObject
+    var answerMetronome:Metronome
     
     @State var playingCorrect = false
     @State var playingStudent = false

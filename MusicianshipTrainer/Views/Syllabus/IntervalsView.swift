@@ -10,6 +10,41 @@ struct ScoreSpacerView: View {
     }
 }
 
+struct SelectIntervalView: View {
+    @Binding var answer:Answer
+    @Binding var answerState:AnswerState
+    var intervals:Intervals
+    @State var selectedIntervalName:String?
+    var questionType:QuestionType
+    var scoreWasPlayed:Bool
+    
+    var body: some View {
+        HStack(alignment: .top)  {
+            let columns:Int = intervals.getVisualColumnCount()
+            ForEach(0..<columns) { column in
+                //VStack {
+                    Spacer()
+                    VStack {
+                        let intervalsForColumn = intervals.getVisualColumns(col: column)
+                        ForEach(intervalsForColumn, id: \.name) { intervalType in
+                            Button(action: {
+                                selectedIntervalName = intervalType.name
+                                answerState = .answered
+                                answer.selectedIntervalName = intervalType.name
+                            }) {
+                                Text(intervalType.name)
+                                    .selectedButtonStyle(selected: selectedIntervalName == intervalType.name)
+                            }
+                        }
+                    }
+                    .padding(.top, 0)
+                    Spacer()
+                }
+           // }
+        }
+    }
+}
+
 struct IntervalPresentView: View { //}, QuestionPartProtocol {
     let contentSection:ContentSection
     var grade:Int
@@ -24,6 +59,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @State private var selectedOption: String? = nil
     @State private var scoreWasPlayed = false
     @State var intervals:Intervals
+    
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
     
@@ -45,7 +81,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     func initView() {
         let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5)
         self.score.setStaff(num: 0, staff: staff)
-//        contentSection.parseData(score: score, staff:staff, onlyRhythm: false) //contentSection.parent!.name, contentSection.name, exampleKey: contentSection.gr)
         
         var timeslice:TimeSlice?
         var chord:Chord?
@@ -71,51 +106,41 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         if intervalNotes.count == 0 {
             return
         }
+        let halfStepDifference = intervalNotes[1].midiNumber - intervalNotes[0].midiNumber
+        
         let staff = score.getStaff()[0]
         let offset1 = intervalNotes[0].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
         let offset2 = intervalNotes[1].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
+        let offetDifference = abs(offset2 - offset1) 
         
         let explanation = intervals.getExplanation(grade: contentSection.getGrade(), offset1: offset1, offset2: offset2)
         answer.explanation = explanation
         
-        let interval = intervalNotes[1].midiNumber - intervalNotes[0].midiNumber
-        answer.correct = false
-        for intervalType in intervals.intervalTypes {
-            if intervalType.intervals.contains(abs(interval)) {
-                answer.correctIntervalName = intervalType.name
-                answer.correctIntervalHalfSteps = interval
-                if answer.correctIntervalName == answer.selectedIntervalName {
-                    answer.correct = true
+        func intervalOccursOnlyOnce(_ interval:Int) -> Bool {
+            var ctr = 0
+            for intervalName in intervals.intervalNames {
+                if intervalName.intervals.contains(abs(interval)) {
+                    ctr += 1
                 }
-                break
+            }
+            return ctr == 1
+        }
+        
+        answer.correct = false
+        for intervalName in intervals.intervalNames {
+            if intervalName.intervals.contains(abs(halfStepDifference)) {
+                if intervalName.noteSpan == offetDifference || intervalOccursOnlyOnce(halfStepDifference) {
+                    answer.correctIntervalName = intervalName.name
+                    answer.correctIntervalHalfSteps = halfStepDifference
+                    if intervalName.name == answer.selectedIntervalName  {
+                        answer.correct = true
+                        break
+                    }
+                }
             }
         }
     }
 
-    var selectIntervalView : some View {
-        HStack(alignment: .top)  {
-            let columns = intervals.getVisualColumnCount()
-            ForEach(0..<columns) { column in
-                Spacer()
-                VStack {
-                    let intervalsForColumn = intervals.getVisualColumns(col: column)
-                    ForEach(intervalsForColumn, id: \.name) { intervalType in
-                        Button(action: {
-                            selectedIntervalName = intervalType.name
-                            answerState = .answered
-                            answer.selectedIntervalName = intervalType.name
-                        }) {
-                            Text(intervalType.name)
-                                .defaultButtonStyle(enabled: scoreWasPlayed || questionType == .intervalVisual)
-                                .padding()
-                        }
-                    }
-                }
-                .padding(.top, 0)
-                Spacer()
-            }
-        }
-    }
 
     func isTakingExam() -> Bool {
         guard let parent = contentSection.parent else {
@@ -195,7 +220,9 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                         }
                     }
                     HStack {
-                        selectIntervalView.padding()
+                        SelectIntervalView(answer: $answer, answerState: $answerState, intervals: intervals,
+                                           questionType: questionType, scoreWasPlayed: scoreWasPlayed)
+                        .padding()
                     }
                     .padding()
                 }
@@ -321,16 +348,16 @@ struct IntervalAnswerView: View {
                     }
                     Spacer()
                 }
-                else {
-                    Button(action: {
-                        let parent = self.contentSection.parent
-                        if let parent = parent {
-                            parent.setSelected(parent.selectedIndex ?? 0)
-                        }
-                    }) {
-                        Text("Try Again").defaultButtonStyle()
-                    }
-                }
+//                else {
+//                    Button(action: {
+//                        let parent = self.contentSection.parent
+//                        if let parent = parent {
+//                            parent.setSelected(parent.selectedIndex ?? 0)
+//                        }
+//                    }) {
+//                        Text("Try Again").defaultButtonStyle()
+//                    }
+//                }
             }
         }
     }
@@ -372,7 +399,8 @@ struct IntervalAnswerView: View {
                     .padding()
                     
                     if getMelodies().count > 0 {
-                        ShowMelodiesView(firstNote: score.getAllTimeSlices()[0].getTimeSliceNotes()[0], intervalName: answer.correctIntervalName,
+                        ShowMelodiesView(firstNote: score.getAllTimeSlices()[0].getTimeSliceNotes()[0],
+                                         intervalName: answer.correctIntervalName,
                                          interval: answer.correctIntervalHalfSteps, melodies: getMelodies())
                     }
                 }

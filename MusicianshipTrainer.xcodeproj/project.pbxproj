@@ -328,6 +328,7 @@
 				7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */,
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,
 				7BA8B70A2AB3D8D900AE7692 /* TTS.swift */,
+				7B40B81E2A54E52A00CA7FC4 /* UIGlobals.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -363,7 +364,6 @@
 				7B40B81F2A54E52A00CA7FC4 /* TestView.swift */,
 				7B40B8182A54E52A00CA7FC4 /* TimeSliceView.swift */,
 				7B40B8202A54E52A00CA7FC4 /* ToolsView.swift */,
-				7B40B81E2A54E52A00CA7FC4 /* UIGlobals.swift */,
 				7B40B81C2A54E52A00CA7FC4 /* VoiceCounter.swift */,
 			);
 			path = Views;

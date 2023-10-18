@@ -15,15 +15,15 @@ class Melody : Identifiable {
         self.data = []
     }
     
-    func transpose(base:Note) -> [Note] {
-        var result:[Note] = []
-        let firstPitch = notes[0].midiNumber
-        let delta = firstPitch - base.midiNumber
-        for n in notes {
-            result.append(Note(timeSlice: nil, num: n.midiNumber - delta, value: n.getValue(), staffNum: 0))
-        }
-        return result
-    }
+//    func transpose(base:Note) -> [Note] {
+//        var result:[Note] = []
+//        let firstPitch = notes[0].midiNumber
+//        let delta = firstPitch - base.midiNumber
+//        for n in notes {
+//            result.append(Note(timeSlice: nil, num: n.midiNumber - delta, value: n.getValue(), staffNum: 0))
+//        }
+//        return result
+//    }
 }
 
 class Melodies {

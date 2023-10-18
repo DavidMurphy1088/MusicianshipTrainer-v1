@@ -19,12 +19,7 @@ class UIGlobals {
     
     ///Color of each test's screen background
     static var colorBackground = colorBackgroundDefault
-    //static var colorBackground = Color(red: 0.0, green: 0.0, blue: 0.7)
 
-    ///Color of each navigation row in Navigation View. But there is still a navigation color behind these from the NavigationView
-    //static var colorNavigation = colorBackgroundDefault //colorNavigationDefault
-    //static var colorNavigation = Color(red: 0.0, green: 0.7, blue: 0.0)
-    
     ///Behind instructions to match background of the Navigation View below which is unchangeable from grey
     //static var colorNavigationBackground = Color(red: 0.95, green: 0.95, blue: 0.95)
     //static var colorNavigationBackground = Color(red: 0.7, green: 0.0, blue: 0.0)
@@ -42,7 +37,6 @@ class UIGlobals {
     static let font = Font.custom("Lora", size: 24)
     static let fontiPhone = Font.custom("Lora", size: 16)
 
-    //static let navigationFont = Font.custom("Lora", size: 32)
     static let navigationFont = Font.custom("Courgette-Regular", size: UIDevice.current.userInterfaceIdiom == .pad ? 26 : 18)
     
     static let AgeGroup11Plus = "11Plus"
@@ -50,7 +44,8 @@ class UIGlobals {
         return UIGlobals.ageGroup == .Group_11Plus ? AgeGroup11Plus : "5-10"
     }
     static var showReloadHTMLButton = false
-    
+    static var useTestData = false
+
     static func showDeviceOrientation() {
         let orientation = UIDevice.current.orientation
         print("showDeviceOrientation --> IS PORTRAIT", orientation.isPortrait,"IS LANDSCAPE", orientation.isLandscape,
@@ -109,6 +104,26 @@ extension Text {
                 //.background(selectedIntervalIndex == index ? Color(.systemTeal) : Color.clear)
                 .background(selected ? UIGlobals.colorInstructions : Color.clear)
         )
+    }
+    
+    func selectedButtonStyle(selected: Bool) -> some View {
+        self
+            .font(UIDevice.current.userInterfaceIdiom == .pad ? UIGlobals.font : UIGlobals.fontiPhone)
+            .foregroundColor(.white)
+            .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
+            //.background(enabled ? .blue : .gray)
+            .background(.blue)
+            .cornerRadius(UIGlobals.cornerRadius)
+            .padding(8)
+            .background (
+                ZStack {
+                    if selected {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.blue, lineWidth: 3)
+                            .padding(4)  // This gives space outside the button edge.
+                    }
+                }
+            )
     }
 }
 

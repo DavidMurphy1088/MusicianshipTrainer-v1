@@ -51,7 +51,7 @@ struct MelodyScoreView: View {
             
             //if let parsedScore = parsedScore {
                 ///Mark the notes that demonstrate the interval
-                ///Calculate the requied pitch adjust
+                ///Calculate the required pitch adjust
             var previousNote:Note?
             var firstIntervalNoteFound = false
             var pitchAdjust:Int = 0

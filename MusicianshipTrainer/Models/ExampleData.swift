@@ -15,7 +15,8 @@ class ExampleData : ObservableObject {
     
     func loadData() {
         MusicianshipTrainerApp.root.subSections = []
-        googleAPI.getContentSheet(sheetName: "ContentSheetID") { status, data in
+        let sheetName = UIGlobals.useTestData ? "ContentSheetID_TEST" : "ContentSheetID"
+        googleAPI.getContentSheet(sheetName: sheetName) { status, data in
             if status == .success {
                 if let data = data {
                     struct JSONSheet: Codable {
