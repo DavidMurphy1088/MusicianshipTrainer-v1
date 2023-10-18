@@ -79,7 +79,7 @@ class Score : ObservableObject {
     let id:UUID
     
     var timeSignature:TimeSignature
-    @Published var key:Key// = Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.sharp, keyName: ""))
+    @Published var key:Key
     
     @Published var showNotes = true
     @Published var showFootnotes = false
@@ -112,7 +112,7 @@ class Score : ObservableObject {
         self.timeSignature = timeSignature
         self.noteSize = noteSize
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
-        self.key = key //Key(type: Key.KeyType.major, keySig: KeySignature(type: AccidentalType.sharp, keyName: keyName))
+        self.key = key
     }
     
 //    init(score:Score) {
@@ -608,187 +608,188 @@ class Score : ObservableObject {
         return false
     }
     
-    func fitScoreToQuestionScore_old(tappedScore:Score) -> (Score, StudentFeedback) {
-        let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: self.noteSize)
-        let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
-        outputScore.setStaff(num: 0, staff: staff)
-        
-        class NoteDuration {
-            enum EntryType {
-                case note
-                case rest
-                case bar
-            }
-            var elapsed:Double
-            var value:Double
-            var type:EntryType
-            var timeSlice:TimeSlice?
-            init(timeSlice:TimeSlice?,elapsed:Double, value:Double, type:EntryType) {
-                self.timeSlice = timeSlice
-                self.elapsed = elapsed
-                self.value = value
-                self.type = type
-            }
-        }
-
-        //print("\nTAPPED Time slices")
-        var tappedDurations:[NoteDuration] = []
-        var elapsedTime = 0.0
-        for t in tappedScore.getAllTimeSlices() {
-            let dur = NoteDuration(timeSlice: t, elapsed: elapsedTime, value: t.entries[0].getValue(), type: .note)
-            tappedDurations.append(dur)
-            elapsedTime += t.entries[0].getValue()
-        }
-
-//        for d in tappedDurations {
-//            print ("=== TAP Elapsed", d.elapsed, "type", d.type, "value", d.value)
-//        }
-        if tappedDurations.count == 0 {
-            let feedback = StudentFeedback()
-            feedback.feedbackExplanation = "There were no taps"
-            return (outputScore, feedback)
-        }
-       
-        ///Make a table of note times in the question and the sequence number of each note
-        ///Note duration is not the note value, but the duration between a note and the next note. e.g. a note with value 1 followed by a quaver rest has a note duration 2
-        ///Comparison to tap values has to be done on note durations, not note values. Note values do not take into account that the note might be followed by a rest (which is never tapped)
-        var questionTimeSliceValues:[NoteDuration] = []
-        elapsedTime = 0.0
-
-        for scoreEntry:ScoreEntry in self.scoreEntries {
-            //var restTotalValue = 0.0
-            if let timeSlice = scoreEntry as? TimeSlice {
-                if timeSlice.getTimeSliceEntries().count > 0 {
-                    let entry = timeSlice.getTimeSliceEntries()[0]
-                    if let note = entry as? Note {
-                        let noteValue = note.getValue()
-                        questionTimeSliceValues.append(NoteDuration(timeSlice: timeSlice, elapsed: elapsedTime, value:noteValue, type: .note))
-                        //restTotalValue = 0
-                    }
-                    if let rest = entry as? Rest {
-                        questionTimeSliceValues.append(NoteDuration(timeSlice: timeSlice, elapsed: elapsedTime, value:rest.getValue(), type: .rest))
-                        //restTotalValue += rest.getValue()
-                    }
-                    elapsedTime += entry.getValue()
-                }
-            }
-            if scoreEntry is BarLine {
-                questionTimeSliceValues.append(NoteDuration(timeSlice: nil, elapsed: elapsedTime, value:0, type: .bar))
-            }
-        }
-        
-//        print("\nQuestion")
-//        for d in questionTimeSliceValues {
-//            print ("--- QUE Elapsed", d.elapsed, "type", d.type, "value", d.value)
+//    func fitScoreToQuestionScore_old(tappedScore:Score) -> (Score, StudentFeedback) {
+//        let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: self.noteSize)
+//        let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
+//        outputScore.setStaff(num: 0, staff: staff)
+//
+//        class NoteDuration {
+//            enum EntryType {
+//                case note
+//                case rest
+//                case bar
+//            }
+//            var elapsed:Double
+//            var value:Double
+//            var type:EntryType
+//            var timeSlice:TimeSlice?
+//            init(timeSlice:TimeSlice?,elapsed:Double, value:Double, type:EntryType) {
+//                self.timeSlice = timeSlice
+//                self.elapsed = elapsed
+//                self.value = value
+//                self.type = type
+//            }
 //        }
 //
-        var errorsFlagged = false
-        var tapIndex = 0
-        var explanation:String? = nil
-        var expectedTapValue = 0.0
-        var noteCount = 0
-        
-        for questionIndex in 0..<questionTimeSliceValues.count {
-
-            if questionTimeSliceValues[questionIndex].type == .bar {
-                outputScore.addBarLine()
-                continue
-            }
-
-            let outTimeSlice = outputScore.createTimeSlice()
-            if questionTimeSliceValues[questionIndex].type == .note {
-                noteCount += 1
-                var outputValue = questionTimeSliceValues[questionIndex].value
-                let nextSliceIsRest = !isNextTimeSliceANote(fromScoreEntryIndex: questionIndex + 1)
-                let noNextNote = questionIndex == questionTimeSliceValues.count-1
-                
-                if !errorsFlagged {
-                    if tapIndex < tappedDurations.count {
-                        if !nextSliceIsRest || tappedDurations[tapIndex].value < questionTimeSliceValues[questionIndex].value {
-                            if tapIndex < tappedDurations.count   {
-                                if tappedDurations[tapIndex].value != questionTimeSliceValues[questionIndex].value {
-                                    let name = TimeSliceEntry.getValueName(value:questionTimeSliceValues[questionIndex].value)
-                                    let tapName = TimeSliceEntry.getValueName(value:tappedDurations[tapIndex].value)
-                                    //explanation = "The question note here [\(questionTimeSliceDurations[questionIndex].duration)] is a \(name) but your tap[ \(tappedDurations[tapIndex].duration)] was a \(tapName)"
-                                    explanation = "The question note here is a \(name) but your tap was a \(tapName)"
-                                    outputValue = tappedDurations[tapIndex].value
-                                    outTimeSlice.statusTag = .inError
-                                    if let correct = questionTimeSliceValues[questionIndex].timeSlice {
-                                        correct.setStatusTag(.hilightAsCorrect)
-                                    }
-                                    errorsFlagged = true
-                                }
-                            }
-                        }
-                    }
-                }
-                let note = Note(timeSlice: outTimeSlice, num: 0, staffNum: 0)
-                note.setValue(value: outputValue)
-                note.setIsOnlyRhythm(way: true)
-                outTimeSlice.addNote(n: note)
-                if nextSliceIsRest {
-                    expectedTapValue = questionTimeSliceValues[questionIndex].value
-                }
-                if !nextSliceIsRest || noNextNote {
-                    tapIndex += 1
-                }
-            }
-            
-            if questionTimeSliceValues[questionIndex].type == .rest {
-                var outputValue = questionTimeSliceValues[questionIndex].value
-                let nextSliceIsNote = isNextTimeSliceANote(fromScoreEntryIndex: questionIndex + 1)
-
-                if nextSliceIsNote {
-                    expectedTapValue += questionTimeSliceValues[questionIndex].value
-                    if !errorsFlagged {
-                        if tappedDurations[tapIndex].value != expectedTapValue {
-                            let questionRestName = TimeSliceEntry.getValueName(value:questionTimeSliceValues[questionIndex].value)
-                            //adjust the shown output rest value to show as the tapped value minus the last note's value
-                            for i in stride(from: questionIndex, through: 0, by: -1) {
-                                if questionTimeSliceValues[i].type == .note {
-                                    outputValue = tappedDurations[tapIndex].value -  questionTimeSliceValues[i].value
-                                    break
-                                }
-                            }
-                            if tappedDurations[tapIndex].value < expectedTapValue {
-                                explanation = "There is a \(questionRestName) rest here in the question but your tap did not give enough time for it"
-                            }
-                            else {
-                                explanation = "There is a \(questionRestName) rest here in the question but your tap gave too much time to it"
-                            }
-                            outTimeSlice.statusTag = .inError
-                            if let correct = questionTimeSliceValues[questionIndex].timeSlice {
-                                correct.setStatusTag(.hilightAsCorrect)
-                            }
-                            errorsFlagged = true
-                        }
-                    }
-                }
-                let rest = Rest(timeSlice: outTimeSlice, value: outputValue, staffNum: 0)
-                rest.setValue(value: outputValue)
-                outTimeSlice.addRest(rest: rest)
-                //if isNextTimeSliceANote(fromScoreEntryIndex: questionIndex) {
-                    tapIndex += 1
-                //}
-            }
-            
-            if outTimeSlice.statusTag == .noTag {
-                if errorsFlagged {
-                    outTimeSlice.setStatusTag(.afterError)
-                }
-            }
-        }
-        let feedback = StudentFeedback()
-        feedback.feedbackExplanation = explanation
+//        //print("\nTAPPED Time slices")
+//        var tappedDurations:[NoteDuration] = []
+//        var elapsedTime = 0.0
+//        for t in tappedScore.getAllTimeSlices() {
+//            let dur = NoteDuration(timeSlice: t, elapsed: elapsedTime, value: t.entries[0].getValue(), type: .note)
+//            tappedDurations.append(dur)
+//            elapsedTime += t.entries[0].getValue()
+//        }
+//
+////        for d in tappedDurations {
+////            print ("=== TAP Elapsed", d.elapsed, "type", d.type, "value", d.value)
+////        }
+//        if tappedDurations.count == 0 {
+//            let feedback = StudentFeedback()
+//            feedback.feedbackExplanation = "There were no taps"
+//            return (outputScore, feedback)
+//        }
+//
+//        ///Make a table of note times in the question and the sequence number of each note
+//        ///Note duration is not the note value, but the duration between a note and the next note. e.g. a note with value 1 followed by a quaver rest has a note duration 2
+//        ///Comparison to tap values has to be done on note durations, not note values. Note values do not take into account that the note might be followed by a rest (which is never tapped)
+//        var questionTimeSliceValues:[NoteDuration] = []
+//        elapsedTime = 0.0
+//
+//        for scoreEntry:ScoreEntry in self.scoreEntries {
+//            //var restTotalValue = 0.0
+//            if let timeSlice = scoreEntry as? TimeSlice {
+//                if timeSlice.getTimeSliceEntries().count > 0 {
+//                    let entry = timeSlice.getTimeSliceEntries()[0]
+//                    if let note = entry as? Note {
+//                        let noteValue = note.getValue()
+//                        questionTimeSliceValues.append(NoteDuration(timeSlice: timeSlice, elapsed: elapsedTime, value:noteValue, type: .note))
+//                        //restTotalValue = 0
+//                    }
+//                    if let rest = entry as? Rest {
+//                        questionTimeSliceValues.append(NoteDuration(timeSlice: timeSlice, elapsed: elapsedTime, value:rest.getValue(), type: .rest))
+//                        //restTotalValue += rest.getValue()
+//                    }
+//                    elapsedTime += entry.getValue()
+//                }
+//            }
+//            if scoreEntry is BarLine {
+//                questionTimeSliceValues.append(NoteDuration(timeSlice: nil, elapsed: elapsedTime, value:0, type: .bar))
+//            }
+//        }
+//
+////        print("\nQuestion")
+////        for d in questionTimeSliceValues {
+////            print ("--- QUE Elapsed", d.elapsed, "type", d.type, "value", d.value)
+////        }
+////
+//        var errorsFlagged = false
+//        var tapIndex = 0
+//        var explanation:String? = nil
+//        var expectedTapValue = 0.0
+//        var noteCount = 0
+//
+//        for questionIndex in 0..<questionTimeSliceValues.count {
+//
+//            if questionTimeSliceValues[questionIndex].type == .bar {
+//                outputScore.addBarLine()
+//                continue
+//            }
+//
+//            let outTimeSlice = outputScore.createTimeSlice()
+//            if questionTimeSliceValues[questionIndex].type == .note {
+//                noteCount += 1
+//                var outputValue = questionTimeSliceValues[questionIndex].value
+//                let nextSliceIsRest = !isNextTimeSliceANote(fromScoreEntryIndex: questionIndex + 1)
+//                let noNextNote = questionIndex == questionTimeSliceValues.count-1
+//
+//                if !errorsFlagged {
+//                    if tapIndex < tappedDurations.count {
+//                        if !nextSliceIsRest || tappedDurations[tapIndex].value < questionTimeSliceValues[questionIndex].value {
+//                            if tapIndex < tappedDurations.count   {
+//                                if tappedDurations[tapIndex].value != questionTimeSliceValues[questionIndex].value {
+//                                    let name = TimeSliceEntry.getValueName(value:questionTimeSliceValues[questionIndex].value)
+//                                    let tapName = TimeSliceEntry.getValueName(value:tappedDurations[tapIndex].value)
+//                                    //explanation = "The question note here [\(questionTimeSliceDurations[questionIndex].duration)] is a \(name) but your tap[ \(tappedDurations[tapIndex].duration)] was a \(tapName)"
+//                                    explanation = "The question note here is a \(name) but your tap was a \(tapName)"
+//                                    outputValue = tappedDurations[tapIndex].value
+//                                    outTimeSlice.statusTag = .inError
+//                                    if let correct = questionTimeSliceValues[questionIndex].timeSlice {
+//                                        correct.setStatusTag(.hilightAsCorrect)
+//                                    }
+//                                    errorsFlagged = true
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                let note = Note(timeSlice: outTimeSlice, num: 0, staffNum: 0)
+//                note.setValue(value: outputValue)
+//                note.setIsOnlyRhythm(way: true)
+//                outTimeSlice.addNote(n: note)
+//                if nextSliceIsRest {
+//                    expectedTapValue = questionTimeSliceValues[questionIndex].value
+//                }
+//                if !nextSliceIsRest || noNextNote {
+//                    tapIndex += 1
+//                }
+//            }
+//
+//            if questionTimeSliceValues[questionIndex].type == .rest {
+//                var outputValue = questionTimeSliceValues[questionIndex].value
+//                let nextSliceIsNote = isNextTimeSliceANote(fromScoreEntryIndex: questionIndex + 1)
+//
+//                if nextSliceIsNote {
+//                    expectedTapValue += questionTimeSliceValues[questionIndex].value
+//                    if !errorsFlagged {
+//                        if tappedDurations[tapIndex].value != expectedTapValue {
+//                            let questionRestName = TimeSliceEntry.getValueName(value:questionTimeSliceValues[questionIndex].value)
+//                            //adjust the shown output rest value to show as the tapped value minus the last note's value
+//                            for i in stride(from: questionIndex, through: 0, by: -1) {
+//                                if questionTimeSliceValues[i].type == .note {
+//                                    outputValue = tappedDurations[tapIndex].value -  questionTimeSliceValues[i].value
+//                                    break
+//                                }
+//                            }
+//                            if tappedDurations[tapIndex].value < expectedTapValue {
+//                                explanation = "There is a \(questionRestName) rest here in the question but your tap did not give enough time for it"
+//                            }
+//                            else {
+//                                explanation = "There is a \(questionRestName) rest here in the question but your tap gave too much time to it"
+//                            }
+//                            outTimeSlice.statusTag = .inError
+//                            if let correct = questionTimeSliceValues[questionIndex].timeSlice {
+//                                correct.setStatusTag(.hilightAsCorrect)
+//                            }
+//                            errorsFlagged = true
+//                        }
+//                    }
+//                }
+//                let rest = Rest(timeSlice: outTimeSlice, value: outputValue, staffNum: 0)
+//                rest.setValue(value: outputValue)
+//                outTimeSlice.addRest(rest: rest)
+//                //if isNextTimeSliceANote(fromScoreEntryIndex: questionIndex) {
+//                    tapIndex += 1
+//                //}
+//            }
+//
+//            if outTimeSlice.statusTag == .noTag {
+//                if errorsFlagged {
+//                    outTimeSlice.setStatusTag(.afterError)
+//                }
+//            }
+//        }
+//        let feedback = StudentFeedback()
+//        feedback.feedbackExplanation = explanation
 //        let out = outputScore.getAllTimeSlices()
+//        print("==============", feedback.correct, feedback.feedbackExplanation)
 //        for q in self.getAllTimeSlices() {
 //            print("QuestionOut", type(of:q.entries[0]), q.entries[0].getValue(), q.statusTag)
 //        }
 //        for e in out {
 //            print("   ScoreOut", type(of:e.entries[0]), e.entries[0].getValue(), e.statusTag)
 //        }
-        return (outputScore, feedback)
-    }
+//        return (outputScore, feedback)
+//    }
     
     ///Return a score based on the question score but modified to show where a tapped duration differs from the question
     func fitScoreToQuestionScore(tappedScore:Score) -> (Score, StudentFeedback) {
@@ -831,6 +832,7 @@ class Score : ObservableObject {
                 if tapIndex >= tappedScore.getAllTimeSlices().count {
                     errorsFlagged = true
                     explanation = "• There was no tap"
+                    outputTimeSlice.statusTag = .inError
                 }
                 else {
                     let tap = tappedScore.getAllTimeSlices()[tapIndex]
@@ -881,6 +883,16 @@ class Score : ObservableObject {
 
         let feedback = StudentFeedback()
         feedback.feedbackExplanation = explanation
+        let out = outputScore.getAllTimeSlices()
+        
+        print("==============", feedback.correct, feedback.feedbackExplanation)
+        for q in self.getAllTimeSlices() {
+            print("QuestionOut", type(of:q.entries[0]), q.entries[0].getValue(), q.statusTag)
+        }
+        for e in out {
+            print("   ScoreOut", type(of:e.entries[0]), e.entries[0].getValue(), e.statusTag)
+        }
+
         return (outputScore, feedback)
     }
 

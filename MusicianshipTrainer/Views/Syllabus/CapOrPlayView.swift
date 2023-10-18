@@ -505,7 +505,7 @@ struct ClapOrPlayPresentView: View {
     }
 }
 
-struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
+struct ClapOrPlayAnswerView: View {
     let contentSection:ContentSection
     @ObservedObject var tapRecorder = TapRecorder.shared
     @ObservedObject private var logger = Logger.logger
@@ -561,7 +561,7 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         self.answerMetronome.setAllowTempoChange(allow: false)
         self.answerMetronome.setTempo(tempo: self.questionTempo, context: "ClapOrPlayAnswerView")
 
-        if let fittedScore = fittedScore {
+        if let fittedScore = self.fittedScore {
             if fittedScore.errorCount() == 0 && fittedScore.getAllTimeSlices().count > 0 {
                 feedback.correct = true
                 feedback.feedbackExplanation = "Good job!"
@@ -590,7 +590,8 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
             else {
                 feedback.correct = false
             }
-            fittedScore.setStudentFeedback(studentFeedack: feedback)
+            print("==========", self.fittedScore == nil, fittedScore == nil, feedback == nil)
+            self.fittedScore!.setStudentFeedback(studentFeedack: feedback)
         }
     }
     
@@ -668,6 +669,11 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
         }
     }
     
+    func log(_ score:Score) -> Bool {
+        print ("========", score == nil, score.studentFeedback == nil)
+       return true
+    }
+    
     var body: AnyView {
         AnyView(
             VStack {
@@ -719,10 +725,12 @@ struct ClapOrPlayAnswerView: View { //}, QuestionPartProtocol {
                 
                 if contentSection.getExamTakingStatus() == .notInExam {
                     if let fittedScore = self.fittedScore {
-                        if let studentFeedback = fittedScore.studentFeedback {
-                            Spacer()
-                            nextButtons(answerWasCorrect: studentFeedback.correct)
-                            Spacer()
+                        if log(fittedScore) {
+                            if let studentFeedback = fittedScore.studentFeedback {
+                                Spacer()
+                                nextButtons(answerWasCorrect: studentFeedback.correct)
+                                Spacer()
+                            }
                         }
                     }
                 }
