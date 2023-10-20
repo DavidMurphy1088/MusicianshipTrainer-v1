@@ -38,7 +38,8 @@ class UIGlobals {
     static let fontiPhone = Font.custom("Lora", size: 16)
 
     static let navigationFont = Font.custom("Courgette-Regular", size: UIDevice.current.userInterfaceIdiom == .pad ? 26 : 18)
-    
+    static let correctAnswerFont = Font.custom("Courgette-Regular", size: UIDevice.current.userInterfaceIdiom == .pad ? 52 : 36)
+
     static let AgeGroup11Plus = "11Plus"
     static func getAgeGroup() -> String {
         return UIGlobals.ageGroup == .Group_11Plus ? AgeGroup11Plus : "5-10"

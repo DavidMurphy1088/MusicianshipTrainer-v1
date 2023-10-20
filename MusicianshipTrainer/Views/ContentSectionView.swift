@@ -142,7 +142,6 @@ struct ContentSectionInstructionsView: UIViewRepresentable {
 
 struct ContentSectionHeaderView: View {
     var contentSection:ContentSection
-    //var contentSectionView:ContentSectionView
 
     let googleAPI = GoogleAPI.shared
     @State private var isVideoPresented = false
@@ -355,24 +354,10 @@ struct ContentSectionHeaderView: View {
         }
     }
 }
-//
-//class NavigationStateManager: ObservableObject {
-//    @Published var selectedIndex: Int?
-//}
 
 struct SectionsNavigationView:View {
     @ObservedObject var contentSection:ContentSection
-    //let contentSectionView:ContentSectionView
-    //@Binding var makeRandomChoice:Bool
-    //@StateObject private var navigationManager = NavigationStateManager()
-    //@State var selectedIndex:Int?
-    
-//    init(contentSections:[ContentSection], contentSectionView:ContentSectionView) {
-//        self.contentSections = contentSections
-//        self.contentSectionView = contentSectionView
-//
-//    }
-//
+
     func getGradeImage(contentSection: ContentSection) -> Image? {
         var name = ""
         if contentSection.isExamTypeContentSection() {
@@ -407,24 +392,6 @@ struct SectionsNavigationView:View {
         image = Image(name)
         return image
     }
-    
-//    func randomSelection(withDelay:Bool) {
-//        let range = contentSection.getNavigableChildSections().count
-//        let random = Int.random(in: 0...range-1)
-//        let delta = 0.40
-//        DispatchQueue.main.async {
-//            navigationManager.selectedIndex = random
-//            if withDelay {
-//                ///Let the parent view's scroller scroll to the correct row but then force a change of selected index to make the new child view appear
-//                DispatchQueue.main.async {//After(deadline: .now() + delta) {
-//                    navigationManager.selectedIndex = nil
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 2 * delta) {
-//                        navigationManager.selectedIndex = random
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     func getScore(contentSection: ContentSection) -> Int {
         var score = 0
@@ -490,6 +457,13 @@ struct SectionsNavigationView:View {
                 .onChange(of: contentSection.selectedIndex) { newIndex in
                     if let newIndex = newIndex {
                         proxy.scrollTo(newIndex)
+                    }
+                }
+                .onChange(of: contentSection.postitionToIndex) { newIndex in
+                    if let newIndex = newIndex {
+                        withAnimation(.linear(duration: 0.5)) {
+                            proxy.scrollTo(newIndex)
+                        }
                     }
                 }
                 .onDisappear() {

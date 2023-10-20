@@ -267,7 +267,7 @@ struct IntervalAnswerView: View {
     let contentSection:ContentSection
     private var questionType:QuestionType
     private var score:Score
-    private let imageSize = Double(32)
+    private let imageSize = Double(48)
     private let metronome = Metronome.getMetronomeWithSettings(initialTempo: 40, allowChangeTempo: false, ctx:"Interval answer View")
     private var noteIsSpace:Bool
     private var answer:Answer
@@ -373,11 +373,15 @@ struct IntervalAnswerView: View {
                 HStack {
                     if answer.correct {
                         Image(systemName: "checkmark.circle").resizable().frame(width: imageSize, height: imageSize).foregroundColor(.green)
-                        Text("Correct - Good Job").defaultTextStyle()
+                        Text("Correct - Good Job")
+                            //.defaultTextStyle()
+                            .font(UIGlobals.correctAnswerFont)
                     }
                     else {
                         Image(systemName: "staroflife.circle").resizable().frame(width: imageSize, height: imageSize).foregroundColor(.red)
-                        Text("Sorry - not correct").defaultTextStyle()
+                        Text("Sorry - not correct")
+                            //.defaultTextStyle()
+                            .font(UIGlobals.correctAnswerFont)
                     }
                 }
                 .padding()
@@ -387,7 +391,9 @@ struct IntervalAnswerView: View {
                 }
                 Text("The interval is a \(answer.correctIntervalName)").defaultTextStyle().padding()
                 if questionType == .intervalVisual {
-                    Text(answer.explanation).defaultTextStyle().padding()
+                    if answer.correct == false {
+                        Text(answer.explanation).defaultTextStyle().padding()
+                    }
                 }
                 
                 HStack {
@@ -479,7 +485,7 @@ struct IntervalView: View {
                                            score: self.score,
                                            answer: answer,
                                            questionType:questionType)
-                        //FlyingImageView(answer: answer)
+                        FlyingImageView(answer: answer)
                     }
                 }
             }
@@ -491,58 +497,3 @@ struct IntervalView: View {
     }
 }
 
-struct FlyingImageView: View {
-    @State var answer:Answer
-    @State private var position = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2)
-    @State var yPos = 0.0
-    @State var loop = 0
-    let imageSize:CGFloat = 100.0
-    let totalDuration = 15.0
-    let delta = 100.0
-    @State var rotation = -90.0
-    @State var opacity = 1.0
-    
-    var body: some View {
-        ZStack {
-            Image(systemName: "airplane")
-                .resizable()
-                .frame(width: imageSize, height: imageSize)
-                .foregroundColor(.blue)
-                .opacity(opacity * 1.5)
-                .rotationEffect(Angle(degrees: rotation))
-                .position(position)
-        }
-        .onAppear {
-            DispatchQueue.global(qos: .background).async {
-                sleep(1)
-                if !answer.correct {
-                    withAnimation(Animation.linear(duration: 1.0)) { //}.repeatForever(autoreverses: false)) {
-                        rotation = 90.0
-                    }
-                }
-                animateRandomly()
-            }
-        }
-    }
-    
-    func animateRandomly() {
-        let loops = 4
-        for i in 0..<loops {
-            var randomX = 0.0
-            if answer.correct {
-                yPos -= delta //CGFloat.random(in: imageSize/2 ... UIScreen.main.bounds.height - imageSize/2)
-                randomX = CGFloat.random(in: imageSize * -1 ... imageSize * 1)
-            }
-            else {
-                randomX = CGFloat.random(in: imageSize * -4 ... imageSize * 4)
-                yPos += delta
-            }
-            
-            withAnimation(Animation.linear(duration: totalDuration / Double(loops))) { //}.repeatForever(autoreverses: false)) {
-                opacity = 0.0
-                position = CGPoint(x: UIScreen.main.bounds.width / 2 + randomX, y: UIScreen.main.bounds.height / 2 + yPos)
-            }
-        }
-
-    }
-}

@@ -48,7 +48,15 @@ struct MelodyScoreView: View {
                 }
                 return nil
             }
-            
+            func getRest(_ ts:TimeSlice) -> Rest? {
+                if ts.entries.count > 0 {
+                    if let rest = ts.entries[0] as? Rest {
+                        return rest
+                    }
+                }
+                return nil
+            }
+
             //if let parsedScore = parsedScore {
                 ///Mark the notes that demonstrate the interval
                 ///Calculate the required pitch adjust
@@ -72,6 +80,8 @@ struct MelodyScoreView: View {
                     }
                     previousNote = note
                 }
+                if let rest = getNote(ts) {
+                }
             }
             
             ///Transpose the melody to demonstrate the chosen interval at the same pitch as the question
@@ -85,12 +95,17 @@ struct MelodyScoreView: View {
                             let newNote = Note(timeSlice: ts, num: note.midiNumber + pitchAdjust, value: note.getValue(), staffNum: 0)
                             newTS .addNote(n: newNote)
                         }
+                        if let rest = getRest(ts) {
+                            let newRest = Rest(timeSlice: newTS, value: rest.getValue(), staffNum: 0)
+                            newTS.addRest(rest: newRest)
+                        }
                         newTS.setStatusTag(ts.statusTag)
                     }
                     if entry is BarLine {
                         score.addBarLine()
                     }
                 }
+                score.cleanAccidentals()
                 
                 metronome.playScore(score: score, onDone: {
                     //self.scoreWasPlayed = true

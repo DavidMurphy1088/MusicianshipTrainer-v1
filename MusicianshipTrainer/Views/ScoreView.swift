@@ -20,18 +20,12 @@ struct FeedbackView: View {
                     .foregroundColor(Color.red)
                     .padding()
             }
-            //            if let index = studentFeedback.indexInError {
-            //                    Text("Wrong rhythm here")// at note: \(index)").padding()
-            //            }
-            //}
+            Text("  ")
             if let feedbackExplanation = studentFeedback.feedbackExplanation {
                 VStack {
-                    //ScrollView {
                     Text(feedbackExplanation)
                         .defaultTextStyle()
                         .fixedSize(horizontal: false, vertical: true)
-                    //.lineLimit(nil)
-                    //}
                 }
             }
             if let feedbackNote = studentFeedback.feedbackNotes {

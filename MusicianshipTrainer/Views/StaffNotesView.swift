@@ -360,13 +360,6 @@ struct StaffNotesView: View {
            // NoteLayoutPositions.reset()
         }
     }
-    
-//    func log(noteLayoutPositions:NoteLayoutPositions) -> Bool {
-//        print("StaffNotesView ========")
-//        for n in noteLayoutPositions.positions.keys {
-//            print("  StaffNotesView ========", n.sequence, n.midiNumber, "BeamType", n.beamType, "BeamEnd", n.beamEndNote)
-//        }
-//        return true
-//    }
+
 }
 

@@ -206,24 +206,6 @@ struct ClapOrPlayPresentView: View {
         return false
     }
          
-//    func replayRecordingAllowed() -> Bool {
-//        guard let parent = contentSection.parent else {
-//            return true
-//        }
-//        if parent.isExamTypeContentSection() {
-//            //|| answerState == .notEverAnswered {
-//            ///Only allowed when section is exam but student is in exam review mode
-//            if contentSection.answer111 == nil {
-//                return false
-//            }
-//            else {
-//                return true
-//            }
-//        }
-//        return true
-//    }
-    
-
     func instructionView() -> some View {
         VStack {
             if let instruction = self.getInstruction(mode: self.questionType, number: 0, grade: contentSection.getGrade()) {
@@ -590,7 +572,7 @@ struct ClapOrPlayAnswerView: View {
             else {
                 feedback.correct = false
             }
-            print("==========", self.fittedScore == nil, fittedScore == nil, feedback == nil)
+            //print("==========", self.fittedScore == nil, fittedScore == nil, feedback == nil)
             self.fittedScore!.setStudentFeedback(studentFeedack: feedback)
         }
     }
@@ -669,10 +651,10 @@ struct ClapOrPlayAnswerView: View {
         }
     }
     
-    func log(_ score:Score) -> Bool {
-        print ("========", score == nil, score.studentFeedback == nil)
-       return true
-    }
+//    func log(_ score:Score) -> Bool {
+//    print ("========", score == nil, score.studentFeedback == nil)
+//       return true
+//    }
     
     var body: AnyView {
         AnyView(
@@ -725,13 +707,13 @@ struct ClapOrPlayAnswerView: View {
                 
                 if contentSection.getExamTakingStatus() == .notInExam {
                     if let fittedScore = self.fittedScore {
-                        if log(fittedScore) {
+                        //if log(fittedScore) {
                             if let studentFeedback = fittedScore.studentFeedback {
                                 Spacer()
                                 nextButtons(answerWasCorrect: studentFeedback.correct)
                                 Spacer()
                             }
-                        }
+                        //}
                     }
                 }
                 
@@ -811,10 +793,15 @@ struct ClapOrPlayView: View {
             }
             else {
                 if shouldShowAnswer() {
-                    ClapOrPlayAnswerView(contentSection: contentSection,
-                                         score: score,
-                                         answer: answer,
-                                         questionType: questionType)
+                    ZStack {
+                        ClapOrPlayAnswerView(contentSection: contentSection,
+                                             score: score,
+                                             answer: answer,
+                                             questionType: questionType)
+                        if !(self.questionType == .melodyPlay) {
+                            FlyingImageView(answer: answer)
+                        }
+                    }
                 }
                 Spacer() //Force it to align from the top
             }

@@ -40,7 +40,6 @@ extension UserDefaults {
     }
     
     func setShowReloadHTMLButton(key:String, _ way: Bool) {
-        print(">=====\(key)====")
         set(way, forKey: key)
         log()
     }

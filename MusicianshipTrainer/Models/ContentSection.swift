@@ -33,7 +33,9 @@ class ContentSectionData: Codable {
 }
 
 class ContentSection: ObservableObject, Identifiable { //Codable,
-    @Published var selectedIndex:Int?
+    @Published var selectedIndex:Int? //The row to go into
+    @Published var postitionToIndex:Int? //The row to postion to
+    
     var id = UUID()
     var parent:ContentSection?
     var name: String
@@ -72,28 +74,27 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     
     func setSelected(_ i:Int) {
         DispatchQueue.main.async {
-            //if self.selectedIndex != nil {
-                if true || i == self.selectedIndex {
-                    self.selectedIndex = nil
-                    DispatchQueue.global(qos: .background).async {
-                        sleep(1)
-                        DispatchQueue.main.async {
-                            self.selectedIndex = i
-                            DispatchQueue.global(qos: .background).async {
-                                sleep(1)
-                                DispatchQueue.main.async {
-                                    self.selectedIndex = i
-                                }
+//            if true || i == self.selectedIndex {
+                self.selectedIndex = nil
+                DispatchQueue.global(qos: .background).async {
+                    sleep(1)
+                    DispatchQueue.main.async {
+                        //self.selectedIndex = i
+                        self.postitionToIndex = i
+                        DispatchQueue.global(qos: .background).async {
+                            sleep(1)
+                            DispatchQueue.main.async {
+                                self.selectedIndex = i
                             }
                         }
                     }
                 }
-                else {
-                    self.selectedIndex = i
-                }
-            }
-        //}
-    }
+//            }
+//            else {
+//                self.selectedIndex = i
+//            }
+        }
+}
     
     func getGrade() -> Int {
         var grade:Int = 1
@@ -520,7 +521,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                             //timeSlice.addNote(n: note1)
                             if let triad = triad {
                                 addTriad(score: score, timeSlice: timeSlice, note: note, triad: triad, value: note.getValue())
-                                score.debugScore("=============", withBeam: false)
                             }
                         }
                     }

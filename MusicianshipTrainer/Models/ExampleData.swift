@@ -89,20 +89,29 @@ class ExampleData : ObservableObject {
             if name.count == 0 {
                 continue
             }
-            
+            let score = Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1, noteSize: .small)
             let melody = Melody(halfSteps: halfSteps, name: name)
             for i in 3..<rowCells.count {
                 let parts = rowCells[i].components(separatedBy: ",")
                 if parts.count < 2 {
                     continue
                 }
-                guard let pitch = Int(parts[0]) else {
-                    continue
-                }
+                let timeSlice = TimeSlice(score: score)
                 guard let value = Double(parts[1]) else {
                     continue
                 }
-                melody.notes.append(Note(timeSlice: nil, num:pitch, value:Double(value), staffNum: 0))
+                if parts[0] == "R" {
+                    let rest = Rest(timeSlice: timeSlice, value: value, staffNum: 0)
+                    timeSlice.addRest(rest: rest)
+                }
+                else {
+                    guard let pitch = Int(parts[0]) else {
+                        continue
+                    }
+                    let note = Note(timeSlice: nil, num:pitch, value:Double(value), staffNum: 0)
+                    timeSlice.addNote(n: note)
+                }
+                melody.timeSlices.append(timeSlice)
             }
             melody.data = Array(rowCells.dropFirst(3))
             Melodies.shared.addMelody(melody: melody)
