@@ -354,6 +354,7 @@
 				7B40B82A2A54E52A00CA7FC4 /* ConfigurationView.swift */,
 				7B40B8162A54E52A00CA7FC4 /* ContentNavigationView.swift */,
 				7B40B8272A54E52A00CA7FC4 /* ContentSectionView.swift */,
+				7BEEF61B2AE1D903006BA3D3 /* FlyingImageView.swift */,
 				7B40B8212A54E52A00CA7FC4 /* IndexView.swift */,
 				7B40B8292A54E52A00CA7FC4 /* LaunchScreen.swift */,
 				7B40B81A2A54E52A00CA7FC4 /* MetronomeView.swift */,
@@ -367,7 +368,6 @@
 				7B40B8182A54E52A00CA7FC4 /* TimeSliceView.swift */,
 				7B40B8202A54E52A00CA7FC4 /* ToolsView.swift */,
 				7B40B81C2A54E52A00CA7FC4 /* VoiceCounter.swift */,
-				7BEEF61B2AE1D903006BA3D3 /* FlyingImageView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";

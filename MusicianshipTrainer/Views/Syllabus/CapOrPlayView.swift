@@ -798,8 +798,10 @@ struct ClapOrPlayView: View {
                                              score: score,
                                              answer: answer,
                                              questionType: questionType)
-                        if !(self.questionType == .melodyPlay) {
-                            FlyingImageView(answer: answer)
+                        if !contentSection.isExamTypeContentSection() {
+                            if !(self.questionType == .melodyPlay) {
+                                FlyingImageView(answer: answer)
+                            }
                         }
                     }
                 }

@@ -75,7 +75,6 @@ struct StemView: View {
                 notes.append(n)
             }
         }
-
         return notes
     }
     
@@ -90,19 +89,20 @@ struct StemView: View {
                         let startNote = staffNotes[0].getBeamStartNote(score: score, np: notePositionLayout)
                         let inErrorAjdust = 0.0 //notes.notes[0].noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
                         if startNote.getValue() != Note.VALUE_WHOLE {
-                            //Note this code eventually has to go adjust the stem length for notes under a quaver beam
-                            //3.5 lines is a full length stem
-                            let stemDirection = startNote.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: startNote)
-                            //let midX = geo.size.width / 2.0 + (stemDirection * -1.0 * noteWidth / 2.0)
-                            let midX = (geo.size.width + (midPointXOffset(notes: notes, staff: staff, stemDirection: stemDirection))) / 2.0
-                            let midY = geo.size.height / 2.0
-                            //let offsetY = Double(offsetFromStaffMiddle) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
-                            let offsetY = CGFloat(notes[0].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
-                            Path { path in
-                                path.move(to: CGPoint(x: midX, y: midY - offsetY))
-                                path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
-                            }
-                            .stroke(notes[0].getColor(staff: staff), lineWidth: 1.5)
+                            //if startNote.debug("VIEW staff:\(staff.staffNum)") {
+                                //Note this code eventually has to go adjust the stem length for notes under a quaver beam
+                                //3.5 lines is a full length stem
+                                let stemDirection = startNote.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: startNote)
+                                //let midX = geo.size.width / 2.0 + (stemDirection * -1.0 * noteWidth / 2.0)
+                                let midX = (geo.size.width + (midPointXOffset(notes: notes, staff: staff, stemDirection: stemDirection))) / 2.0
+                                let midY = geo.size.height / 2.0
+                                let offsetY = CGFloat(notes[0].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                                Path { path in
+                                    path.move(to: CGPoint(x: midX, y: midY - offsetY))
+                                    path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
+                                }
+                                .stroke(notes[0].getColor(staff: staff), lineWidth: 1.5)
+                            //}
                         }
                     }
                     else {

@@ -86,6 +86,7 @@ struct MelodyScoreView: View {
             
             ///Transpose the melody to demonstrate the chosen interval at the same pitch as the question
             score = Score(key: parsedScore.key, timeSignature: parsedScore.timeSignature, linesPerStaff: 5, noteSize: parsedScore.noteSize)
+            parsedScore.debugScore("Melody1", withBeam: false)
             if let score = score {
                 score.setStaff(num: 0, staff: Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5))
                 for entry in parsedScore.scoreEntries {
@@ -93,7 +94,10 @@ struct MelodyScoreView: View {
                         let newTS = score.createTimeSlice()
                         if let note = getNote(ts) {
                             let newNote = Note(timeSlice: ts, num: note.midiNumber + pitchAdjust, value: note.getValue(), staffNum: 0)
-                            newTS .addNote(n: newNote)
+                            if pitchAdjust == 0 {
+                                newNote.accidental = note.accidental
+                            }
+                            newTS.addNote(n: newNote)
                         }
                         if let rest = getRest(ts) {
                             let newRest = Rest(timeSlice: newTS, value: rest.getValue(), staffNum: 0)
@@ -105,12 +109,12 @@ struct MelodyScoreView: View {
                         score.addBarLine()
                     }
                 }
-                score.cleanAccidentals()
-                
                 metronome.playScore(score: score, onDone: {
                     //self.scoreWasPlayed = true
                 })
             }
+            score?.debugScore("Melody2", withBeam: false)
+
         }
         .onDisappear() {
             metronome.stopPlayingScore()

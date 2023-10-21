@@ -485,7 +485,9 @@ struct IntervalView: View {
                                            score: self.score,
                                            answer: answer,
                                            questionType:questionType)
-                        FlyingImageView(answer: answer)
+                        if !contentSection.isExamTypeContentSection() {
+                            FlyingImageView(answer: answer)
+                        }
                     }
                 }
             }

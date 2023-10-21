@@ -33,19 +33,23 @@ class TimeSlice : ScoreEntry {
     }
     
     func addNote(n:Note) {
-        self.entries.append(n)
         n.timeSlice = self
+        self.entries.append(n)
         if let score = score {
+            let barAlreadyHasNote = score.noteCountForBar(pitch:n.midiNumber) > 1
+            for i in 0..<score.staffs.count {
+                n.setNotePlacementAndAccidental(staff: score.staffs[i], barAlreadyHasNote: barAlreadyHasNote)
+            }
             score.updateStaffs()
-            score.addBeamAndStemCharaceteristics()
-        }
+            score.addStemAndBeamCharaceteristics()
+        }        
     }
     
     func addRest(rest:Rest) {
         self.entries.append(rest)
         if let score = score {
             score.updateStaffs()
-            score.addBeamAndStemCharaceteristics()
+            score.addStemAndBeamCharaceteristics()
         }
     }
 
@@ -54,7 +58,7 @@ class TimeSlice : ScoreEntry {
             self.entries.append(n)
         }
         if let score = score {
-            score.addBeamAndStemCharaceteristics()
+            score.addStemAndBeamCharaceteristics()
             score.updateStaffs()
         }
     }

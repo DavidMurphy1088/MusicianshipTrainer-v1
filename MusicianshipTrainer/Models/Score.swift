@@ -130,31 +130,32 @@ class Score : ObservableObject {
         return result
     }
     
-//    func debugScore(_ ctx:String, withBeam:Bool) {
-//        print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
-//        for t in self.getAllTimeSlices() {
-//            if t.entries.count == 0 {
-//                print("ZERO ENTRIES")
-//                continue
-//            }
-//            let note = t.entries[0] as? Note
-//            if withBeam {
-//                print("  Seq", t.sequence, "type:", type(of: t.entries[0]), "midi:", note?.midiNumber ?? "0", "Value:", t.getValue() ?? "", "[beamType:", note?.beamType ?? "__",
-//                      "beamEnd", note?.beamEndNote ?? "__", "]")
-//            }
-//            else {
-//                print("  Seq", t.sequence,
-//                      "[type:", type(of: t.entries[0]), "]",
-//                      "[midi:",note?.midiNumber ?? "0", "]",
-//                      "[Value:",note?.getValue(),"]",
-//                      "[Staff:",note?.staffNum,"]",
-//                      "[stem:",note?.stemDirection ?? "none", note?.stemLength ?? "none", "]",
-//                      t.getValue() ?? "","status",
-//                      t.statusTag
-//                )
-//            }
-//        }
-//    }
+    func debugScore(_ ctx:String, withBeam:Bool) {
+        print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
+        for t in self.getAllTimeSlices() {
+            if t.entries.count == 0 {
+                print("ZERO ENTRIES")
+                continue
+            }
+            let note = t.entries[0] as? Note
+            if withBeam {
+                print("  Seq", t.sequence, "type:", type(of: t.entries[0]), "midi:", note?.midiNumber ?? "0", "Value:", t.getValue() ?? "", "[beamType:", note?.beamType ?? "__",
+                      "beamEnd", note?.beamEndNote ?? "__", "]")
+            }
+            else {
+                print("  Seq", t.sequence,
+                      "[type:", type(of: t.entries[0]), "]",
+                      "[midi:",note?.midiNumber ?? "0", "]",
+                      "[Value:",note?.getValue(),"]",
+                      "[Accidental:",note?.accidental,"]",
+                      "[Staff:",note?.staffNum,"]",
+                      "[stem:",note?.stemDirection ?? "none", note?.stemLength ?? "none", "]",
+                      t.getValue() ?? "","status",
+                      t.statusTag
+                )
+            }
+        }
+    }
     
     ///Return the first timeslice index of where the scores differ
     func getFirstDifferentTimeSlice(compareScore:Score) -> Int? {
@@ -212,30 +213,30 @@ class Score : ObservableObject {
         }
     }
     
-    ///Remove accidentals that are already written for the sam note in each bar
-    func cleanAccidentals() {
-        let entries = self.scoreEntries
-        var accidentals:[Int] = []
-        for entry in entries {
-            if let ts = entry as? TimeSlice {
-                if ts.getTimeSliceNotes().count > 0 {
-                    let note = ts.getTimeSliceNotes()[0]
-                    let placement = note.getNoteDisplayCharacteristics(staff: staffs[0])
-                    if let accidental = placement.accidental {
-                        if accidentals.contains(note.midiNumber) {
-                            note.accidental = nil
-                        }
-                        else {
-                            accidentals.append(note.midiNumber)
-                        }
-                    }
-                }
-            }
-            if let bar = entry as? BarLine {
-                accidentals = []
-            }
-        }
-    }
+//    ///Remove accidentals that are already written for the sam note in each bar
+//    func cleanAccidentals() {
+//        let entries = self.scoreEntries
+//        var accidentals:[Int] = []
+//        for entry in entries {
+//            if let ts = entry as? TimeSlice {
+//                if ts.getTimeSliceNotes().count > 0 {
+//                    let note = ts.getTimeSliceNotes()[0]
+//                    let placement = note.getNoteDisplayCharacteristics(staff: staffs[0])
+//                    if let accidental = placement.accidental {
+//                        if accidentals.contains(note.midiNumber) {
+//                            note.accidental = nil
+//                        }
+//                        else {
+//                            accidentals.append(note.midiNumber)
+//                        }
+//                    }
+//                }
+//            }
+//            if let bar = entry as? BarLine {
+//                accidentals = []
+//            }
+//        }
+//    }
     
     func setStudentFeedback(studentFeedack:StudentFeedback? = nil) {
         //DispatchQueue.main.async {
@@ -335,7 +336,7 @@ class Score : ObservableObject {
         return totalOffsets <= 0 ? StemDirection.up: StemDirection.down
     }
     
-    func addBeamAndStemCharaceteristics() {
+    func addStemAndBeamCharaceteristics() {
         guard let timeSlice = self.getLastTimeSlice() else {
             return
         }
@@ -741,6 +742,24 @@ class Score : ObservableObject {
         for ts in getAllTimeSlices() {
             ts.setStatusTag(.noTag)
         }
+    }
+    
+    func noteCountForBar(pitch:Int) -> Int {
+        var count = 0
+        for entry in self.scoreEntries.reversed() {
+            if entry is BarLine {
+                break
+            }
+            if let ts = entry as? TimeSlice {
+                if ts.getTimeSliceNotes().count > 0 {
+                    let note = ts.entries[0] as? Note
+                    if note?.midiNumber == pitch {
+                        count += 1
+                    }
+                }
+            }
+        }
+        return count
     }
 }
 

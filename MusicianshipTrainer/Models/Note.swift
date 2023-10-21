@@ -174,12 +174,10 @@ enum StatusTag {
 }
 
 class NoteStaffPlacement {
-    var midi:Int
     var offsetFromStaffMidline:Int
     var accidental: Int?
     
-    init(midi:Int, offsetFroMidLine:Int, accidental:Int?=nil) {
-        self.midi = midi
+    init(offsetFroMidLine:Int, accidental:Int?=nil) {
         self.offsetFromStaffMidline = offsetFroMidLine
         self.accidental = accidental
     }
@@ -199,6 +197,8 @@ class Note : TimeSliceEntry, Comparable {
     var isOnlyRhythmNote = false
     var accidental:Int? = nil ///< 0 = flat, ==0 natural, > 0 sharp
     var rotated:Bool = false ///true if note must be displayed vertically rotated due to closeness to a neighbor.
+    
+    var noteStaffPlacements:[NoteStaffPlacement?] = [nil, nil]
     
     ///Quavers in a beam have either a start, middle or end beam type. A standlone quaver type has type beamEnd. A non quaver has beam type none.
     var beamType:QuaverBeamType = .none
@@ -376,6 +376,9 @@ class Note : TimeSliceEntry, Comparable {
         }
     }
     
+    func getNoteDisplayCharacteristics(staff:Staff) -> NoteStaffPlacement {
+        return self.noteStaffPlacements[staff.staffNum]!
+    }
     
     ///The note has a default accidental determined by which key the score is in but can be overidden by content specifying a written accidental
     ///The written accidental must overide the default accidental and the note's offset adjusted accordingly.
@@ -383,7 +386,7 @@ class Note : TimeSliceEntry, Comparable {
     ///default staff offset based on the written accidental. e.g. a note at MIDI 75 would be defaulted to show as E ♭ in C major but may be speciifed to show as D# by a written
     ///accidentail. In that case the note must shift down 1 unit of offset.
     ///
-    func getNoteDisplayCharacteristics(staff:Staff) -> NoteStaffPlacement {
+    func setNotePlacementAndAccidental(staff:Staff, barAlreadyHasNote:Bool) { //}-> NoteStaffPlacement {
         let defaultNoteData = staff.getNoteViewPlacement(note: self)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
         var offsetAccidental:Int? = nil
@@ -404,21 +407,34 @@ class Note : TimeSliceEntry, Comparable {
         }
         else {
             //Determine if the note's accidental is implied by the key signature
-            //Or a note has to have a natural accidental to offset the key signtue
+            //Or a note has to have a natural accidental to offset the key signture
             let keySignatureHasNote = staff.score.key.hasNote(note: self.midiNumber)
             if let defaultAccidental = defaultNoteData.accidental {
                 if !keySignatureHasNote {
-                    offsetAccidental = defaultAccidental
+                    if !barAlreadyHasNote {
+                        offsetAccidental = defaultAccidental
+                    }
                 }
             }
             else {
                 let keySignatureHasNote = staff.score.key.hasNote(note: self.midiNumber + 1)
                 if keySignatureHasNote {
-                    offsetAccidental = 0
+                    if !barAlreadyHasNote {
+                        offsetAccidental = 0
+                    }
                 }
             }
         }
-        let placement = NoteStaffPlacement(midi: defaultNoteData.midi, offsetFroMidLine: offsetFromMiddle, accidental: offsetAccidental)
-        return placement
+        let placement = NoteStaffPlacement(offsetFroMidLine: offsetFromMiddle, accidental: offsetAccidental)
+        self.noteStaffPlacements[staff.staffNum] = placement
+        //self.debug("setNoteDisplayCharacteristics")
+    }
+    
+    func debugx(_ context:String) -> Bool {
+        print("\n============ NOTE", context, self.midiNumber, self.value)
+        for i in 0..<self.noteStaffPlacements.count {
+            print(" staff", "offset", noteStaffPlacements[i]?.offsetFromStaffMidline ?? "_", "accidental", noteStaffPlacements[i]?.accidental ?? "_")
+        }
+        return true
     }
 }
