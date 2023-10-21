@@ -299,7 +299,7 @@ struct ClapOrPlayPresentView: View {
                 }
             }
             HStack {
-                if contentSection.parent != nil {
+                //if contentSection.parent != nil {
                     if answerState != .recording {
                         if shouldPlayRecording() {
                             let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
@@ -310,7 +310,7 @@ struct ClapOrPlayPresentView: View {
                                               onDone: {rhythmHeard = true})
                         }
                     }
-                }
+                //}
                 if answerState == .recorded {
                     if !(contentSection.getExamTakingStatus() == .inExam) {
                         PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
@@ -326,7 +326,7 @@ struct ClapOrPlayPresentView: View {
                                 }
                             }
                         }),
-                                          onDone: ({
+                        onDone: ({
                             //recording was played at the student's tempo and now reset metronome
                             metronome.setTempo(tempo: self.questionTempo, context: "end hear student")
                         })
@@ -412,6 +412,14 @@ struct ClapOrPlayPresentView: View {
                     
                     if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
                         if answerState == .recording {
+                            if questionType == .rhythmEchoClap {
+                                PlayRecordingView(buttonLabel: "Hear The Given Rhythm Again",
+                                                  score: score,
+                                                  metronome: metronome,
+                                                  fileName: contentSection.name,
+                                                  onDone: {})
+                            }
+                        
                             TappingView(isRecording: $isTapping, tapRecorder: tapRecorder, onDone: {
                                 answerState = .recorded
                                 self.isTapping = false
@@ -599,10 +607,10 @@ struct ClapOrPlayAnswerView: View {
                         }
                     }) {
                         HStack {
-                            Image(systemName: "arrow.left")
-                                .foregroundColor(.blue)
-                                .font(.largeTitle)
-                            Text("Previous").defaultButtonStyle()
+//                            Image(systemName: "arrow.left")
+//                                .foregroundColor(.blue)
+//                                .font(.largeTitle)
+                            Text("\u{2190} Previous").defaultButtonStyle()
                         }
                     }
                     Spacer()
@@ -614,10 +622,10 @@ struct ClapOrPlayAnswerView: View {
                         }
                     }) {
                         HStack {
-                            Text("Next").defaultButtonStyle()
-                            Image(systemName: "arrow.right")
-                                .foregroundColor(.blue)
-                                .font(.largeTitle)
+                            Text("Next \u{2192}").defaultButtonStyle()
+//                            Image(systemName: "arrow.right")
+//                                .foregroundColor(.blue)
+//                                .font(.largeTitle)
                         }
                     }
                     Spacer()
@@ -629,10 +637,10 @@ struct ClapOrPlayAnswerView: View {
                         }
                     }) {
                         HStack {
-                            Text("Shuffle").defaultButtonStyle()
-                            Image(systemName: "arrow.up")
-                                .foregroundColor(.blue)
-                                .font(.largeTitle)
+                            Text("\u{2191} Shuffle").defaultButtonStyle()
+//                            Image(systemName: "arrow.up")
+//                                .foregroundColor(.blue)
+//                                .font(.largeTitle)
                         }
                     }
                     Spacer()
@@ -716,7 +724,6 @@ struct ClapOrPlayAnswerView: View {
                         //}
                     }
                 }
-                
                 Spacer() //Keep - required to align the page from the top
             }
             .onAppear() {

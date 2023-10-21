@@ -38,11 +38,69 @@ struct FeedbackView: View {
     }
 }
 
+struct ScoreSelectView: View {
+    @State private var dragOffset = CGSize.zero
+    @State private var isDragging = false
+    @State private var viewWidth = 0.0
+    @State private var barWidth = 200.0
+    @State private var offset = 0.0
+
+    var drag: some Gesture {
+        DragGesture()
+            .onChanged { _ in self.isDragging = true }
+            .onEnded { _ in self.isDragging = false }
+    }
+    
+    func getOffset() -> CGFloat {
+        var x = self.viewWidth * 0.50 - self.barWidth / 2.0
+        x += self.offset
+        return x
+    }
+    
+    var body: some View {
+        HStack {
+            Rectangle()
+                .fill(self.isDragging ? Color.red : Color.indigo)
+                .frame(width: barWidth, height: 20)
+                .cornerRadius(10)
+                .offset(x: getOffset(), y: 0)
+            
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            self.dragOffset = value.translation
+                            self.isDragging = true
+                            self.offset = value.location.x - value.startLocation.x
+                            print("============= drag DIFF:", offset, "   ", value.translation, value.location, value.startLocation)
+                        }
+                        .onEnded { value in
+                            self.isDragging = false
+                        }
+                )
+            
+            //        Circle()
+            //            .fill(self.isDragging ? Color.red : Color.blue)
+            //            .frame(width: 50, alignment: .center)
+            //            .gesture(drag)
+            //        }
+        }
+        .background(
+            GeometryReader { geometry in
+                Color.clear.onAppear {
+                    self.viewWidth = geometry.size.width
+                }
+            }
+        )
+        
+    }
+}
+
 struct ScoreView: View {
     @ObservedObject var score:Score
     @ObservedObject var staffLayoutSize:StaffLayoutSize
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-
+    @State private var dragOffset = CGSize.zero
+    
     init(score:Score) {
         self.score = score
         self.staffLayoutSize = StaffLayoutSize(lineSpacing: UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0)
@@ -128,6 +186,7 @@ struct ScoreView: View {
                     //.border(Color .red, width: 4)
                 }
             }
+            ScoreSelectView()
         }
         .onAppear {
             //self.lineSpacing.lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0

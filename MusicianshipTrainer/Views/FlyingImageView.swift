@@ -3,16 +3,18 @@ import Foundation
 
 struct FlyingImageView: View {
     @State var answer:Answer
-    @State private var position = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2)
+    @State var xPos = 0.0
     @State var yPos = 0.0
     @State var loop = 0
-    let imageSize:CGFloat = 160.0
+    let imageSize:CGFloat = 120.0
     let totalDuration = 15.0
-    let delta = 100.0
+    let heightDelta = 60.0
     @State var rotation = 0.0
     @State var opacity = 1.0
     @State var imageNumber = 0
-    
+    @State var leftOrRight = 0
+    @State private var viewWidth = 0.0
+
     func imageName() -> String {
         return "answer_animate_" + String(self.imageNumber)
     }
@@ -25,44 +27,63 @@ struct FlyingImageView: View {
                 .foregroundColor(.blue)
                 .opacity(opacity * 1.5)
                 .rotationEffect(Angle(degrees: rotation))
-                .position(position)
+                .position(CGPoint(x: xPos, y: yPos))
         }
         .onAppear {
-            self.imageNumber = Int.random(in: 0...6)
+            leftOrRight = Int.random(in: 0...1)
+            xPos = UIScreen.main.bounds.width * (leftOrRight == 0 ? 0.20 : 0.80)
+            yPos = UIScreen.main.bounds.height * (answer.correct ? 0.30 : 0.60)
+            self.imageNumber = Int.random(in: 0...21)
+            if !answer.correct {
+                //withAnimation(Animation.linear(duration: 1.0)) { //}.repeatForever(autoreverses: false)) {
+                    rotation = -90.0
+                //}
+            }
+
             DispatchQueue.global(qos: .background).async {
-                sleep(1)
-                if !answer.correct {
-                    withAnimation(Animation.linear(duration: 1.0)) { //}.repeatForever(autoreverses: false)) {
-                        rotation = -90.0
-                    }
-                }
+                //sleep(1)
                 animateRandomly()
             }
         }
+        .background(
+            GeometryReader { geometry in
+                Color.clear.onAppear {
+                    self.viewWidth = geometry.size.width
+                }
+            }
+        )
+
     }
     
     func animateRandomly() {
         let loops = 4
-        for _ in 0..<loops {
-            var randomX = 0.0
-            if answer.correct {
-                yPos -= delta //CGFloat.random(in: imageSize/2 ... UIScreen.main.bounds.height - imageSize/2)
-                randomX = CGFloat.random(in: imageSize * -1 ... imageSize * 2)
-            }
-            else {
-                randomX = CGFloat.random(in: imageSize * -4 ... imageSize * 4)
-                yPos += delta / 4.0
-            }
-            
+        print("\n=======")
+        for loop in 0..<loops {
             withAnimation(Animation.linear(duration: totalDuration / Double(loops))) { //}.repeatForever(autoreverses: false)) {
                 opacity = 0.0
-                position = CGPoint(x: UIScreen.main.bounds.width / 2 + randomX, y: UIScreen.main.bounds.height / 2 + yPos)
-                //rotation = rotation * Double.random(in: 0...0.2)
-                if self.answer.correct {
+                if answer.correct {
+                    xPos = xPos + CGFloat.random(in: imageSize * -1.0 ... imageSize * 1.0)
+                    yPos = yPos - heightDelta
                     rotation = rotation + Double(Int.random(in: 0...10))
                 }
                 else {
-                    rotation = rotation + 45.0
+                    let distance = CGFloat.random(in: 0...imageSize * 6)
+                    let direction = Int.random(in: 0...1)
+                    if direction == 0 {
+                        xPos = xPos + distance
+                    }
+                    else {
+                        xPos = xPos - distance
+                    }
+                    if xPos < 0 {
+                        xPos = 0
+                    }
+                    if xPos > self.viewWidth - imageSize {
+                        xPos = self.viewWidth - imageSize
+                    }
+                    print("==========", loop, direction, xPos, distance)
+                    yPos = yPos + heightDelta * 1.0
+                    rotation = rotation + 90.0
                 }
             }
         }

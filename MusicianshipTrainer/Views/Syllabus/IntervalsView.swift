@@ -310,10 +310,10 @@ struct IntervalAnswerView: View {
                         }
                     }) {
                         HStack {
-                            Image(systemName: "arrow.left")
-                                .foregroundColor(.blue)
-                                .font(.largeTitle)
-                            Text("Previous").defaultButtonStyle()
+//                            Image(systemName: "arrow.left")
+//                                .foregroundColor(.blue)
+//                                .font(.largeTitle)
+                            Text("\u{2190} Previous").defaultButtonStyle()
                         }
                     }
                     Spacer()
@@ -325,10 +325,10 @@ struct IntervalAnswerView: View {
                         }
                     }) {
                         HStack {
-                            Text("Next").defaultButtonStyle()
-                            Image(systemName: "arrow.right")
-                                .foregroundColor(.blue)
-                                .font(.largeTitle)
+                            Text("Next \u{2192}").defaultButtonStyle()
+//                            Image(systemName: "arrow.right")
+//                                .foregroundColor(.blue)
+//                                .font(.largeTitle)
                         }
                     }
                     Spacer()
@@ -340,10 +340,10 @@ struct IntervalAnswerView: View {
                         }
                     }) {
                         HStack {
-                            Text("Shuffle").defaultButtonStyle()
-                            Image(systemName: "arrow.up")
-                                .foregroundColor(.blue)
-                                .font(.largeTitle)
+                            Text("\u{2191} Shuffle").defaultButtonStyle()
+//                            Image(systemName: "arrow.up")
+//                                .foregroundColor(.blue)
+//                                .font(.largeTitle)
                         }
                     }
                     Spacer()
