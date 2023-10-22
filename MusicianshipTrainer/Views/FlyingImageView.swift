@@ -57,7 +57,6 @@ struct FlyingImageView: View {
     
     func animateRandomly() {
         let loops = 4
-        print("\n=======")
         for loop in 0..<loops {
             withAnimation(Animation.linear(duration: totalDuration / Double(loops))) { //}.repeatForever(autoreverses: false)) {
                 opacity = 0.0
@@ -81,7 +80,6 @@ struct FlyingImageView: View {
                     if xPos > self.viewWidth - imageSize {
                         xPos = self.viewWidth - imageSize
                     }
-                    print("==========", loop, direction, xPos, distance)
                     yPos = yPos + heightDelta * 1.0
                     rotation = rotation + 90.0
                 }

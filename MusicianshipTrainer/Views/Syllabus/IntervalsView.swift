@@ -310,9 +310,6 @@ struct IntervalAnswerView: View {
                         }
                     }) {
                         HStack {
-//                            Image(systemName: "arrow.left")
-//                                .foregroundColor(.blue)
-//                                .font(.largeTitle)
                             Text("\u{2190} Previous").defaultButtonStyle()
                         }
                     }
@@ -326,9 +323,6 @@ struct IntervalAnswerView: View {
                     }) {
                         HStack {
                             Text("Next \u{2192}").defaultButtonStyle()
-//                            Image(systemName: "arrow.right")
-//                                .foregroundColor(.blue)
-//                                .font(.largeTitle)
                         }
                     }
                     Spacer()
@@ -341,23 +335,10 @@ struct IntervalAnswerView: View {
                     }) {
                         HStack {
                             Text("\u{2191} Shuffle").defaultButtonStyle()
-//                            Image(systemName: "arrow.up")
-//                                .foregroundColor(.blue)
-//                                .font(.largeTitle)
                         }
                     }
                     Spacer()
                 }
-//                else {
-//                    Button(action: {
-//                        let parent = self.contentSection.parent
-//                        if let parent = parent {
-//                            parent.setSelected(parent.selectedIndex ?? 0)
-//                        }
-//                    }) {
-//                        Text("Try Again").defaultButtonStyle()
-//                    }
-//                }
             }
         }
     }

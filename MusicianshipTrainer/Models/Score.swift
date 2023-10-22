@@ -74,6 +74,38 @@ class StaffLayoutSize: ObservableObject {
     }
 }
 
+class BarManager: ObservableObject {
+    @Published var states:[Bool] = []
+    let score:Score
+    
+
+    init (score:Score) {
+        self.score = score
+        self.states = Array(repeating: false, count: score.getBarCount())
+    }
+    
+    func toggleState(_ i:Int) {
+        DispatchQueue.main.async { [self] in
+            states[i].toggle()
+            //hiliteNotesInBar(bar: i, way: states[i])
+        }
+    }
+
+    func hiliteNotesInBar(bar:Int, way:Bool) {
+        var currentBarNo = 0
+        for entry in score.scoreEntries {
+            if currentBarNo == bar {
+                if let ts = entry as? TimeSlice {
+                    ts.setStatusTag(way ? .hilightAsCorrect : .noTag)
+                }
+            }
+            if entry is BarLine {
+                currentBarNo += 1
+            }
+        }
+    }
+}
+
 class Score : ObservableObject {
     let id:UUID
     
@@ -85,7 +117,9 @@ class Score : ObservableObject {
     //@Published
     var studentFeedback:StudentFeedback? = nil
     @Published var scoreEntries:[ScoreEntry] = []
-    
+    @Published var barLayoutPositions:BarLayoutPositions
+    @Published var barManager:BarManager?
+
     let ledgerLineCount =  2 //3//4 is required to represent low E
     var staffs:[Staff] = []
     
@@ -113,6 +147,21 @@ class Score : ObservableObject {
         self.noteSize = noteSize
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
         self.key = key
+        barLayoutPositions = BarLayoutPositions()
+    }
+    
+    func createBarManager() {
+        self.barManager = BarManager(score: self)
+    }
+    
+    func getBarCount() -> Int {
+        var count = 0
+        for entry in self.scoreEntries {
+            if entry is BarLine {
+                count += 1
+            }
+        }
+        return count + 1
     }
     
     func getTotalStaffLineCount() -> Int {

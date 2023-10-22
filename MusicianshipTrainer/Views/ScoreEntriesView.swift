@@ -135,8 +135,10 @@ struct StemView: View {
     }
 }
 
-struct StaffNotesView: View {
+struct ScoreEntriesView: View {
     @ObservedObject var noteLayoutPositions:NoteLayoutPositions
+    @ObservedObject var barLayoutPositions:BarLayoutPositions
+
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
     @ObservedObject var staffLayoutSize:StaffLayoutSize
@@ -150,8 +152,9 @@ struct StaffNotesView: View {
         self.staff = staff
         self.staffLayoutSize = lineSpacing
         self.noteLayoutPositions = staff.noteLayoutPositions
-        StaffNotesView.viewNum += 1
-        self.viewNum = StaffNotesView.viewNum
+        self.barLayoutPositions = score.barLayoutPositions
+        ScoreEntriesView.viewNum += 1
+        self.viewNum = ScoreEntriesView.viewNum
     }
         
     func getNote(entry:ScoreEntry) -> Note? {
@@ -274,7 +277,7 @@ struct StaffNotesView: View {
             let noteWidth = getLineSpacing() * 1.2
             HStack(spacing: 0) { //HStack - score entries display along the staff
                 ForEach(score.scoreEntries) { entry in
-                    VStack { //VStack - required in forEach closure
+                    ZStack { //VStack - required in forEach closure
                         if entry is TimeSlice {
                             let entries = entry as! TimeSlice
                             ZStack { // Each note frame in the timeslice shares the same same vertical space
@@ -284,16 +287,16 @@ struct StaffNotesView: View {
                                          lineSpacing: staffLayoutSize.lineSpacing)
                                 //.border(Color.green)
                                 .background(GeometryReader { geometry in
-                                    ///record and store the note's postion so we can later draw its stems which maybe dependent on the note being in a quaver group with a quaver beam
+                                    ///Record and store the note's postion so we can later draw its stems which maybe dependent on the note being in a quaver group with a quaver beam
                                     Color.clear
                                         .onAppear {
                                             if staff.staffNum == 0 {
-                                                noteLayoutPositions.storePosition(notes: entries.getTimeSliceNotes(),rect: geometry.frame(in: .named("HStack")), cord: "HStack")
+                                                noteLayoutPositions.storePosition(notes: entries.getTimeSliceNotes(),rect: geometry.frame(in: .named("HStack")))
                                             }
                                         }
                                         .onChange(of: staffLayoutSize.lineSpacing) { newValue in
                                              if staff.staffNum == 0 {
-                                                 noteLayoutPositions.storePosition(notes: entries.getTimeSliceNotes(),rect: geometry.frame(in: .named("HStack")), cord: "HStack")
+                                                 noteLayoutPositions.storePosition(notes: entries.getTimeSliceNotes(),rect: geometry.frame(in: .named("HStack")))
                                             }
                                         }
                                 })
@@ -309,16 +312,30 @@ struct StaffNotesView: View {
                             }
                         }
                         if entry is BarLine {
-                            BarLineView(entry: entry, staff: staff, staffLayoutSize: staffLayoutSize)
-                                .frame(height: staffLayoutSize.getStaffHeight(score: score))
-                                //.border(Color.cyan)
+                            GeometryReader { geometry in
+                                BarLineView(entry: entry, staff: staff, staffLayoutSize: staffLayoutSize)
+                                    .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                                    //.border(Color .red)
+                                    .onAppear {
+                                        if staff.staffNum == 0 {
+                                            let barLine = entry as! BarLine
+                                            barLayoutPositions.storePosition(barLine: barLine, rect: geometry.frame(in: .named("ScoreView")), ctx: "onAppear")
+                                        }
+                                    }
+                                    .onChange(of: staffLayoutSize.lineSpacing) { newValue in
+                                        if staff.staffNum == 0 {
+                                            let barLine = entry as! BarLine
+                                            barLayoutPositions.storePosition(barLine: barLine, rect: geometry.frame(in: .named("ScoreView")), ctx: "onChange")
+                                        }
+                                    }
+                            }
                         }
                     }
                     .coordinateSpace(name: "VStack")
                     //IMPORTANT - keep this since the quaver beam code needs to know exactly the note view width
                 }
-                .coordinateSpace(name: "ForEach")
-                ///spacing before end of staff
+                //.coordinateSpace(name: "ForEach")
+                ///Spacing before end of staff
                 Text(" ")
                     .frame(width:1.5 * noteWidth)
             }
@@ -343,7 +360,7 @@ struct StaffNotesView: View {
                                 }
                             }
                         }
-                        //.border(Color .blue)
+                        //.border(Color .red)
                         .padding(.horizontal, 0)
                     }
                     //.border(Color .orange)
@@ -360,6 +377,6 @@ struct StaffNotesView: View {
            // NoteLayoutPositions.reset()
         }
     }
-
+    
 }
 

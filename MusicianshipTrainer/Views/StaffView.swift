@@ -140,6 +140,89 @@ struct KeySignatureView: View {
     }
 }
 
+///Show the bar view based on the postions of the bar lines
+struct BarManagerView: View {
+    @ObservedObject var score:Score
+    @ObservedObject var barManager:BarManager
+    @ObservedObject var barLayoutPositions:BarLayoutPositions
+    let lineSpacing:Double
+    
+    ///Return the bar index number and the start and end x span of its postion on the UI
+    func getPositions() -> [(Int, CGFloat, CGFloat)] {
+        var barLineCovers:[(CGFloat, CGFloat)] = []
+        for p in barLayoutPositions.positions {
+            barLineCovers.append((p.value.minX, p.value.maxX))
+            //barLineCovers.append((p.value.midX - 20.0, p.value.midX + 20.0))
+        }
+        let sortedBarLineCovers = barLineCovers.sorted{ $0.0 < $1.0}
+        
+        var barCovers:[(Int, CGFloat, CGFloat)] = []
+        let edgeBarWidth = 40.0
+        var nextX = edgeBarWidth
+
+        for i in 0..<sortedBarLineCovers.count {
+            barCovers.append((i, nextX, sortedBarLineCovers[i].0)) //sortedBarLineCovers[i].0))
+            nextX = sortedBarLineCovers[i].1
+        }
+        barCovers.append((sortedBarLineCovers.count, nextX, nextX + edgeBarWidth * 2.0))
+        return barCovers
+    }
+    
+    var body: some View {        
+        ZStack {
+            if let barManager = score.barManager {
+                ForEach(getPositions(), id: \.self.0) { indexAndPos in
+                    let width = (indexAndPos.2 - indexAndPos.1)
+//                        Path { path in
+//                            path.move(to: CGPoint(x: indexAndPos.1, y: 0))
+//                            path.addLine(to: CGPoint(x: indexAndPos.2, y: 0))
+//                        }
+//                        .stroke(Color.blue, lineWidth: 4)
+
+                    HStack {
+                        Button(action: {
+                            barManager.toggleState(indexAndPos.0)
+                        }) {
+                            HStack {
+                                Image(systemName: barManager.states[indexAndPos.0] ? "checkmark.square" : "square")
+                                    .resizable()
+                                    .frame(width: lineSpacing * 1.5, height: lineSpacing * 1.5)
+                            }
+                        }
+                        if barManager.states[indexAndPos.0] {
+                            Button(action: {
+                                //barManager.toggleState(indexAndPos.0)
+                            }) {
+                                HStack {
+                                    Image(systemName: "hand.point.up.left")
+                                        .resizable()
+                                        .frame(width: lineSpacing * 3.0, height: lineSpacing * 3.0)
+                                }
+                            }
+                        }
+                    }
+                    .position(x:indexAndPos.2 - width/2.0)
+                    
+                    if barManager.states[indexAndPos.0] {
+                        GeometryReader { geometry in
+                            RoundedRectangle(cornerRadius: 20)  // Specify the corner radius here
+                                .fill(Color.blue.opacity(0.2))  // Setting a semi-transparent red fill
+                                .frame(width: width, height: 130)  // Specifying the size
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.blue, lineWidth: 2)  // Adding a blue border with a width of 2
+                                )
+                                .position(x:indexAndPos.2 - width / 2.0, y:geometry.size.height / 2.0)
+                        }
+                    }
+                }
+            }
+        }
+        .onAppear() {
+        }
+    }
+}
+
 struct StaffView: View {
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
@@ -234,10 +317,13 @@ struct StaffView: View {
                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
                 //    .border(Color.red)
 
-                StaffNotesView(score: score, staff: staff, lineSpacing: staffLayoutSize)
+                ScoreEntriesView(score: score, staff: staff, lineSpacing: staffLayoutSize)
                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                    .coordinateSpace(name: "StaffNotesView")
             }
+            
         }
+        .coordinateSpace(name: "StaffView.ZStack")
         .frame(height: staffLayoutSize.getStaffHeight(score: score))
         //.border(Color .blue, width: 2)
     }

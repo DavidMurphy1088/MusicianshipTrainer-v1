@@ -475,6 +475,7 @@ struct ClapOrPlayPresentView: View {
                 else {
                     metronome.setAllowTempoChange(allow: false)
                 }
+                score.createBarManager()
             }
             .onDisappear() {
                 self.audioRecorder.stopPlaying()
@@ -607,9 +608,6 @@ struct ClapOrPlayAnswerView: View {
                         }
                     }) {
                         HStack {
-//                            Image(systemName: "arrow.left")
-//                                .foregroundColor(.blue)
-//                                .font(.largeTitle)
                             Text("\u{2190} Previous").defaultButtonStyle()
                         }
                     }
@@ -623,9 +621,6 @@ struct ClapOrPlayAnswerView: View {
                     }) {
                         HStack {
                             Text("Next \u{2192}").defaultButtonStyle()
-//                            Image(systemName: "arrow.right")
-//                                .foregroundColor(.blue)
-//                                .font(.largeTitle)
                         }
                     }
                     Spacer()
@@ -638,9 +633,6 @@ struct ClapOrPlayAnswerView: View {
                     }) {
                         HStack {
                             Text("\u{2191} Shuffle").defaultButtonStyle()
-//                            Image(systemName: "arrow.up")
-//                                .foregroundColor(.blue)
-//                                .font(.largeTitle)
                         }
                     }
                     Spacer()
@@ -734,6 +726,7 @@ struct ClapOrPlayAnswerView: View {
                     answerMetronome.setTempo(tempo: questionTempo, context: "AnswerMode::OnAppear")
                 }
                 score.setHiddenStaff(num: 1, isHidden: false)
+                score.createBarManager()
             }
             .onDisappear() {
                 score.clearTaggs() //clear tags from any previous attempt

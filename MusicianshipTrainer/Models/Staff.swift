@@ -4,7 +4,7 @@ import AVFoundation
 
 //https://mammothmemory.net/music/sheet-music/reading-music/treble-clef-and-bass-clef.html
 
-//used to record view positions of notes as they are drawn by a view so that a 2nd darwing pass can draw quaver beams to the right points
+///Used to record view positions of notes as they are drawn by a view so that a 2nd drwing pass can draw quaver beams to the right points
 class NoteLayoutPositions: ObservableObject {
     @Published var positions:[Note: CGRect] = [:]
 
@@ -21,7 +21,7 @@ class NoteLayoutPositions: ObservableObject {
         return lp
     }
     
-    func storePosition(notes: [Note], rect: CGRect, cord:String) {
+    func storePosition(notes: [Note], rect: CGRect) {
         if notes.count > 0 {
             if notes[0].beamType != .none {
                 let rectCopy = CGRect(origin: CGPoint(x: rect.minX, y: rect.minY), size: CGSize(width: rect.size.width, height: rect.size.height))
@@ -30,6 +30,17 @@ class NoteLayoutPositions: ObservableObject {
                     self.positions[notes[0]] = rectCopy
                 }
             }
+        }
+    }
+}
+
+class BarLayoutPositions: ObservableObject {
+    @Published var positions:[BarLine: CGRect] = [:]
+    func storePosition(barLine:BarLine, rect: CGRect, ctx:String) {
+        DispatchQueue.main.async {
+            print("=========== STORE", ctx, "seq:", barLine.sequence, "RECT", rect.minX, rect.minY)
+            let rectCopy = rect //CGRect(origin: CGPoint(x: rect.minX, y: rect.minY), size: CGSize(width: rect.size.width, height: rect.size.height))
+            self.positions[barLine] = rectCopy
         }
     }
 }
@@ -108,7 +119,7 @@ class NoteOffsetsInStaffByKey {
 class Staff : ObservableObject, Identifiable {
     let id = UUID()
     @Published var publishUpdate = 0
-    @Published var noteLayoutPositions:NoteLayoutPositions 
+    @Published var noteLayoutPositions:NoteLayoutPositions
     @Published var isHidden:Bool = false
 
     let score:Score
@@ -131,7 +142,7 @@ class Staff : ObservableObject, Identifiable {
         highestNoteValue = 107 //MIDI B7
         middleNoteValue = type == StaffType.treble ? 71 : Note.MIDDLE_C - Note.OCTAVE + 2
         noteLayoutPositions = NoteLayoutPositions(id: 0)
-        
+
         //Determine the staff placement for each note pitch
         
         var keyNumber:Int = 0
