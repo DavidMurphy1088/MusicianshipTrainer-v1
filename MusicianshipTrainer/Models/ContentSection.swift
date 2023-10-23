@@ -47,7 +47,9 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     var index:Int
     var answer111:Answer?
     var questionStatus = QuestionStatus(0)
-    var score:Score?
+    
+    ///The user can modify the content score in some tests
+    var userScore:Score?
     
     init(parent:ContentSection?, name:String, type:String, data:ContentSectionData? = nil, isActive:Bool = true) {
         self.parent = parent
@@ -404,10 +406,12 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     }
     
     func getScore(staffCount:Int, onlyRhythm:Bool, warnNotFound:Bool=true) -> Score {
-        if self.score == nil {
-            self.score = parseData(staffCount: staffCount, onlyRhythm: onlyRhythm)
+        if self.userScore == nil {
+            return parseData(staffCount: staffCount, onlyRhythm: onlyRhythm)
         }
-        return self.score!
+        else {
+            return self.userScore!
+        }
     }
     
     func parseData(staffCount:Int, onlyRhythm:Bool, warnNotFound:Bool=true) -> Score {

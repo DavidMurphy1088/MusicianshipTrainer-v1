@@ -184,6 +184,7 @@ struct ScoreView: View {
                             ZStack {
                                 StaffView(score: score, staff: staff, staffLayoutSize: staffLayoutSize)
                                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                                    //.border(Color .red, width: 2)
                                 if let barManager = score.barManager {
                                     BarManagerView(score: score,
                                                    barManager: barManager, barLayoutPositions: score.barLayoutPositions,

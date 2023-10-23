@@ -649,7 +649,7 @@ struct ClapOrPlayAnswerView: View {
                         let parent = self.contentSection.parent
                         if scoreWasModified {
                             score.barManager = nil
-                            contentSection.score = score
+                            //contentSection.userScore = score
                         }
                         if let parent = parent {
                             parent.setSelected(parent.selectedIndex ?? 0)

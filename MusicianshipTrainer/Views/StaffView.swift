@@ -173,44 +173,54 @@ struct BarManagerView: View {
     }
                            
     var body: some View {        
-        ZStack {
+        //ZStack {
             if let barManager = score.barManager {
                 ForEach(getPositions(), id: \.self.0) { indexAndPos in
-                    let width = (indexAndPos.2 - indexAndPos.1)
-//                        Path { path in
-//                            path.move(to: CGPoint(x: indexAndPos.1, y: 0))
-//                            path.addLine(to: CGPoint(x: indexAndPos.2, y: 0))
-//                        }
-//                        .stroke(Color.blue, lineWidth: 4)
+                    let barWidth = (indexAndPos.2 - indexAndPos.1)
+                    let iconWidth = lineSpacing * 2.0
 
                     HStack {
-//                        Button(action: {
-//                            barManager.toggleState(indexAndPos.0)
-//                        }) {
-//                            HStack {
-//                                Image(systemName: barManager.states[indexAndPos.0] ? "checkmark.square" : "square")
-//                                    .resizable()
-//                                    .frame(width: lineSpacing * 1.5, height: lineSpacing * 1.5)
-//                            }
-//                        }
                         if barManager.states[indexAndPos.0] {
                             Button(action: {
-                                barManager.reWriteBar(bar: indexAndPos.0)
+                                barManager.reWriteBar(targetBar: indexAndPos.0, way: .beat)
                             }) {
                                 HStack {
                                     Image(systemName: "rectangle.and.pencil.and.ellipsis")
                                         .resizable()
-                                        .frame(width: lineSpacing * 3.0, height: lineSpacing * 3.0)
+                                        .frame(width: iconWidth, height: iconWidth)
                                 }
                             }
+                            .padding()
+                            
+                            Button(action: {
+                                barManager.reWriteBar(targetBar: indexAndPos.0, way: .silent)
+                            }) {
+                                HStack {
+                                    Image(systemName: "rectangle.slash")
+                                        .resizable()
+                                        .frame(width: iconWidth, height: iconWidth)
+                                }
+                            }
+                            .padding()
+                            
+                            Button(action: {
+                                barManager.reWriteBar(targetBar: indexAndPos.0, way: .original)
+                            }) {
+                                HStack {
+                                    Image(systemName: "arrowshape.turn.up.backward")
+                                        .resizable()
+                                        .frame(width: iconWidth, height: iconWidth)
+                                }
+                            }
+                            .padding()
                         }
                     }
-                    .position(x:indexAndPos.2 - width/2.0)
+                    .position(x:indexAndPos.2 - barWidth/2.0)
                     
                     GeometryReader { geometry in
                         RoundedRectangle(cornerRadius: 10)
                             .fill(getColor(way: barManager.states[indexAndPos.0]))
-                            .frame(width: width, height: 130)
+                            .frame(width: barWidth, height: 130)
                             .onTapGesture {
                                 barManager.toggleState(indexAndPos.0)
                             }
@@ -218,13 +228,12 @@ struct BarManagerView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.blue, lineWidth: 2)
                             )
-                            .position(x:indexAndPos.2 - width / 2.0, y:geometry.size.height / 2.0)                            
+                            .position(x:indexAndPos.2 - barWidth / 2.0, y:geometry.size.height / 2.0)
                     }
                 }
             }
-        }
-        .onAppear() {
-        }
+        //}
+
     }
 }
 
@@ -305,7 +314,7 @@ struct StaffView: View {
         ZStack { // The staff lines view and everything else on the staff share the same space
             StaffLinesView(staff: staff, staffLayoutSize: staffLayoutSize)
                 .frame(height: staffLayoutSize.getStaffHeight(score: score))
-            
+                //.border(Color .indigo, width: 3)
             HStack(spacing: 0) {
                 if staff.linesInStaff != 1 {
                     CleffView(staff: staff, lineSpacing: staffLayoutSize)

@@ -78,11 +78,25 @@ class BarManager: ObservableObject {
     @Published var states:[Bool] = []
     let score:Score
     var notifyFunction: ((_ score:Score)->Void)?
-
+    
+    enum BarModifyType {
+        case beat
+        case silent
+        case original
+    }
+    
     init (score:Score) {
         self.score = score
         self.states = Array(repeating: false, count: score.getBarCount())
     }
+    
+//    func log() -> Bool {
+//        print ("\n========== Bar Manager")
+//        for i in 0..<states.count {
+//            print("State", i, states[i])
+//        }
+//        return true
+//    }
     
     func toggleState(_ i:Int) {
         DispatchQueue.main.async { [self] in
@@ -94,23 +108,79 @@ class BarManager: ObservableObject {
             states[i].toggle()
         }
     }
-    
-    func reWriteBar(bar: Int) {
+    ///Modify the target bar number in the input score according the way specified
+    ///Leave all the rest of the inut score unmodiifed
+    func reWriteBar(targetBar: Int, way: BarModifyType) {
         guard let notifyFunction = notifyFunction else {
             return
         }
-        let newScore =  Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1, noteSize: .small)
+        let newScore =  Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")),
+                              timeSignature: TimeSignature(top: score.timeSignature.top, bottom: score.timeSignature.bottom),
+                              linesPerStaff: 5, noteSize: .small)
         let staff = Staff(score: newScore, type: .treble, staffNum: 0, linesInStaff: 1)
         newScore.setStaff(num: 0, staff: staff)
-        for i in 0..<6 {
-            let ts = newScore.createTimeSlice()
-            let value = i % 2 == 0 ? 1.0 : 0.5
-            ts.addNote(n: Note(timeSlice: ts, num: 72, value:value, staffNum: 0))
-            if i % 3 == 2 {
+
+        var barNum = 0
+        var barWasModiifed = false
+        
+        for entry in score.scoreEntries {
+            if entry is BarLine {
+                barNum += 1
                 newScore.addBarLine()
+                continue
+            }
+
+            guard let fromTimeSlice = entry as? TimeSlice else {
+                continue
+            }
+            if fromTimeSlice.entries.count == 0 {
+                continue
+            }
+            
+            let fromEntry = fromTimeSlice.entries[0]
+            
+            if barNum == targetBar {
+                ///Modify the target bar according to the specified way
+                if barWasModiifed {
+                    continue
+                }
+                else {
+                    if way == .beat {
+                        for i in 0..<newScore.timeSignature.top {
+                            let newTimeSlice = newScore.createTimeSlice()
+                            let newNote = Note(timeSlice: newTimeSlice, num: 71, value:1.0, staffNum: 0)
+                            newNote.isOnlyRhythmNote = true
+                            newTimeSlice.addNote(n: newNote)
+                        }
+                    }
+                    if way == .silent {
+                        if newScore.timeSignature.top == 3 {
+                            var newTimeSlice = newScore.createTimeSlice()
+                            newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: 2.0, staffNum: 0))
+                            newTimeSlice = newScore.createTimeSlice()
+                            newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: 1.0, staffNum: 0))
+                        }
+                        else {
+                            let newTimeSlice = newScore.createTimeSlice()
+                            newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: Double(newScore.timeSignature.top), staffNum: 0))
+                        }
+                    }
+                    barWasModiifed = true
+                }
+            }
+            else {
+                let newTimeSlice = newScore.createTimeSlice()
+                ///Copy the input score verbatim
+                if fromEntry is Rest {
+                    newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: fromEntry.getValue(), staffNum: 0))
+                }
+                if let fromNote = fromEntry as? Note {
+                    let newNote = Note(timeSlice: newTimeSlice, num: fromNote.midiNumber, value:fromNote.getValue(), staffNum: 0)
+                    newNote.isOnlyRhythmNote = true
+                    newTimeSlice.addNote(n: newNote)
+                }
             }
         }
-
         notifyFunction(newScore)
     }
     

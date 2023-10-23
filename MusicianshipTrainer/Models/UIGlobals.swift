@@ -19,7 +19,10 @@ class UIGlobals {
     //static var colorNavigationBackground = Color(red: 0.7, green: 0.0, blue: 0.0)
 
     static let cornerRadius:CGFloat = 8
-    static let borderColor:CGColor = CGColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)
+    
+    //static let borderColor:CGColor = CGColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1)
+    static let borderColor:CGColor = CGColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1)
+    
     static let borderLineWidth:CGFloat = 2
     static let buttonCornerRadius = 10.0
     static let practiceTipsColor = Color.blue.opacity(0.08) //UIColor(red: 200/255, green: 255/255, blue: 200/255, alpha: 1) //paleGreen
