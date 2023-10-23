@@ -15,7 +15,7 @@ class ExampleData : ObservableObject {
     
     func loadData() {
         MusicianshipTrainerApp.root.subSections = []
-        let sheetName = UIGlobals.useTestData ? "ContentSheetID_TEST" : "ContentSheetID"
+        let sheetName = Settings.useTestData ? "ContentSheetID_TEST" : "ContentSheetID"
         googleAPI.getContentSheet(sheetName: sheetName) { status, data in
             if status == .success {
                 if let data = data {

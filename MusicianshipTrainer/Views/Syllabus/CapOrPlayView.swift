@@ -25,7 +25,7 @@ struct PracticeToolView: View {
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
         //.background(UIGlobals.backgroundColorLighter)
-        .background(UIGlobals.colorInstructions)
+        .background(Settings.colorInstructions)
         .padding()
     }
 }
@@ -105,12 +105,10 @@ struct ClapOrPlayPresentView: View {
 
     init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh_unused:(() -> Void)? = nil) {
         self.contentSection = contentSection
-        //self.score = score
         self.questionType = questionType
         _answerState = answerState
         _answer = answer
         self.score = score
-        //self.score.debugScore("ClapOrPlayPresentView", withBeam: true)
         if score.staffs.count > 1 {
             self.score.staffs[1].isHidden = true
         }
@@ -514,7 +512,7 @@ struct ClapOrPlayAnswerView: View {
     private var answer:Answer
     let questionTempo = 90
     
-    init(contentSection:ContentSection, score:Score, answer:Answer, questionType:QuestionType) {
+    init(contentSection:ContentSection, score:Score, answer:Answer, answerState: answerState, questionType:QuestionType) {
         self.contentSection = contentSection
         self.score = score
         self.questionType = questionType
@@ -646,6 +644,11 @@ struct ClapOrPlayAnswerView: View {
                     }) {
                         Text("Try Again").defaultButtonStyle()
                     }
+                    Button(action: {
+                        contentSection.score = x
+                    }) {
+                        Text("Try Modified").defaultButtonStyle()
+                    }
                 }
             }
         }
@@ -745,7 +748,8 @@ struct ClapOrPlayView: View {
     let id = UUID()
     let questionType:QuestionType
     
-    ///@State properties are automatically initialized by SwiftUI. You're not supposed to give them initial values in your custom initializers. By removing @State, you're allowed to manage the property's initialization yourself, as you've done in your init().
+    ///@State properties are automatically initialized by SwiftUI.
+    ///You're not supposed to give them initial values in your custom initializers. By removing @State, you're allowed to manage the property's initialization yourself, as you've done in your init().
     var score:Score
 
     init(questionType:QuestionType, contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>) {
@@ -798,9 +802,11 @@ struct ClapOrPlayView: View {
                                              score: score,
                                              answer: answer,
                                              questionType: questionType)
-                        if !contentSection.isExamTypeContentSection() {
-                            if !(self.questionType == .melodyPlay) {
-                                FlyingImageView(answer: answer)
+                        if Settings.useAnimations {
+                            if !contentSection.isExamTypeContentSection() {
+                                if !(self.questionType == .melodyPlay) {
+                                    FlyingImageView(answer: answer)
+                                }
                             }
                         }
                     }
@@ -808,7 +814,7 @@ struct ClapOrPlayView: View {
                 Spacer() //Force it to align from the top
             }
         }
-        .background(UIGlobals.colorBackground)
+        .background(Settings.colorBackground)
         .onAppear() {
         }
         .onDisappear {

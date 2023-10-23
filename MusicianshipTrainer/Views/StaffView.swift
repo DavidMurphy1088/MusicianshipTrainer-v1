@@ -191,10 +191,10 @@ struct BarManagerView: View {
                         }
                         if barManager.states[indexAndPos.0] {
                             Button(action: {
-                                //barManager.toggleState(indexAndPos.0)
+                                //barManager.reWriteBar(score: score, bar: indexAndPos.0)
                             }) {
                                 HStack {
-                                    Image(systemName: "hand.point.up.left")
+                                    Image(systemName: "rectangle.and.pencil.and.ellipsis")
                                         .resizable()
                                         .frame(width: lineSpacing * 3.0, height: lineSpacing * 3.0)
                                 }
@@ -203,18 +203,25 @@ struct BarManagerView: View {
                     }
                     .position(x:indexAndPos.2 - width/2.0)
                     
-                    if barManager.states[indexAndPos.0] {
+                    //if barManager.states[indexAndPos.0] {
                         GeometryReader { geometry in
-                            RoundedRectangle(cornerRadius: 20)  // Specify the corner radius here
-                                .fill(Color.blue.opacity(0.2))  // Setting a semi-transparent red fill
-                                .frame(width: width, height: 130)  // Specifying the size
+                            RoundedRectangle(cornerRadius: 10)
+
+                                //.fill(barManager.states[indexAndPos.0] ? Color.blue.opacity(0.2) : Color.clear)
+                                .fill(Color.blue.opacity(barManager.states[indexAndPos.0] ? 0.2 : 0.1))
+                                .frame(width: width, height: 130)
+                                .onTapGesture {
+                                    print("=============== TAPEED")
+                                    barManager.toggleState(indexAndPos.0)
+                                }
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .stroke(Color.blue, lineWidth: 2)  // Adding a blue border with a width of 2
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.blue, lineWidth: 2)
                                 )
                                 .position(x:indexAndPos.2 - width / 2.0, y:geometry.size.height / 2.0)
+                                
                         }
-                    }
+                    //}
                 }
             }
         }

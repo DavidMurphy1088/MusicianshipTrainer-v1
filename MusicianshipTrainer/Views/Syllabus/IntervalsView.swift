@@ -466,8 +466,10 @@ struct IntervalView: View {
                                            score: self.score,
                                            answer: answer,
                                            questionType:questionType)
-                        if !contentSection.isExamTypeContentSection() {
-                            FlyingImageView(answer: answer)
+                        if Settings.useAnimations {
+                            if !contentSection.isExamTypeContentSection() {
+                                FlyingImageView(answer: answer)
+                            }
                         }
                     }
                 }
@@ -475,7 +477,7 @@ struct IntervalView: View {
         }
         .onAppear() {
         }
-        .background(UIGlobals.colorBackground)
+        .background(Settings.colorBackground)
         //.border(Color.red)
     }
 }

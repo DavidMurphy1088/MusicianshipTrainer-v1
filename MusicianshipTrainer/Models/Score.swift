@@ -78,7 +78,6 @@ class BarManager: ObservableObject {
     @Published var states:[Bool] = []
     let score:Score
     
-
     init (score:Score) {
         self.score = score
         self.states = Array(repeating: false, count: score.getBarCount())
@@ -104,6 +103,26 @@ class BarManager: ObservableObject {
             }
         }
     }
+    
+//    func reWriteBar(score: Score, bar:Int) -> Score {
+//        var currentBarNo = 0
+//        var entries:[ScoreEntry] = []
+//        for i in 0..<score.scoreEntries.count {
+//            let entry = score.scoreEntries[i]
+//            if currentBarNo == bar {
+//                if let ts = entry as? TimeSlice {
+//                    score.scoreEntries.remove(at: i)
+//                }
+//            }
+//            else {
+//                
+//            }
+//            if entry is BarLine {
+//                currentBarNo += 1
+//            }
+//        }
+//
+//    }
 }
 
 class Score : ObservableObject {

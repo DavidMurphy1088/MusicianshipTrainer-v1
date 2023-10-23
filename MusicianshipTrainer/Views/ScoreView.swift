@@ -210,7 +210,7 @@ struct ScoreView: View {
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
-        .background(UIGlobals.colorScore)
+        .background(Settings.colorScore)
         //.border(Color .red, width: 4)
         //.frame(height: getFrameHeight())
     }

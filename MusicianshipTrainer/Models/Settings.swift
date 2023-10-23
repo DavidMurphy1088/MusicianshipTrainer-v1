@@ -8,6 +8,7 @@ enum UserDefaultKeys {
     static let selectedAgeGroup = "SelectedAgeGroup"
     static let showReloadHTMLButton = "showReloadHTMLButton"
     static let useTestData = "useTestData"
+    static let useAnimations = "useAnimations"
 }
 
 extension UserDefaults {
@@ -39,16 +40,16 @@ extension UserDefaults {
         return age == 0 ? .Group_5To10 : .Group_11Plus
     }
     
-    func setShowReloadHTMLButton(key:String, _ way: Bool) {
+//    func setShowReloadHTMLButton(key:String, _ way: Bool) {
+//        set(way, forKey: key)
+//        log()
+//    }
+    
+    func setBoolean(key:String, _ way: Bool) {
         set(way, forKey: key)
-        log()
     }
     
-    func setUseTestData(key:String, _ way: Bool) {
-        set(way, forKey: key)
-    }
-    
-    func getShowReloadHTMLButton(key:String) -> Bool {
+    func getBoolean(key:String) -> Bool {
         return bool(forKey: key)
     }
     
@@ -82,34 +83,50 @@ extension Color {
 }
 
 class Settings {
+    static var useTestData = false
+    static var showReloadHTMLButton = false
+    static var useAnimations = false
+    
+    static var ageGroup:AgeGroup = .Group_11Plus
+    static var colorScore = UIGlobals.colorScoreDefault
+    static var colorInstructions = UIGlobals.colorInstructionsDefault
+    ///Color of each test's screen background
+    static var colorBackground = UIGlobals.colorBackgroundDefault
+    static let AgeGroup11Plus = "11Plus"
+    
     static let shared = Settings()
     let id = UUID()
     
     init() {
         if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorScore) {
-            UIGlobals.colorScore = retrievedColor
+            Settings.colorScore = retrievedColor
         }
         if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorInstructions) {
-            UIGlobals.colorInstructions = retrievedColor
+            Settings.colorInstructions = retrievedColor
         }
         if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorBackground) {
-            UIGlobals.colorBackground = retrievedColor
+            Settings.colorBackground = retrievedColor
         }
         if let retrievedAgeGroup = UserDefaults.standard.getSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup) {
-            UIGlobals.ageGroup = retrievedAgeGroup
+            Settings.ageGroup = retrievedAgeGroup
         }
-        UIGlobals.showReloadHTMLButton = UserDefaults.standard.getShowReloadHTMLButton(key: UserDefaultKeys.showReloadHTMLButton)
-        UIGlobals.useTestData = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useTestData)
-
+        Settings.showReloadHTMLButton = UserDefaults.standard.getBoolean(key: UserDefaultKeys.showReloadHTMLButton)
+        Settings.useTestData = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useTestData)
+        Settings.useAnimations = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useAnimations)
     }
     
+    static func getAgeGroup() -> String {
+        return Settings.ageGroup == .Group_11Plus ? AgeGroup11Plus : "5-10"
+    }
+
     func saveConfig() {
-        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorScore, UIGlobals.colorScore)
-        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorInstructions, UIGlobals.colorInstructions)
-        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorBackground, UIGlobals.colorBackground)
-        UserDefaults.standard.setSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup, UIGlobals.ageGroup)
-        UserDefaults.standard.setShowReloadHTMLButton(key: UserDefaultKeys.showReloadHTMLButton, UIGlobals.showReloadHTMLButton)
-        UserDefaults.standard.setUseTestData(key: UserDefaultKeys.useTestData, UIGlobals.useTestData)
+        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorScore, Settings.colorScore)
+        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorInstructions, Settings.colorInstructions)
+        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorBackground, Settings.colorBackground)
+        UserDefaults.standard.setSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup, Settings.ageGroup)
+        UserDefaults.standard.setBoolean(key: UserDefaultKeys.showReloadHTMLButton, Settings.showReloadHTMLButton)
+        UserDefaults.standard.setBoolean(key: UserDefaultKeys.useTestData, Settings.useTestData)
+        UserDefaults.standard.setBoolean(key: UserDefaultKeys.useAnimations, Settings.useAnimations)
     }
     
 }

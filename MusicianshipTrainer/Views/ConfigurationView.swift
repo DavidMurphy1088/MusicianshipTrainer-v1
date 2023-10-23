@@ -27,6 +27,7 @@ struct ConfigurationView: View {
     @State var colorBackground:Color
     @State var colorInstructions:Color
     @State var showReloadHTMLButton: Bool
+    @State var useAnimations: Bool
     @State var useTestData: Bool
 
     @State private var selectedOption: Int? = nil
@@ -101,12 +102,22 @@ struct ConfigurationView: View {
                         ColorPicker("Instructions\nSelect a Colour", selection: $colorInstructions, supportsOpacity: false)
 
                         Button("Reset") {
-                            colorInstructions = UIGlobals.colorInstructions
+                            colorInstructions = Settings.colorInstructions
                         }
 
                     }
                     .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
                 }
+                
+                Button(action: {
+                    useAnimations.toggle()
+                }) {
+                    HStack {
+                        Image(systemName: useAnimations ? "checkmark.square" : "square")
+                        Text("Show Animations for Answers?")
+                    }
+                }
+                .padding()
                 
                 Button(action: {
                     showReloadHTMLButton.toggle()
@@ -116,6 +127,7 @@ struct ConfigurationView: View {
                         Text("Show Reload HTML Button?")
                     }
                 }
+                .padding()
                 
                 Button(action: {
                     useTestData.toggle()
@@ -125,18 +137,19 @@ struct ConfigurationView: View {
                         Text("Use Test Data?")
                     }
                 }
+                .padding()
                 
                 //LogView().border(.black).padding()
-                
                 HStack {
                     Button("Ok") {
-                        UIGlobals.colorScore = colorScore
-                        UIGlobals.colorInstructions = colorInstructions
-                        UIGlobals.colorBackground = colorBackground
+                        Settings.colorScore = colorScore
+                        Settings.colorInstructions = colorInstructions
+                        Settings.colorBackground = colorBackground
                         
-                        UIGlobals.ageGroup = selectedAge == 0 ? .Group_5To10 : .Group_11Plus
-                        UIGlobals.showReloadHTMLButton = showReloadHTMLButton
-                        UIGlobals.useTestData = useTestData
+                        Settings.ageGroup = selectedAge == 0 ? .Group_5To10 : .Group_11Plus
+                        Settings.showReloadHTMLButton = showReloadHTMLButton
+                        Settings.useAnimations = useAnimations
+                        Settings.useTestData = useTestData
                         Settings.shared.saveConfig()
                         isPresented = false
                     }

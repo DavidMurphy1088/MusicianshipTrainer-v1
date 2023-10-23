@@ -32,9 +32,7 @@ struct ContentNavigationView: View {
     let contentSection:ContentSection
     @State private var isShowingConfiguration = false
     @State private var selectedContentIndex: Int? = 0 //has to be optional for the case nothing is selected
-    func testFunc() {
-        
-    }
+
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             NavigationView {
@@ -66,12 +64,13 @@ struct ContentNavigationView: View {
                         //.listRowBackground(Color.yellow)
                         .sheet(isPresented: $isShowingConfiguration) {
                             ConfigurationView(isPresented: $isShowingConfiguration,
-                                              colorScore: UIGlobals.colorScore,
-                                              colorBackground: UIGlobals.colorBackground,
-                                              colorInstructions: UIGlobals.colorInstructions,
-                                              showReloadHTMLButton: UIGlobals.showReloadHTMLButton,
-                                              useTestData: UIGlobals.useTestData,
-                                              ageGroup: UIGlobals.ageGroup)
+                                              colorScore: Settings.colorScore,
+                                              colorBackground: Settings.colorBackground,
+                                              colorInstructions: Settings.colorInstructions,
+                                              showReloadHTMLButton: Settings.showReloadHTMLButton,
+                                              useAnimations: Settings.useAnimations,
+                                              useTestData: Settings.useTestData,
+                                              ageGroup: Settings.ageGroup)
                         }
                     }
                 }
@@ -113,15 +112,16 @@ struct ContentNavigationView: View {
                         .disabled(!contentSection.isActive)
                         .background(Color.white)
                     }
-                    
+
                     .sheet(isPresented: $isShowingConfiguration) {
                         ConfigurationView(isPresented: $isShowingConfiguration,
-                                          colorScore: UIGlobals.colorScore,
-                                          colorBackground: UIGlobals.colorBackground,
-                                          colorInstructions: UIGlobals.colorInstructions,
-                                          showReloadHTMLButton: UIGlobals.showReloadHTMLButton,
-                                          useTestData: UIGlobals.useTestData,
-                                          ageGroup: UIGlobals.ageGroup
+                                          colorScore: Settings.colorScore,
+                                          colorBackground: Settings.colorBackground,
+                                          colorInstructions: Settings.colorInstructions,
+                                          showReloadHTMLButton: Settings.showReloadHTMLButton,
+                                          useAnimations: Settings.useAnimations,
+                                          useTestData: Settings.useTestData,
+                                          ageGroup: Settings.ageGroup
                         )
                     }
                 }

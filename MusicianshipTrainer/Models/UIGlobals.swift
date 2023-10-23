@@ -14,12 +14,6 @@ class UIGlobals {
     static var colorScoreDefault = Color(red: 0.85, green: 1.0, blue: 1.0)
     static var colorNavigationDefault = Color(red: 0.95, green: 1.0, blue: 1.0)
 
-    static var colorScore = colorScoreDefault
-    static var colorInstructions = colorInstructionsDefault
-    
-    ///Color of each test's screen background
-    static var colorBackground = colorBackgroundDefault
-
     ///Behind instructions to match background of the Navigation View below which is unchangeable from grey
     //static var colorNavigationBackground = Color(red: 0.95, green: 0.95, blue: 0.95)
     //static var colorNavigationBackground = Color(red: 0.7, green: 0.0, blue: 0.0)
@@ -33,19 +27,11 @@ class UIGlobals {
     static let circularIconSize = 40.0
     static let circularIconBorderSize = 4.0
 
-    static var ageGroup:AgeGroup = .Group_11Plus
     static let font = Font.custom("Lora", size: 24)
     static let fontiPhone = Font.custom("Lora", size: 16)
 
     static let navigationFont = Font.custom("Courgette-Regular", size: UIDevice.current.userInterfaceIdiom == .pad ? 26 : 18)
     static let correctAnswerFont = Font.custom("Courgette-Regular", size: UIDevice.current.userInterfaceIdiom == .pad ? 52 : 36)
-
-    static let AgeGroup11Plus = "11Plus"
-    static func getAgeGroup() -> String {
-        return UIGlobals.ageGroup == .Group_11Plus ? AgeGroup11Plus : "5-10"
-    }
-    static var showReloadHTMLButton = false
-    static var useTestData = false
 
     static func showDeviceOrientation() {
         let orientation = UIDevice.current.orientation
@@ -103,7 +89,7 @@ extension Text {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(selected ? Color.black : Color.clear, lineWidth: 1)
                 //.background(selectedIntervalIndex == index ? Color(.systemTeal) : Color.clear)
-                .background(selected ? UIGlobals.colorInstructions : Color.clear)
+                .background(selected ? Settings.colorInstructions : Color.clear)
         )
     }
     

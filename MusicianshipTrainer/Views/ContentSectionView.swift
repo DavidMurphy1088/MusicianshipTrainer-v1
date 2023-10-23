@@ -158,7 +158,7 @@ struct ContentSectionHeaderView: View {
             return
         }
         let filename = "Instructions" //instructionContent.contentSectionData.data[0]
-        pathSegments.append(UIGlobals.getAgeGroup())
+        pathSegments.append(Settings.getAgeGroup())
         googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false, bypassCache: bypassCache) {status,document in
             if status == .success {
                 self.instructions = document
@@ -169,7 +169,7 @@ struct ContentSectionHeaderView: View {
     func getTipsTricksData(bypassCache: Bool)  {
         let filename = "Tips_Tricks"
         var pathSegments = contentSection.getPathAsArray()
-        pathSegments.append(UIGlobals.getAgeGroup())
+        pathSegments.append(Settings.getAgeGroup())
 
         googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false, bypassCache: bypassCache) {status,document in
             if status == .success {
@@ -182,7 +182,7 @@ struct ContentSectionHeaderView: View {
     func getParentsData(bypassCache: Bool)  {
         let filename = "Parents"
         var pathSegments = contentSection.getPathAsArray()
-        pathSegments.append(UIGlobals.getAgeGroup())
+        pathSegments.append(Settings.getAgeGroup())
 
         googleAPI.getDocumentByName(pathSegments: pathSegments, name: filename, reportError: false, bypassCache: bypassCache) {status,document in
             if status == .success {
@@ -271,7 +271,7 @@ struct ContentSectionHeaderView: View {
                     }
                     .sheet(isPresented: $isVideoPresented) {
                         let urlStr = "https://storage.googleapis.com/musicianship_trainer/NZMEB/" +
-                        contentSection.getPath() + "." + UIGlobals.getAgeGroup() + ".video.mp4"
+                        contentSection.getPath() + "." + Settings.getAgeGroup() + ".video.mp4"
                         //https://storage.googleapis.com/musicianship_trainer/NZMEB/Grade%201.PracticeMode.Sight%20Reading.11Plus.video.mp4
                         //Grade 1.PracticeMode.Sight Reading.11Plus.video.mp4
                         let allowedCharacterSet = CharacterSet.urlQueryAllowed
@@ -324,7 +324,7 @@ struct ContentSectionHeaderView: View {
                 }
                 Spacer()
             }
-            if UIGlobals.showReloadHTMLButton {
+            if Settings.showReloadHTMLButton {
                 Button(action: {
                     DispatchQueue.main.async {
                         self.getInstructions(bypassCache: true)
@@ -699,12 +699,13 @@ struct ContentSectionView: View {
         }
         .sheet(isPresented: $isShowingConfiguration) {
             ConfigurationView(isPresented: $isShowingConfiguration,
-                              colorScore: UIGlobals.colorScore,
-                              colorBackground: UIGlobals.colorBackground,
-                              colorInstructions: UIGlobals.colorInstructions,
-                              showReloadHTMLButton: UIGlobals.showReloadHTMLButton,
-                              useTestData: UIGlobals.useTestData,                              
-                              ageGroup: UIGlobals.ageGroup)
+                              colorScore: Settings.colorScore,
+                              colorBackground: Settings.colorBackground,
+                              colorInstructions: Settings.colorInstructions,
+                              showReloadHTMLButton: Settings.showReloadHTMLButton,
+                              useAnimations: Settings.useAnimations,
+                              useTestData: Settings.useTestData,
+                              ageGroup: Settings.ageGroup)
         }
     }
 }
