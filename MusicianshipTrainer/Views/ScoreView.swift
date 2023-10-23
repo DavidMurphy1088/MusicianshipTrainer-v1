@@ -185,7 +185,10 @@ struct ScoreView: View {
                                 StaffView(score: score, staff: staff, staffLayoutSize: staffLayoutSize)
                                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
                                 if let barManager = score.barManager {
-                                    BarManagerView(score: score, barManager: barManager, barLayoutPositions: score.barLayoutPositions, lineSpacing: staffLayoutSize.lineSpacing)
+                                    BarManagerView(score: score,
+                                                   barManager: barManager, barLayoutPositions: score.barLayoutPositions,
+                                                   lineSpacing: staffLayoutSize.lineSpacing)
+                                                   
                                         .frame(height: staffLayoutSize.getStaffHeight(score: score))
                                 }
 

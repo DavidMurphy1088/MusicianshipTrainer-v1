@@ -423,7 +423,8 @@ struct IntervalView: View {
         self.contentSection = contentSection
         _answerState = answerState
         _answer = answer
-        score = contentSection.parseData(staffCount: 1, onlyRhythm: false)
+        //score = contentSection.parseData(staffCount: 1, onlyRhythm: false)
+        score = contentSection.getScore(staffCount: 1, onlyRhythm: false)
     }
     
     func shouldShowAnswer() -> Bool {

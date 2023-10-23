@@ -47,6 +47,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     var index:Int
     var answer111:Answer?
     var questionStatus = QuestionStatus(0)
+    var score:Score?
     
     init(parent:ContentSection?, name:String, type:String, data:ContentSectionData? = nil, isActive:Bool = true) {
         self.parent = parent
@@ -400,6 +401,13 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             }
         }
         return true
+    }
+    
+    func getScore(staffCount:Int, onlyRhythm:Bool, warnNotFound:Bool=true) -> Score {
+        if self.score == nil {
+            self.score = parseData(staffCount: staffCount, onlyRhythm: onlyRhythm)
+        }
+        return self.score!
     }
     
     func parseData(staffCount:Int, onlyRhythm:Bool, warnNotFound:Bool=true) -> Score {

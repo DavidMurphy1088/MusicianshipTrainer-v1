@@ -32,20 +32,20 @@ struct PracticeToolView: View {
 
 struct PlayRecordingView: View {
     var buttonLabel:String
-    @State var score:Score?
+    //@ObservedObject var score:Score?
     @State var metronome:Metronome
     let fileName:String
     @ObservedObject var audioRecorder = AudioRecorder.shared
     @State private var playingScore:Bool = false
-    var onStart: (()->Void)?
+    var onStart: ()->Score?
     var onDone: (()->Void)?
     
     var body: some View {
         VStack {
             Button(action: {
-                if let onStart = onStart {
-                    onStart()
-                }
+                //if let onStart = onStart {
+                let score = onStart()
+                //}
                 if let score = score {
                     metronome.playScore(score: score, onDone: {
                         playingScore = false
@@ -302,17 +302,20 @@ struct ClapOrPlayPresentView: View {
                         if shouldPlayRecording() {
                             let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
                             PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
-                                              score: score,
+                                              //score: score,
                                               metronome: metronome,
                                               fileName: contentSection.name,
-                                              onDone: {rhythmHeard = true})
+                                              onStart: {return score},
+                                              onDone: {rhythmHeard = true}
+                                              )
                         }
                     }
                 //}
                 if answerState == .recorded {
                     if !(contentSection.getExamTakingStatus() == .inExam) {
                         PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                          score: questionType == .melodyPlay ? nil : getStudentTappingAsAScore(),
+                                          //score: questionType == .melodyPlay ? nil : getStudentTappingAsAScore(),
+                                          //score: getStudentTappingAsAScore()!,
                                           metronome: self.metronome,
                                           fileName: contentSection.name,
                                           onStart: ({
@@ -323,6 +326,7 @@ struct ClapOrPlayPresentView: View {
                                     }
                                 }
                             }
+                            return score
                         }),
                         onDone: ({
                             //recording was played at the student's tempo and now reset metronome
@@ -412,9 +416,10 @@ struct ClapOrPlayPresentView: View {
                         if answerState == .recording {
                             if questionType == .rhythmEchoClap {
                                 PlayRecordingView(buttonLabel: "Hear The Given Rhythm Again",
-                                                  score: score,
+                                                  //score: score,
                                                   metronome: metronome,
                                                   fileName: contentSection.name,
+                                                  onStart: {return score},
                                                   onDone: {})
                             }
                         
@@ -473,7 +478,7 @@ struct ClapOrPlayPresentView: View {
                 else {
                     metronome.setAllowTempoChange(allow: false)
                 }
-                score.createBarManager()
+                
             }
             .onDisappear() {
                 self.audioRecorder.stopPlaying()
@@ -506,13 +511,16 @@ struct ClapOrPlayAnswerView: View {
     @State var playingStudent = false
     @State var speechEnabled = false
     @State var fittedScore:Score?
+    @State var scoreWasModified = false
 
-    private var score:Score
+    @State private var score:Score
+    @State var hoveringForHelp = false
+    
     private var questionType:QuestionType
     private var answer:Answer
     let questionTempo = 90
     
-    init(contentSection:ContentSection, score:Score, answer:Answer, answerState: answerState, questionType:QuestionType) {
+    init(contentSection:ContentSection, score:Score, answer:Answer, questionType:QuestionType) {
         self.contentSection = contentSection
         self.score = score
         self.questionType = questionType
@@ -636,29 +644,61 @@ struct ClapOrPlayAnswerView: View {
                     Spacer()
                 }
                 else {
+                    Spacer()
                     Button(action: {
                         let parent = self.contentSection.parent
+                        if scoreWasModified {
+                            score.barManager = nil
+                            contentSection.score = score
+                        }
                         if let parent = parent {
                             parent.setSelected(parent.selectedIndex ?? 0)
                         }
                     }) {
-                        Text("Try Again").defaultButtonStyle()
+                        Text("Try \(scoreWasModified ? "The Modified Rhythm" : "Again")").defaultButtonStyle()
                     }
+                    Spacer()
                     Button(action: {
-                        contentSection.score = x
+                        score.createBarManager()
+                        score.barManager?.notifyFunction = self.getModifiedScore
                     }) {
-                        Text("Try Modified").defaultButtonStyle()
+                        Text("Modify Rhythm").defaultButtonStyle()
                     }
+                    
+                    Button(action: {
+                        hoveringForHelp.toggle()
+                    }) {
+                        Image(systemName: "questionmark")
+                            .resizable()
+                            .frame(width: 32, height: 32)
+                    }
+                    .popover(isPresented: $hoveringForHelp) {
+                        Text(helpMessage())
+                            .padding()
+                    }
+                    Spacer()
                 }
             }
         }
+    }
+    
+    func helpMessage() -> String {
+        var msg = "\u{2022} You can modify the question's rhythm to make it easier to clap the rhythm that was difficult"
+        msg = msg + "\n\n\u{2022} Select the bar you would like to be made simpler"
+        msg = msg + "\n\n\u{2022} Then you can try again with the easier rhythm"
+        return msg
+    }
+    
+    func getModifiedScore(score:Score) {
+        self.scoreWasModified = true
+        self.score = score
     }
     
 //    func log(_ score:Score) -> Bool {
 //    print ("========", score == nil, score.studentFeedback == nil)
 //       return true
 //    }
-    
+        
     var body: AnyView {
         AnyView(
             VStack {
@@ -687,23 +727,26 @@ struct ClapOrPlayAnswerView: View {
                 }
 
                 HStack {
-                    PlayRecordingView(buttonLabel: "Hear The Given \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                      score: score,
+                    PlayRecordingView(buttonLabel: "Hear The \(scoreWasModified ? "Modified" : "Given") \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
+                                      //score: getCurrentScore(),
                                       metronome: answerMetronome,
-                                      fileName: contentSection.name)
+                                      fileName: contentSection.name,
+                                      onStart: {return score})
                     
                     if questionType == .melodyPlay {
                         PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                          score: nil,
+                                          //score: nil,
                                           metronome: answerMetronome,
-                                          fileName: contentSection.name)
+                                          fileName: contentSection.name,
+                                          onStart: {return nil})
                     }
                     else {
                         if let fittedScore = self.fittedScore {
                             PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                              score: fittedScore,
+                                              //score: fittedScore,
                                               metronome: answerMetronome,
-                                              fileName: contentSection.name)
+                                              fileName: contentSection.name,
+                                              onStart: {return fittedScore})
                         }
                     }
                 }
@@ -729,7 +772,6 @@ struct ClapOrPlayAnswerView: View {
                     answerMetronome.setTempo(tempo: questionTempo, context: "AnswerMode::OnAppear")
                 }
                 score.setHiddenStaff(num: 1, isHidden: false)
-                score.createBarManager()
             }
             .onDisappear() {
                 score.clearTaggs() //clear tags from any previous attempt
@@ -757,7 +799,8 @@ struct ClapOrPlayView: View {
         self.contentSection = contentSection
         _answerState = answerState
         _answer = answer
-        self.score = contentSection.parseData(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
+        //self.score = contentSection.parseData(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
+        self.score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
         //self.score.debugScore("ClapOrPlayView", withBeam: false)
     }
     

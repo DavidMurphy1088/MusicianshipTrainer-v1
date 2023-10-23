@@ -168,6 +168,10 @@ struct BarManagerView: View {
         return barCovers
     }
     
+    func getColor(way:Bool) -> Color {
+        return way ? Color.indigo.opacity(0.25) : Color.blue.opacity(0.1)
+    }
+                           
     var body: some View {        
         ZStack {
             if let barManager = score.barManager {
@@ -180,18 +184,18 @@ struct BarManagerView: View {
 //                        .stroke(Color.blue, lineWidth: 4)
 
                     HStack {
-                        Button(action: {
-                            barManager.toggleState(indexAndPos.0)
-                        }) {
-                            HStack {
-                                Image(systemName: barManager.states[indexAndPos.0] ? "checkmark.square" : "square")
-                                    .resizable()
-                                    .frame(width: lineSpacing * 1.5, height: lineSpacing * 1.5)
-                            }
-                        }
+//                        Button(action: {
+//                            barManager.toggleState(indexAndPos.0)
+//                        }) {
+//                            HStack {
+//                                Image(systemName: barManager.states[indexAndPos.0] ? "checkmark.square" : "square")
+//                                    .resizable()
+//                                    .frame(width: lineSpacing * 1.5, height: lineSpacing * 1.5)
+//                            }
+//                        }
                         if barManager.states[indexAndPos.0] {
                             Button(action: {
-                                //barManager.reWriteBar(score: score, bar: indexAndPos.0)
+                                barManager.reWriteBar(bar: indexAndPos.0)
                             }) {
                                 HStack {
                                     Image(systemName: "rectangle.and.pencil.and.ellipsis")
@@ -203,25 +207,19 @@ struct BarManagerView: View {
                     }
                     .position(x:indexAndPos.2 - width/2.0)
                     
-                    //if barManager.states[indexAndPos.0] {
-                        GeometryReader { geometry in
-                            RoundedRectangle(cornerRadius: 10)
-
-                                //.fill(barManager.states[indexAndPos.0] ? Color.blue.opacity(0.2) : Color.clear)
-                                .fill(Color.blue.opacity(barManager.states[indexAndPos.0] ? 0.2 : 0.1))
-                                .frame(width: width, height: 130)
-                                .onTapGesture {
-                                    print("=============== TAPEED")
-                                    barManager.toggleState(indexAndPos.0)
-                                }
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.blue, lineWidth: 2)
-                                )
-                                .position(x:indexAndPos.2 - width / 2.0, y:geometry.size.height / 2.0)
-                                
-                        }
-                    //}
+                    GeometryReader { geometry in
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(getColor(way: barManager.states[indexAndPos.0]))
+                            .frame(width: width, height: 130)
+                            .onTapGesture {
+                                barManager.toggleState(indexAndPos.0)
+                            }
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.blue, lineWidth: 2)
+                            )
+                            .position(x:indexAndPos.2 - width / 2.0, y:geometry.size.height / 2.0)                            
+                    }
                 }
             }
         }

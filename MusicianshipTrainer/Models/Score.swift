@@ -77,7 +77,8 @@ class StaffLayoutSize: ObservableObject {
 class BarManager: ObservableObject {
     @Published var states:[Bool] = []
     let score:Score
-    
+    var notifyFunction: ((_ score:Score)->Void)?
+
     init (score:Score) {
         self.score = score
         self.states = Array(repeating: false, count: score.getBarCount())
@@ -85,11 +86,34 @@ class BarManager: ObservableObject {
     
     func toggleState(_ i:Int) {
         DispatchQueue.main.async { [self] in
+            if !states[i] {
+                for s in 0..<self.states.count {
+                    states[s] = false
+                }
+            }
             states[i].toggle()
-            //hiliteNotesInBar(bar: i, way: states[i])
         }
     }
+    
+    func reWriteBar(bar: Int) {
+        guard let notifyFunction = notifyFunction else {
+            return
+        }
+        let newScore =  Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1, noteSize: .small)
+        let staff = Staff(score: newScore, type: .treble, staffNum: 0, linesInStaff: 1)
+        newScore.setStaff(num: 0, staff: staff)
+        for i in 0..<6 {
+            let ts = newScore.createTimeSlice()
+            let value = i % 2 == 0 ? 1.0 : 0.5
+            ts.addNote(n: Note(timeSlice: ts, num: 72, value:value, staffNum: 0))
+            if i % 3 == 2 {
+                newScore.addBarLine()
+            }
+        }
 
+        notifyFunction(newScore)
+    }
+    
     func hiliteNotesInBar(bar:Int, way:Bool) {
         var currentBarNo = 0
         for entry in score.scoreEntries {
