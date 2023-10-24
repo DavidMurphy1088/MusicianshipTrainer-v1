@@ -233,7 +233,6 @@ struct BarManagerView: View {
                 }
             }
         //}
-
     }
 }
 

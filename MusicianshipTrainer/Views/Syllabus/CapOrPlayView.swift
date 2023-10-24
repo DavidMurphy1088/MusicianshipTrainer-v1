@@ -649,7 +649,7 @@ struct ClapOrPlayAnswerView: View {
                         let parent = self.contentSection.parent
                         if scoreWasModified {
                             score.barManager = nil
-                            //contentSection.userScore = score
+                            contentSection.userScore = score
                         }
                         if let parent = parent {
                             parent.setSelected(parent.selectedIndex ?? 0)
@@ -657,24 +657,28 @@ struct ClapOrPlayAnswerView: View {
                     }) {
                         Text("Try \(scoreWasModified ? "The Modified Rhythm" : "Again")").defaultButtonStyle()
                     }
-                    Spacer()
-                    Button(action: {
-                        score.createBarManager()
-                        score.barManager?.notifyFunction = self.getModifiedScore
-                    }) {
-                        Text("Modify Rhythm").defaultButtonStyle()
-                    }
                     
-                    Button(action: {
-                        hoveringForHelp.toggle()
-                    }) {
-                        Image(systemName: "questionmark")
-                            .resizable()
-                            .frame(width: 32, height: 32)
-                    }
-                    .popover(isPresented: $hoveringForHelp) {
-                        Text(helpMessage())
-                            .padding()
+                    if score.barManager == nil {
+                        Spacer()
+                        Button(action: {
+                            score.createBarManager(contentSection: contentSection)
+                            score.barManager?.notifyFunction = self.getModifiedScore
+                        }) {
+                            Text("Simplify Rhythm").defaultButtonStyle()
+                        }
+                        
+                        
+                        Button(action: {
+                            hoveringForHelp.toggle()
+                        }) {
+                            Image(systemName: "questionmark")
+                                .resizable()
+                                .frame(width: 32, height: 32)
+                        }
+                        .popover(isPresented: $hoveringForHelp) {
+                            Text(helpMessage())
+                                .padding()
+                        }
                     }
                     Spacer()
                 }
@@ -692,6 +696,8 @@ struct ClapOrPlayAnswerView: View {
     func getModifiedScore(score:Score) {
         self.scoreWasModified = true
         self.score = score
+        self.score.createBarManager(contentSection: contentSection)
+        score.barManager?.notifyFunction = self.getModifiedScore
     }
     
 //    func log(_ score:Score) -> Bool {

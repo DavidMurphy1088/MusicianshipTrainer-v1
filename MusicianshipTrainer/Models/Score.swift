@@ -75,17 +75,20 @@ class StaffLayoutSize: ObservableObject {
 }
 
 class BarManager: ObservableObject {
-    @Published var states:[Bool] = []
+    let contentSection:ContentSection
     let score:Score
     var notifyFunction: ((_ score:Score)->Void)?
     
+    @Published var states:[Bool] = []
+
     enum BarModifyType {
         case beat
         case silent
         case original
     }
     
-    init (score:Score) {
+    init (contentSection:ContentSection, score:Score) {
+        self.contentSection = contentSection
         self.score = score
         self.states = Array(repeating: false, count: score.getBarCount())
     }
@@ -146,7 +149,7 @@ class BarManager: ObservableObject {
                 }
                 else {
                     if way == .beat {
-                        for i in 0..<newScore.timeSignature.top {
+                        for _ in 0..<newScore.timeSignature.top {
                             let newTimeSlice = newScore.createTimeSlice()
                             let newNote = Note(timeSlice: newTimeSlice, num: 71, value:1.0, staffNum: 0)
                             newNote.isOnlyRhythmNote = true
@@ -163,6 +166,25 @@ class BarManager: ObservableObject {
                         else {
                             let newTimeSlice = newScore.createTimeSlice()
                             newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: Double(newScore.timeSignature.top), staffNum: 0))
+                        }
+                    }
+                    if way == .original {
+                        //let timeSlices = score.getTimeSlicesForBar(bar: targetBar)
+                        let timeSlices = contentSection.parseData(staffCount: score.staffs.count, onlyRhythm: true).getTimeSlicesForBar(bar: targetBar)
+                        for timeSlice in timeSlices {
+                            let newTimeSlice = newScore.createTimeSlice()
+                            for timeSliceEntry in timeSlice.getTimeSliceEntries() {
+                                if timeSliceEntry is Rest {
+                                    let rest = Rest(timeSlice: timeSlice, value: timeSliceEntry.getValue(), staffNum: timeSliceEntry.staffNum)
+                                    newTimeSlice.addRest(rest: rest)
+                                }
+                                if timeSliceEntry is Note {
+                                    let note = timeSliceEntry as! Note
+                                    let newNote = Note(timeSlice: newTimeSlice, num: note.midiNumber, value: note.getValue(), staffNum: timeSliceEntry.staffNum)
+                                    newNote.isOnlyRhythmNote = note.isOnlyRhythmNote
+                                    newTimeSlice.addNote(n: newNote)
+                                }
+                            }
                         }
                     }
                     barWasModiifed = true
@@ -198,25 +220,6 @@ class BarManager: ObservableObject {
         }
     }
     
-//    func reWriteBar(score: Score, bar:Int) -> Score {
-//        var currentBarNo = 0
-//        var entries:[ScoreEntry] = []
-//        for i in 0..<score.scoreEntries.count {
-//            let entry = score.scoreEntries[i]
-//            if currentBarNo == bar {
-//                if let ts = entry as? TimeSlice {
-//                    score.scoreEntries.remove(at: i)
-//                }
-//            }
-//            else {
-//                
-//            }
-//            if entry is BarLine {
-//                currentBarNo += 1
-//            }
-//        }
-//
-//    }
 }
 
 class Score : ObservableObject {
@@ -263,8 +266,8 @@ class Score : ObservableObject {
         barLayoutPositions = BarLayoutPositions()
     }
     
-    func createBarManager() {
-        self.barManager = BarManager(score: self)
+    func createBarManager(contentSection:ContentSection) {
+        self.barManager = BarManager(contentSection: contentSection, score: self)
     }
     
     func getBarCount() -> Int {
@@ -292,6 +295,23 @@ class Score : ObservableObject {
         return result
     }
     
+    func getTimeSlicesForBar(bar:Int) -> [TimeSlice] {
+        var result:[TimeSlice] = []
+        var barNum = 0
+        for scoreEntry in self.scoreEntries {
+            if scoreEntry is BarLine {
+                barNum += 1
+                continue
+            }
+            if barNum == bar {
+                if let ts = scoreEntry as? TimeSlice {
+                    result.append(ts)
+                }
+            }
+        }
+        return result
+    }
+
     func debugScore(_ ctx:String, withBeam:Bool) {
         print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
@@ -374,31 +394,6 @@ class Score : ObservableObject {
             }
         }
     }
-    
-//    ///Remove accidentals that are already written for the sam note in each bar
-//    func cleanAccidentals() {
-//        let entries = self.scoreEntries
-//        var accidentals:[Int] = []
-//        for entry in entries {
-//            if let ts = entry as? TimeSlice {
-//                if ts.getTimeSliceNotes().count > 0 {
-//                    let note = ts.getTimeSliceNotes()[0]
-//                    let placement = note.getNoteDisplayCharacteristics(staff: staffs[0])
-//                    if let accidental = placement.accidental {
-//                        if accidentals.contains(note.midiNumber) {
-//                            note.accidental = nil
-//                        }
-//                        else {
-//                            accidentals.append(note.midiNumber)
-//                        }
-//                    }
-//                }
-//            }
-//            if let bar = entry as? BarLine {
-//                accidentals = []
-//            }
-//        }
-//    }
     
     func setStudentFeedback(studentFeedack:StudentFeedback? = nil) {
         //DispatchQueue.main.async {
