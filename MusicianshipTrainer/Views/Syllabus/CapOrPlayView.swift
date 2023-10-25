@@ -85,7 +85,8 @@ struct PlayRecordingView: View {
 struct ClapOrPlayPresentView: View {
     let contentSection:ContentSection
 
-    @ObservedObject var score:Score
+    //@ObservedObject var score:Score
+    @State var score:Score
     @ObservedObject var audioRecorder = AudioRecorder.shared
     @ObservedObject var tapRecorder = TapRecorder.shared
     @ObservedObject private var logger = Logger.logger
@@ -297,20 +298,31 @@ struct ClapOrPlayPresentView: View {
                 }
             }
             HStack {
-                //if contentSection.parent != nil {
-                    if answerState != .recording {
-                        if shouldPlayRecording() {
-                            let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
-                            PlayRecordingView(buttonLabel: "Hear The Given \(uname)",
-                                              //score: score,
-                                              metronome: metronome,
-                                              fileName: contentSection.name,
-                                              onStart: {return score},
-                                              onDone: {rhythmHeard = true}
-                                              )
-                        }
+                let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
+                if answerState != .recording {
+                    if shouldPlayRecording() {
+                        PlayRecordingView(buttonLabel: "Hear The \(uname)",
+                                          //score: score,
+                                          metronome: metronome,
+                                          fileName: contentSection.name,
+                                          onStart: {return score},
+                                          onDone: {rhythmHeard = true}
+                        )
                     }
-                //}
+                    
+                    if contentSection.userScore != nil {
+                        Button(action: {
+                            contentSection.userScore = nil
+                            score = contentSection.getScore(staffCount: 1, onlyRhythm: true)
+                            answerState = .notEverAnswered
+                        }) {
+                            Text("Put Back The Original \(uname)")
+                                .defaultButtonStyle()
+                        }
+                        .padding()
+                    }
+                }
+                
                 if answerState == .recorded {
                     if !(contentSection.getExamTakingStatus() == .inExam) {
                         PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
@@ -689,6 +701,11 @@ struct ClapOrPlayAnswerView: View {
     func helpMessage() -> String {
         var msg = "\u{2022} You can modify the question's rhythm to make it easier to clap the rhythm that was difficult"
         msg = msg + "\n\n\u{2022} Select the bar you would like to be made simpler"
+        msg = msg + "\n\n\u{2022} You can then -"
+        msg = msg + "\n Delete the bar "
+        msg = msg + "\n Set the bar to crotchets "
+        msg = msg + "\n Set the bar to rests"
+        msg = msg + "\n Undo all changes to the bar"
         msg = msg + "\n\n\u{2022} Then you can try again with the easier rhythm"
         return msg
     }
@@ -777,6 +794,8 @@ struct ClapOrPlayAnswerView: View {
                 else {
                     answerMetronome.setTempo(tempo: questionTempo, context: "AnswerMode::OnAppear")
                 }
+                ///Load score again since it may have changed due student simplifying the rhythm. The parent of this view that loaded the original score is not inited again on a retry of a simplified rhythm.
+                score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType != .melodyPlay)
                 score.setHiddenStaff(num: 1, isHidden: false)
             }
             .onDisappear() {

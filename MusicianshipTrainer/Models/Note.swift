@@ -198,6 +198,7 @@ class Note : TimeSliceEntry, Comparable {
     var accidental:Int? = nil ///< 0 = flat, ==0 natural, > 0 sharp
     var rotated:Bool = false ///true if note must be displayed vertically rotated due to closeness to a neighbor.
     
+    ///Placements for the note on treble and bass staff
     var noteStaffPlacements:[NoteStaffPlacement?] = [nil, nil]
     
     ///Quavers in a beam have either a start, middle or end beam type. A standlone quaver type has type beamEnd. A non quaver has beam type none.

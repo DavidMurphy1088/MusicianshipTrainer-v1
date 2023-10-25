@@ -115,6 +115,16 @@ extension Text {
                 }
             )
     }
+    
+    func disabledButtonStyle() -> some View {
+        self
+            .font(UIDevice.current.userInterfaceIdiom == .pad ? UIGlobals.font : UIGlobals.fontiPhone)
+            .foregroundColor(.white)
+            .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
+            .background(.gray)
+            .cornerRadius(UIGlobals.cornerRadius)
+            .padding(8)
+    }
 }
 
 class UICommons {

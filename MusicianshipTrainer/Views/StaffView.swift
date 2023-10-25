@@ -145,6 +145,7 @@ struct BarManagerView: View {
     @ObservedObject var score:Score
     @ObservedObject var barManager:BarManager
     @ObservedObject var barLayoutPositions:BarLayoutPositions
+    @State var isShowingText  = false
     let lineSpacing:Double
     
     ///Return the bar index number and the start and end x span of its postion on the UI
@@ -152,7 +153,6 @@ struct BarManagerView: View {
         var barLineCovers:[(CGFloat, CGFloat)] = []
         for p in barLayoutPositions.positions {
             barLineCovers.append((p.value.minX, p.value.maxX))
-            //barLineCovers.append((p.value.midX - 20.0, p.value.midX + 20.0))
         }
         let sortedBarLineCovers = barLineCovers.sorted{ $0.0 < $1.0}
         
@@ -164,7 +164,7 @@ struct BarManagerView: View {
             barCovers.append((i, nextX, sortedBarLineCovers[i].0)) //sortedBarLineCovers[i].0))
             nextX = sortedBarLineCovers[i].1
         }
-        barCovers.append((sortedBarLineCovers.count, nextX, nextX + edgeBarWidth * 2.0))
+        barCovers.append((sortedBarLineCovers.count, nextX, nextX + edgeBarWidth * 3.0))
         return barCovers
     }
     
@@ -173,66 +173,84 @@ struct BarManagerView: View {
     }
                            
     var body: some View {        
-        //ZStack {
-            if let barManager = score.barManager {
-                ForEach(getPositions(), id: \.self.0) { indexAndPos in
-                    let barWidth = (indexAndPos.2 - indexAndPos.1)
-                    let iconWidth = lineSpacing * 2.0
-
-                    HStack {
-                        if barManager.states[indexAndPos.0] {
+        if let barManager = score.barManager {
+            let iconWidth = lineSpacing * 2.0
+            ForEach(getPositions(), id: \.self.0) { indexAndPos in
+                let barWidth = (indexAndPos.2 - indexAndPos.1)
+                HStack {
+                    if barManager.states[indexAndPos.0] {
+                        if score.scoreEntries.count > 1 {
                             Button(action: {
-                                barManager.reWriteBar(targetBar: indexAndPos.0, way: .beat)
+                                barManager.reWriteBar(targetBar: indexAndPos.0, way: .delete)
                             }) {
                                 HStack {
-                                    Image(systemName: "rectangle.and.pencil.and.ellipsis")
+                                    Image(systemName: "square.split.diagonal.2x2")
                                         .resizable()
                                         .frame(width: iconWidth, height: iconWidth)
                                 }
                             }
-                            .padding()
-                            
-                            Button(action: {
-                                barManager.reWriteBar(targetBar: indexAndPos.0, way: .silent)
-                            }) {
-                                HStack {
-                                    Image(systemName: "rectangle.slash")
-                                        .resizable()
-                                        .frame(width: iconWidth, height: iconWidth)
-                                }
-                            }
-                            .padding()
-                            
-                            Button(action: {
-                                barManager.reWriteBar(targetBar: indexAndPos.0, way: .original)
-                            }) {
-                                HStack {
-                                    Image(systemName: "arrowshape.turn.up.backward")
-                                        .resizable()
-                                        .frame(width: iconWidth, height: iconWidth)
-                                }
-                            }
-                            .padding()
+                            //.padding()
                         }
-                    }
-                    .position(x:indexAndPos.2 - barWidth/2.0)
-                    
-                    GeometryReader { geometry in
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(getColor(way: barManager.states[indexAndPos.0]))
-                            .frame(width: barWidth, height: 130)
-                            .onTapGesture {
-                                barManager.toggleState(indexAndPos.0)
+                        
+                        Button(action: {
+                            barManager.reWriteBar(targetBar: indexAndPos.0, way: .beat)
+                        }) {
+                            HStack {
+                                Image(systemName: "rectangle.and.pencil.and.ellipsis")
+                                    .resizable()
+                                    .frame(width: iconWidth, height: iconWidth)
+                                    .onTapGesture {
+                                        isShowingText = true
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                            isShowingText = false
+                                        }
+                                        
+                                    }
+                                
                             }
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.blue, lineWidth: 2)
-                            )
-                            .position(x:indexAndPos.2 - barWidth / 2.0, y:geometry.size.height / 2.0)
+                        }
+                        //.padding()
+                        
+                        Button(action: {
+                            barManager.reWriteBar(targetBar: indexAndPos.0, way: .silent)
+                        }) {
+                            HStack {
+                                Image(systemName: "rectangle.slash")
+                                    .resizable()
+                                    .frame(width: iconWidth, height: iconWidth)
+                            }
+                        }
+                        //.padding()
+                        
+                        Button(action: {
+                            barManager.reWriteBar(targetBar: indexAndPos.0, way: .original)
+                        }) {
+                            HStack {
+                                Image(systemName: "arrowshape.turn.up.backward")
+                                    .resizable()
+                                    .frame(width: iconWidth, height: iconWidth)
+                            }
+                        }
+                        //.padding(.left, 20)
                     }
                 }
+                .position(x:indexAndPos.2 - barWidth/2.0, y:0)
+                
+                GeometryReader { geometry in
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(getColor(way: barManager.states[indexAndPos.0]))
+                        .frame(width: barWidth, height: 130)
+                        .onTapGesture {
+                            barManager.toggleState(indexAndPos.0)
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.blue, lineWidth: 2)
+                        )
+                        .position(x:indexAndPos.2 - barWidth / 2.0, y:geometry.size.height / 2.0)
+                }
             }
-        //}
+        }
     }
 }
 

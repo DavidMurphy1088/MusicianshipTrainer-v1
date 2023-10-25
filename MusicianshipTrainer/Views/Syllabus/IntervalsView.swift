@@ -22,25 +22,29 @@ struct SelectIntervalView: View {
         HStack(alignment: .top)  {
             let columns:Int = intervals.getVisualColumnCount()
             ForEach(0..<columns) { column in
-                //VStack {
-                    Spacer()
-                    VStack {
-                        let intervalsForColumn = intervals.getVisualColumns(col: column)
-                        ForEach(intervalsForColumn, id: \.name) { intervalType in
-                            Button(action: {
-                                selectedIntervalName = intervalType.name
-                                answerState = .answered
-                                answer.selectedIntervalName = intervalType.name
-                            }) {
+                Spacer()
+                VStack {
+                    let intervalsForColumn = intervals.getVisualColumns(col: column)
+                    ForEach(intervalsForColumn, id: \.name) { intervalType in
+                        Button(action: {
+                            selectedIntervalName = intervalType.name
+                            answerState = .answered
+                            answer.selectedIntervalName = intervalType.name
+                        }) {
+                            if scoreWasPlayed {
                                 Text(intervalType.name)
                                     .selectedButtonStyle(selected: selectedIntervalName == intervalType.name)
                             }
+                            else {
+                                Text(intervalType.name).disabledButtonStyle()
+                            }
                         }
+                        .disabled(!scoreWasPlayed)
                     }
-                    .padding(.top, 0)
-                    Spacer()
                 }
-           // }
+                .padding(.top, 0)
+                Spacer()
+            }
         }
     }
 }
@@ -100,6 +104,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         if let chord = chord {
             timeslice?.addChord(c: chord)
         }
+        
     }
     
     func buildAnswer(grade:Int) {

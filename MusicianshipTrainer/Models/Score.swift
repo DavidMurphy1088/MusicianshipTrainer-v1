@@ -82,6 +82,7 @@ class BarManager: ObservableObject {
     @Published var states:[Bool] = []
 
     enum BarModifyType {
+        case delete
         case beat
         case silent
         case original
@@ -124,12 +125,16 @@ class BarManager: ObservableObject {
         newScore.setStaff(num: 0, staff: staff)
 
         var barNum = 0
-        var barWasModiifed = false
-        
+        var barWasModified = false
+        var deleteNextBarLine = false
+
         for entry in score.scoreEntries {
             if entry is BarLine {
                 barNum += 1
-                newScore.addBarLine()
+                if !deleteNextBarLine {
+                    newScore.addBarLine()
+                }
+                deleteNextBarLine = false
                 continue
             }
 
@@ -143,11 +148,15 @@ class BarManager: ObservableObject {
             let fromEntry = fromTimeSlice.entries[0]
             
             if barNum == targetBar {
+
                 ///Modify the target bar according to the specified way
-                if barWasModiifed {
+                if barWasModified {
                     continue
                 }
                 else {
+                    if way == .delete {
+                        deleteNextBarLine = true
+                    }
                     if way == .beat {
                         for _ in 0..<newScore.timeSignature.top {
                             let newTimeSlice = newScore.createTimeSlice()
@@ -187,7 +196,7 @@ class BarManager: ObservableObject {
                             }
                         }
                     }
-                    barWasModiifed = true
+                    barWasModified = true
                 }
             }
             else {
@@ -312,7 +321,7 @@ class Score : ObservableObject {
         return result
     }
 
-    func debugScore(_ ctx:String, withBeam:Bool) {
+    func debugScore1(_ ctx:String, withBeam:Bool) {
         print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
             if t.entries.count == 0 {
@@ -332,6 +341,7 @@ class Score : ObservableObject {
                       "[Accidental:",note?.accidental,"]",
                       "[Staff:",note?.staffNum,"]",
                       "[stem:",note?.stemDirection ?? "none", note?.stemLength ?? "none", "]",
+                      "[placement:",note?.noteStaffPlacements[0]?.offsetFromStaffMidline ?? "none", note?.noteStaffPlacements[0]?.accidental ?? "none","]",
                       t.getValue() ?? "","status",
                       t.statusTag
                 )

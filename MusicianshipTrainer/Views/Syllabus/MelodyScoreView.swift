@@ -13,13 +13,15 @@ struct MelodyScoreView: View {
         self.melody = melody
     }
     
+//    func log(_ m:String)->Bool {
+//        print("==============\(m)", melody.id)
+//        return true
+//    }
+
     var body: some View {
         VStack {
             if let score = score {
                 ScoreView(score: score)
-                Text("")
-                Text("")
-                Text("")
                 Text("")
                 Text("")
                 Text("")
@@ -35,7 +37,9 @@ struct MelodyScoreView: View {
                 }
             }
         }
+        
         .onAppear {
+            ///Transpose the selected melody to the first note of the interval
             let contentData = ContentSectionData(row:0, type: "", data: melody.data)
             let contentSection = ContentSection(parent: nil, name: "", type: "", data:contentData, isActive:true)
             let parsedScore = contentSection.parseData(staffCount: 1, onlyRhythm: false)
@@ -80,8 +84,6 @@ struct MelodyScoreView: View {
                     }
                     previousNote = note
                 }
-                if let rest = getNote(ts) {
-                }
             }
             
             ///Transpose the melody to demonstrate the chosen interval at the same pitch as the question
@@ -125,60 +127,62 @@ struct ShowMelodiesView: View {
     let interval:Int
     let melodies:[Melody]
     @State var selectedMelodyId:UUID?
-    @State var showingMelodies = false
-    @State var playing = false
+    @State var presentMelodies = false
+    @State var presentScoreView = false
     @State var selectedMelody:Melody?
+    
+//    func log(_ m:String)->Bool {
+//        print("==============\(m)", selectedMelodyId ?? 0)
+//        return true
+//    }
     
     var body: some View {
         VStack {
             Button(action: {
-                showingMelodies = true
+                presentMelodies = true
             }) {
                 Text("Hear Melody").defaultButtonStyle()
             }
             .padding()
-            .popover(isPresented: $showingMelodies, arrowEdge: .trailing) {
+            .popover(isPresented: $presentMelodies, arrowEdge: .trailing) {
                 VStack {
-                    VStack {
-                        ForEach(melodies) { melody in
-                            Button(action: {
+                    ForEach(melodies) { melody in
+                        Button(action: {
+                            //print("\n==============CLICKED 1", selectedMelodyId ?? 0, presentScoreView)
+                            if presentScoreView {
+                                selectedMelodyId = nil
+                                selectedMelody = nil
+                                presentScoreView = false
+                            }
+                            else {
                                 selectedMelodyId = melody.id
                                 selectedMelody = melody
-                                if playing {
-                                    DispatchQueue.main.async {
-                                        playing = false
-//                                        sleep(2)
-//                                        DispatchQueue.main.async {
-//                                            playing = true
-//                                        }
-                                    }
-                                }
-                                else {
-                                    playing = true
-                                }
-                            }) {
-                                Text(melody.name)
-                                    .padding()
-                                    .foregroundColor(selectedMelodyId == melody.id ? .white : .primary)
-                                    .background(selectedMelodyId == melody.id ? Color.blue : Color.clear)
-                                    .cornerRadius(8)
+                                presentScoreView = true
                             }
+                            //print("\n==============CLICKED 2", selectedMelodyId ?? 0, presentScoreView)
+
+                        }) {
+                            Text(melody.name)
+                                .padding()
+                                .foregroundColor(selectedMelodyId == melody.id ? .white : .primary)
+                                .background(selectedMelodyId == melody.id ? Color.blue : Color.clear)
+                                .cornerRadius(8)
                         }
                     }
                 }
                 .padding()
-                .popover(isPresented: $playing, arrowEdge: .trailing) {
-                    VStack {
-                        if let selectedMelody = selectedMelody {
-                            VStack {
-                                MelodyScoreView(basePitch: firstNote.midiNumber, interval:interval, melody: selectedMelody)
-                                    .padding()
-                            }
+                .popover(isPresented: $presentScoreView, arrowEdge: .trailing) {
+                    if let selectedMelody = selectedMelody {
+                        VStack {
+                            MelodyScoreView(basePitch: firstNote.midiNumber, interval:interval, melody: selectedMelody)
+                                .padding()
                         }
+                        //.isHidden = presentScoreView == false
+                        .frame(width: UIScreen.main.bounds.width * 0.90, height: UIScreen.main.bounds.height * 0.33)
                     }
-                    .frame(width: UIScreen.main.bounds.width * 0.90, height: UIScreen.main.bounds.height * 0.33)
                 }
             }
         }
     }
+
 }

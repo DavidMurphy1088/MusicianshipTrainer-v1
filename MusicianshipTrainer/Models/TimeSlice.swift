@@ -55,7 +55,7 @@ class TimeSlice : ScoreEntry {
 
     func addChord(c:Chord) {
         for n in c.getNotes() {
-            self.entries.append(n)
+            self.addNote(n: n)
         }
         if let score = score {
             score.addStemAndBeamCharaceteristics()

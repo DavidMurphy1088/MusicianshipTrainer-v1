@@ -171,6 +171,14 @@ struct ScoreView: View {
         self.staffLayoutSize.setLineSpacing(lineSpacing)
     }
     
+    func getBarManager() -> BarManager? {
+        var manager = score.barManager
+        if let manager = manager {
+            manager.toggleState(0)
+        }
+        return manager
+    }
+    
     var body: some View {
         VStack {
             if let feedback = score.studentFeedback {
@@ -185,7 +193,8 @@ struct ScoreView: View {
                                 StaffView(score: score, staff: staff, staffLayoutSize: staffLayoutSize)
                                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
                                     //.border(Color .red, width: 2)
-                                if let barManager = score.barManager {
+                                
+                                if let barManager = getBarManager() {
                                     BarManagerView(score: score,
                                                    barManager: barManager, barLayoutPositions: score.barLayoutPositions,
                                                    lineSpacing: staffLayoutSize.lineSpacing)
