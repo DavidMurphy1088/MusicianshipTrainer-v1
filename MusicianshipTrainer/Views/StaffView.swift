@@ -199,14 +199,6 @@ struct BarManagerView: View {
                                 Image(systemName: "rectangle.and.pencil.and.ellipsis")
                                     .resizable()
                                     .frame(width: iconWidth, height: iconWidth)
-                                    .onTapGesture {
-                                        isShowingText = true
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                                            isShowingText = false
-                                        }
-                                        
-                                    }
-                                
                             }
                         }
                         //.padding()

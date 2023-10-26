@@ -13,15 +13,29 @@ struct ScoreSpacerView: View {
 struct SelectIntervalView: View {
     @Binding var answer:Answer
     @Binding var answerState:AnswerState
-    var intervals:Intervals
+    @ObservedObject var intervals:Intervals
     @State var selectedIntervalName:String?
     var questionType:QuestionType
     var scoreWasPlayed:Bool
     
+    ///When using hints random incorrect answer are disabled to make the question easier
+    @Binding var hintCorrectAnswer:String
+    
+//    func x() -> Bool {
+//        if let hintCorrectAnswer = hintCorrectAnswer {
+//            intervals.setRandomSelected(correctIntervalName: hintCorrectAnswer)
+//        }
+//        return true
+//    }
+    
     var body: some View {
         HStack(alignment: .top)  {
             let columns:Int = intervals.getVisualColumnCount()
+            let enabledToSelect = (questionType == .intervalVisual) || (scoreWasPlayed && questionType == .intervalAural)
+            let hintsChanged = intervals.enabledChanged
+            
             ForEach(0..<columns) { column in
+                
                 Spacer()
                 VStack {
                     let intervalsForColumn = intervals.getVisualColumns(col: column)
@@ -31,21 +45,31 @@ struct SelectIntervalView: View {
                             answerState = .answered
                             answer.selectedIntervalName = intervalType.name
                         }) {
-                            if scoreWasPlayed {
-                                Text(intervalType.name)
-                                    .selectedButtonStyle(selected: selectedIntervalName == intervalType.name)
+                            if enabledToSelect {
+                                if intervalType.enabled {
+                                    Text(intervalType.name)
+                                        .selectedButtonStyle(selected: selectedIntervalName == intervalType.name)
+                                }
+                                else {
+                                    Text(intervalType.name)
+                                    .disabledButtonStyle()
+                                }
                             }
                             else {
                                 Text(intervalType.name).disabledButtonStyle()
                             }
                         }
-                        .disabled(!scoreWasPlayed)
+                        .disabled(!enabledToSelect)
                     }
                 }
                 .padding(.top, 0)
                 Spacer()
             }
         }
+        .onChange(of: hintCorrectAnswer) { hintCorrectAnswer in
+            intervals.setRandomSelected(correctIntervalName: hintCorrectAnswer)
+        }
+
     }
 }
 
@@ -63,7 +87,8 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @State private var selectedOption: String? = nil
     @State private var scoreWasPlayed = false
     @State var intervals:Intervals
-    
+    @State var hintCorrectAnswer:String = ""
+
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
     
@@ -107,7 +132,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         
     }
     
-    func buildAnswer(grade:Int) {
+    func buildAnswer() {
         if intervalNotes.count == 0 {
             return
         }
@@ -151,7 +176,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         guard let parent = contentSection.parent else {
             return false
         }
-        if parent.isExamTypeContentSection() && contentSection.answer111 == nil {
+        if parent.isExamTypeContentSection() && contentSection.storedAnswer == nil {
             return true
         }
         else {
@@ -214,9 +239,25 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
 //                        .background(UIGlobals.colorScore)
                     }
                 }
-                                
-                 VStack {
-
+                
+                if !isTakingExam() {
+                    ///Enable one hint click to reduce number of intervals to choose from
+                    if intervals.intervalNames.count > 2 {
+                        if (questionType == .intervalVisual) || (scoreWasPlayed && questionType == .intervalAural) {
+                            if self.hintCorrectAnswer.count == 0 {
+                                Button(action: {
+                                    self.buildAnswer()
+                                    self.hintCorrectAnswer = answer.correctIntervalName
+                                }) {
+                                    Text("Get a Hint").hintAnswerButtonStyle()
+                                }
+                                .padding()
+                            }
+                        }
+                    }
+                }
+                
+                VStack {
                     if !isTakingExam() {
                         if scoreWasPlayed {
                             if UIDevice.current.userInterfaceIdiom == .pad {
@@ -225,20 +266,25 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                         }
                     }
                     HStack {
-                        SelectIntervalView(answer: $answer, answerState: $answerState, intervals: intervals,
-                                           questionType: questionType, scoreWasPlayed: scoreWasPlayed)
+                        SelectIntervalView(answer: $answer,
+                                           answerState: $answerState,
+                                           intervals: intervals,
+                                           questionType: questionType,
+                                           scoreWasPlayed: scoreWasPlayed,
+                                           hintCorrectAnswer: $hintCorrectAnswer)
                         .padding()
                     }
                     .padding()
                 }
                 .disabled(questionType == .intervalAural && scoreWasPlayed == false)
+                
                 if answerState == .answered {
                     VStack {
                         Button(action: {
-                            self.buildAnswer(grade: contentSection.getGrade())
+                            self.buildAnswer()
                             answerState = .submittedAnswer
                         }) {
-                            Text("\(self.isTakingExam() ? "Submit" : "Check") Your Answer").defaultButtonStyle()
+                            Text("\(self.isTakingExam() ? "Submit" : "Check") Your Answer").submitAnswerButtonStyle()
                         }
                         .padding()
                     }
@@ -306,7 +352,7 @@ struct IntervalAnswerView: View {
         VStack {
             Text(" ")            
             HStack {
-                if answerWasCorrect {
+                //if answerWasCorrect {
                     Spacer()
                     Button(action: {
                         let parent = self.contentSection.parent
@@ -343,7 +389,7 @@ struct IntervalAnswerView: View {
                         }
                     }
                     Spacer()
-                }
+                //}
             }
         }
     }
@@ -437,7 +483,7 @@ struct IntervalView: View {
             if parent.isExamTypeContentSection() {
                 if answerState  == .submittedAnswer {
                     //Only show answer for exam questions in exam review mode
-                    if contentSection.answer111 == nil {
+                    if contentSection.storedAnswer == nil {
                         return false
                     }
                     else {

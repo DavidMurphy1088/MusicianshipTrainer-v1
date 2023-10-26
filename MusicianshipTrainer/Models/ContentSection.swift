@@ -45,7 +45,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     var isActive:Bool
     var level:Int
     var index:Int
-    var answer111:Answer?
+    var storedAnswer:Answer?
     var questionStatus = QuestionStatus(0)
     
     ///The user can modify the content score in some tests
@@ -115,19 +115,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         }
         return grade
     }
-    
-//    func isInExam() -> Bool {
-//        var section:ContentSection? = self
-//        while section != nil {
-//            if section!.name.range(of: "ExamMode", options: .caseInsensitive) != nil {
-//                if section!.hasNoAnswers() {
-//                    return true
-//                }
-//            }
-//            section = section!.parent
-//        }
-//        return false
-//    }
 
     func storeAnswer(answer: Answer) {
         let encoder = JSONEncoder()
@@ -163,7 +150,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             do {
                 let data = try Data(contentsOf: fileURL)
                 let answer = try decoder.decode(Answer.self, from: data)
-                self.answer111 = answer
+                self.storedAnswer = answer
             }
             catch {
                 //Logger.logger.reportError(self, "Failed to parse JSON \(error)")
@@ -293,7 +280,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             }
         }
         
-        // remove leading zero in example number
+        /// Remove leading zero in example number
         if name.range(of: "example", options: .caseInsensitive) != nil {
             let substrings = name.components(separatedBy: " ")
             if substrings.count > 1 {
@@ -350,7 +337,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             return .notInExam
         }
         if parent.isExamTypeContentSection() {
-            if answer111 == nil {
+            if storedAnswer == nil {
                 return .inExam
             }
             else {
@@ -398,7 +385,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     
     func hasNoAnswers() -> Bool {
         for section in self.subSections {
-            if section.answer111 != nil {
+            if section.storedAnswer != nil {
                 return false
             }
         }
@@ -420,13 +407,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         var timeSignature:TimeSignature?
         var score:Score?
         let defaultScore = Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1, noteSize: .small)
-        
-//        guard data != nil else {
-//            if warnNotFound {
-//                Logger.logger.reportError(self, "No data for content section:[\(self.getPath())]")
-//            }
-//            return defaultScore
-//        }
 
         let tuples:[String] = data
         var tieWasFound = false
@@ -528,9 +508,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                             note.staffNum = 0
                             note.isOnlyRhythmNote = onlyRhythm
                             timeSlice.addNote(n: note)
-                            //let note1 = Note(timeSlice: timeSlice, num: onlyRhythm ? 71 : notePitch - 24, value: value, staffNum: 0, accidental: accidental)
-                            //note1.staffNum = 1
-                            //timeSlice.addNote(n: note1)
                             if let triad = triad {
                                 addTriad(score: score, timeSlice: timeSlice, note: note, triad: triad, value: note.getValue())
                             }
@@ -541,7 +518,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             }
             Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(self.getTitle()) \(tuple)")
         }
-        //fillBaseClefRests(score: score)
         if let score = score {
             //score.debugScore("ContentSection Parse", withBeam: false)
             return score
@@ -550,53 +526,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             return defaultScore
         }
     }
-    
-    ///Sight Reading adds 1 or 2 chords to the base clef so we need to show it. But that base clef needs rests where th chords arent
-//    func fillBaseClefRests(score:Score) {
-//        var hasChords = false
-//        for slice in score.getAllTimeSlices() {
-//            if slice.entries.count > 1 {
-//                hasChords = true
-//                break
-//            }
-//        }
-//        if !hasChords {
-//            return
-//        }
-//        var newBar = true
-//        var seenFirstChord = false
-//        for entry in score.scoreEntries {
-//            if entry is BarLine {
-//                newBar = true
-//                continue
-//            }
-//            if let slice = entry as? TimeSlice {
-//                if slice.entries.count > 1 {
-//                    seenFirstChord = true
-//                }
-//
-//                if slice.entries.count == 1 {
-//                    var rest:Rest?
-//                    if seenFirstChord {
-//                        let tsEntry = slice.entries[0]
-//                        rest = Rest(timeSlice: slice, value: tsEntry.getValue(), staffNum: 1)
-//                    }
-//                    else {
-//                        if newBar {
-//                            rest = Rest(timeSlice: slice, value: 4.0, staffNum: 1)
-//                        }
-//                    }
-//                    if let rest = rest {
-//                        rest.staffNum = 1
-//                        slice.addRest(rest: rest)
-//                    }
-//
-//                }
-//                newBar = false
-//            }
-//        }
-//    }
-    
+        
     func addTriad(score:Score, timeSlice:TimeSlice, note:Note, triad:String, value:Double) {
         let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: 5)
         score.setStaff(num: 1, staff: bstaff)

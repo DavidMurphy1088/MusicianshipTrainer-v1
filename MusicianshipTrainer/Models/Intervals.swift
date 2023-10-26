@@ -1,14 +1,5 @@
 import Foundation
 
-//class IntervalType1 {
-//    var halfSteps:Int
-//    var notes:Int
-//    init(halfSteps:Int, notes:Int) {
-//        self.halfSteps = halfSteps
-//        self.notes = notes
-//    }
-//}
-
 ///The same pitch difference can be a different interval depending on how its written
 ///e.g. pitch interval 6 can be an augmented 4th or diminished 5th. They are differentiated by the number of notes the interval spans. i.e. how it is written.
 ///e.g. an augmented fourth from midi 60=C 4th spans D,E,F (notes=3) whereas a diminished fifth spans D,E,F,G (notes=4)
@@ -16,7 +7,8 @@ import Foundation
 class IntervalGroup : Comparable, Hashable {
     var name:String
     var intervals:[Int]
-    var noteSpan:Int
+    var noteSpan:Int    
+    @Published var enabled:Bool = true
     
     static func == (lhs: IntervalGroup, rhs: IntervalGroup) -> Bool {
         return lhs.name == rhs.name
@@ -35,12 +27,19 @@ class IntervalGroup : Comparable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(name)
     }
+    
+//    func setEnabled(way:Bool) {
+//        DispatchQueue.main.async {
+//            self.enabled = way
+//        }
+//    }
 }
 
-class Intervals {
+class Intervals : ObservableObject {
     var intervalNames:[IntervalGroup]
     var intervalsPerColumn:Int
-    
+    @Published var enabledChanged = false
+
     init(grade:Int, questionType:QuestionType) {
         let ageGroup = Settings.getAgeGroup()
         self.intervalNames = []
@@ -70,6 +69,39 @@ class Intervals {
         self.intervalsPerColumn = Int(Double((self.intervalNames.count + 1)) / 2.0)
         if intervalsPerColumn == 0 {
             intervalsPerColumn = 1
+        }
+    }
+    
+    ///Selected is used for hints. Hints can disable a number of incorrect intervals to make the question easier
+    ///Enable intervals randomly and ensure 1/2 are enabled
+    func setRandomSelected(correctIntervalName:String) {
+        var correctIndex = 0
+
+        for i in 0..<intervalNames.count {
+            if intervalNames[i].name == correctIntervalName {
+                correctIndex = i
+            }
+            intervalNames[i].enabled = true
+        }
+        if correctIntervalName.count == 0 {
+            return
+        }
+        var enabledIndexes:[Int] = []// = Array(repeating: false, count: intervalNames.count)
+
+        enabledIndexes.append(correctIndex)
+        let required = (intervalNames.count + 1) / 2
+        while enabledIndexes.count < required {
+            let random = Int.random(in: 0..<intervalNames.count)
+            if !enabledIndexes.contains(random) {
+                enabledIndexes.append(random)
+            }
+        }
+        for i in 0..<intervalNames.count {
+            //intervalNames[i].setEnabled(way: enabledIndexes.contains(i))
+            intervalNames[i].enabled = enabledIndexes.contains(i)
+        }
+        DispatchQueue.main.async {
+            self.enabledChanged.toggle()
         }
     }
     

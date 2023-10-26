@@ -13,7 +13,7 @@ struct ContentTypeView: View {
     func isNavigationHidden() -> Bool {
         ///No exit navigation in exam mode
         if let parent = contentSection.parent {
-            if parent.isExamTypeContentSection() && contentSection.answer111 == nil {
+            if parent.isExamTypeContentSection() && contentSection.storedAnswer == nil {
                 return true
             }
             else {
@@ -376,7 +376,7 @@ struct SectionsNavigationView:View {
         }
         else {
             //individual tests
-            if let answer = contentSection.answer111 {
+            if let answer = contentSection.storedAnswer {
                 if answer.correct {
                     name = "grade_a"
                 }
@@ -396,7 +396,7 @@ struct SectionsNavigationView:View {
     func getScore(contentSection: ContentSection) -> Int {
         var score = 0
         for s in contentSection.getNavigableChildSections() {
-            if let answer = s.answer111 {
+            if let answer = s.storedAnswer {
                 if answer.correct {
                     score += 1
                 }
@@ -528,7 +528,7 @@ struct ExamView: View {
                     if sectionIndex < contentSections.count - 1 {
                         Text("Completed question \(sectionIndex+1) of \(contentSections.count)").defaultTextStyle().padding()
                         Button(action: {
-                            contentSections[sectionIndex].answer111 = answer.copyAnwser()
+                            contentSections[sectionIndex].storedAnswer = answer.copyAnwser()
                             contentSections[sectionIndex].storeAnswer(answer: answer.copyAnwser())
                             answerState = .notEverAnswered
                             sectionIndex += 1
@@ -552,7 +552,7 @@ struct ExamView: View {
                                   primaryButton: .destructive(Text("Yes, I'm sure")) {
                                 for s in contentSections {
                                     let answer = Answer(ctx: "cancelled")
-                                    s.answer111 = answer
+                                    s.storedAnswer = answer
                                     s.storeAnswer(answer: answer)
                                 }
                                 presentationMode.wrappedValue.dismiss()
@@ -564,7 +564,7 @@ struct ExamView: View {
                     else {
                         Spacer()
                         Button(action: {
-                            contentSections[sectionIndex].answer111 = answer.copyAnwser()
+                            contentSections[sectionIndex].storedAnswer = answer.copyAnwser()
                             contentSections[sectionIndex].storeAnswer(answer: answer.copyAnwser())
                             //Force the parent view to refresh the test lines status
                             contentSection.questionStatus.setStatus(1)
@@ -677,9 +677,9 @@ struct ContentSectionView: View {
         //.background(UIGlobals.colorNavigationBackground)
         .background(Color(.secondarySystemBackground))
         .onAppear {
-            if contentSection.answer111 != nil {
+            if contentSection.storedAnswer != nil {
                 self.answerState = .submittedAnswer
-                self.answer = contentSection.answer111!
+                self.answer = contentSection.storedAnswer!
             }
         }
         .onDisappear() {

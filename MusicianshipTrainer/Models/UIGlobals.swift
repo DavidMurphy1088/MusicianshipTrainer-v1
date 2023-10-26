@@ -81,6 +81,24 @@ extension Text {
             .cornerRadius(UIGlobals.cornerRadius)
     }
     
+    func submitAnswerButtonStyle(enabled:Bool = true) -> some View {
+        self
+            .font(UIDevice.current.userInterfaceIdiom == .pad ? UIGlobals.font : UIGlobals.fontiPhone)
+            .foregroundColor(.white)
+            .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
+            .background(enabled ? .green : .gray)
+            .cornerRadius(UIGlobals.cornerRadius)
+    }
+    
+    func hintAnswerButtonStyle() -> some View {
+        self
+            .font(UIDevice.current.userInterfaceIdiom == .pad ? UIGlobals.font : UIGlobals.fontiPhone)
+            .foregroundColor(.white)
+            .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
+            .background(.teal)
+            .cornerRadius(UIGlobals.cornerRadius)
+    }
+
     func defaultTextStyle() -> some View {
         self
             .font(UIGlobals.font)
@@ -102,7 +120,7 @@ extension Text {
             .foregroundColor(.white)
             .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
             //.background(enabled ? .blue : .gray)
-            .background(.blue)
+            .background(selected ? .orange : .blue)
             .cornerRadius(UIGlobals.cornerRadius)
             .padding(8)
             .background (
@@ -121,7 +139,7 @@ extension Text {
             .font(UIDevice.current.userInterfaceIdiom == .pad ? UIGlobals.font : UIGlobals.fontiPhone)
             .foregroundColor(.white)
             .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
-            .background(.gray)
+            .background(Color(red: 0.7, green: 0.7, blue: 0.7))
             .cornerRadius(UIGlobals.cornerRadius)
             .padding(8)
     }

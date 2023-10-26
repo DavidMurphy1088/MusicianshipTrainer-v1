@@ -470,7 +470,7 @@ struct ClapOrPlayPresentView: View {
                                     }
                                     score.setHiddenStaff(num: 1, isHidden: false)
                                 }) {
-                                    Text(nextStepText()).defaultButtonStyle()
+                                    Text(nextStepText()).submitAnswerButtonStyle()
                                 }
                                 .padding()
                             }
@@ -834,7 +834,7 @@ struct ClapOrPlayView: View {
             if parent.isExamTypeContentSection() {
                 if answerState  == .submittedAnswer {
                     //Only show answer for exam questions in exam review mode
-                    if contentSection.answer111 == nil {
+                    if contentSection.storedAnswer == nil {
                         return false
                     }
                     else {
