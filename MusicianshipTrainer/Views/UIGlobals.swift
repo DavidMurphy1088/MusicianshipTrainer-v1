@@ -58,6 +58,19 @@ class UIGlobals {
             print("Unknown")
         }
     }
+
+}
+
+func hintButtonView(_ txt:String) -> some View {
+    VStack {
+        HStack {
+            Text(txt).hintAnswerButtonStyle()
+            Image(systemName: "hand.point.up.left").font(.largeTitle).foregroundColor(.white)
+            Text(" ")
+        }
+        .background(.teal)
+    }
+    .cornerRadius(UIGlobals.cornerRadius)
 }
 
 struct StandardButtonStyle: ButtonStyle {
@@ -69,6 +82,8 @@ struct StandardButtonStyle: ButtonStyle {
             .cornerRadius(8)
     }
 }
+
+
 
 extension Text {
     
@@ -122,16 +137,16 @@ extension Text {
             //.background(enabled ? .blue : .gray)
             .background(selected ? .orange : .blue)
             .cornerRadius(UIGlobals.cornerRadius)
-            .padding(8)
-            .background (
-                ZStack {
-                    if selected {
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.blue, lineWidth: 3)
-                            .padding(4)  // This gives space outside the button edge.
-                    }
-                }
-            )
+//            .padding(8)
+//            .background (
+//                ZStack {
+//                    if selected {
+//                        RoundedRectangle(cornerRadius: 10)
+//                            .stroke(Color.blue, lineWidth: 3)
+//                            .padding(4)  // This gives space outside the button edge.
+//                    }
+//                }
+//            )
     }
     
     func disabledButtonStyle() -> some View {

@@ -38,62 +38,6 @@ struct FeedbackView: View {
     }
 }
 
-//struct ScoreSelectView: View {
-//    @State private var dragOffset = CGSize.zero
-//    @State private var isDragging = false
-//    @State private var viewWidth = 0.0
-//    @State private var barWidth = 200.0
-//    @State private var offset = 0.0
-//
-//    var drag: some Gesture {
-//        DragGesture()
-//            .onChanged { _ in self.isDragging = true }
-//            .onEnded { _ in self.isDragging = false }
-//    }
-//
-//    func getOffset() -> CGFloat {
-//        var x = self.viewWidth * 0.50 - self.barWidth / 2.0
-//        x += self.offset
-//        return x
-//    }
-//
-//    var body: some View {
-//        HStack {
-//            Rectangle()
-//                .fill(self.isDragging ? Color.red : Color.indigo)
-//                .frame(width: barWidth, height: 20)
-//                .cornerRadius(10)
-//                .offset(x: getOffset(), y: 0)
-//
-//                .gesture(
-//                    DragGesture()
-//                        .onChanged { value in
-//                            self.dragOffset = value.translation
-//                            self.isDragging = true
-//                            self.offset = value.location.x - value.startLocation.x
-//                        }
-//                        .onEnded { value in
-//                            self.isDragging = false
-//                        }
-//                )
-//
-//            //        Circle()
-//            //            .fill(self.isDragging ? Color.red : Color.blue)
-//            //            .frame(width: 50, alignment: .center)
-//            //            .gesture(drag)
-//            //        }
-//        }
-//        .background(
-//            GeometryReader { geometry in
-//                Color.clear.onAppear {
-//                    self.viewWidth = geometry.size.width
-//                }
-//            }
-//        )
-//
-//    }
-//}
-
 struct ScoreView: View {
     @ObservedObject var score:Score
     @ObservedObject var staffLayoutSize:StaffLayoutSize
@@ -118,7 +62,7 @@ struct ScoreView: View {
             }
             lastStaff = staff
         }
-        if score.barManager != nil {
+        if score.barEditor != nil {
             height += staffLayoutSize.lineSpacing * 1.0
         }
         return height
@@ -171,12 +115,12 @@ struct ScoreView: View {
         self.staffLayoutSize.setLineSpacing(lineSpacing)
     }
     
-    func getBarManager() -> BarManager? {
-        var manager = score.barManager
-        if let manager = manager {
-            manager.toggleState(0)
+    func getBarEditor() -> BarEditor? {
+        var editor = score.barEditor
+        if let editor = editor {
+            editor.toggleState(0)
         }
-        return manager
+        return editor
     }
     
     var body: some View {
@@ -194,9 +138,9 @@ struct ScoreView: View {
                                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
                                     //.border(Color .red, width: 2)
                                 
-                                if let barManager = getBarManager() {
-                                    BarManagerView(score: score,
-                                                   barManager: barManager, barLayoutPositions: score.barLayoutPositions,
+                                if let barEditor = getBarEditor() {
+                                    BarEditorView(score: score,
+                                                   barEditor: barEditor, barLayoutPositions: score.barLayoutPositions,
                                                    lineSpacing: staffLayoutSize.lineSpacing)
                                                    
                                         .frame(height: staffLayoutSize.getStaffHeight(score: score))

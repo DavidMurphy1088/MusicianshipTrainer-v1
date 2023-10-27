@@ -1,7 +1,7 @@
 
 import Foundation
 
-class BarManager: ObservableObject {
+class BarEditor: ObservableObject {
     let contentSection:ContentSection
     let score:Score
     var notifyFunction: ((_ score:Score)->Void)?
@@ -58,10 +58,14 @@ class BarManager: ObservableObject {
         for entry in score.scoreEntries {
             if entry is BarLine {
                 barNum += 1
-                if !deleteNextBarLine {
-                    newScore.addBarLine()
+                if deleteNextBarLine {
+                    deleteNextBarLine = false
                 }
-                deleteNextBarLine = false
+                else {
+                    if barNum != targetBar {
+                        newScore.addBarLine()
+                    }
+                }
                 continue
             }
 
@@ -82,7 +86,7 @@ class BarManager: ObservableObject {
                 }
                 else {
                     if way == .delete {
-                        deleteNextBarLine = true
+                        deleteNextBarLine = (targetBar == 0 && barNum == 0)
                     }
                     if way == .beat {
                         for _ in 0..<newScore.timeSignature.top {

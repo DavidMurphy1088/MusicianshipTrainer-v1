@@ -83,11 +83,10 @@ class Score : ObservableObject {
     
     @Published var showNotes = true
     @Published var showFootnotes = false
-    //@Published
     var studentFeedback:StudentFeedback? = nil
     @Published var scoreEntries:[ScoreEntry] = []
     @Published var barLayoutPositions:BarLayoutPositions
-    @Published var barManager:BarManager?
+    @Published var barEditor:BarEditor?
 
     let ledgerLineCount =  2 //3//4 is required to represent low E
     var staffs:[Staff] = []
@@ -119,8 +118,8 @@ class Score : ObservableObject {
         barLayoutPositions = BarLayoutPositions()
     }
     
-    func createBarManager(contentSection:ContentSection) {
-        self.barManager = BarManager(contentSection: contentSection, score: self)
+    func createBarEditor(contentSection:ContentSection) {
+        self.barEditor = BarEditor(contentSection: contentSection, score: self)
     }
     
     func getBarCount() -> Int {

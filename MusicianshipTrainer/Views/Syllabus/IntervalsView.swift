@@ -60,16 +60,17 @@ struct SelectIntervalView: View {
                             }
                         }
                         .disabled(!enabledToSelect)
+                        .padding()
                     }
                 }
-                .padding(.top, 0)
+                //.padding(.top, 0)
+                //.padding()
                 Spacer()
             }
         }
         .onChange(of: hintCorrectAnswer) { hintCorrectAnswer in
             intervals.setRandomSelected(correctIntervalName: hintCorrectAnswer)
         }
-
     }
 }
 
@@ -196,11 +197,11 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                     if questionType == .intervalVisual {
                         ScoreView(score: score).padding().opacity(questionType == .intervalAural ? 0.0 : 1.0)
                     }
-                    if UIDevice.current.userInterfaceIdiom == .pad {
-                        ScoreSpacerView()
-                        ScoreSpacerView()
-                        ScoreSpacerView()
-                    }
+//                    if UIDevice.current.userInterfaceIdiom == .pad {
+//                        ScoreSpacerView()
+//                        ScoreSpacerView()
+//                        ScoreSpacerView()
+//                    }
                     
                     if isTakingExam() {
                         if let status = examInstructionsStartedStatus {
@@ -249,7 +250,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                                     self.buildAnswer()
                                     self.hintCorrectAnswer = answer.correctIntervalName
                                 }) {
-                                    Text("Get a Hint").hintAnswerButtonStyle()
+                                    hintButtonView("Get a Hint")
                                 }
                                 .padding()
                             }
@@ -400,7 +401,7 @@ struct IntervalAnswerView: View {
                 ScoreSpacerView()
                 ScoreView(score: score).padding()
                 ScoreSpacerView()
-                ScoreSpacerView()
+                //ScoreSpacerView()
                 
                 HStack {
                     if answer.correct {

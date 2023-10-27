@@ -104,12 +104,13 @@ struct ClapOrPlayPresentView: View {
     let questionTempo = 90
     let googleAPI = GoogleAPI.shared
 
-    init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh_unused:(() -> Void)? = nil) {
+    init(contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh_unused:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.questionType = questionType
         _answerState = answerState
         _answer = answer
-        self.score = score
+        self.score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
+
         if score.staffs.count > 1 {
             self.score.staffs[1].isHidden = true
         }
@@ -125,24 +126,35 @@ struct ClapOrPlayPresentView: View {
     func examInstructionsDone(status:RequestStatus) {
     }
     
-    func getInstruction(mode:QuestionType, number:Int, grade:Int) -> String? {
+    func getInstruction(mode:QuestionType, grade:Int) -> String? {
         var result = ""
         let bullet = "\u{2022}" + " "
         var linefeed = "\n"
         if !UIDevice.current.orientation.isLandscape {
             linefeed = linefeed + "\n"
         }
-        if number == 0 {
+        //if number == 0 {
             switch mode {
             case .rhythmVisualClap:
                 result += "\(bullet)Look through the given rhythm."
                 result += "\(linefeed)\(bullet)When you are ready to, press Start Recording."
                 result += "\(linefeed)\(bullet)Tap your rhythm on the drum and then press Stop Recording once you have finished."
                 
+                result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap and then immediately release"
+                result += " your finger from the screen, rather than holding it down."
+                if grade >= 2 {
+                    result += "\n\n\(bullet)For rests, accurately count them but do not touch the screen."
+                }
+                
             case .rhythmEchoClap:
                 result += "\(bullet)Listen to the given rhythm."
                 //result += "\(linefeed)\(bullet)When it has finished you will be able to press Start Recording."
                 result += "\(linefeed)\(bullet)Tap your rhythm on the drum that appears and then press Stop Recording once you have finished."
+                
+                result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap and then immediately release"
+                result += " your finger from the screen, rather than holding it down."
+                result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
+
 
             case .melodyPlay:
                 result += "\(bullet)Press Start Recording then "
@@ -152,25 +164,25 @@ struct ClapOrPlayPresentView: View {
             default:
                 result = ""
             }
-        }
-        if number == 1 {
-            switch mode {
-            case .rhythmVisualClap:
-                result += "\(bullet)Advice: For a clear result, you should tap and then immediately release"
-                result += " your finger from the screen, rather than holding it down."
-                if grade >= 2 {
-                    result += "\n\n\(bullet)For rests, accurately count them but do not touch the screen."
-                }
-                
-            case .rhythmEchoClap:
-                result += "\(bullet)Advice: For a clear result, you should tap and then immediately release"
-                result += " your finger from the screen, rather than holding it down."
-                result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
-                
-            default:
-                result = ""
-            }
-        }
+        //}
+//        if number == 1 {
+//            switch mode {
+//            case .rhythmVisualClap:
+//                result += "\(bullet)Advice: For a clear result, you should tap and then immediately release"
+//                result += " your finger from the screen, rather than holding it down."
+//                if grade >= 2 {
+//                    result += "\n\n\(bullet)For rests, accurately count them but do not touch the screen."
+//                }
+//
+//            case .rhythmEchoClap:
+//                result += "\(bullet)Advice: For a clear result, you should tap and then immediately release"
+//                result += " your finger from the screen, rather than holding it down."
+//                result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
+//
+//            default:
+//                result = ""
+//            }
+//        }
         return result.count > 0 ? result : nil
     }
     
@@ -207,27 +219,23 @@ struct ClapOrPlayPresentView: View {
          
     func instructionView() -> some View {
         VStack {
-            if let instruction = self.getInstruction(mode: self.questionType, number: 0, grade: contentSection.getGrade()) {
+            if let instruction = self.getInstruction(mode: self.questionType, grade: contentSection.getGrade()) {
                 Text(instruction)
                     .defaultTextStyle()
                     .padding()
-                    .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                    )
-                    .padding()
             }
-            if let instruction = self.getInstruction(mode: self.questionType, number: 1, grade: contentSection.getGrade()) {
-                Text(instruction)
-                    .defaultTextStyle()
-                    .padding()
-                    .frame(width:UIScreen.main.bounds.width * 0.9, alignment: .leading)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-                    )
-                    .padding()
-            }
+//            if let instruction = self.getInstruction(mode: self.questionType, number: 1, grade: contentSection.getGrade()) {
+//                Text(instruction)
+//                    .defaultTextStyle()
+//                    .padding()
+//                    //.frame(width:UIScreen.main.bounds.width * 0.9, alignment: .leading)
+//            }
         }
+        .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
+        .overlay(
+            RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+        )
+        .padding()
     }
     
     func recordingWasStarted() -> Bool {
@@ -309,18 +317,6 @@ struct ClapOrPlayPresentView: View {
                                           onDone: {rhythmHeard = true}
                         )
                     }
-                    
-                    if contentSection.userScore != nil {
-                        Button(action: {
-                            contentSection.userScore = nil
-                            score = contentSection.getScore(staffCount: 1, onlyRhythm: true)
-                            answerState = .notEverAnswered
-                        }) {
-                            Text("Put Back The Original \(uname)")
-                                .defaultButtonStyle()
-                        }
-                        .padding()
-                    }
                 }
                 
                 if answerState == .recorded {
@@ -361,6 +357,7 @@ struct ClapOrPlayPresentView: View {
                     }
                     answerState = .recording
                     metronome.stopTicking()
+                    score.barEditor = nil
                     if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
                         self.isTapping = true
                         tapRecorder.startRecording(metronomeLeadIn: false, metronomeTempoAtRecordingStart: metronome.tempo)
@@ -384,6 +381,16 @@ struct ClapOrPlayPresentView: View {
         }
     }
     
+    func getModifiedScore(score:Score) {
+        self.score = score
+        ///Set the question's score to the edited score
+        contentSection.userModifiedScore = score
+        ///Keep the bar editor open
+        //self.score.createBarEditor(contentSection: contentSection)
+        //score.barEditor?.notifyFunction = self.getModifiedScore
+        self.score.barEditor = nil
+    }
+    
     var body: AnyView {
         AnyView(
             VStack {
@@ -404,9 +411,28 @@ struct ClapOrPlayPresentView: View {
                 if questionType == .rhythmVisualClap || questionType == .melodyPlay {
                     ScoreSpacerView()
                     ScoreView(score: score).padding()
-                    ScoreSpacerView()
+                    //ScoreSpacerView()
                 }
                 
+                if answerState != .recording {
+                    if contentSection.getExamTakingStatus() != .inExam {
+                        if questionType == .rhythmVisualClap {
+                            if score.getBarCount() > 1 {
+                                ///Enable bar manager to edit out bars in the given rhythm
+                                Button(action: {
+                                    if score.barEditor == nil {
+                                        score.createBarEditor(contentSection: contentSection)
+                                        score.barEditor?.notifyFunction = self.getModifiedScore
+                                    }
+                                }) {
+                                    hintButtonView("Simplify the Rhythm")
+                                }
+                                .padding()
+                            }
+                        }
+                    }
+                }
+
                 VStack {
                     if answerState != .recording {
                         if contentSection.getExamTakingStatus() == .inExam {
@@ -433,6 +459,36 @@ struct ClapOrPlayPresentView: View {
                                                   fileName: contentSection.name,
                                                   onStart: {return score},
                                                   onDone: {})
+                                
+                                if contentSection.getExamTakingStatus() != .inExam {
+                                    if questionType == .rhythmEchoClap {
+                                        if score.getBarCount() > 1 {
+                                            HStack {
+                                                ///Enable bar manager to edit out bars in the given rhythm
+                                                Button(action: {
+                                                    //if score.barEditor == nil {
+                                                    score.createBarEditor(contentSection: contentSection)
+                                                    score.barEditor?.notifyFunction = self.getModifiedScore
+                                                    score.barEditor?.reWriteBar(targetBar: 0, way: .delete)
+                                                    //}
+                                                }) {
+                                                    hintButtonView("Shorten The Start Of The Rhythm")
+                                                }
+                                                .padding()
+                                                Button(action: {
+                                                    //if score.barEditor == nil {
+                                                    score.createBarEditor(contentSection: contentSection)
+                                                    score.barEditor?.notifyFunction = self.getModifiedScore
+                                                    score.barEditor?.reWriteBar(targetBar: score.getBarCount()-1, way: .delete)
+                                                    //}
+                                                }) {
+                                                    hintButtonView("Shorten The End Of The Rhythm")
+                                                }
+                                                .padding()
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         
                             TappingView(isRecording: $isTapping, tapRecorder: tapRecorder, onDone: {
@@ -516,14 +572,13 @@ struct ClapOrPlayAnswerView: View {
     @ObservedObject var tapRecorder = TapRecorder.shared
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
-    //@ObservedObject
     var answerMetronome:Metronome
     
     @State var playingCorrect = false
     @State var playingStudent = false
     @State var speechEnabled = false
     @State var fittedScore:Score?
-    @State var scoreWasModified = false
+    @State var tryingAgain = false
 
     @State private var score:Score
     @State var hoveringForHelp = false
@@ -532,9 +587,9 @@ struct ClapOrPlayAnswerView: View {
     private var answer:Answer
     let questionTempo = 90
     
-    init(contentSection:ContentSection, score:Score, answer:Answer, questionType:QuestionType) {
+    init(contentSection:ContentSection, answer:Answer, questionType:QuestionType) {
         self.contentSection = contentSection
-        self.score = score
+        self.score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
         self.questionType = questionType
         self.answerMetronome = Metronome.getMetronomeWithCurrentSettings(ctx:"ClapOrPlayAnswerView")
         self.answer = answer
@@ -601,6 +656,7 @@ struct ClapOrPlayAnswerView: View {
             }
             //print("==========", self.fittedScore == nil, fittedScore == nil, feedback == nil)
             self.fittedScore!.setStudentFeedback(studentFeedack: feedback)
+
         }
     }
     
@@ -659,38 +715,16 @@ struct ClapOrPlayAnswerView: View {
                     Spacer()
                     Button(action: {
                         let parent = self.contentSection.parent
-                        if scoreWasModified {
-                            score.barManager = nil
-                            contentSection.userScore = score
-                        }
+//                        if scoreWasModified {
+//                            score.barManager = nil
+//                            contentSection.userScore = score
+//                        }
                         if let parent = parent {
                             parent.setSelected(parent.selectedIndex ?? 0)
                         }
+                        self.tryingAgain = true
                     }) {
-                        Text("Try \(scoreWasModified ? "The Modified Rhythm" : "Again")").defaultButtonStyle()
-                    }
-                    
-                    if score.barManager == nil {
-                        Spacer()
-                        Button(action: {
-                            score.createBarManager(contentSection: contentSection)
-                            score.barManager?.notifyFunction = self.getModifiedScore
-                        }) {
-                            Text("Simplify Rhythm").defaultButtonStyle()
-                        }
-                        
-                        
-                        Button(action: {
-                            hoveringForHelp.toggle()
-                        }) {
-                            Image(systemName: "questionmark")
-                                .resizable()
-                                .frame(width: 32, height: 32)
-                        }
-                        .popover(isPresented: $hoveringForHelp) {
-                            Text(helpMessage())
-                                .padding()
-                        }
+                        Text("Try Again").defaultButtonStyle()
                     }
                     Spacer()
                 }
@@ -709,14 +743,7 @@ struct ClapOrPlayAnswerView: View {
         msg = msg + "\n\n\u{2022} Then you can try again with the easier rhythm"
         return msg
     }
-    
-    func getModifiedScore(score:Score) {
-        self.scoreWasModified = true
-        self.score = score
-        self.score.createBarManager(contentSection: contentSection)
-        score.barManager?.notifyFunction = self.getModifiedScore
-    }
-    
+        
 //    func log(_ score:Score) -> Bool {
 //    print ("========", score == nil, score.studentFeedback == nil)
 //       return true
@@ -750,7 +777,7 @@ struct ClapOrPlayAnswerView: View {
                 }
 
                 HStack {
-                    PlayRecordingView(buttonLabel: "Hear The \(scoreWasModified ? "Modified" : "Given") \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
+                    PlayRecordingView(buttonLabel: "Hear The Given \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                       //score: getCurrentScore(),
                                       metronome: answerMetronome,
                                       fileName: contentSection.name,
@@ -796,12 +823,18 @@ struct ClapOrPlayAnswerView: View {
                 }
                 ///Load score again since it may have changed due student simplifying the rhythm. The parent of this view that loaded the original score is not inited again on a retry of a simplified rhythm.
                 score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType != .melodyPlay)
+                ///Disable bar editing in answer mode
+                score.barEditor = nil
                 score.setHiddenStaff(num: 1, isHidden: false)
             }
             .onDisappear() {
                 score.clearTaggs() //clear tags from any previous attempt
                 audioRecorder.stopPlaying()
                 //Metronome.shared.stopTicking()
+                if !self.tryingAgain {
+                    ///Reset this question's score if it was simplified
+                    contentSection.userModifiedScore = nil
+                }
             }
         )
     }
@@ -817,7 +850,7 @@ struct ClapOrPlayView: View {
     
     ///@State properties are automatically initialized by SwiftUI.
     ///You're not supposed to give them initial values in your custom initializers. By removing @State, you're allowed to manage the property's initialization yourself, as you've done in your init().
-    var score:Score
+    //var score:Score
 
     init(questionType:QuestionType, contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>) {
         self.questionType = questionType
@@ -825,7 +858,7 @@ struct ClapOrPlayView: View {
         _answerState = answerState
         _answer = answer
         //self.score = contentSection.parseData(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
-        self.score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
+        //self.score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
         //self.score.debugScore("ClapOrPlayView", withBeam: false)
     }
     
@@ -856,7 +889,7 @@ struct ClapOrPlayView: View {
             if answerState  != .submittedAnswer {
                 ClapOrPlayPresentView(
                     contentSection: contentSection,
-                    score: score,
+                    //score: score,
                     answerState: $answerState,
                     answer: $answer,
                     questionType: questionType)
@@ -867,7 +900,7 @@ struct ClapOrPlayView: View {
                 if shouldShowAnswer() {
                     ZStack {
                         ClapOrPlayAnswerView(contentSection: contentSection,
-                                             score: score,
+                                             //score: score,
                                              answer: answer,
                                              questionType: questionType)
                         if Settings.useAnimations {
