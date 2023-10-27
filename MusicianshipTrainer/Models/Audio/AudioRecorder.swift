@@ -13,6 +13,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     ///use the same name for all recordings.
     var audioFilenameStatic = "Audio_Recording"
     var avPlayer: AVPlayer? //best for playing remote content, support streaming etc
+    var playEndedNotify:(()->Void)?
     
     @Published var status:String = ""
     
@@ -140,7 +141,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
         }
     }
     
-    func playFromData(data:Data) {
+    func playFromData(data:Data, onDone:@escaping ()->Void) {
         do {
             self.audioPlayer = try AVAudioPlayer(data: data)
             if self.audioPlayer == nil {
@@ -150,13 +151,13 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
             //var msg = "playback started, still recording? \(audioRecorder.isRecording)"
             //setStatus(msg)
             //Logger.logger.log(self, msg)
+            self.playEndedNotify = onDone
             self.audioPlayer.delegate = self
             self.audioPlayer.play()
             setStatus("Playback started, status:\(self.audioPlayer.isPlaying ? "OK" : "Error")")
         } catch let error {
             Logger.logger.reportError(self, "At Playback, start playing error", error)
         }
-
     }
     
     func stopPlaying() {
@@ -167,6 +168,9 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         setStatus("Playback stopped, status:\(flag ? "OK" : "Error")")
+        if let playEndedNotify = self.playEndedNotify {
+            playEndedNotify()
+        }
 //        if let allDone = self.allDoneCallback {
 //            let status:RequestStatus = flag ? .success : .failed
 //            allDone(status)

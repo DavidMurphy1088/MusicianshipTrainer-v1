@@ -552,7 +552,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         }
     }
     
-    func playExamInstructions(withDelay:Bool, onStarted: @escaping (_ status:RequestStatus) -> Void) {
+    func playExamInstructions(withDelay:Bool, onLoaded: @escaping (_ status:RequestStatus) -> Void, onNarrated: @escaping () -> Void) {
         let filename = "Instructions.m4a"
         var pathSegments = getPathAsArray()
         //remove the exam title from the path
@@ -561,22 +561,22 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         var dataRecevied = false
         googleAPI.getAudioDataByFileName(pathSegments: pathSegments, fileName: filename, reportError: true) {status, fromCache, data in
             if status == .failed {
-                onStarted(.failed)
+                onLoaded(.failed)
             }
             else {
                 if !dataRecevied {
                     dataRecevied = true
-                    onStarted(.success)
+                    onLoaded(.success)
                     DispatchQueue.global(qos: .background).async {
                         if data != nil {
                             if fromCache {
                                 ///Dont start speaking at the instant the view is loaded
-                                if withDelay {
-                                    sleep(1)
-                                }
+//                                if withDelay {
+//                                    sleep(1)
+//                                }
                             }
                         }
-                        AudioRecorder.shared.playFromData(data: data!)
+                        AudioRecorder.shared.playFromData(data: data!, onDone: onNarrated)
                     }
                 }
             }

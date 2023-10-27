@@ -478,11 +478,20 @@ struct ExamView: View {
     @Environment(\.presentationMode) var presentationMode
     let contentSection:ContentSection
     @State var sectionIndex = 0
-    @State var examBeginning = true
+    //@State var examBeginning = true
     @State var answerState:AnswerState = .notEverAnswered
     @State var answer = Answer(ctx: "ExamView")//, questionMode: .examTake)
     @State private var showingConfirm = false
-    @State private var examInstructionsStatus:String = "Waiting for Exam Instructions..."
+    @State private var examState:ExamState = .notStartedLoad
+    
+    enum ExamState {
+        case notStartedLoad
+        case loading
+        case failedToLoad
+        case loadedAndNarrating
+        case narrated
+        case examStarted
+    }
     
     init(contentSection:ContentSection) {
         self.contentSection = contentSection
@@ -492,36 +501,39 @@ struct ExamView: View {
         return answer.correct ? 1 : 0
     }
     
-    func isNavigationHidden() -> Bool {
-        if examBeginning {
-            return false
-        }
-        else {
-            return contentSection.isExamTypeContentSection()
-        }
-    }
-
     func testFunc() {
         
     }
     
     var body: some View {
         VStack {
-            if examBeginning {
+            if examState != .examStarted {
                 Spacer()
-                Button(action: {
-                    self.examBeginning = false
-                    AudioRecorder.shared.stopPlaying()
-                }) {
-                    VStack {
-                        Text(examInstructionsStatus).padding().font(.title)
-                        //Text("The exam has \(contentSections.count) questions").defaultTextStyle().padding()
-                        Text("Start the Exam").defaultButtonStyle()
+                if examState == .notStartedLoad || examState == .loading  {
+                    Text("Exam narration is loading ...").defaultButtonStyle()
+                }
+                if examState == .failedToLoad {
+                    Text("Exam failed to Load").defaultButtonStyle()
+                }
+                if examState == .loadedAndNarrating {
+                    Text("Preparing the exam ...").defaultButtonStyle()
+                }
+                if examState == .narrated {
+                    Button(action: {
+                        self.examState = .examStarted
+                        AudioRecorder.shared.stopPlaying()
+                    }) {
+                        VStack {
+                            //Text(examInstructionsStatus).padding().font(.title)
+                            Text("The exam has \(contentSection.getQuestionCount()) questions").defaultTextStyle().padding()
+                            Text("Start the Exam").defaultButtonStyle().padding()
+                        }
                     }
                 }
                 Spacer()
             }
-            else {
+            
+            if examState == .examStarted {
                 let contentSections = contentSection.getNavigableChildSections()
                 if self.answerState == .submittedAnswer {
                     Spacer()
@@ -583,23 +595,26 @@ struct ExamView: View {
                 }
             }
         }
-        .navigationBarHidden(isNavigationHidden())
+        //.navigationBarHidden(isNavigationHidden())
+        .navigationBarHidden(examState == .examStarted)
         .onAppear() {
             self.sectionIndex = 0
-            contentSection.playExamInstructions(withDelay:true, onStarted: instructionsStarted)
+            self.examState = .loading
+            contentSection.playExamInstructions(withDelay:true,
+                onLoaded: {status in
+                    if status == .success {
+                        self.examState = .loadedAndNarrating
+                    }
+                    else {
+                        self.examState = .failedToLoad
+                    }
+            },
+            onNarrated: {
+                self.examState = .narrated
+            })
         }
         .onDisappear() {
             AudioRecorder.shared.stopPlaying()
-        }
-
-    }
-    
-    func instructionsStarted(status:RequestStatus) {
-        if status == .success {
-            examInstructionsStatus = ""
-        }
-        else {
-            examInstructionsStatus = "Cannot load exam aural instructions"
         }
     }
 }
@@ -618,18 +633,8 @@ struct ContentSectionView: View {
     
     init (contentSection:ContentSection) { //, contentSectionView:(any View), parentSelectionIndex:Binding<Int?>) {
         self.contentSection = contentSection
-//        _parentSelectionIndex = parentSelectionIndex
-//        self.contentSectionView = contentSectionView
-//        self.testFunc = testFunc
     }
     
-//    init (contentSection:ContentSection) {
-//        self.contentSection = contentSection
-//        //_parentSelectionIndex = .constant(nil)
-//        //self.contentSectionView = contentSectionView
-//        //self.testFunc = testFunc
-//    }
-
     var body: some View {
         VStack {
             if contentSection.getNavigableChildSections().count > 0 {
@@ -647,7 +652,6 @@ struct ContentSectionView: View {
                             GeometryReader { geo in
                                 ExamView(contentSection: contentSection)
                                     .frame(width: geo.size.width)
-                                    //.border(Color.red)
                             }
                         }
                         else {

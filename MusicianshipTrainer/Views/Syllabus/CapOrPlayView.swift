@@ -98,8 +98,9 @@ struct ClapOrPlayPresentView: View {
     @State private var helpPopup = false
     @State var isTapping = false
     @State var rhythmHeard:Bool = false
-    @State private var examInstructionsStartedStatus = "Waiting for Instructions..."
-
+    //@State private var examInstructionsStartedStatus = "Waiting for Instructions..."
+    @State var examInstructionsNarrated = false
+    
     var questionType:QuestionType
     let questionTempo = 90
     let googleAPI = GoogleAPI.shared
@@ -280,11 +281,13 @@ struct ClapOrPlayPresentView: View {
         return true
     }
     
-    func shouldPlayRecording() ->Bool {
+    func shouldOfferToPlayRecording() ->Bool {
         var play = false
         if contentSection.getExamTakingStatus() == .inExam {
-            if questionType == .rhythmEchoClap && answerState != .recorded{
-                play = true
+            if examInstructionsNarrated {
+                if questionType == .rhythmEchoClap && answerState != .recorded{
+                    play = true
+                }
             }
         }
         else {
@@ -298,7 +301,9 @@ struct ClapOrPlayPresentView: View {
             HStack {
                 if contentSection.getExamTakingStatus() == .inExam && answerState != .recorded {
                     Button(action: {
-                        self.contentSection.playExamInstructions(withDelay: true, onStarted: examInstructionsAreReading)
+                        self.contentSection.playExamInstructions(withDelay: true,
+                                                                 onLoaded: {status in },
+                                                                 onNarrated: {})
                     }) {
                         Text("Repeat Instructions").defaultButtonStyle()
                     }
@@ -308,7 +313,7 @@ struct ClapOrPlayPresentView: View {
             HStack {
                 let uname = questionType == .melodyPlay ? "Melody" : "Rhythm"
                 if answerState != .recording {
-                    if shouldPlayRecording() {
+                    if shouldOfferToPlayRecording() {
                         PlayRecordingView(buttonLabel: "Hear The \(uname)",
                                           //score: score,
                                           metronome: metronome,
@@ -435,26 +440,32 @@ struct ClapOrPlayPresentView: View {
 
                 VStack {
                     if answerState != .recording {
-                        if contentSection.getExamTakingStatus() == .inExam {
-                            Text(examInstructionsStartedStatus).font(.title).padding()
-                        }
-                        else {
+//                        if contentSection.getExamTakingStatus() == .inExam {
+//                            Text(examInstructionsStartedStatus).font(.title).padding()
+//                        }
+//                        else {
                             if UIDevice.current.userInterfaceIdiom == .pad {
                                 instructionView()
                             }
-                        }
+//                        }
                         buttonsView()
                         Text(" ")
-                        if rhythmHeard || questionType == .melodyPlay || questionType == .rhythmVisualClap {
-                            recordingStartView()
+                        if contentSection.getExamTakingStatus() == .inExam {
+                            if examInstructionsNarrated {
+                                recordingStartView()
+                            }
+                        }
+                        else {
+                            if rhythmHeard || questionType == .melodyPlay || questionType == .rhythmVisualClap {
+                                recordingStartView()
+                            }
                         }
                     }
                     
                     if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
                         if answerState == .recording {
                             if questionType == .rhythmEchoClap {
-                                PlayRecordingView(buttonLabel: "Hear The Given Rhythm Again",
-                                                  //score: score,
+                                PlayRecordingView(buttonLabel: "Hear The Given Rhythm", // Again",
                                                   metronome: metronome,
                                                   fileName: contentSection.name,
                                                   onStart: {return score},
@@ -534,10 +545,16 @@ struct ClapOrPlayPresentView: View {
                     }
             }
             .onAppear() {
-                //self.initScore()
+                examInstructionsNarrated = false
                 if contentSection.getExamTakingStatus() == .inExam {
-                    self.contentSection.playExamInstructions(withDelay: true, onStarted: examInstructionsAreReading)
+                    self.contentSection.playExamInstructions(withDelay: true,
+                           onLoaded: {
+                            status in},
+                        onNarrated: {
+                            examInstructionsNarrated = true
+                    })
                 }
+
                 //score.setHiddenStaff(num: 1, isHidden: true)
                 metronome.setTempo(tempo: 90, context: "View init")
                 if questionType == .rhythmEchoClap || questionType == .melodyPlay {
@@ -555,15 +572,6 @@ struct ClapOrPlayPresentView: View {
         }
         .font(.system(size: UIDevice.current.userInterfaceIdiom == .phone ? UIFont.systemFontSize : UIFont.systemFontSize * 1.6))
         )
-    }
-    
-    func examInstructionsAreReading(status:RequestStatus) {
-        if status == .success {
-            examInstructionsStartedStatus = ""
-        }
-        else {
-            examInstructionsStartedStatus = "Could not read instructions"
-        }
     }
 }
 

@@ -81,8 +81,8 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
 
-    @State private var examInstructionsStartedStatus:String? = nil
-
+    @State var examInstructionsNarrated = false
+    
     @State var intervalNotes:[Note] = []
     @State private var selectedIntervalName:String?
     @State private var selectedOption: String? = nil
@@ -185,6 +185,11 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         }
     }
     
+    func allowHearInterval() -> Bool {
+        //print("LOG============", ctx, self.isTakingExam(), examInstructionsNarrated, "allowed", !(self.isTakingExam() && !examInstructionsNarrated))
+        return !(self.isTakingExam() && !examInstructionsNarrated)
+    }
+    
     var body: some View {
         AnyView(
             VStack {
@@ -204,34 +209,31 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
 //                    }
                     
                     if isTakingExam() {
-                        if let status = examInstructionsStartedStatus {
-                            Text(status).font(.title)
-                        }
-                        else {
-                            Text("Waiting for Instructions...").font(.title)
-                        }
                         Button(action: {
                             audioRecorder.stopPlaying()
-                            self.contentSection.playExamInstructions(withDelay:false, onStarted: examInstructionsAreReading)
+                            self.contentSection.playExamInstructions(withDelay:false,
+                                                                     onLoaded: {status in},
+                                                                     onNarrated: {})
                         }) {
                             Text("Repeat The Instructions").defaultButtonStyle()
                         }
-                        Text(" ")
+                        .padding()
                     }
 
                     if questionType == .intervalAural {
                         VStack {
                             Text("").padding()
-                            Button(action: {
-                                metronome.playScore(score: score, onDone: {
+                            if allowHearInterval() {
+                                Button(action: {
+                                    metronome.playScore(score: score, onDone: {
+                                        self.scoreWasPlayed = true
+                                    })
                                     self.scoreWasPlayed = true
-                                })
-                                self.scoreWasPlayed = true
-                            }) {
-                                ///In exam wait to hear instructions
-                                Text("Hear The Interval").defaultButtonStyle(enabled: !self.isTakingExam() || examInstructionsStartedStatus != nil)
+                                }) {
+                                    Text("Hear The Interval").defaultButtonStyle(enabled: true)
+                                }
+                                .padding()
                             }
-                            .padding()
                             Text("").padding()
                         }
 //                        .overlay(
@@ -267,13 +269,15 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                         }
                     }
                     HStack {
-                        SelectIntervalView(answer: $answer,
-                                           answerState: $answerState,
-                                           intervals: intervals,
-                                           questionType: questionType,
-                                           scoreWasPlayed: scoreWasPlayed,
-                                           hintCorrectAnswer: $hintCorrectAnswer)
-                        .padding()
+                        if !(self.isTakingExam() && !examInstructionsNarrated) {
+                            SelectIntervalView(answer: $answer,
+                                               answerState: $answerState,
+                                               intervals: intervals,
+                                               questionType: questionType,
+                                               scoreWasPlayed: scoreWasPlayed,
+                                               hintCorrectAnswer: $hintCorrectAnswer)
+                            .padding()
+                        }
                     }
                     .padding()
                 }
@@ -295,23 +299,19 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             .onAppear {
                 self.initView()
                 if self.isTakingExam() {
-                    ///Delay on narrating if audio is delivered fast from cache and view only just loaded
-                    self.contentSection.playExamInstructions(withDelay: true, onStarted: examInstructionsAreReading)
+                    examInstructionsNarrated = false
+                    self.contentSection.playExamInstructions(withDelay: true,
+                           onLoaded: {
+                            status in},
+                        onNarrated: {
+                            examInstructionsNarrated = true
+                    })
                 }
             }
             .onDisappear() {
                 self.audioRecorder.stopPlaying()
             }
         )
-    }
-    
-    func examInstructionsAreReading(status:RequestStatus) {
-        if status == .success {
-            examInstructionsStartedStatus = ""
-        }
-        else {
-            examInstructionsStartedStatus = "Could not read instructions"
-        }
     }
 }
 

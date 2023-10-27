@@ -35,7 +35,7 @@ struct BarEditorView: View {
                            
     var body: some View {
         if let barEditor = score.barEditor {
-            let iconWidth = lineSpacing * 2.0
+            let iconWidth = lineSpacing * 3.0
             ForEach(getPositions(), id: \.self.0) { indexAndPos in
                 let barWidth = (indexAndPos.2 - indexAndPos.1)
                 HStack {
@@ -44,13 +44,13 @@ struct BarEditorView: View {
                             Button(action: {
                                 barEditor.reWriteBar(targetBar: indexAndPos.0, way: .delete)
                             }) {
-                                HStack {
+                                VStack {
+                                    Text("Delete Bar")
                                     Image(systemName: "delete.left")
                                         .resizable()
                                         .foregroundColor(.red)
                                         .frame(width: iconWidth, height: iconWidth)
-                                    //Spacer()
-                                }
+                                 }
                             }
                             //.padding()
                         }
