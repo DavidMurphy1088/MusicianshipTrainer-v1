@@ -406,7 +406,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         var key:Key?
         var timeSignature:TimeSignature?
         var score:Score?
-        let defaultScore = Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1, noteSize: .small)
+        let defaultScore = Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1)
 
         let tuples:[String] = data
         var tieWasFound = false
@@ -443,7 +443,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             if score == nil {
                 if let key = key {
                     if let timeSignature = timeSignature {
-                        score = Score(key: key, timeSignature: timeSignature, linesPerStaff: 5, noteSize: .small)
+                        score = Score(key: key, timeSignature: timeSignature, linesPerStaff: 5)
                         for i in 0..<staffCount {
                             let staff = Staff(score: score!, type: .treble, staffNum: i, linesInStaff: onlyRhythm ? 1 : 5)
                             score!.setStaff(num: i, staff: staff)

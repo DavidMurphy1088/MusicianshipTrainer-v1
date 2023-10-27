@@ -79,18 +79,19 @@ class Score : ObservableObject {
     let id:UUID
     
     var timeSignature:TimeSignature
-    @Published var key:Key
-    
-    @Published var showNotes = true
-    @Published var showFootnotes = false
-    var studentFeedback:StudentFeedback? = nil
-    @Published var scoreEntries:[ScoreEntry] = []
+    //@Published
+    var key:Key
     @Published var barLayoutPositions:BarLayoutPositions
     @Published var barEditor:BarEditor?
+
+    @Published var showNotes = true
+    @Published var showFootnotes = false
+    @Published var scoreEntries:[ScoreEntry] = []
 
     let ledgerLineCount =  2 //3//4 is required to represent low E
     var staffs:[Staff] = []
     
+    var studentFeedback:StudentFeedback? = nil
     var tempo:Int?
     static let maxTempo:Float = 200
     static let minTempo:Float = 30
@@ -102,17 +103,10 @@ class Score : ObservableObject {
     static var accNatural = "\u{266e}"
     static var accFlat = "\u{266d}"
     var label:String? = nil
-    
-    enum NoteSize {
-        case small
-        case large
-    }
-    let noteSize:NoteSize
-    
-    init(key:Key, timeSignature:TimeSignature, linesPerStaff:Int, noteSize:NoteSize) {
+        
+    init(key:Key, timeSignature:TimeSignature, linesPerStaff:Int) {
         self.id = UUID()
         self.timeSignature = timeSignature
-        self.noteSize = noteSize
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
         self.key = key
         barLayoutPositions = BarLayoutPositions()
@@ -628,7 +622,7 @@ class Score : ObservableObject {
     
     ///Return a score based on the question score but modified to show where a tapped duration differs from the question
     func fitScoreToQuestionScore(tappedScore:Score) -> (Score, StudentFeedback) {
-        let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: self.noteSize)
+        let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: .small)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
             

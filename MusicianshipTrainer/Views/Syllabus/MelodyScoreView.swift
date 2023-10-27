@@ -87,7 +87,7 @@ struct MelodyScoreView: View {
             }
             
             ///Transpose the melody to demonstrate the chosen interval at the same pitch as the question
-            score = Score(key: parsedScore.key, timeSignature: parsedScore.timeSignature, linesPerStaff: 5, noteSize: parsedScore.noteSize)
+            score = Score(key: parsedScore.key, timeSignature: parsedScore.timeSignature, linesPerStaff: 5)
             if let score = score {
                 score.setStaff(num: 0, staff: Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5))
                 for entry in parsedScore.scoreEntries {

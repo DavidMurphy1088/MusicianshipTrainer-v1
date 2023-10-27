@@ -48,7 +48,7 @@ struct ScoreView: View {
         self.score = score
         self.staffLayoutSize = StaffLayoutSize(lineSpacing: UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0)
         self.staffLayoutSize.lineSpacing = 0.0
-        setOrientationLineSize(ctx: "ScoreView::init")
+        //setOrientationLineSize(ctx: "ScoreView::init")
     }
     
     func getFrameHeight() -> Double {
@@ -68,38 +68,39 @@ struct ScoreView: View {
         return height
     }
     
-    func setOrientationLineSize(ctx:String) {
+    func setOrientationLineSize(ctx:String, geometryWidth:Double) {
         //Absolutley no idea - the width reported here decreases in landscape mode so use height (which increases)
         //https://www.hackingwithswift.com/quick-start/swiftui/how-to-detect-device-rotation
         var lineSpacing:Double
-        if self.staffLayoutSize.lineSpacing == 0 {
-            //if UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
-            if UIDevice.current.userInterfaceIdiom == .phone {
-                lineSpacing = 10.0
-            }
-            else {
-                if UIDevice.current.orientation == .portrait {
-                    lineSpacing = UIScreen.main.bounds.width / 64.0
-                }
-                else {
-                    lineSpacing = UIScreen.main.bounds.width / 128.0
-                }
-            }
-        }
-        else {
-            //make a small change only to force via Published a redraw of the staff views
-            lineSpacing = self.staffLayoutSize.lineSpacing
-            if UIDevice.current.orientation.isLandscape {
-                lineSpacing += 1
-            }
-            else {
-                lineSpacing -= 1
-            }
-        }
+//        if self.staffLayoutSize.lineSpacing == 0 {
+//            //if UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
+//            if UIDevice.current.userInterfaceIdiom == .phone {
+//                lineSpacing = 10.0
+//            }
+//            else {
+//                if UIDevice.current.orientation == .portrait {
+//                    lineSpacing = UIScreen.main.bounds.width / 64.0
+//                }
+//                else {
+//                    lineSpacing = UIScreen.main.bounds.width / 128.0
+//                }
+//            }
+//        }
+//        else {
+//            //make a small change only to force via Published a redraw of the staff views
+//            lineSpacing = self.staffLayoutSize.lineSpacing
+//            if UIDevice.current.orientation.isLandscape {
+//                lineSpacing += 1
+//            }
+//            else {
+//                lineSpacing -= 1
+//            }
+//        }
         //self.staffLayoutSize.setLineSpacing(lineSpacing) ????????? WHY 
 
-        lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ?
-                            10.0 : UIScreen.main.bounds.width / (score.noteSize == .small ? 64.0 : 48.0)
+        //lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
+        lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : geometryWidth / 64.0
+        
 //        if UIDevice.current.orientation.isLandscape {
 //            lineSpacing = lineSpacing / 1.5
 //        }
@@ -111,7 +112,11 @@ struct ScoreView: View {
 //        }
 //        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", ls)
         //UIGlobals.showDeviceOrientation()
-        //print("=====>>setOrientationLineSize", "Context", ctx, "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
+        print("👉 👉 =====> setOrientationLineSize",
+              "Score:", score.id.uuidString.suffix(4),
+              "Width:", geometryWidth,
+              "Context:", ctx,
+              "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
         self.staffLayoutSize.setLineSpacing(lineSpacing)
     }
     
@@ -123,8 +128,19 @@ struct ScoreView: View {
         return editor
     }
     
+    func log() -> String {
+        print("🤔 =====> ScoreView Body",
+              "Score:", score.id.uuidString.suffix(4))
+              //"Width:", geometryWidth,
+              //"Portrait?", UIDevice.current.orientation.isPortrait
+              //"lineSpacing", self.lineSpacing(<#T##lineSpacing: CGFloat##CGFloat#>))
+
+        return ""
+    }
+    
     var body: some View {
         VStack {
+            let log = log()
             if let feedback = score.studentFeedback {
                 FeedbackView(score: score, studentFeedback: feedback)
             }
@@ -152,14 +168,23 @@ struct ScoreView: View {
                 }
             //}
         }
-        .onAppear {
-            //self.lineSpacing.lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
-            self.setOrientationLineSize(ctx: "onAppear")
-            UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { orientation in
-            setOrientationLineSize(ctx: "orientationDidChangeNotification")
-         }
+        .background(
+            GeometryReader { geometry in
+                Color.clear.onAppear {
+                    self.setOrientationLineSize(ctx: ".background", geometryWidth: geometry.size.width)
+                    UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+                    //viewSize = geometry.size
+                }
+            }
+        )
+//        .onAppear {
+//            //self.lineSpacing.lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
+//            self.setOrientationLineSize(ctx: "onAppear")
+//            UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+//        }
+//        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { orientation in
+//            setOrientationLineSize(ctx: "orientationDidChangeNotification")
+//         }
         .onDisappear {
             UIDevice.current.endGeneratingDeviceOrientationNotifications()
         }
@@ -169,7 +194,6 @@ struct ScoreView: View {
         )
         .background(Settings.colorScore)
         //.border(Color .red, width: 4)
-        //.frame(height: getFrameHeight())
     }
 
 }
