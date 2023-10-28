@@ -85,8 +85,7 @@ struct PlayRecordingView: View {
 struct ClapOrPlayPresentView: View {
     let contentSection:ContentSection
 
-    //@ObservedObject var score:Score
-    @State var score:Score
+    @ObservedObject var score:Score
     @ObservedObject var audioRecorder = AudioRecorder.shared
     @ObservedObject var tapRecorder = TapRecorder.shared
     @ObservedObject private var logger = Logger.logger
@@ -98,24 +97,25 @@ struct ClapOrPlayPresentView: View {
     @State private var helpPopup = false
     @State var isTapping = false
     @State var rhythmHeard:Bool = false
-    //@State private var examInstructionsStartedStatus = "Waiting for Instructions..."
     @State var examInstructionsNarrated = false
     
     var questionType:QuestionType
     let questionTempo = 90
     let googleAPI = GoogleAPI.shared
 
-    init(contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh_unused:(() -> Void)? = nil) {
+    init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh_unused:(() -> Void)? = nil) {
         self.contentSection = contentSection
         self.questionType = questionType
         _answerState = answerState
         _answer = answer
-        self.score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
+        self.score = score //contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
 
         if score.staffs.count > 1 {
             self.score.staffs[1].isHidden = true
         }
         self.rhythmHeard = self.questionType == .rhythmVisualClap ? true : false
+//        let ts = score.createTimeSlice()
+//        ts.addNote(n: Note(timeSlice: ts, num: 60, staffNum: 0))
     }
     
 //    func initScore() {
@@ -386,14 +386,20 @@ struct ClapOrPlayPresentView: View {
         }
     }
     
-    func getModifiedScore(score:Score) {
-        self.score = score
-        ///Set the question's score to the edited score
-        contentSection.userModifiedScore = score
-        ///Keep the bar editor open
-        //self.score.createBarEditor(contentSection: contentSection)
-        //score.barEditor?.notifyFunction = self.getModifiedScore
-        self.score.barEditor = nil
+//    func notifyScoreEditedFunction(score:Score) {
+//        //self.score = score
+//        //self.score.copyEntries(from: score)
+//        ///Set the question's score to the edited score
+//        //contentSection.userModifiedScore = score
+//        //self.score.createBarEditor(contentSection: contentSection)
+//        //score.barEditor?.notifyFunction = self.getModifiedScore
+//        ///Dont keep the bar editor open
+//        ///
+//        self.score.barEditor = nil
+//    }
+    
+    func onEdit(newScore:Score) -> Void {
+        
     }
     
     var body: AnyView {
@@ -424,15 +430,16 @@ struct ClapOrPlayPresentView: View {
                         if questionType == .rhythmVisualClap {
                             if score.getBarCount() > 1 {
                                 ///Enable bar manager to edit out bars in the given rhythm
-                                Button(action: {
-                                    if score.barEditor == nil {
-                                        score.createBarEditor(contentSection: contentSection)
-                                        score.barEditor?.notifyFunction = self.getModifiedScore
+                                if score.barEditor == nil {
+                                    Button(action: {
+                                        //if score.barEditor == nil {
+                                        score.createBarEditor(onEdit: onEdit)
+                                        //}
+                                    }) {
+                                        hintButtonView("Simplify the Rhythm")
                                     }
-                                }) {
-                                    hintButtonView("Simplify the Rhythm")
+                                    .padding()
                                 }
-                                .padding()
                             }
                         }
                     }
@@ -478,8 +485,8 @@ struct ClapOrPlayPresentView: View {
                                                 ///Enable bar manager to edit out bars in the given rhythm
                                                 Button(action: {
                                                     //if score.barEditor == nil {
-                                                    score.createBarEditor(contentSection: contentSection)
-                                                    score.barEditor?.notifyFunction = self.getModifiedScore
+                                                    score.createBarEditor(onEdit: onEdit)
+                                                    //score.barEditor?.notifyFunction = self.notifyScoreEditedFunction
                                                     score.barEditor?.reWriteBar(targetBar: 0, way: .delete)
                                                     //}
                                                 }) {
@@ -488,8 +495,8 @@ struct ClapOrPlayPresentView: View {
                                                 .padding()
                                                 Button(action: {
                                                     //if score.barEditor == nil {
-                                                    score.createBarEditor(contentSection: contentSection)
-                                                    score.barEditor?.notifyFunction = self.getModifiedScore
+                                                    score.createBarEditor(onEdit: onEdit)
+                                                    //score.barEditor?.notifyFunction = self.notifyScoreEditedFunction
                                                     score.barEditor?.reWriteBar(targetBar: score.getBarCount()-1, way: .delete)
                                                     //}
                                                 }) {
@@ -581,12 +588,13 @@ struct ClapOrPlayAnswerView: View {
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
     var answerMetronome:Metronome
-    
+    @Binding var answerState:AnswerState
+
     @State var playingCorrect = false
     @State var playingStudent = false
     @State var speechEnabled = false
     @State var fittedScore:Score?
-    @State var tryingAgain = false
+    //@State var tryingAgain = false
 
     @State private var score:Score
     @State var hoveringForHelp = false
@@ -595,12 +603,13 @@ struct ClapOrPlayAnswerView: View {
     private var answer:Answer
     let questionTempo = 90
     
-    init(contentSection:ContentSection, answer:Answer, questionType:QuestionType) {
+    init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Answer, questionType:QuestionType) {
         self.contentSection = contentSection
-        self.score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
+        self.score = score //contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
         self.questionType = questionType
         self.answerMetronome = Metronome.getMetronomeWithCurrentSettings(ctx:"ClapOrPlayAnswerView")
         self.answer = answer
+        _answerState = answerState
         answerMetronome.setSpeechEnabled(enabled: self.speechEnabled)
     }
     
@@ -620,8 +629,6 @@ struct ClapOrPlayAnswerView: View {
         ///Otherwise, try to make the studnets tapped score look the same as the question score up until the point of error
         ///(e.g. a long tap might correctly represent either a long note or a short note followed by a rest. So mark the tapped score accordingingly
 
-        //score.flagNotesMissingRequiredTap(tappingScore: tappedScore)
-        
         let fitted = score.fitScoreToQuestionScore(tappedScore:tappedScore)
         self.fittedScore = fitted.0
         let feedback = fitted.1
@@ -641,7 +648,7 @@ struct ClapOrPlayAnswerView: View {
                     self.answerMetronome.setAllowTempoChange(allow: true)
                     self.answerMetronome.setTempo(tempo: recordedTempo, context: "ClapOrPlayAnswerView")
                     let questionTempo = Metronome.getMetronomeWithCurrentSettings(ctx: "for clap answer").tempo
-                    let tolerance = Int(CGFloat(questionTempo) * 0.2)
+                    let tolerance = Int(CGFloat(questionTempo) * 0.2) 
                     if questionType == .rhythmVisualClap {
                         feedback.feedbackExplanation! +=
                         " Your tempo was \(recordedTempo)."
@@ -662,9 +669,7 @@ struct ClapOrPlayAnswerView: View {
             else {
                 feedback.correct = false
             }
-            //print("==========", self.fittedScore == nil, fittedScore == nil, feedback == nil)
             self.fittedScore!.setStudentFeedback(studentFeedack: feedback)
-
         }
     }
     
@@ -722,15 +727,12 @@ struct ClapOrPlayAnswerView: View {
                 else {
                     Spacer()
                     Button(action: {
-                        let parent = self.contentSection.parent
-//                        if scoreWasModified {
-//                            score.barManager = nil
-//                            contentSection.userScore = score
+//                        let parent = self.contentSection.parent
+//                        if let parent = parent {
+//                            parent.setSelected(parent.selectedIndex ?? 0)
 //                        }
-                        if let parent = parent {
-                            parent.setSelected(parent.selectedIndex ?? 0)
-                        }
-                        self.tryingAgain = true
+//                        self.tryingAgain = true
+                        answerState = .notEverAnswered
                     }) {
                         Text("Try Again").defaultButtonStyle()
                     }
@@ -830,7 +832,9 @@ struct ClapOrPlayAnswerView: View {
                     answerMetronome.setTempo(tempo: questionTempo, context: "AnswerMode::OnAppear")
                 }
                 ///Load score again since it may have changed due student simplifying the rhythm. The parent of this view that loaded the original score is not inited again on a retry of a simplified rhythm.
-                score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType != .melodyPlay)
+                //score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType != .melodyPlay)
+                print("\n========= CapPlay Answer OnAppear", "score id:", score.id.uuidString.suffix(4), "line spacing:", score.staffLayoutSize.lineSpacing)
+
                 ///Disable bar editing in answer mode
                 score.barEditor = nil
                 score.setHiddenStaff(num: 1, isHidden: false)
@@ -839,10 +843,6 @@ struct ClapOrPlayAnswerView: View {
                 score.clearTaggs() //clear tags from any previous attempt
                 audioRecorder.stopPlaying()
                 //Metronome.shared.stopTicking()
-                if !self.tryingAgain {
-                    ///Reset this question's score if it was simplified
-                    contentSection.userModifiedScore = nil
-                }
             }
         )
     }
@@ -856,16 +856,17 @@ struct ClapOrPlayView: View {
     let id = UUID()
     let questionType:QuestionType
     
-    ///@State properties are automatically initialized by SwiftUI.
-    ///You're not supposed to give them initial values in your custom initializers. By removing @State, you're allowed to manage the property's initialization yourself, as you've done in your init().
-    //var score:Score
+    ///Score is created here and shared between the present view and the answer view. The present view might cause the contents of score to change with a rhythm simplifying edit.
+    ///It appears to be pass to the child view by refernece since changes to score in the present view propagate tp the answer view as required
+    //@State
+    var score:Score
 
     init(questionType:QuestionType, contentSection:ContentSection, answerState:Binding<AnswerState>, answer:Binding<Answer>) {
         self.questionType = questionType
         self.contentSection = contentSection
         _answerState = answerState
         _answer = answer
-        //self.score = contentSection.parseData(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
+        self.score = contentSection.parseData(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
         //self.score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
         //self.score.debugScore("ClapOrPlayView", withBeam: false)
     }
@@ -897,7 +898,7 @@ struct ClapOrPlayView: View {
             if answerState  != .submittedAnswer {
                 ClapOrPlayPresentView(
                     contentSection: contentSection,
-                    //score: score,
+                    score: score,
                     answerState: $answerState,
                     answer: $answer,
                     questionType: questionType)
@@ -908,7 +909,8 @@ struct ClapOrPlayView: View {
                 if shouldShowAnswer() {
                     ZStack {
                         ClapOrPlayAnswerView(contentSection: contentSection,
-                                             //score: score,
+                                             score: score,
+                                             answerState: $answerState,
                                              answer: answer,
                                              questionType: questionType)
                         if Settings.useAnimations {

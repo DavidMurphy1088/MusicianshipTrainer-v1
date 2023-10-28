@@ -52,24 +52,28 @@ class StudentFeedback : ObservableObject {
 
 class StaffLayoutSize: ObservableObject {
     @Published var lineSpacing:Double
-    static var lastHeight = 0.0
-    
-    init (lineSpacing:Double) {
-        self.lineSpacing = lineSpacing
+    //static var lastHeight = 0.0
+
+//    init (lineSpacing:Double) {
+//        self.lineSpacing = lineSpacing
+//    }
+
+    init () {
+        self.lineSpacing = 0.0
     }
-    
+
     func setLineSpacing(_ v:Double) {
         DispatchQueue.main.async {
             self.lineSpacing = v
         }
     }
-    
+
     func getStaffHeight(score:Score) -> Double {
         //leave enough space above and below the staff for the Timeslice view to show its tags
         let height = Double(score.getTotalStaffLineCount() + 2) * self.lineSpacing
-        if height != StaffLayoutSize.lastHeight {
-            StaffLayoutSize.lastHeight = height
-        }
+//        if height != StaffLayoutSize.lastHeight {
+//            StaffLayoutSize.lastHeight = height
+//        }
         return height
     }
 }
@@ -79,7 +83,6 @@ class Score : ObservableObject {
     let id:UUID
     
     var timeSignature:TimeSignature
-    //@Published
     var key:Key
     @Published var barLayoutPositions:BarLayoutPositions
     @Published var barEditor:BarEditor?
@@ -87,7 +90,8 @@ class Score : ObservableObject {
     @Published var showNotes = true
     @Published var showFootnotes = false
     @Published var scoreEntries:[ScoreEntry] = []
-
+    @Published var staffLayoutSize:StaffLayoutSize = StaffLayoutSize()
+    
     let ledgerLineCount =  2 //3//4 is required to represent low E
     var staffs:[Staff] = []
     
@@ -110,10 +114,11 @@ class Score : ObservableObject {
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
         self.key = key
         barLayoutPositions = BarLayoutPositions()
+        self.staffLayoutSize = StaffLayoutSize()
     }
     
-    func createBarEditor(contentSection:ContentSection) {
-        self.barEditor = BarEditor(contentSection: contentSection, score: self)
+    func createBarEditor(onEdit: @escaping (_:Score) -> Void) {
+        self.barEditor = BarEditor(score: self, onEdit: onEdit)
     }
     
     func getBarCount() -> Int {
@@ -158,7 +163,7 @@ class Score : ObservableObject {
         return result
     }
 
-    func debugScore1(_ ctx:String, withBeam:Bool) {
+    func debugScore(_ ctx:String, withBeam:Bool) {
         print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
             if t.entries.count == 0 {
@@ -560,6 +565,9 @@ class Score : ObservableObject {
     }
     
     func copyEntries(from:Score, count:Int? = nil) {
+        let staff = self.staffs[0]
+        setStaff(num: 0, staff: Staff(score: self, type: staff.type, staffNum: 0, linesInStaff: staff.linesInStaff))
+
         self.scoreEntries = []
         var cnt = 0
         for entry in from.scoreEntries {
@@ -587,6 +595,20 @@ class Score : ObservableObject {
             }
         }
     }
+    
+//    func resetEntries() {
+//        var cnt = 0
+//        for entry in scoreEntries {
+//            if let ts = entry as? TimeSlice {
+//                ts.entries = []
+//                ts.addNote(n: Note(timeSlice: ts, num: 71, value: 1, staffNum: 0))
+//            }
+//            else {
+//                //self.scoreEntries.append(entry)
+//            }
+//
+//        }
+//    }
 
     func errorCount() -> Int {
         var cnt = 0
@@ -608,7 +630,7 @@ class Score : ObservableObject {
         for i in fromScoreEntryIndex..<self.scoreEntries.count {
             if let timeSlice = self.scoreEntries[i] as? TimeSlice {
                 if timeSlice.entries.count > 0 {
-                    if let note:Note = timeSlice.entries[0] as? Note {
+                    if timeSlice.entries[0] is Note {
                         return true
                     }
                     else {
@@ -622,14 +644,14 @@ class Score : ObservableObject {
     
     ///Return a score based on the question score but modified to show where a tapped duration differs from the question
     func fitScoreToQuestionScore(tappedScore:Score) -> (Score, StudentFeedback) {
-        let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1, noteSize: .small)
+        let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
             
         var errorsFlagged = false
 
         //self.debugScore("Question", withBeam: false)
-        let outputScoreTimeSliceValues = outputScore.scoreEntries
+        //let outputScoreTimeSliceValues = outputScore.scoreEntries
         var tapIndex = 0
         var explanation = ""
         
@@ -686,19 +708,19 @@ class Score : ObservableObject {
                         else {
                             explanation += "long 🫢"
                         }
-                        if trailingRestsDuration > 0 {
-                            if tap.getValue() == questionNote.getValue() {
-                                explanation += "\n• It did not allow any time for the following rest"
-                            }
-                            else {
-                                if questionNoteDuration > tap.getValue() {
-                                    explanation += "\n• It did not allow enough time for the following rest"
-                                }
-                                else {
-                                    explanation += "\n• It allowed too much time for the following rest"
-                                }
-                            }
-                        }
+//                        if trailingRestsDuration > 0 {
+//                            if tap.getValue() == questionNote.getValue() {
+//                                explanation += "\n• It did not allow any time for the following rest"
+//                            }
+//                            else {
+//                                if questionNoteDuration > tap.getValue() {
+//                                    explanation += "\n• It did not allow enough time for the following rest"
+//                                }
+//                                else {
+//                                    explanation += "\n• It allowed too much time for the following rest"
+//                                }
+//                            }
+//                        }
                         explanation += ""
                     }
                 }

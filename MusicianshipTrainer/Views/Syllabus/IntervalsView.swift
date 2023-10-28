@@ -77,6 +77,7 @@ struct SelectIntervalView: View {
 struct IntervalPresentView: View { //}, QuestionPartProtocol {
     let contentSection:ContentSection
     var grade:Int
+    
     @ObservedObject var score:Score
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
@@ -98,7 +99,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     let googleAPI = GoogleAPI.shared
     
     init(contentSection:ContentSection, score:Score, answerState:Binding<AnswerState>, answer:Binding<Answer>, questionType:QuestionType, refresh:(() -> Void)? = nil) {
-        //self.score = contentSection.parseData(onlyRhythm: false)
         self.contentSection = contentSection
         self.score = score
         self.questionType = questionType
@@ -438,7 +438,7 @@ struct IntervalAnswerView: View {
                     .padding()
                     
                     if getMelodies().count > 0 {
-                        ShowMelodiesView(firstNote: score.getAllTimeSlices()[0].getTimeSliceNotes()[0],
+                        ListMelodiesView(firstNote: score.getAllTimeSlices()[0].getTimeSliceNotes()[0],
                                          intervalName: answer.correctIntervalName,
                                          interval: answer.correctIntervalHalfSteps, melodies: getMelodies())
                     }
@@ -460,7 +460,7 @@ struct IntervalAnswerView: View {
 struct IntervalView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     let contentSection:ContentSection
-    ///@State properties are automatically initialized by SwiftUI. You're not supposed to give them initial values in your custom initializers. By removing @State, you're allowed to manage the property's initialization yourself, as you've done in your init().
+    
     var score:Score
     
     @ObservedObject var logger = Logger.logger
@@ -475,7 +475,6 @@ struct IntervalView: View {
         self.contentSection = contentSection
         _answerState = answerState
         _answer = answer
-        //score = contentSection.parseData(staffCount: 1, onlyRhythm: false)
         score = contentSection.getScore(staffCount: 1, onlyRhythm: false)
     }
     

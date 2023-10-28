@@ -311,6 +311,7 @@
 			children = (
 				7B73B7BD2A7112E80097BAA8 /* Answer.swift */,
 				7B40B7DA2A54DF8F00CA7FC4 /* Audio */,
+				7B3A53A52AE8FEDF0088227E /* BarEditor.swift */,
 				7B8EF2F52A68F63B00EA088E /* Cache.swift */,
 				7B40B7D82A54DF8F00CA7FC4 /* Chord.swift */,
 				7B40B7D72A54DF8F00CA7FC4 /* ContentSection.swift */,
@@ -334,7 +335,6 @@
 				7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */,
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,
 				7BA8B70A2AB3D8D900AE7692 /* TTS.swift */,
-				7B3A53A52AE8FEDF0088227E /* BarEditor.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";

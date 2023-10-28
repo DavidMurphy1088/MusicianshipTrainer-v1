@@ -46,8 +46,8 @@ struct ScoreView: View {
     
     init(score:Score) {
         self.score = score
-        self.staffLayoutSize = StaffLayoutSize(lineSpacing: UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0)
-        self.staffLayoutSize.lineSpacing = 0.0
+        self.staffLayoutSize = score.staffLayoutSize //StaffLayoutSize(lineSpacing: UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0)
+        //self.staffLayoutSize.lineSpacing = 0.0
         //setOrientationLineSize(ctx: "ScoreView::init")
     }
     
@@ -118,6 +118,7 @@ struct ScoreView: View {
               "Context:", ctx,
               "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
         self.staffLayoutSize.setLineSpacing(lineSpacing)
+        //return lineSpacing
     }
     
     func getBarEditor() -> BarEditor? {
@@ -130,10 +131,10 @@ struct ScoreView: View {
     
     func log() -> String {
         print("🤔 =====> ScoreView Body",
-              "Score:", score.id.uuidString.suffix(4))
+              "Score:", score.id.uuidString.suffix(4),
               //"Width:", geometryWidth,
               //"Portrait?", UIDevice.current.orientation.isPortrait
-              //"lineSpacing", self.lineSpacing(<#T##lineSpacing: CGFloat##CGFloat#>))
+              "lineSpacing", self.staffLayoutSize.lineSpacing)
 
         return ""
     }
@@ -150,15 +151,20 @@ struct ScoreView: View {
                     ForEach(score.getStaff(), id: \.self.id) { staff in
                         if !staff.isHidden {
                             ZStack {
-                                StaffView(score: score, staff: staff, staffLayoutSize: staffLayoutSize)
+                                StaffView(score: score, staff: staff)
                                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
                                     //.border(Color .red, width: 2)
                                 
                                 if let barEditor = getBarEditor() {
-                                    BarEditorView(score: score,
-                                                   barEditor: barEditor, barLayoutPositions: score.barLayoutPositions,
-                                                   lineSpacing: staffLayoutSize.lineSpacing)
-                                                   
+//                                    BarEditorView(score: score,
+//                                                   barEditor: barEditor,
+//                                                   barLayoutPositions: score.barLayoutPositions,
+//                                                   lineSpacing: staffLayoutSize.lineSpacing)
+                                    BarEditorView(score: score)
+                                                   //barEditor: barEditor,
+//                                                   barLayoutPositions: score.barLayoutPositions,
+//                                                   lineSpacing: staffLayoutSize.lineSpacing)
+
                                         .frame(height: staffLayoutSize.getStaffHeight(score: score))
                                 }
 
@@ -169,14 +175,15 @@ struct ScoreView: View {
             //}
         }
         .background(
+            ///This is required to get the size of the score view
             GeometryReader { geometry in
                 Color.clear.onAppear {
-                    self.setOrientationLineSize(ctx: ".background", geometryWidth: geometry.size.width)
+                    self.setOrientationLineSize(ctx: "🤢🤢.background", geometryWidth: geometry.size.width)
                     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-                    //viewSize = geometry.size
                 }
             }
         )
+        
 //        .onAppear {
 //            //self.lineSpacing.lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
 //            self.setOrientationLineSize(ctx: "onAppear")
@@ -184,7 +191,13 @@ struct ScoreView: View {
 //        }
 //        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { orientation in
 //            setOrientationLineSize(ctx: "orientationDidChangeNotification")
-//         }
+//            GeometryReader { geometry in
+//                    let x = self.setOrientationLineSize(ctx: "ScoreView .OnAppear in Geo", geometryWidth: geometry.size.width)
+//                    //UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+//                    //viewSize = geometry.size
+//            }
+//        }
+
         .onDisappear {
             UIDevice.current.endGeneratingDeviceOrientationNotifications()
         }

@@ -22,10 +22,6 @@ struct MelodyScoreView: View {
         VStack {
             if let score = score {
                 ScoreView(score: score)
-                Text("")
-                Text("")
-                Text("")
-                Text("")
                 Button(action: {
                     metronome.playScore(score: score)
                 }) {
@@ -35,6 +31,7 @@ struct MelodyScoreView: View {
                             .font(.largeTitle)
                     }
                 }
+                .padding()
             }
         }
         
@@ -121,7 +118,7 @@ struct MelodyScoreView: View {
     }
 }
 
-struct ShowMelodiesView: View {
+struct ListMelodiesView: View {
     let firstNote:Note
     let intervalName:String
     let interval:Int
@@ -144,23 +141,26 @@ struct ShowMelodiesView: View {
                 Text("Hear Melody").defaultButtonStyle()
             }
             .padding()
-            .popover(isPresented: $presentMelodies, arrowEdge: .trailing) {
+            .sheet(isPresented: $presentMelodies) {
                 VStack {
+                    VStack {
+                        if presentScoreView {
+                            if let selectedMelody = selectedMelody {
+                                MelodyScoreView(basePitch: firstNote.midiNumber, interval:interval, melody: selectedMelody)
+                                //.padding()
+                            }
+                        }
+                    }
+
                     ForEach(melodies) { melody in
                         Button(action: {
-                            //print("\n==============CLICKED 1", selectedMelodyId ?? 0, presentScoreView)
-                            if presentScoreView {
-                                selectedMelodyId = nil
-                                selectedMelody = nil
-                                presentScoreView = false
-                            }
-                            else {
-                                selectedMelodyId = melody.id
-                                selectedMelody = melody
+                            presentScoreView = false
+                            selectedMelodyId = melody.id
+                            selectedMelody = melody
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                ///Force the melody view to reinit
                                 presentScoreView = true
                             }
-                            //print("\n==============CLICKED 2", selectedMelodyId ?? 0, presentScoreView)
-
                         }) {
                             Text(melody.name)
                                 .padding()
@@ -171,16 +171,19 @@ struct ShowMelodiesView: View {
                     }
                 }
                 .padding()
-                .popover(isPresented: $presentScoreView, arrowEdge: .trailing) {
-                    if let selectedMelody = selectedMelody {
-                        VStack {
-                            MelodyScoreView(basePitch: firstNote.midiNumber, interval:interval, melody: selectedMelody)
-                                .padding()
-                        }
-                        //.isHidden = presentScoreView == false
-                        .frame(width: UIScreen.main.bounds.width * 0.90, height: UIScreen.main.bounds.height * 0.33)
-                    }
+                .onAppear {
+                    self.selectedMelody = nil
                 }
+//                .sheet(isPresented: $presentScoreView) { //}, arrowEdge: .trailing) {
+//                    if let selectedMelody = selectedMelody {
+//                        VStack {
+//                            MelodyScoreView(basePitch: firstNote.midiNumber, interval:interval, melody: selectedMelody)
+//                                .padding()
+//                        }
+//                        //.isHidden = presentScoreView == false
+//                        //.frame(width: UIScreen.main.bounds.width * 0.90, height: UIScreen.main.bounds.height * 0.33)
+//                    }
+//                }
             }
         }
     }

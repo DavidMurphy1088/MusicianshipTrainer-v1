@@ -89,20 +89,20 @@ struct TimeSignatureView: View {
 
 struct CleffView: View {
     @ObservedObject var staff:Staff
-    @ObservedObject var lineSpacing:StaffLayoutSize
+    @ObservedObject var staffLayoutSize:StaffLayoutSize
 
     var body: some View {
         HStack {
             if staff.type == StaffType.treble {
                 VStack {
-                    Text("\u{1d11e}").font(.system(size: CGFloat(lineSpacing.lineSpacing * 10)))
+                    Text("\u{1d11e}").font(.system(size: CGFloat(staffLayoutSize.lineSpacing * 10)))
                         .padding(.top, 0.0)
-                        .padding(.bottom, lineSpacing.lineSpacing * 1.0)
+                        .padding(.bottom, staffLayoutSize.lineSpacing * 1.0)
                 }
                 //.border(Color.red)
             }
             else {
-                Text("\u{1d122}").font(.system(size: CGFloat(Double(lineSpacing.lineSpacing) * 6.5)))
+                Text("\u{1d122}").font(.system(size: CGFloat(Double(staffLayoutSize.lineSpacing) * 6.5)))
             }
         }
         //.border(Color.green)
@@ -143,7 +143,7 @@ struct KeySignatureView: View {
 struct StaffView: View {
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
-    @ObservedObject var staffLayoutSize:StaffLayoutSize = StaffLayoutSize(lineSpacing: 0)
+    @ObservedObject var staffLayoutSize:StaffLayoutSize //= StaffLayoutSize(lineSpacing: 0)
     
     @State private var rotationId: UUID = UUID()
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -151,10 +151,11 @@ struct StaffView: View {
     var entryPositions:[Double] = []
     var totalDuration = 0.0
     
-    init (score:Score, staff:Staff, staffLayoutSize:StaffLayoutSize) {
+    init (score:Score, staff:Staff) {
         self.score = score
         self.staff = staff
-        self.staffLayoutSize = staffLayoutSize
+        self.staffLayoutSize = score.staffLayoutSize
+        //self.staffLayoutSize = staffLayoutSize
     }
     
     func clefWidth() -> Double {
@@ -220,7 +221,7 @@ struct StaffView: View {
                 //.border(Color .indigo, width: 3)
             HStack(spacing: 0) {
                 if staff.linesInStaff != 1 {
-                    CleffView(staff: staff, lineSpacing: staffLayoutSize)
+                    CleffView(staff: staff, staffLayoutSize: staffLayoutSize)
                         .frame(height: staffLayoutSize.getStaffHeight(score: score))
                     //.border(Color.red)
                     if score.key.keySig.accidentalCount > 0 {
