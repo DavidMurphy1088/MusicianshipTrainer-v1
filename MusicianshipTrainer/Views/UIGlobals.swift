@@ -58,7 +58,8 @@ class UIGlobals {
             print("Unknown")
         }
     }
-
+    static var rhythmTolerancePercent:Double = 30.0
+    
 }
 
 func hintButtonView(_ txt:String) -> some View {
@@ -82,8 +83,6 @@ struct StandardButtonStyle: ButtonStyle {
             .cornerRadius(8)
     }
 }
-
-
 
 extension Text {
     
@@ -165,7 +164,6 @@ class UICommons {
     static let buttonPadding:Double = 8
     static let colorAnswer = Color.green.opacity(0.4)
 }
-
 
 struct UIHiliteText : View {
     @State var text:String

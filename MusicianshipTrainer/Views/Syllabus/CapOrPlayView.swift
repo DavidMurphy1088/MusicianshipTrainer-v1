@@ -98,6 +98,7 @@ struct ClapOrPlayPresentView: View {
     @State var isTapping = false
     @State var rhythmHeard:Bool = false
     @State var examInstructionsNarrated = false
+    @State private var rhythmTolerancePercent: Double = 50
     
     var questionType:QuestionType
     let questionTempo = 90
@@ -211,7 +212,7 @@ struct ClapOrPlayPresentView: View {
             return false
         }
         let tappedScore = tapRecorder.getTappedAsAScore(timeSignatue: score.timeSignature, questionScore: score, tapValues: tapValues)
-        let fittedScore = score.fitScoreToQuestionScore(tappedScore:tappedScore).0
+        let fittedScore = score.fitScoreToQuestionScore(tappedScore:tappedScore, tolerancePercent: UIGlobals.rhythmTolerancePercent).0
         if fittedScore.errorCount() == 0 && fittedScore.getAllTimeSlices().count > 0 {
             return true
         }
@@ -386,6 +387,23 @@ struct ClapOrPlayPresentView: View {
         }
     }
     
+    func setRhythmTolerance() -> some View {
+        VStack {
+            VStack {
+                Slider(value: $rhythmTolerancePercent, in: 0...100).padding(.horizontal, 50)
+                Text("Rhythm Tolerance Percent: \(rhythmTolerancePercent, specifier: "%.2f")")
+            }
+            .onChange(of: rhythmTolerancePercent) { newValue in
+                UIGlobals.rhythmTolerancePercent = newValue
+            }
+            .padding()
+            .overlay(
+                RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+            )
+            .background(Settings.colorScore)
+            .padding()
+        }
+    }
 //    func notifyScoreEditedFunction(score:Score) {
 //        //self.score = score
 //        //self.score.copyEntries(from: score)
@@ -432,9 +450,7 @@ struct ClapOrPlayPresentView: View {
                                 ///Enable bar manager to edit out bars in the given rhythm
                                 if score.barEditor == nil {
                                     Button(action: {
-                                        //if score.barEditor == nil {
                                         score.createBarEditor(onEdit: onEdit)
-                                        //}
                                     }) {
                                         hintButtonView("Simplify the Rhythm")
                                     }
@@ -444,7 +460,11 @@ struct ClapOrPlayPresentView: View {
                         }
                     }
                 }
-
+                
+                if questionType != .melodyPlay {
+                    setRhythmTolerance()
+                }
+                
                 VStack {
                     if answerState != .recording {
 //                        if contentSection.getExamTakingStatus() == .inExam {
@@ -570,7 +590,7 @@ struct ClapOrPlayPresentView: View {
                 else {
                     metronome.setAllowTempoChange(allow: false)
                 }
-                
+                self.rhythmTolerancePercent = UIGlobals.rhythmTolerancePercent
             }
             .onDisappear() {
                 self.audioRecorder.stopPlaying()
@@ -629,7 +649,7 @@ struct ClapOrPlayAnswerView: View {
         ///Otherwise, try to make the studnets tapped score look the same as the question score up until the point of error
         ///(e.g. a long tap might correctly represent either a long note or a short note followed by a rest. So mark the tapped score accordingingly
 
-        let fitted = score.fitScoreToQuestionScore(tappedScore:tappedScore)
+        let fitted = score.fitScoreToQuestionScore(tappedScore:tappedScore, tolerancePercent: UIGlobals.rhythmTolerancePercent)
         self.fittedScore = fitted.0
         let feedback = fitted.1
         
@@ -648,7 +668,7 @@ struct ClapOrPlayAnswerView: View {
                     self.answerMetronome.setAllowTempoChange(allow: true)
                     self.answerMetronome.setTempo(tempo: recordedTempo, context: "ClapOrPlayAnswerView")
                     let questionTempo = Metronome.getMetronomeWithCurrentSettings(ctx: "for clap answer").tempo
-                    let tolerance = Int(CGFloat(questionTempo) * 0.2) 
+                    let tolerance = Int(CGFloat(questionTempo) * 0.2)
                     if questionType == .rhythmVisualClap {
                         feedback.feedbackExplanation! +=
                         " Your tempo was \(recordedTempo)."
@@ -838,9 +858,14 @@ struct ClapOrPlayAnswerView: View {
                 ///Disable bar editing in answer mode
                 score.barEditor = nil
                 score.setHiddenStaff(num: 1, isHidden: false)
+                if questionType == .melodyPlay {
+                    let filteredEntries = score.searchTimeSlices{ (ts: TimeSlice) -> Bool in
+                        return ts.tagHigh != nil
+                    }
+                }
             }
             .onDisappear() {
-                score.clearTaggs() //clear tags from any previous attempt
+                //score.clearTaggs() //clear tags from any previous attempt
                 audioRecorder.stopPlaying()
                 //Metronome.shared.stopTicking()
             }
@@ -867,8 +892,6 @@ struct ClapOrPlayView: View {
         _answerState = answerState
         _answer = answer
         self.score = contentSection.parseData(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
-        //self.score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
-        //self.score.debugScore("ClapOrPlayView", withBeam: false)
     }
     
     func shouldShowAnswer() -> Bool {
@@ -927,6 +950,7 @@ struct ClapOrPlayView: View {
         }
         .background(Settings.colorBackground)
         .onAppear() {
+            
         }
         .onDisappear {
             let metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "")

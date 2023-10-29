@@ -129,23 +129,26 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         }
 
         for i in 0..<tapValues.count {
-            let n = tapValues[i]
-            let tappedValue = roundNoteValueToStandardValue(inValue: n, tempo: questionTempo)
-            if var tappedValue = tappedValue {
+            let tapDuration = tapValues[i]
+            var recordedTapDuration = tapDuration * Double(questionTempo) / 60.0
+            let roundedTappedValue = roundNoteValueToStandardValue(inValue: tapDuration, tempo: questionTempo)
+            if var tappedValue = roundedTappedValue {
 
                 if i == tapValues.count - 1 {
                     //The last tap value is when the student endeed the recording and they may have delayed the stop recording
-                    //So instead of the tapped value, let the last note value be the last question note value
+                    //So instead of using the tapped value, let the last note value be the last question note value so the rhythm is not marked wrong
                     if lastQuestionNote != nil {
                         if tappedValue > lastQuestionNote!.getValue(){
                             //the student delayed the end of recording
                             tappedValue = lastQuestionNote!.getValue()
+                            recordedTapDuration = tappedValue
                         }
                     }
                 }
                 let timeSlice = outputScore.createTimeSlice()
                 let note = Note(timeSlice:timeSlice, num: 0, value: tappedValue, staffNum: 0)
                 note.setIsOnlyRhythm(way: true)
+                timeSlice.tapDuration = recordedTapDuration
                 timeSlice.addNote(n: note)
             }
         }

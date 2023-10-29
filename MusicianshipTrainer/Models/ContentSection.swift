@@ -537,7 +537,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             }
         }
         let root = Note(timeSlice:timeSlice, num: pitch, staffNum: 0)
-        timeSlice.setTags(high: root.getNoteName(), low: triad)
+        timeSlice.setTags(high: TagHigh(content:root.getNoteName(), popup: nil), low: triad)
 
         for i in [0,4,7] {
             timeSlice.addNote(n: Note(timeSlice: timeSlice, num: pitch + i, value:value, staffNum: 1))

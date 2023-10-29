@@ -78,7 +78,6 @@ class StaffLayoutSize: ObservableObject {
     }
 }
 
-
 class Score : ObservableObject {
     let id:UUID
     
@@ -163,7 +162,7 @@ class Score : ObservableObject {
         return result
     }
 
-    func debugScore(_ ctx:String, withBeam:Bool) {
+    func debugScorex(_ ctx:String, withBeam:Bool) {
         print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
             if t.entries.count == 0 {
@@ -180,6 +179,7 @@ class Score : ObservableObject {
                       "[type:", type(of: t.entries[0]), "]",
                       "[midi:",note?.midiNumber ?? "0", "]",
                       "[Value:",note?.getValue(),"]",
+                      "[TapDuration:",t.tapDuration,"]",
                       "[Accidental:",note?.accidental,"]",
                       "[Staff:",note?.staffNum,"]",
                       "[stem:",note?.stemDirection ?? "none", note?.stemLength ?? "none", "]",
@@ -192,7 +192,7 @@ class Score : ObservableObject {
     }
     
     ///Return the first timeslice index of where the scores differ
-    func getFirstDifferentTimeSlice(compareScore:Score) -> Int? {
+    func getFirstDifferentTimeSlicex(compareScore:Score) -> Int? {
          var result:Int? = nil
          var scoreCtr = 0
 
@@ -291,7 +291,6 @@ class Score : ObservableObject {
     }
     
     func setKey(key:Key) {
-        //self.key = key
         DispatchQueue.main.async {
             self.key = key
             self.updateStaffs()
@@ -596,20 +595,6 @@ class Score : ObservableObject {
         }
     }
     
-//    func resetEntries() {
-//        var cnt = 0
-//        for entry in scoreEntries {
-//            if let ts = entry as? TimeSlice {
-//                ts.entries = []
-//                ts.addNote(n: Note(timeSlice: ts, num: 71, value: 1, staffNum: 0))
-//            }
-//            else {
-//                //self.scoreEntries.append(entry)
-//            }
-//
-//        }
-//    }
-
     func errorCount() -> Int {
         var cnt = 0
         for timeSlice in self.getAllTimeSlices() {
@@ -643,7 +628,7 @@ class Score : ObservableObject {
     }
     
     ///Return a score based on the question score but modified to show where a tapped duration differs from the question
-    func fitScoreToQuestionScore(tappedScore:Score) -> (Score, StudentFeedback) {
+    func fitScoreToQuestionScore(tappedScore:Score, tolerancePercent:Double) -> (Score, StudentFeedback) {
         let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
@@ -654,7 +639,7 @@ class Score : ObservableObject {
         //let outputScoreTimeSliceValues = outputScore.scoreEntries
         var tapIndex = 0
         var explanation = ""
-        
+        //tappedScore.debugScore("StartFit", withBeam: false)
         for questionIndex in 0..<self.scoreEntries.count {
             guard let questionTimeSlice:TimeSlice = self.scoreEntries[questionIndex] as? TimeSlice else {
                 //if !errorsFlagged {
@@ -687,7 +672,11 @@ class Score : ObservableObject {
                 }
                 else {
                     let tap = tappedScore.getAllTimeSlices()[tapIndex]
-                    if questionNoteDuration != tap.getValue() {
+                    let delta = questionNoteDuration * tolerancePercent * 0.01
+                    let lowBound = questionNoteDuration - delta
+                    let hiBound = questionNoteDuration + delta
+                    //if questionNoteDuration != tap.getValue() {
+                    if tap.tapDuration < lowBound || tap.tapDuration > hiBound {
                         outputTimeSlice.statusTag = .inError
                         questionTimeSlice.statusTag = .hilightAsCorrect
                         outputNoteValue = tap.getValue()
@@ -701,7 +690,8 @@ class Score : ObservableObject {
                         else {
                             explanation += ""
                         }
-                        explanation += "\n• Your tap was a \(tapName) and was too "
+                        //explanation += "\n• Your tap was a \(tapName) and was too "
+                        explanation += "\n• Your tap was too "
                         if questionNoteDuration > tap.getValue() {
                             explanation += "short 🫢"
                         }
@@ -764,7 +754,7 @@ class Score : ObservableObject {
         return totalDuration
     }
     
-    func clearTaggs() {
+    func clearTags() {
         for ts in getAllTimeSlices() {
             ts.setStatusTag(.noTag)
         }
@@ -786,6 +776,16 @@ class Score : ObservableObject {
             }
         }
         return count
+    }
+    
+    func searchTimeSlices(searchFunction:(_:TimeSlice)->Bool) -> [ScoreEntry]  {
+        var result:[TimeSlice] = []
+        for entry in self.getAllTimeSlices() {
+            if searchFunction(entry) {
+                result.append(entry)
+            }
+        }
+        return result
     }
 }
 

@@ -5,18 +5,18 @@ struct TimeSliceLabelView: View {
     var score:Score
     var staff:Staff
     @ObservedObject var timeSlice:TimeSlice
-    //@State var staffHeight:Double
-    //var staffLayoutSize:StaffLayoutSize
+    @State var showPopover = true
     
     var body: some View {
         ZStack {
             if staff.staffNum == 0 {
-                if let tag = timeSlice.tagHigh {
+                if let tagHighContent = timeSlice.tagHigh?.content {
                     VStack {
-                        //Text(" ")
-                        Text(tag).font(.custom("TimesNewRomanPS-BoldMT", size: 24))
-                            //.padding(.top, 0) //lineSpacing.value / 2.0)
+                        Text(tagHighContent).font(.custom("TimesNewRomanPS-BoldMT", size: 24))
                         Spacer()
+                    }
+                    .popover(isPresented: $showPopover) {
+                        Text("C# E G#").padding()
                     }
                 }
                 if let tag = timeSlice.tagLow {
@@ -27,6 +27,9 @@ struct TimeSliceLabelView: View {
                     }
                 }
             }
+        }
+        .onAppear() {
+            showPopover = timeSlice.tagHigh?.popup != nil
         }
         //.frame(width: 4.0 * CGFloat(lineSpacing.value), height: staffHeight)
         //.frame(height: staffHeight)

@@ -1,8 +1,17 @@
 import Foundation
 
+class TagHigh : ObservableObject {
+    @Published var content:String
+    var popup:String?
+    init(content:String, popup:String?) {
+        self.content = content
+        self.popup = popup
+    }
+}
+
 class TimeSlice : ScoreEntry {
     @Published var entries:[TimeSliceEntry]
-    @Published var tagHigh:String?
+    @Published var tagHigh:TagHigh?
     @Published var tagLow:String?
     @Published var notesLength:Int?
     @Published var statusTag:StatusTag = .noTag
@@ -12,11 +21,14 @@ class TimeSlice : ScoreEntry {
     var barLine:Int = 0
     private static var idIndex = 0
     var beatNumber:Double = 0.0 //the beat in the bar that the timeslice is at
-
+    //Used when recording a tap sequence into a score
+    var tapDuration:Double
+    
     init(score:Score?) {
         self.score = score
         self.entries = []
         TimeSlice.idIndex += 1
+        tapDuration = 0.0
     }
     
     func setStatusTag(_ tag: StatusTag) {
@@ -63,7 +75,7 @@ class TimeSlice : ScoreEntry {
         }
     }
     
-    func setTags(high:String, low:String) {
+    func setTags(high:TagHigh, low:String) {
         DispatchQueue.main.async {
             self.tagHigh = high
             self.tagLow = low
