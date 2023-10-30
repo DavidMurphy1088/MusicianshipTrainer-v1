@@ -853,14 +853,27 @@ struct ClapOrPlayAnswerView: View {
                 }
                 ///Load score again since it may have changed due student simplifying the rhythm. The parent of this view that loaded the original score is not inited again on a retry of a simplified rhythm.
                 //score = contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType != .melodyPlay)
-                print("\n========= CapPlay Answer OnAppear", "score id:", score.id.uuidString.suffix(4), "line spacing:", score.staffLayoutSize.lineSpacing)
 
                 ///Disable bar editing in answer mode
                 score.barEditor = nil
                 score.setHiddenStaff(num: 1, isHidden: false)
+                
+                ///Set the chord triad links
                 if questionType == .melodyPlay {
-                    let filteredEntries = score.searchTimeSlices{ (ts: TimeSlice) -> Bool in
-                        return ts.tagHigh != nil
+                    let tagSlices = score.searchTimeSlices{ (timeSlice: TimeSlice) -> Bool in
+                        return timeSlice.tagHigh != nil
+                    }
+                    
+                    for tagSlice in tagSlices {
+                        if let triad = tagSlice.tagLow {
+                            let notes = score.key.getTriadNotes(triadSymbol:triad)
+                            if let hiTag:TagHigh = tagSlice.tagHigh {
+                                hiTag.popup = notes
+                                if let loTag = tagSlice.tagLow {
+                                    tagSlice.setTags(high:hiTag, low:loTag)
+                                }
+                            }
+                        }
                     }
                 }
             }

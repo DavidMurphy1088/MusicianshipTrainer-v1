@@ -56,7 +56,8 @@ class Key : Equatable, Hashable {
         hasher.combine(keySig.accidentalCount)
     }
     
-    func description() -> String {
+    ///Return the key's description
+    func getKeyName() -> String {
         var desc = ""
         if keySig.accidentalType == AccidentalType.sharp {
             switch self.keySig.accidentalCount {
@@ -93,7 +94,6 @@ class Key : Equatable, Hashable {
             default:
                 desc = "unknown"
             }
-
         }
         switch self.type {
         case KeyType.major:
@@ -124,7 +124,6 @@ class Key : Equatable, Hashable {
     }
     
     func firstScaleNote() -> Int {
-
         var base = 60
         switch keySig.accidentalCount {
         case 0:
@@ -145,29 +144,6 @@ class Key : Equatable, Hashable {
         return base
     }
     
-//    func makeKeyTriad(value:Double, staffNum:Int) -> [Note] {
-//        let rootMidi:Int
-//        switch keySig.accidentalCount {
-//        case 1:
-//            rootMidi = 43
-//        case 2:
-//            rootMidi = 50
-//        case 3:
-//            rootMidi = 45
-//        case 4:
-//            rootMidi = 52
-//        case 5:
-//            rootMidi = 47
-//        default:
-//            rootMidi = 48
-//        }
-//        var result:[Note] = []
-//        result.append(Note(num: rootMidi, value: value, staffNum: staffNum))
-//        result.append(Note(num: rootMidi + 4, value: value, staffNum: staffNum))
-//        result.append(Note(num: rootMidi + 7, value: value, staffNum: staffNum))
-//        return result
-//    }
-//
     func getScaleStartMidi() -> Int {
         let rootMidi:Int
         switch keySig.accidentalCount {
@@ -194,5 +170,27 @@ class Key : Equatable, Hashable {
         result.append(Note(timeSlice:timeSlice, num: rootMidi + 7, value: value, staffNum: staffNum))
         return result
     }
-
+    
+    ///Get the notes names for the given triad symbol
+    func getTriadNotes(triadSymbol:String) -> String {
+        var result = ""
+        var rootPos = 0
+        switch triadSymbol {
+        case "IV":
+            rootPos = 5
+        case "V":
+            rootPos = 7
+        default:
+            rootPos = 0
+        }
+        let firstPitch = firstScaleNote() + rootPos
+        for offset in [0, 4, 7] {
+            let name = Note.getNoteName(midiNum: firstPitch + offset)
+            if result.count > 0 {
+                result = result + " - "
+            }
+            result = result + name
+        }
+        return result
+    }
 }

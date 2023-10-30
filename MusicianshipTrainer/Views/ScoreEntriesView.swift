@@ -5,34 +5,41 @@ struct TimeSliceLabelView: View {
     var score:Score
     var staff:Staff
     @ObservedObject var timeSlice:TimeSlice
-    @State var showPopover = true
+    @State var showPopover = false
+    let fontSize = 32.0
+    let font = Font.custom("TimesNewRomanPS-BoldMT", size: 32.0)
     
     var body: some View {
         ZStack {
             if staff.staffNum == 0 {
-                if let tagHighContent = timeSlice.tagHigh?.content {
+                if let tag = timeSlice.tagHigh {
                     VStack {
-                        Text(tagHighContent).font(.custom("TimesNewRomanPS-BoldMT", size: 24))
+                        if tag.popup != nil {
+                            Button(action: {
+                                showPopover.toggle()
+                            }) {
+                                Text(tag.content).font(font)
+                            }
+                        }
+                        else {
+                            Text(tag.content).font(font)
+                        }
                         Spacer()
                     }
                     .popover(isPresented: $showPopover) {
-                        Text("C# E G#").padding()
+                        Text(tag.popup ?? "").font(font).padding()
                     }
                 }
                 if let tag = timeSlice.tagLow {
                     VStack {
                         Spacer()
-                        Text(tag).font(.custom("TimesNewRomanPS-BoldMT", size: 24))
-                            //.padding(.bottom, 0)//lineSpacing.value / 2.0)
+                        Text(tag).font(font)
+                        //.padding(.bottom, 0)//lineSpacing.value / 2.0)
                     }
                 }
             }
         }
-        .onAppear() {
-            showPopover = timeSlice.tagHigh?.popup != nil
-        }
-        //.frame(width: 4.0 * CGFloat(lineSpacing.value), height: staffHeight)
-        //.frame(height: staffHeight)
+        //.border(Color.red)
     }
 }
 

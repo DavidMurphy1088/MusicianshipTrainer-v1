@@ -778,7 +778,7 @@ class Score : ObservableObject {
         return count
     }
     
-    func searchTimeSlices(searchFunction:(_:TimeSlice)->Bool) -> [ScoreEntry]  {
+    func searchTimeSlices(searchFunction:(_:TimeSlice)->Bool) -> [TimeSlice]  {
         var result:[TimeSlice] = []
         for entry in self.getAllTimeSlices() {
             if searchFunction(entry) {

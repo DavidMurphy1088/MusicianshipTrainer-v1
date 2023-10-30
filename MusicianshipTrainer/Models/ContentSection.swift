@@ -44,7 +44,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     var subSections:[ContentSection] = []
     var isActive:Bool
     var level:Int
-    var index:Int
     var storedAnswer:Answer?
     var questionStatus = QuestionStatus(0)
 
@@ -69,30 +68,24 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             par = par!.parent
         }
         self.level = level
-        self.index = 0
     }
     
     func setSelected(_ i:Int) {
         DispatchQueue.main.async {
-//            if true || i == self.selectedIndex {
-                self.selectedIndex = nil
-                DispatchQueue.global(qos: .background).async {
-                    sleep(1)
-                    DispatchQueue.main.async {
-                        //self.selectedIndex = i
-                        self.postitionToIndex = i
-                        DispatchQueue.global(qos: .background).async {
-                            sleep(1)
-                            DispatchQueue.main.async {
-                                self.selectedIndex = i
-                            }
+            ///Force the selected Index to trigger a change event
+            self.selectedIndex = nil
+            DispatchQueue.global(qos: .background).async {
+                sleep(1)
+                DispatchQueue.main.async {
+                    self.postitionToIndex = i
+                    DispatchQueue.global(qos: .background).async {
+                        sleep(1)
+                        DispatchQueue.main.async {
+                            self.selectedIndex = i
                         }
                     }
                 }
-//            }
-//            else {
-//                self.selectedIndex = i
-//            }
+            }
         }
 }
     
@@ -537,7 +530,8 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             }
         }
         let root = Note(timeSlice:timeSlice, num: pitch, staffNum: 0)
-        timeSlice.setTags(high: TagHigh(content:root.getNoteName(), popup: nil), low: triad)
+        //timeSlice.setTags(high: TagHigh(content:root.getNoteName(), popup: nil), low: triad)
+        timeSlice.setTags(high: TagHigh(content:Note.getNoteName(midiNum: root.midiNumber), popup: nil), low: triad)
 
         for i in [0,4,7] {
             timeSlice.addNote(n: Note(timeSlice: timeSlice, num: pitch + i, value:value, staffNum: 1))

@@ -186,7 +186,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     }
     
     func allowHearInterval() -> Bool {
-        //print("LOG============", ctx, self.isTakingExam(), examInstructionsNarrated, "allowed", !(self.isTakingExam() && !examInstructionsNarrated))
         return !(self.isTakingExam() && !examInstructionsNarrated)
     }
     

@@ -250,24 +250,19 @@ class Note : TimeSliceEntry, Comparable {
         }
         
     }
-
-//    static func staffNoteName(idx:Int) -> Character {
-//        if idx >= 0 {
-//            return self.noteNames[idx % noteNames.count]
-//        }
-//        else {
-//            return self.noteNames[noteNames.count - (abs(idx) % noteNames.count)]
-//        }
-//    }
     
-    func getNoteName() -> String {
+    static func getNoteName(midiNum:Int) -> String {
         var name = ""
-        let note = self.midiNumber % 12
+        let note = midiNum % 12 //self.midiNumber % 12
         switch note {
         case 0:
             name = "C"
+        case 1:
+            name = "C#"
         case 2:
             name = "D"
+        case 3:
+            name = "D#"
         case 4:
             name = "E"
         case 5:
@@ -276,13 +271,17 @@ class Note : TimeSliceEntry, Comparable {
             name = "F#"
         case 7:
             name = "G"
+        case 8:
+            name = "G#"
         case 9:
             name = "A"
+        case 10:
+            name = "A#"
         case 11:
             name = "B"
 
         default:
-            name = ""
+            name = "\(note)"
         }
         return name
     }
