@@ -183,20 +183,6 @@ struct ScoreView: View {
             }
         )
         
-//        .onAppear {
-//            //self.lineSpacing.lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
-//            self.setOrientationLineSize(ctx: "onAppear")
-//            UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-//        }
-//        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { orientation in
-//            setOrientationLineSize(ctx: "orientationDidChangeNotification")
-//            GeometryReader { geometry in
-//                    let x = self.setOrientationLineSize(ctx: "ScoreView .OnAppear in Geo", geometryWidth: geometry.size.width)
-//                    //UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-//                    //viewSize = geometry.size
-//            }
-//        }
-
         .onDisappear {
             UIDevice.current.endGeneratingDeviceOrientationNotifications()
         }

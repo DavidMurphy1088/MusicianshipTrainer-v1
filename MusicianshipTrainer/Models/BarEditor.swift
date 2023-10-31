@@ -3,18 +3,19 @@ import Foundation
 
 class BarEditor: ObservableObject {
     let score:Score
-    var onEdit: (_:Score) -> Void
+    var onEdit: ((_ wasChanged:Bool) -> Void)?
     
     @Published var selectedBarStates:[Bool] = []
 
     enum BarModifyType {
         case delete
-        case beat
-        case silent
-        case original
+        //case beat
+        //case silent
+        //case original
+        case doNothing
     }
     
-    init (score:Score, onEdit: @escaping (_ score:Score) -> Void) {
+    init (score:Score, onEdit: ((_ wasChanged:Bool) -> Void)?) {
         self.score = score
         self.selectedBarStates = Array(repeating: false, count: score.getBarCount())
         self.onEdit = onEdit
@@ -43,6 +44,13 @@ class BarEditor: ObservableObject {
     ///Modify the target bar number in the input score according the way specified
     ///Leave all the rest of the inut score unmodiifed
     func reWriteBar(targetBar: Int, way: BarModifyType) {
+        if way == .doNothing {
+            if let notify = self.onEdit {
+                score.barEditor = nil
+                notify(false)
+                return
+            }
+        }
         let newScore =  Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")),
                               timeSignature: TimeSignature(top: score.timeSignature.top, bottom: score.timeSignature.bottom),
                               linesPerStaff: 5)
@@ -86,26 +94,26 @@ class BarEditor: ObservableObject {
                     if way == .delete {
                         deleteNextBarLine = (targetBar == 0 && barNum == 0)
                     }
-                    if way == .beat {
-                        for _ in 0..<newScore.timeSignature.top {
-                            let newTimeSlice = newScore.createTimeSlice()
-                            let newNote = Note(timeSlice: newTimeSlice, num: 71, value:1.0, staffNum: 0)
-                            newNote.isOnlyRhythmNote = true
-                            newTimeSlice.addNote(n: newNote)
-                        }
-                    }
-                    if way == .silent {
-                        if newScore.timeSignature.top == 3 {
-                            var newTimeSlice = newScore.createTimeSlice()
-                            newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: 2.0, staffNum: 0))
-                            newTimeSlice = newScore.createTimeSlice()
-                            newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: 1.0, staffNum: 0))
-                        }
-                        else {
-                            let newTimeSlice = newScore.createTimeSlice()
-                            newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: Double(newScore.timeSignature.top), staffNum: 0))
-                        }
-                    }
+//                    if way == .beat {
+//                        for _ in 0..<newScore.timeSignature.top {
+//                            let newTimeSlice = newScore.createTimeSlice()
+//                            let newNote = Note(timeSlice: newTimeSlice, num: 71, value:1.0, staffNum: 0)
+//                            newNote.isOnlyRhythmNote = true
+//                            newTimeSlice.addNote(n: newNote)
+//                        }
+//                    }
+//                    if way == .silent {
+//                        if newScore.timeSignature.top == 3 {
+//                            var newTimeSlice = newScore.createTimeSlice()
+//                            newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: 2.0, staffNum: 0))
+//                            newTimeSlice = newScore.createTimeSlice()
+//                            newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: 1.0, staffNum: 0))
+//                        }
+//                        else {
+//                            let newTimeSlice = newScore.createTimeSlice()
+//                            newTimeSlice.addRest(rest: Rest(timeSlice: newTimeSlice, value: Double(newScore.timeSignature.top), staffNum: 0))
+//                        }
+//                    }
                     //                    if way == .original {
                     //                        //let timeSlices = score.getTimeSlicesForBar(bar: targetBar)
                     //                        let timeSlices = contentSection.parseData(staffCount: score.staffs.count, onlyRhythm: true).getTimeSlicesForBar(bar: targetBar)
@@ -145,6 +153,9 @@ class BarEditor: ObservableObject {
         score.barEditor = nil
         score.barLayoutPositions = BarLayoutPositions()
         self.score.copyEntries(from: newScore)
+        if let notify = self.onEdit {
+            notify(true)
+        }
     }
     
     func hiliteNotesInBar(bar:Int, way:Bool) {

@@ -7,10 +7,9 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
     let id = UUID()
     var staffNum:Int //Narrow the display of the note to just one staff
     var timeSlice:TimeSlice?
-    var isDotted:Bool = false
     var sequence:Int = 0 //the timeslice's sequence position
 
-    fileprivate var value:Double = Note.VALUE_QUARTER
+    private var value:Double = Note.VALUE_QUARTER
 
     init(timeSlice:TimeSlice?, value:Double, staffNum: Int = 0) {
         self.value = value
@@ -19,8 +18,11 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
     }
     
     static func == (lhs: TimeSliceEntry, rhs: TimeSliceEntry) -> Bool {
-        //return lhs.midiNumber == rhs.midiNumber
         return lhs.id == rhs.id
+    }
+    
+    func isDotted() -> Bool {
+        return [0.75, 1.5, 3.0].contains(value)
     }
     
 //    func log(ctx:String) -> Bool {
@@ -32,7 +34,7 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
         return self.value
     }
     
-    //cause notes that are set for specifc staff to be tranparent on other staffs
+    //Cause notes that are set for specifc staff to be transparent on other staffs
     func getColor(staff:Staff, log:Bool? = false) -> Color {
         var out:Color? = nil
         guard let timeSlice = timeSlice else {
@@ -48,40 +50,25 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
         if timeSlice.statusTag == .hilightAsCorrect {
             out = Color(red: 0.0, green: 0.6, blue: 0.0)
         }
-//        if staffNum == nil {
-//            out = Color(.black)
-//        }
         if out == nil {
             out = Color(staffNum == staff.staffNum ? .black : .clear)
             //out = Color(.black)
 
         }
-//        if let log = log {
-//            if log {
-//            }
-//        }
+
         return out!
     }
 
     func setValue(value:Double) {
         self.value = value
-        if [3.0, 1.5].contains(value) {
-            self.isDotted = true
-        }
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
     
-//    func setHilite(hilite: Bool) {
-//        DispatchQueue.main.async {
-//            self.hilite = hilite
-//        }
-//    }
-    
     func getNoteValueName() -> String {
-        var name = self.isDotted ? "dotted " : ""
+        var name = self.isDotted() ? "dotted " : ""
         switch self.value {
         case 0.25 :
             name += "semi quaver"
@@ -134,11 +121,10 @@ class Tie : ScoreEntry {
 class Rest : TimeSliceEntry {    
     override init(timeSlice:TimeSlice?, value:Double, staffNum:Int) {
         super.init(timeSlice:timeSlice, value: value, staffNum: staffNum)
-        //self.value = value
     }
     
     init(r:Rest) {
-        super.init(timeSlice: r.timeSlice, value: r.value, staffNum: r.staffNum)
+        super.init(timeSlice: r.timeSlice, value: r.getValue(), staffNum: r.staffNum)
     }
 }
 
@@ -167,8 +153,6 @@ enum StemDirection {
 enum StatusTag {
     case noTag
     case inError
-    //case inError
-    //case afterError
     case afterError //e.g. all rhythm after a rhythm error is moot
     case hilightAsCorrect //hilight the correct note that was expected
 }
@@ -221,18 +205,12 @@ class Note : TimeSliceEntry, Comparable {
     init(timeSlice:TimeSlice?, num:Int, value:Double = Note.VALUE_QUARTER, staffNum:Int, accidental:Int?=nil) {
         self.midiNumber = num
         super.init(timeSlice:timeSlice, value: value, staffNum: staffNum)
-
-        self.isDotted = [0.75, 1.5, 3.0].contains(value)
         self.accidental = accidental
-        if value == 3.0 {
-            self.isDotted = true
-        }
     }
     
     init(note:Note) {
         self.midiNumber = note.midiNumber
         super.init(timeSlice:note.timeSlice, value: note.getValue(), staffNum: note.staffNum)
-        self.isDotted = note.isDotted
         self.accidental = note.accidental
         self.isOnlyRhythmNote = note.isOnlyRhythmNote
     }

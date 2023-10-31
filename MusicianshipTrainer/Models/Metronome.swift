@@ -28,6 +28,7 @@ class Metronome: AudioPlayerUser, ObservableObject  {
 
     //the shortest note value which is used to set the metronome's thread firing frequency
     private let shortestNoteValue = Note.VALUE_SEMIQUAVER
+    
     private let speech = SpeechSynthesizer.shared
     private var onDoneFunction:(()->Void)? = nil
     

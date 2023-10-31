@@ -100,6 +100,10 @@ struct ClapOrPlayPresentView: View {
     @State var examInstructionsNarrated = false
     @State private var rhythmTolerancePercent: Double = 50
     
+    @State private var startWasShortended = false
+    @State private var endWasShortended = false
+    @State private var rhythmWasSimplified = false
+    
     var questionType:QuestionType
     let questionTempo = 90
     let googleAPI = GoogleAPI.shared
@@ -404,20 +408,11 @@ struct ClapOrPlayPresentView: View {
             .padding()
         }
     }
-//    func notifyScoreEditedFunction(score:Score) {
-//        //self.score = score
-//        //self.score.copyEntries(from: score)
-//        ///Set the question's score to the edited score
-//        //contentSection.userModifiedScore = score
-//        //self.score.createBarEditor(contentSection: contentSection)
-//        //score.barEditor?.notifyFunction = self.getModifiedScore
-//        ///Dont keep the bar editor open
-//        ///
-//        self.score.barEditor = nil
-//    }
-    
-    func onEdit(newScore:Score) -> Void {
-        
+
+    func scoreEditedNotification(_ wasChanged:Bool) -> Void {
+        if !self.rhythmWasSimplified {
+            self.rhythmWasSimplified = wasChanged
+        }
     }
     
     var body: AnyView {
@@ -450,9 +445,9 @@ struct ClapOrPlayPresentView: View {
                                 ///Enable bar manager to edit out bars in the given rhythm
                                 if score.barEditor == nil {
                                     Button(action: {
-                                        score.createBarEditor(onEdit: onEdit)
+                                        score.createBarEditor(onEdit: scoreEditedNotification)
                                     }) {
-                                        hintButtonView("Simplify the Rhythm")
+                                        hintButtonView("Simplify the Rhythm", selected: self.rhythmWasSimplified)
                                     }
                                     .padding()
                                 }
@@ -505,22 +500,24 @@ struct ClapOrPlayPresentView: View {
                                                 ///Enable bar manager to edit out bars in the given rhythm
                                                 Button(action: {
                                                     //if score.barEditor == nil {
-                                                    score.createBarEditor(onEdit: onEdit)
+                                                    score.createBarEditor(onEdit: scoreEditedNotification)
                                                     //score.barEditor?.notifyFunction = self.notifyScoreEditedFunction
                                                     score.barEditor?.reWriteBar(targetBar: 0, way: .delete)
+                                                    self.startWasShortended = true
                                                     //}
                                                 }) {
-                                                    hintButtonView("Shorten The Start Of The Rhythm")
+                                                    hintButtonView("Remove The Rhythm Start", selected: startWasShortended)
                                                 }
                                                 .padding()
                                                 Button(action: {
                                                     //if score.barEditor == nil {
-                                                    score.createBarEditor(onEdit: onEdit)
+                                                    score.createBarEditor(onEdit: scoreEditedNotification)
                                                     //score.barEditor?.notifyFunction = self.notifyScoreEditedFunction
                                                     score.barEditor?.reWriteBar(targetBar: score.getBarCount()-1, way: .delete)
+                                                    self.endWasShortended = true
                                                     //}
                                                 }) {
-                                                    hintButtonView("Shorten The End Of The Rhythm")
+                                                    hintButtonView("Remove The Rhythm End", selected: endWasShortended)
                                                 }
                                                 .padding()
                                             }
@@ -590,6 +587,9 @@ struct ClapOrPlayPresentView: View {
                 else {
                     metronome.setAllowTempoChange(allow: false)
                 }
+                if questionType == .melodyPlay {
+                    score.addTriadNotes()
+                }
                 self.rhythmTolerancePercent = UIGlobals.rhythmTolerancePercent
             }
             .onDisappear() {
@@ -618,7 +618,9 @@ struct ClapOrPlayAnswerView: View {
 
     @State private var score:Score
     @State var hoveringForHelp = false
-    
+    @State var originalScore:Score?
+    @State var scoreCurrentBarCount:Int = 0
+
     private var questionType:QuestionType
     private var answer:Answer
     let questionTempo = 90
@@ -702,62 +704,46 @@ struct ClapOrPlayAnswerView: View {
         return practiceText
     }
     
-    func nextButtons(answerWasCorrect:Bool) -> some View {
+    func nextButtons() -> some View {
         VStack {
             Text(" ")
             HStack {
-                if answerWasCorrect {
-                    Spacer()
-                    Button(action: {
-                        let parent = self.contentSection.parent
-                        if let parent = parent {
-                            parent.setSelected((parent.selectedIndex ?? 0) - 1)
-                        }
-                    }) {
-                        HStack {
-                            Text("\u{2190} Previous").defaultButtonStyle()
-                        }
+                Spacer()
+                Button(action: {
+                    let parent = self.contentSection.parent
+                    if let parent = parent {
+                        parent.setSelected((parent.selectedIndex ?? 0) - 1)
                     }
-                    Spacer()
+                }) {
+                    HStack {
+                        Text("\u{2190} Previous").defaultButtonStyle()
+                    }
+                }
+                Spacer()
 
-                    Button(action: {
-                        let parent = self.contentSection.parent
-                        if let parent = parent {
-                            parent.setSelected((parent.selectedIndex ?? 0) + 1)
-                        }
-                    }) {
-                        HStack {
-                            Text("Next \u{2192}").defaultButtonStyle()
-                        }
+                Button(action: {
+                    let parent = self.contentSection.parent
+                    if let parent = parent {
+                        parent.setSelected((parent.selectedIndex ?? 0) + 1)
                     }
-                    Spacer()
-                    Button(action: {
-                        if let parent = self.contentSection.parent {
-                            let c = parent.subSections.count
-                            let r = Int.random(in: 0...c)
-                            parent.setSelected(r)
-                        }
-                    }) {
-                        HStack {
-                            Text("\u{2191} Shuffle").defaultButtonStyle()
-                        }
+                }) {
+                    HStack {
+                        Text("Next \u{2192}").defaultButtonStyle()
                     }
-                    Spacer()
                 }
-                else {
-                    Spacer()
-                    Button(action: {
-//                        let parent = self.contentSection.parent
-//                        if let parent = parent {
-//                            parent.setSelected(parent.selectedIndex ?? 0)
-//                        }
-//                        self.tryingAgain = true
-                        answerState = .notEverAnswered
-                    }) {
-                        Text("Try Again").defaultButtonStyle()
+                Spacer()
+                Button(action: {
+                    if let parent = self.contentSection.parent {
+                        let c = parent.subSections.count
+                        let r = Int.random(in: 0...c)
+                        parent.setSelected(r)
                     }
-                    Spacer()
+                }) {
+                    HStack {
+                        Text("\u{2191} Shuffle").defaultButtonStyle()
+                    }
                 }
+                Spacer()
             }
         }
     }
@@ -778,7 +764,58 @@ struct ClapOrPlayAnswerView: View {
 //    print ("========", score == nil, score.studentFeedback == nil)
 //       return true
 //    }
-        
+    
+    func restoreQuestionView() -> some View {
+        VStack {
+            if let originalScore = originalScore {
+                if self.scoreCurrentBarCount != originalScore.getBarCount() {
+                    Button(action: {
+                        score.copyEntries(from: originalScore)
+                        self.scoreCurrentBarCount = self.score.getBarCount()
+                        if let fittedScore = fittedScore {
+                            if let studentFeedback = fittedScore.studentFeedback {
+                                ///Force the retry button to appear so the student now tries the original question
+                                studentFeedback.correct = false
+                            }
+                        }
+                    }) {
+                        HStack {
+                            Text("Put Back The Question Rhythm").defaultButtonStyle()
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func nextStepsView() -> some View {
+        HStack {
+            if contentSection.getExamTakingStatus() == .notInExam {
+                if let fittedScore = self.fittedScore {
+                    if let studentFeedback = fittedScore.studentFeedback {
+                        if studentFeedback.correct {
+                            if let originalScore = self.originalScore {
+                                if studentFeedback.correct {
+                                    nextButtons()
+                                }
+                            }
+                        }
+                        else {
+                            HStack {
+                                Button(action: {
+                                    answerState = .notEverAnswered
+                                }) {
+                                    Text("Try Again").defaultButtonStyle()
+                                }
+                                .padding()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     var body: AnyView {
         AnyView(
             VStack {
@@ -812,7 +849,7 @@ struct ClapOrPlayAnswerView: View {
                                       metronome: answerMetronome,
                                       fileName: contentSection.name,
                                       onStart: {return score})
-                    
+
                     if questionType == .melodyPlay {
                         PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
                                           //score: nil,
@@ -831,18 +868,10 @@ struct ClapOrPlayAnswerView: View {
                     }
                 }
                 
-                if contentSection.getExamTakingStatus() == .notInExam {
-                    if let fittedScore = self.fittedScore {
-                        //if log(fittedScore) {
-                            if let studentFeedback = fittedScore.studentFeedback {
-                                Spacer()
-                                nextButtons(answerWasCorrect: studentFeedback.correct)
-                                Spacer()
-                            }
-                        //}
-                    }
-                }
-                Spacer() //Keep - required to align the page from the top
+                restoreQuestionView()
+                nextStepsView()
+                
+                //Spacer() //Keep - required to align the page from the top
             }
             .onAppear() {
                 if questionType == .rhythmVisualClap || questionType == .rhythmEchoClap {
@@ -860,27 +889,13 @@ struct ClapOrPlayAnswerView: View {
                 
                 ///Set the chord triad links
                 if questionType == .melodyPlay {
-                    let tagSlices = score.searchTimeSlices{ (timeSlice: TimeSlice) -> Bool in
-                        return timeSlice.tagHigh != nil
-                    }
-                    
-                    for tagSlice in tagSlices {
-                        if let triad = tagSlice.tagLow {
-                            let notes = score.key.getTriadNotes(triadSymbol:triad)
-                            if let hiTag:TagHigh = tagSlice.tagHigh {
-                                hiTag.popup = notes
-                                if let loTag = tagSlice.tagLow {
-                                    tagSlice.setTags(high:hiTag, low:loTag)
-                                }
-                            }
-                        }
-                    }
+                    score.addTriadNotes()
                 }
+                self.originalScore = contentSection.parseData(staffCount: 1, onlyRhythm: true)
+                self.scoreCurrentBarCount = score.getBarCount()
             }
             .onDisappear() {
-                //score.clearTaggs() //clear tags from any previous attempt
                 audioRecorder.stopPlaying()
-                //Metronome.shared.stopTicking()
             }
         )
     }

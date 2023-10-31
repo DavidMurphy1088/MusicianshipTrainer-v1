@@ -76,10 +76,10 @@ class TimeSlice : ScoreEntry {
     }
     
     func setTags(high:TagHigh, low:String) {
-        DispatchQueue.main.async {
+        //DispatchQueue.main.async {
             self.tagHigh = high
             self.tagLow = low
-        }
+        //}
     }
     
     static func == (lhs: TimeSlice, rhs: TimeSlice) -> Bool {

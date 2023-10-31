@@ -166,15 +166,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         }
         return false
     }
-    
-    func getChildOfType(_ type:String) -> ContentSection? {
-        for s in self.subSections {
-            if s.type == type {
-                return s
-            }
-        }
-        return nil
-    }
 
     ///Recursivly search all children with a true test supplied by the caller
     func deepSearch(testCondition:(_ section:ContentSection)->Bool) -> Bool {
@@ -192,7 +183,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         return false
     }
     
-    ///Recursivly search all parents with a true test supplied by the caller
+    ///Search all parents with a true test supplied by the caller
     func parentSearch(testCondition:(_ section:ContentSection)->Bool) -> Bool {
         if testCondition(self) {
             return true
@@ -504,7 +495,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             Logger.logger.reportError(self, "Unknown tuple at \(i) :  \(self.getTitle()) \(tuple)")
         }
         if let score = score {
-            //score.debugScore("ContentSection Parse", withBeam: false)
+            //score.debugScorex("ContentSection Parse", withBeam: false)
             return score
         }
         else {

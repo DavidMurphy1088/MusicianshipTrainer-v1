@@ -62,10 +62,10 @@ class UIGlobals {
     
 }
 
-func hintButtonView(_ txt:String) -> some View {
+func hintButtonView(_ txt:String, selected:Bool = false) -> some View {
     VStack {
         HStack {
-            Text(txt).hintAnswerButtonStyle()
+            Text(txt).hintAnswerButtonStyle(selected: selected)
             Image(systemName: "hand.point.up.left").font(.largeTitle).foregroundColor(.white)
             Text(" ")
         }
@@ -104,12 +104,12 @@ extension Text {
             .cornerRadius(UIGlobals.cornerRadius)
     }
     
-    func hintAnswerButtonStyle() -> some View {
+    func hintAnswerButtonStyle(selected:Bool) -> some View {
         self
             .font(UIDevice.current.userInterfaceIdiom == .pad ? UIGlobals.font : UIGlobals.fontiPhone)
             .foregroundColor(.white)
             .padding(UIDevice.current.userInterfaceIdiom == .phone ? 2 : 12)
-            .background(.teal)
+            .background(selected ? .orange : .teal)
             .cornerRadius(UIGlobals.cornerRadius)
     }
 

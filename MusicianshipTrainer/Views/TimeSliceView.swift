@@ -189,66 +189,63 @@ struct TimeSliceView: View {
     }
     
 
-    func NoteView(note:Note, noteFrameWidth:Double, geometry: GeometryProxy) -> some View {
+    func NoteView(note:Note, noteFrameWidth:Double, geometry: GeometryProxy, inError:Bool) -> some View {
         ZStack {
             let placement = note.getNoteDisplayCharacteristics(staff: staff)
             let offsetFromStaffMiddle = placement.offsetFromStaffMidline
             let accidental = placement.accidental
             let noteEllipseMidpoint:Double = geometry.size.height/2.0 - Double(offsetFromStaffMiddle) * lineSpacing / 2.0
-            let noteValueUnDotted = note.isDotted ? note.getValue() * 2.0/3.0 : note.getValue()
-//            VStack {
-            ///hilight errors
-//                GeometryReader { geo in
-//                    Rectangle()
-//                        .fill(colorx())     // Fill with blue color
-//                        .frame(width: geo.size.width, height: 40) // Set dimensions of the box
-//                    Spacer()
-//                }
-//            }
-            if note.staffNum == staff.staffNum  {
-                NoteHiliteView(entry: note, x: noteFrameWidth/2, y: noteEllipseMidpoint, width: noteWidth * 1.5)
-            }
-
-            if let accidental = accidental {
-                let yOffset = accidental == 1 ? lineSpacing / 5 : 0.0
-                Text(getAccidental(accidental: accidental))
-                    .font(.system(size: lineSpacing * 3.0))
-                    .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
-                    .position(x: noteFrameWidth/2 - lineSpacing * (timeSlice.anyNotesRotated() ? 3.0 : 2.0),
-                              y: noteEllipseMidpoint + yOffset)
-                    .foregroundColor(note.getColor(staff: staff))
-
-            }
-            if [Note.VALUE_QUARTER, Note.VALUE_QUAVER, Note.VALUE_SEMIQUAVER].contains(noteValueUnDotted )  {
-                Ellipse()
-                //Closed ellipse
-                    .foregroundColor(note.getColor(staff: staff))
-                    .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
-                    .position(x: noteFrameWidth/2  - (note.rotated ? noteWidth : 0), y: noteEllipseMidpoint)
-            }
-            if noteValueUnDotted == Note.VALUE_HALF || noteValueUnDotted == Note.VALUE_WHOLE {
-                Ellipse()
-                //Open ellipse
-                    .stroke(note.getColor(staff: staff), lineWidth: 2)
-                    .foregroundColor(note.getColor(staff: staff))
-                    .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 0.9))
+            let noteValueUnDotted = note.isDotted() ? note.getValue() * 2.0/3.0 : note.getValue()
+            
+            if inError {
+                Text("X").bold().font(.system(size: lineSpacing * 3.0)).foregroundColor(.red)
                     .position(x: noteFrameWidth/2 - (note.rotated ? noteWidth : 0), y: noteEllipseMidpoint)
             }
-
-            //dotted
-            if note.isDotted {
-                //the dot needs to be moved off the note center to move the dot off a staff line
-                let yOffset = offsetFromStaffMiddle % 2 == 0 ? lineSpacing / 3.0 : 0
-                Ellipse()
-                //Open ellipse
-                    .frame(width: noteWidth/3.0, height: noteWidth/3.0)
+            else {
+                if note.staffNum == staff.staffNum  {
+                    NoteHiliteView(entry: note, x: noteFrameWidth/2, y: noteEllipseMidpoint, width: noteWidth * 1.5)
+                }
+                
+                if let accidental = accidental {
+                    let yOffset = accidental == 1 ? lineSpacing / 5 : 0.0
+                    Text(getAccidental(accidental: accidental))
+                        .font(.system(size: lineSpacing * 3.0))
+                        .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
+                        .position(x: noteFrameWidth/2 - lineSpacing * (timeSlice.anyNotesRotated() ? 3.0 : 2.0),
+                                  y: noteEllipseMidpoint + yOffset)
+                        .foregroundColor(note.getColor(staff: staff))
+                    
+                }
+                if [Note.VALUE_QUARTER, Note.VALUE_QUAVER, Note.VALUE_SEMIQUAVER].contains(noteValueUnDotted )  {
+                    Ellipse()
+                    //Closed ellipse
+                        .foregroundColor(note.getColor(staff: staff))
+                        .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
+                        .position(x: noteFrameWidth/2  - (note.rotated ? noteWidth : 0), y: noteEllipseMidpoint)
+                }
+                if noteValueUnDotted == Note.VALUE_HALF || noteValueUnDotted == Note.VALUE_WHOLE {
+                    Ellipse()
+                    //Open ellipse
+                        .stroke(note.getColor(staff: staff), lineWidth: 2)
+                        .foregroundColor(note.getColor(staff: staff))
+                        .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 0.9))
+                        .position(x: noteFrameWidth/2 - (note.rotated ? noteWidth : 0), y: noteEllipseMidpoint)
+                }
+                
+                //dotted
+                if note.isDotted() {
+                    //the dot needs to be moved off the note center to move the dot off a staff line
+                    let yOffset = offsetFromStaffMiddle % 2 == 0 ? lineSpacing / 3.0 : 0
+                    Ellipse()
+                    //Open ellipse
+                        .frame(width: noteWidth/3.0, height: noteWidth/3.0)
                     //.position(x: noteFrameWidth/2 + noteWidth/0.90, y: noteEllipseMidpoint - yOffset)
-                    .position(x: noteFrameWidth/2 + noteWidth/1.1, y: noteEllipseMidpoint - yOffset)
-                    .foregroundColor(note.getColor(staff: staff))
-            }
-
-            if !note.isOnlyRhythmNote {
-                //if staff.type == .treble {
+                        .position(x: noteFrameWidth/2 + noteWidth/1.1, y: noteEllipseMidpoint - yOffset)
+                        .foregroundColor(note.getColor(staff: staff))
+                }
+                
+                if !note.isOnlyRhythmNote {
+                    //if staff.type == .treble {
                     ForEach(getLedgerLines(staff: staff, note: note, noteWidth: noteWidth, lineSpacing: lineSpacing)) { line in
                         let y = geometry.size.height/2.0 + line.offsetVertical
                         let x = noteFrameWidth/2 - noteWidth - (note.rotated ? noteWidth : 0)
@@ -258,7 +255,8 @@ struct TimeSliceView: View {
                         }
                         .stroke(note.getColor(staff: staff), lineWidth: 1)
                     }
-                //}
+                    //}
+                }
             }
         }
     }
@@ -267,22 +265,20 @@ struct TimeSliceView: View {
         GeometryReader { geometry in
             ZStack {
                 let noteFrameWidth = geometry.size.width * 1.0 //center the note in the space allocated by the parent for this note's view
-
                 ForEach(getTimeSliceEntries(), id: \.id) { entry in
                     VStack {
                         if entry is Note {
-                            NoteView(note: entry as! Note, noteFrameWidth: noteFrameWidth, geometry: geometry)
-                                //.border(Color.green)
+                            NoteView(note: entry as! Note, noteFrameWidth: noteFrameWidth, geometry: geometry, inError: timeSlice.statusTag == .inError)
+                            //.border(Color.green)
                         }
                         if entry is Rest {
                             //Spacer()
                             RestView(staff: staff, entry: entry, lineSpacing: lineSpacing, geometry: geometry)
                             //Spacer()
                                 .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
-                                //.border(Color.blue)
+                            //.border(Color.blue)
                         }
                     }
-                    
                 }
             }
         }

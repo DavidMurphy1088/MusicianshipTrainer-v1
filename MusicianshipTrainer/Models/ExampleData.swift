@@ -3,7 +3,6 @@ import Foundation
 class ExampleData : ObservableObject {
     static var sharedExampleData = ExampleData()
     var logger = Logger.logger
-    //private var loadedDataDictionary:[String: ContentSectionData ] = [:]
     private let googleAPI = GoogleAPI.shared
     
     @Published var dataStatus:RequestStatus = .waiting

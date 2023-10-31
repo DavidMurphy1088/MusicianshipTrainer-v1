@@ -181,13 +181,9 @@ struct ScoreEntriesView: View {
     
     func getBeamLine(endNote:Note, noteWidth:Double, startNote:Note, stemLength:Double) -> (CGPoint, CGPoint)? {
         let stemDirection:Double = startNote.stemDirection == .up ? -1.0 : 1.0
-//        if endNote.isOnlyRhythmNote {
-//            stemDirection = -1.0
-//        }
-//        else {
-//            stemDirection = startNote.midiNumber < 71 ? -1.0 : 1.0
-//        }
-
+        if startNote.timeSlice?.statusTag == .inError {
+            return nil
+        }
         let endNotePos = noteLayoutPositions.positions[endNote]
         if let endNotePos = endNotePos {
             let xEndMid = endNotePos.origin.x + endNotePos.size.width / 2.0 + (noteWidth / 2.0 * stemDirection * -1.0)
@@ -288,34 +284,37 @@ struct ScoreEntriesView: View {
             HStack(spacing: 0) { //HStack - score entries display along the staff
                 ForEach(score.scoreEntries) { entry in
                     ZStack { //VStack - required in forEach closure
-                        if entry is TimeSlice {
+                        if let timeSlice = entry as? TimeSlice {
                             let entries = entry as! TimeSlice
                             ZStack { // Each note frame in the timeslice shares the same same vertical space
                                 TimeSliceView(staff: staff,
-                                         timeSlice: entries,
-                                         noteWidth: noteWidth,
-                                         lineSpacing: staffLayoutSize.lineSpacing)
+                                              timeSlice: entries,
+                                              noteWidth: noteWidth,
+                                              lineSpacing: staffLayoutSize.lineSpacing)
                                 //.border(Color.green)
                                 .background(GeometryReader { geometry in
                                     ///Record and store the note's postion so we can later draw its stems which maybe dependent on the note being in a quaver group with a quaver beam
                                     Color.clear
                                         .onAppear {
+                                            if timeSlice.statusTag != .inError {
+                                                if staff.staffNum == 0 {
+                                                    noteLayoutPositions.storePosition(notes: entries.getTimeSliceNotes(),rect: geometry.frame(in: .named("HStack")))
+                                                }
+                                            }
+                                        }
+                                        .onChange(of: staffLayoutSize.lineSpacing) { newValue in
                                             if staff.staffNum == 0 {
                                                 noteLayoutPositions.storePosition(notes: entries.getTimeSliceNotes(),rect: geometry.frame(in: .named("HStack")))
                                             }
                                         }
-                                        .onChange(of: staffLayoutSize.lineSpacing) { newValue in
-                                             if staff.staffNum == 0 {
-                                                 noteLayoutPositions.storePosition(notes: entries.getTimeSliceNotes(),rect: geometry.frame(in: .named("HStack")))
-                                            }
-                                        }
                                 })
-
-                                StemView(score:score,
-                                         staff:staff,
-                                         notePositionLayout: noteLayoutPositions,
-                                         notes: entries.getTimeSliceNotes(),
-                                         lineSpacing: staffLayoutSize)
+                                if timeSlice.statusTag != .inError {
+                                    StemView(score:score,
+                                             staff:staff,
+                                             notePositionLayout: noteLayoutPositions,
+                                             notes: entries.getTimeSliceNotes(),
+                                             lineSpacing: staffLayoutSize)
+                                }
 
                                 TimeSliceLabelView(score:score, staff:staff, timeSlice: entry as! TimeSlice)
                                     .frame(height: staffLayoutSize.getStaffHeight(score: score))

@@ -52,11 +52,6 @@ class StudentFeedback : ObservableObject {
 
 class StaffLayoutSize: ObservableObject {
     @Published var lineSpacing:Double
-    //static var lastHeight = 0.0
-
-//    init (lineSpacing:Double) {
-//        self.lineSpacing = lineSpacing
-//    }
 
     init () {
         self.lineSpacing = 0.0
@@ -71,9 +66,6 @@ class StaffLayoutSize: ObservableObject {
     func getStaffHeight(score:Score) -> Double {
         //leave enough space above and below the staff for the Timeslice view to show its tags
         let height = Double(score.getTotalStaffLineCount() + 2) * self.lineSpacing
-//        if height != StaffLayoutSize.lastHeight {
-//            StaffLayoutSize.lastHeight = height
-//        }
         return height
     }
 }
@@ -86,8 +78,6 @@ class Score : ObservableObject {
     @Published var barLayoutPositions:BarLayoutPositions
     @Published var barEditor:BarEditor?
 
-    @Published var showNotes = true
-    @Published var showFootnotes = false
     @Published var scoreEntries:[ScoreEntry] = []
     @Published var staffLayoutSize:StaffLayoutSize = StaffLayoutSize()
     
@@ -96,11 +86,7 @@ class Score : ObservableObject {
     
     var studentFeedback:StudentFeedback? = nil
     var tempo:Int?
-    static let maxTempo:Float = 200
-    static let minTempo:Float = 30
-    static let midTempo:Float = Score.minTempo + (Score.maxTempo - Score.minTempo) / 2.0
-    static let slowTempo:Float = Score.minTempo + (Score.maxTempo - Score.minTempo) / 4.0
-    
+
     private var totalStaffLineCount:Int = 0
     static var accSharp = "\u{266f}"
     static var accNatural = "\u{266e}"
@@ -116,7 +102,7 @@ class Score : ObservableObject {
         self.staffLayoutSize = StaffLayoutSize()
     }
     
-    func createBarEditor(onEdit: @escaping (_:Score) -> Void) {
+    func createBarEditor(onEdit: @escaping (_ wasChanged:Bool) -> Void) {
         self.barEditor = BarEditor(score: self, onEdit: onEdit)
     }
     
@@ -143,6 +129,24 @@ class Score : ObservableObject {
             }
         }
         return result
+    }
+    
+    func addTriadNotes() {
+        let taggedSlices = searchTimeSlices{ (timeSlice: TimeSlice) -> Bool in
+            return timeSlice.tagHigh != nil
+        }
+        
+        for tagSlice in taggedSlices {
+            if let triad = tagSlice.tagLow {
+                let notes = key.getTriadNotes(triadSymbol:triad)
+                if let hiTag:TagHigh = tagSlice.tagHigh {
+                    hiTag.popup = notes
+                    if let loTag = tagSlice.tagLow {
+                        tagSlice.setTags(high:hiTag, low:loTag)
+                    }
+                }
+            }
+        }
     }
     
     func getTimeSlicesForBar(bar:Int) -> [TimeSlice] {
@@ -184,8 +188,9 @@ class Score : ObservableObject {
                       "[Staff:",note?.staffNum,"]",
                       "[stem:",note?.stemDirection ?? "none", note?.stemLength ?? "none", "]",
                       "[placement:",note?.noteStaffPlacements[0]?.offsetFromStaffMidline ?? "none", note?.noteStaffPlacements[0]?.accidental ?? "none","]",
-                      t.getValue() ?? "","status",
-                      t.statusTag
+                      t.getValue() ?? "",
+                      "status",t.statusTag,
+                      "tagHigh", t.tagHigh
                 )
             }
         }
@@ -265,12 +270,6 @@ class Score : ObservableObject {
         return ts
     }
 
-    func setShowFootnotes(_ on:Bool) {
-        DispatchQueue.main.async {
-            self.showFootnotes = on
-        }
-    }
-        
     func updateStaffs() {
         for staff in staffs {
             staff.update()
@@ -711,6 +710,7 @@ class Score : ObservableObject {
 //                                }
 //                            }
 //                        }
+                        //outputTimeSlice.entries[0].setValue(value: 0)
                         explanation += ""
                     }
                 }
