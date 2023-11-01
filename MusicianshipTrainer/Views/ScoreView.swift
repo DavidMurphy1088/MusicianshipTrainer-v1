@@ -55,12 +55,12 @@ struct ScoreView: View {
         ///Score tells the staff how high to make itself. Child views of staff (all paths, moves, linesto sec) do not have
         ///inherent sizes that they can pass back up the parent staff view. So Score sets the sizes itself
         var height = 0.0
-        var lastStaff:Staff? = nil
+        //var lastStaff:Staff? = nil
         for staff in score.staffs {
             if !staff.isHidden {
                 height += staffLayoutSize.lineSpacing
             }
-            lastStaff = staff
+            //lastStaff = staff
         }
         if score.barEditor != nil {
             height += staffLayoutSize.lineSpacing * 1.0
@@ -161,10 +161,6 @@ struct ScoreView: View {
 //                                                   barLayoutPositions: score.barLayoutPositions,
 //                                                   lineSpacing: staffLayoutSize.lineSpacing)
                                     BarEditorView(score: score)
-                                                   //barEditor: barEditor,
-//                                                   barLayoutPositions: score.barLayoutPositions,
-//                                                   lineSpacing: staffLayoutSize.lineSpacing)
-
                                         .frame(height: staffLayoutSize.getStaffHeight(score: score))
                                 }
                             }

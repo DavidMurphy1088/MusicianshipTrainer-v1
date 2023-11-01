@@ -32,7 +32,6 @@ struct SelectIntervalView: View {
         HStack(alignment: .top)  {
             let columns:Int = intervals.getVisualColumnCount()
             let enabledToSelect = (questionType == .intervalVisual) || (scoreWasPlayed && questionType == .intervalAural)
-            let hintsChanged = intervals.enabledChanged
             
             ForEach(0..<columns) { column in
                 

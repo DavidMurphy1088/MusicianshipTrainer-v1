@@ -83,6 +83,7 @@
 		7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */; };
 		7BA8B70B2AB3D8D900AE7692 /* TTS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA8B70A2AB3D8D900AE7692 /* TTS.swift */; };
 		7BB835492A5555130083C1C0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB835482A5555130083C1C0 /* FirebaseFirestore */; };
+		7BBB9CCE2AF1B26900E4DDAB /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBB9CCD2AF1B26900E4DDAB /* CountdownTimer.swift */; };
 		7BC42EB22A550F39004FE117 /* AudioNotes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB12A550F39004FE117 /* AudioNotes */; };
 		7BC42EB42A550F4E004FE117 /* GPTQuestions in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB32A550F4E004FE117 /* GPTQuestions */; };
 		7BC42EB62A550F63004FE117 /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB52A550F62004FE117 /* Notes */; };
@@ -198,6 +199,7 @@
 		7B8EF2F52A68F63B00EA088E /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
 		7BA8B70A2AB3D8D900AE7692 /* TTS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTS.swift; sourceTree = "<group>"; };
+		7BBB9CCD2AF1B26900E4DDAB /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		7BC42EB12A550F39004FE117 /* AudioNotes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AudioNotes; sourceTree = "<group>"; };
 		7BC42EB32A550F4E004FE117 /* GPTQuestions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GPTQuestions; sourceTree = "<group>"; };
 		7BC42EB52A550F62004FE117 /* Notes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
@@ -309,6 +311,7 @@
 				7B8EF2F52A68F63B00EA088E /* Cache.swift */,
 				7B40B7D82A54DF8F00CA7FC4 /* Chord.swift */,
 				7B40B7D72A54DF8F00CA7FC4 /* ContentSection.swift */,
+				7BBB9CCD2AF1B26900E4DDAB /* CountdownTimer.swift */,
 				7B40B7D22A54DF8F00CA7FC4 /* ExampleData.swift */,
 				7BD1E5B72A5671AC009AD7E8 /* GoogleAPI.swift */,
 				7B30C7CA2AB522C100BD7378 /* Intervals.swift */,
@@ -783,6 +786,7 @@
 				7BD1E5B82A5671AC009AD7E8 /* GoogleAPI.swift in Sources */,
 				7B40B8082A54DF9000CA7FC4 /* KeySignature.swift in Sources */,
 				7B73B7BE2A7112E80097BAA8 /* Answer.swift in Sources */,
+				7BBB9CCE2AF1B26900E4DDAB /* CountdownTimer.swift in Sources */,
 				7B40B7F22A54DF9000CA7FC4 /* TimeSlice.swift in Sources */,
 				7BEEF61C2AE1D903006BA3D3 /* FlyingImageView.swift in Sources */,
 				7BF30A0C2ABD1CF800B43DDC /* AudioPlayerUser.swift in Sources */,

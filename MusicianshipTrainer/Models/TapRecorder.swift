@@ -116,7 +116,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
         outputScore.setStaff(num: 0, staff: staff)
         
-        var questionIdx = 0
+        //var questionIdx = 0
         
         ///If the last tapped note has duration > question last note value set that value to the last question note value
         ///(Because we are not measuring how long it took the student to hit stop recording)

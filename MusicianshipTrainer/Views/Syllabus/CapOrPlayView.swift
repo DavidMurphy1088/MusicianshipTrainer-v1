@@ -99,6 +99,7 @@ struct ClapOrPlayPresentView: View {
     @State var rhythmHeard:Bool = false
     @State var examInstructionsNarrated = false
     @State private var rhythmTolerancePercent: Double = 50
+    @State private var originalScore:Score?
     
     @State private var startWasShortended = false
     @State private var endWasShortended = false
@@ -438,18 +439,32 @@ struct ClapOrPlayPresentView: View {
                     //ScoreSpacerView()
                 }
                 
+                ///Option for editing the rhythm and restoring the rhythm to the original if the rhythm was edited
                 if answerState != .recording {
                     if contentSection.getExamTakingStatus() != .inExam {
                         if questionType == .rhythmVisualClap {
                             if score.getBarCount() > 1 {
-                                ///Enable bar manager to edit out bars in the given rhythm
-                                if score.barEditor == nil {
-                                    Button(action: {
-                                        score.createBarEditor(onEdit: scoreEditedNotification)
-                                    }) {
-                                        hintButtonView("Simplify the Rhythm", selected: self.rhythmWasSimplified)
+                                HStack {
+                                    ///Enable bar manager to edit out bars in the given rhythm
+                                    if score.barEditor == nil {
+                                        Button(action: {
+                                            score.createBarEditor(onEdit: scoreEditedNotification)
+                                        }) {
+                                            hintButtonView("Simplify the Rhythm", selected: self.rhythmWasSimplified)
+                                        }
+                                        .padding()
                                     }
-                                    .padding()
+                                    if let originalScore = originalScore {
+                                        if score.getBarCount() != originalScore.getBarCount() {
+                                            Button(action: {
+                                                score.copyEntries(from: originalScore)
+                                                self.rhythmWasSimplified = false
+                                            }) {
+                                                hintButtonView("Put Back The Question Rhythm", selected: false)
+                                            }
+                                            .padding()
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -458,6 +473,12 @@ struct ClapOrPlayPresentView: View {
                 
                 if questionType != .melodyPlay {
                     setRhythmTolerance()
+                }
+                
+                if questionType == .melodyPlay {
+                    if answerState != .recording {
+                        CountdownTimerView()
+                    }
                 }
                 
                 VStack {
@@ -492,11 +513,11 @@ struct ClapOrPlayPresentView: View {
                                                   fileName: contentSection.name,
                                                   onStart: {return score},
                                                   onDone: {})
-                                
+                                ///Allow editing (simplifying of the rhythm and a button to restor ethe question rhythm if it was edited
                                 if contentSection.getExamTakingStatus() != .inExam {
                                     if questionType == .rhythmEchoClap {
-                                        if score.getBarCount() > 1 {
-                                            HStack {
+                                        HStack {
+                                            if score.getBarCount() > 1 {
                                                 ///Enable bar manager to edit out bars in the given rhythm
                                                 Button(action: {
                                                     //if score.barEditor == nil {
@@ -520,6 +541,18 @@ struct ClapOrPlayPresentView: View {
                                                     hintButtonView("Remove The Rhythm End", selected: endWasShortended)
                                                 }
                                                 .padding()
+                                            }
+                                            if let originalScore = originalScore {
+                                                if score.getBarCount() != originalScore.getBarCount() {
+                                                    Button(action: {
+                                                        score.copyEntries(from: originalScore)
+                                                        self.endWasShortended = false
+                                                        self.startWasShortended = false
+                                                    }) {
+                                                        hintButtonView("Put Back The Question Rhythm", selected: false)
+                                                    }
+                                                    .padding()
+                                                }
                                             }
                                         }
                                     }
@@ -591,6 +624,7 @@ struct ClapOrPlayPresentView: View {
                     score.addTriadNotes()
                 }
                 self.rhythmTolerancePercent = UIGlobals.rhythmTolerancePercent
+                self.originalScore = contentSection.parseData(staffCount: 1, onlyRhythm: true)
             }
             .onDisappear() {
                 self.audioRecorder.stopPlaying()
@@ -794,7 +828,7 @@ struct ClapOrPlayAnswerView: View {
                 if let fittedScore = self.fittedScore {
                     if let studentFeedback = fittedScore.studentFeedback {
                         if studentFeedback.correct {
-                            if let originalScore = self.originalScore {
+                            if self.originalScore != nil {
                                 if studentFeedback.correct {
                                     nextButtons()
                                 }
@@ -977,9 +1011,7 @@ struct ClapOrPlayView: View {
             }
         }
         .background(Settings.colorBackground)
-        .onAppear() {
-            
-        }
+
         .onDisappear {
             let metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "")
             metronome.stopTicking()

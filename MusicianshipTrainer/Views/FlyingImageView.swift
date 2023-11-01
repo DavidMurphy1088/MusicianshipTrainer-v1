@@ -57,7 +57,7 @@ struct FlyingImageView: View {
     
     func animateRandomly() {
         let loops = 4
-        for loop in 0..<loops {
+        for _ in 0..<loops {
             withAnimation(Animation.linear(duration: totalDuration / Double(loops))) { //}.repeatForever(autoreverses: false)) {
                 opacity = 0.0
                 if answer.correct {

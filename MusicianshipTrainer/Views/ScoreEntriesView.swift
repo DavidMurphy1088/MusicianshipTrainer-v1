@@ -121,7 +121,7 @@ struct StemView: View {
 
                         ZStack {
                             ForEach(staffNotes) { note in
-                                let pp = note.getNoteDisplayCharacteristics(staff: staff)
+                                //let pp = note.getNoteDisplayCharacteristics(staff: staff)
                             
                                 let stemDirection = note.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: furthestFromMidline)
                                 let midX:Double = (geo.size.width + (midPointXOffset(notes: staffNotes, staff: staff, stemDirection: stemDirection))) / 2.0

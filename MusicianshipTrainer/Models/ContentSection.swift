@@ -385,7 +385,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         let defaultScore = Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1)
 
         let tuples:[String] = data
-        var tieWasFound = false
         
         for i in 0..<tuples.count {
             let trimmedTuple = tuples[i].trimmingCharacters(in: .whitespacesAndNewlines)

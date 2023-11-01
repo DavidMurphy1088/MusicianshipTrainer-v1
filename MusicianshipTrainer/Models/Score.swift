@@ -681,7 +681,7 @@ class Score : ObservableObject {
                         outputNoteValue = tap.getValue()
                         errorsFlagged = true
                         let name = TimeSliceEntry.getValueName(value:questionNote.getValue())
-                        let tapName = TimeSliceEntry.getValueName(value:tap.getValue())
+                        //let tapName = TimeSliceEntry.getValueName(value:tap.getValue())
                         explanation = "• The question note is a \(name)"
                         if trailingRestsDuration > 0 {
                             explanation += " followed by a rest"

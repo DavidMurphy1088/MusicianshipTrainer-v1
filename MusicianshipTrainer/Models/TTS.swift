@@ -48,7 +48,7 @@ class TTS : AudioPlayerUser {
         do {
             let doc: Document = try SwiftSoup.parse(htmlContent)
             let tags: Elements = try doc.select("p, h1")
-            var cnt = 0
+            //var cnt = 0
             for tag in tags {
                 try ssmlContent += filterForSSML(tag.text()) + "<break time=\"1000ms\"/>"
             }
