@@ -62,7 +62,7 @@ struct BarEditorView: View {
                                         Button(action: {
                                             barEditor.reWriteBar(targetBar: indexAndPos.0, way: .doNothing)
                                         }) {
-                                            Text("Cancel").defaultTextStyle()
+                                            Text("Cancel").bold().defaultTextStyle()
                                         }
                                         .padding()
                                     }
@@ -95,7 +95,7 @@ struct BarEditorView: View {
             
             .onAppear() {
                 showHelp = true
-                Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { _ in
+                Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { _ in
                     showHelp = false
                 }
             }

@@ -59,20 +59,16 @@ class TimeSlice : ScoreEntry {
     
     func addRest(rest:Rest) {
         self.entries.append(rest)
-        //if let score = score {
-            score.updateStaffs()
-            score.addStemAndBeamCharaceteristics()
-        //}
+        score.updateStaffs()
+        score.addStemAndBeamCharaceteristics()
     }
 
     func addChord(c:Chord) {
         for n in c.getNotes() {
             self.addNote(n: n)
         }
-        //if let score = score {
-            score.addStemAndBeamCharaceteristics()
-            score.updateStaffs()
-        //}
+        score.addStemAndBeamCharaceteristics()
+        score.updateStaffs()
     }
     
     func setTags(high:TagHigh, low:String) {

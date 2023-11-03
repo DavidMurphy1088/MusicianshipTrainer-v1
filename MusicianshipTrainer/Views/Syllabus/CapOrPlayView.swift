@@ -195,16 +195,12 @@ struct ClapOrPlayPresentView: View {
     func instructionView() -> some View {
         VStack {
             if let instruction = self.getInstruction(mode: self.questionType, grade: contentSection.getGrade()) {
-                Text(instruction)
-                    .defaultTextStyle()
-                    .padding()
+                ScrollView {
+                    Text(instruction)
+                        .defaultTextStyle()
+                        .padding()
+                }
             }
-//            if let instruction = self.getInstruction(mode: self.questionType, number: 1, grade: contentSection.getGrade()) {
-//                Text(instruction)
-//                    .defaultTextStyle()
-//                    .padding()
-//                    //.frame(width:UIScreen.main.bounds.width * 0.9, alignment: .leading)
-//            }
         }
         .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
         .overlay(
@@ -405,7 +401,7 @@ struct ClapOrPlayPresentView: View {
                 }
 
                 if questionType == .rhythmVisualClap || questionType == .melodyPlay {
-                    ScoreSpacerView()
+                    //ScoreSpacerView()
                     ScoreView(score: score).padding()
                     //ScoreSpacerView()
                 }
@@ -428,6 +424,7 @@ struct ClapOrPlayPresentView: View {
                                     if let originalScore = originalScore {
                                         if score.getBarCount() != originalScore.getBarCount() {
                                             Button(action: {
+                                                score.barLayoutPositions = BarLayoutPositions()
                                                 score.copyEntries(from: originalScore)
                                                 self.rhythmWasSimplified = false
                                             }) {
@@ -833,20 +830,20 @@ struct ClapOrPlayAnswerView: View {
                         Text(" ")
                     }
                 }
-                ScoreSpacerView()
+                //ScoreSpacerView()
                 if questionType == .melodyPlay {
                     ScoreSpacerView()
                 }
                 ScoreView(score: score).padding()
-                ScoreSpacerView()
+                //ScoreSpacerView()
                 if questionType == .melodyPlay {
                     ScoreSpacerView()
                 }
                 if let fittedScore = self.fittedScore {
                     Text(" ")
-                    ScoreSpacerView()
+                    //ScoreSpacerView()
                     ScoreView(score: fittedScore).padding()
-                    ScoreSpacerView()
+                    //ScoreSpacerView()
                 }
 
                 HStack {

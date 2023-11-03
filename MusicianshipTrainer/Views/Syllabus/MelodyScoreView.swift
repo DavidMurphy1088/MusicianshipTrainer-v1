@@ -22,16 +22,16 @@ struct MelodyScoreView: View {
         VStack {
             if let score = score {
                 ScoreView(score: score)
-                Button(action: {
-                    metronome.playScore(score: score)
-                }) {
-                    HStack {
-                        Image(systemName: "play")
-                            .foregroundColor(.blue)
-                            .font(.largeTitle)
-                    }
-                }
-                .padding()
+//                Button(action: {
+//                    metronome.playScore(score: score)
+//                }) {
+//                    HStack {
+//                        Image(systemName: "play")
+//                            .foregroundColor(.blue)
+//                            .font(.largeTitle)
+//                    }
+//                }
+//                .padding()
             }
         }
         
@@ -162,11 +162,18 @@ struct ListMelodiesView: View {
                                 presentScoreView = true
                             }
                         }) {
-                            Text(melody.name)
-                                .padding()
-                                .foregroundColor(selectedMelodyId == melody.id ? .white : .primary)
-                                .background(selectedMelodyId == melody.id ? Color.blue : Color.clear)
-                                .cornerRadius(8)
+                            HStack {
+                                Text(melody.name)
+                                    .padding()
+                                    .foregroundColor(selectedMelodyId == melody.id ? .white : .primary)
+                                //.background(selectedMelodyId == melody.id ? Color.blue : Color.clear)
+                                    .background(selectedMelodyId == melody.id ? Color.orange : Color.blue)
+                                    .cornerRadius(8)
+                                    .padding()
+                                Image(systemName: "play")
+                                    .foregroundColor(.blue)
+                                    .font(.largeTitle)
+                            }
                         }
                     }
                 }

@@ -28,14 +28,22 @@ class ScoreEntry : ObservableObject, Identifiable, Hashable {
         return result
     }
     
-    func getTimeSliceNotes() -> [Note] {
+    func getTimeSliceNotes(staffNum:Int? = nil) -> [Note] {
         var result:[Note] = []
         if self is TimeSlice {
             let ts:TimeSlice = self as! TimeSlice
             let entries = ts.entries
             for entry in entries {
                 if entry is Note {
-                    result.append(entry as! Note)
+                    if let staffNum = staffNum {
+                        let note = entry as! Note
+                        if note.staffNum == staffNum {
+                            result.append(note)
+                        }
+                    }
+                    else {
+                        result.append(entry as! Note)
+                    }
                 }
             }
         }
@@ -419,20 +427,23 @@ class Score : ObservableObject {
         //The number of staff lines for a full stem length
         let stemLengthLines = 3.5
 
-        let staff = self.staffs[lastNote.staffNum]
         if lastNote.getValue() != Note.VALUE_QUAVER {
-            let stemDirection = getStemDirection(staff: staff, notes: notes)
-            for note in notes {
-                note.stemDirection = stemDirection
-                note.stemLength = stemLengthLines
-                ///Dont try yet to beam semiquavers
-                if lastNote.getValue() == Note.VALUE_SEMIQUAVER {
-                    note.beamType = .end
+            for staffIndex in 0..<self.staffs.count {
+                let stemDirection = getStemDirection(staff: self.staffs[staffIndex], notes: notes)
+                let staffNotes = lastTimeSlice.getTimeSliceNotes(staffNum: staffIndex)
+                for note in staffNotes {
+                    note.stemDirection = stemDirection
+                    note.stemLength = stemLengthLines
+                    ///Dont try yet to beam semiquavers
+                    if lastNote.getValue() == Note.VALUE_SEMIQUAVER {
+                        note.beamType = .end
+                    }
                 }
             }
             return
         }
-
+        
+        let staff = self.staffs[lastNote.staffNum]
         //apply the quaver beam back from the last note
         //let endQuaver = notes[0]
         var notesUnderBeam:[Note] = []

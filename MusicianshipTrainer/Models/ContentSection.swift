@@ -522,10 +522,13 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         let root = Note(timeSlice:timeSlice, num: pitch, staffNum: 0)
         //timeSlice.setTags(high: TagHigh(content:root.getNoteName(), popup: nil), low: triad)
         timeSlice.setTags(high: TagHigh(content:Note.getNoteName(midiNum: root.midiNumber), popup: nil), low: triad)
-
+        //var chord:Chord = Chord()
         for i in [0,4,7] {
-            timeSlice.addNote(n: Note(timeSlice: timeSlice, num: pitch + i, value:value, staffNum: 1))
+            let note = Note(timeSlice: timeSlice, num: pitch + i, value:value, staffNum: 1)
+            //chord.addNote(note: note)
+            timeSlice.addNote(n: note)
         }
+        //timeSlice.addChord(c: chord)
     }
     
     func playExamInstructions(withDelay:Bool, onLoaded: @escaping (_ status:RequestStatus) -> Void, onNarrated: @escaping () -> Void) {

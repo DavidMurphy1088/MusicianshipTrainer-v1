@@ -143,6 +143,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     
     func playFromData(data:Data, onDone:@escaping ()->Void) {
         do {
+            print("+++=================================================== START PLAYING1 \(data.count)")
             self.audioPlayer = try AVAudioPlayer(data: data)
             if self.audioPlayer == nil {
                 Logger.logger.reportError(self, "playFromData, cannot create audio player")
@@ -153,6 +154,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
             //Logger.logger.log(self, msg)
             self.playEndedNotify = onDone
             self.audioPlayer.delegate = self
+            print("+++=================================================== START PLAYING2 \(data.count)")
             self.audioPlayer.play()
             setStatus("Playback started, status:\(self.audioPlayer.isPlaying ? "OK" : "Error")")
         } catch let error {
@@ -167,8 +169,11 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        print("+++=================================================== STOP PLAYING1")
         setStatus("Playback stopped, status:\(flag ? "OK" : "Error")")
         if let playEndedNotify = self.playEndedNotify {
+            print("+++=================================================== STOP PLAYING2")
+
             playEndedNotify()
         }
 //        if let allDone = self.allDoneCallback {

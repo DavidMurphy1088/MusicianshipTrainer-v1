@@ -36,7 +36,7 @@ struct CountdownTimerView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             
             CircularProgressView(progress: CGFloat(timeRemaining) / 30.0, timeRemaining: timeRemaining)
-                .frame(width: 100, height: 100)
+                .frame(width: 70, height: 70)
                 .padding(20)
         }
     }
@@ -59,7 +59,7 @@ struct CircularProgressView: View {
                 .rotationEffect(.degrees(-90))
                 .aspectRatio(contentMode: .fit)
 
-            Text("\(timeRemaining) secs")
+            Text("\(timeRemaining)")
                 //.font(.footnote)
         }
     }
