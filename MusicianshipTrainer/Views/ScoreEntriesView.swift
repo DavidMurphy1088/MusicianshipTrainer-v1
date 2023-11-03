@@ -7,8 +7,9 @@ struct TimeSliceLabelView: View {
     @ObservedObject var timeSlice:TimeSlice
     @State var showPopover = false
     let fontSize = 32.0
-    let font = Font.custom("TimesNewRomanPS-BoldMT", size: 32.0)
-    
+    //let font = Font.custom("TimesNewRomanPS-BoldMT", size: 32.0)
+    let font = Font.custom("TimesNewRomanPS-BoldMT", size: 28.0)
+
     var body: some View {
         ZStack {
             if staff.staffNum == 0 {
@@ -181,7 +182,7 @@ struct ScoreEntriesView: View {
     
     func getBeamLine(endNote:Note, noteWidth:Double, startNote:Note, stemLength:Double) -> (CGPoint, CGPoint)? {
         let stemDirection:Double = startNote.stemDirection == .up ? -1.0 : 1.0
-        if startNote.timeSlice?.statusTag == .inError {
+        if startNote.timeSlice.statusTag == .inError {
             return nil
         }
         let endNotePos = noteLayoutPositions.positions[endNote]
@@ -208,30 +209,7 @@ struct ScoreEntriesView: View {
         }
         return nil
     }
-    
-    func highestNote(entry:ScoreEntry) -> Note? {
-        let notes = entry.getTimeSliceNotes()
-        //if notes != nil {
-            if notes.count == 1 {
-                return notes[0]
-            }
-            else {
-                let staffNotes:[Note]
-                if staff.type == .treble {
-                    staffNotes = notes.filter { $0.midiNumber >= Note.MIDDLE_C}
-                }
-                else {
-                    staffNotes = notes.filter { $0.midiNumber < Note.MIDDLE_C}
-                }
-                if staffNotes.count > 0 {
-                    let sorted = staffNotes.sorted { $0.midiNumber > $1.midiNumber }
-                    return sorted[0]
-                }
-            }
-        //}
-        return nil
-    }
-    
+        
     func getLineSpacing() -> Double {
         return self.staffLayoutSize.lineSpacing
     }

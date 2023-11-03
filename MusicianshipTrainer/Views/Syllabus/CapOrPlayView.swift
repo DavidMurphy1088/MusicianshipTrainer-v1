@@ -32,7 +32,6 @@ struct PracticeToolView: View {
 
 struct PlayRecordingView: View {
     var buttonLabel:String
-    //@ObservedObject var score:Score?
     @State var metronome:Metronome
     let fileName:String
     @ObservedObject var audioRecorder = AudioRecorder.shared
@@ -43,9 +42,7 @@ struct PlayRecordingView: View {
     var body: some View {
         VStack {
             Button(action: {
-                //if let onStart = onStart {
                 let score = onStart()
-                //}
                 if let score = score {
                     metronome.playScore(score: score, onDone: {
                         playingScore = false
@@ -114,21 +111,12 @@ struct ClapOrPlayPresentView: View {
         self.questionType = questionType
         _answerState = answerState
         _answer = answer
-        self.score = score //contentSection.getScore(staffCount: questionType == .melodyPlay ? 2 : 1, onlyRhythm: questionType == .melodyPlay ? false : true)
-
+        self.score = score
         if score.staffs.count > 1 {
             self.score.staffs[1].isHidden = true
         }
         self.rhythmHeard = self.questionType == .rhythmVisualClap ? true : false
-//        let ts = score.createTimeSlice()
-//        ts.addNote(n: Note(timeSlice: ts, num: 60, staffNum: 0))
     }
-    
-//    func initScore() {
-////        let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: (questionType == .rhythmVisualClap || questionType == .rhythmEchoClap) ? 1 : 5)
-////        self.score.setStaff(num: 0, staff: staff)
-//
-//    }
     
     func examInstructionsDone(status:RequestStatus) {
     }
@@ -140,56 +128,36 @@ struct ClapOrPlayPresentView: View {
         if !UIDevice.current.orientation.isLandscape {
             linefeed = linefeed + "\n"
         }
-        //if number == 0 {
-            switch mode {
-            case .rhythmVisualClap:
-                result += "\(bullet)Look through the given rhythm."
-                result += "\(linefeed)\(bullet)When you are ready to, press Start Recording."
-                result += "\(linefeed)\(bullet)Tap your rhythm on the drum and then press Stop Recording once you have finished."
-                
-                result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap and then immediately release"
-                result += " your finger from the screen, rather than holding it down."
-                if grade >= 2 {
-                    result += "\n\n\(bullet)For rests, accurately count them but do not touch the screen."
-                }
-                
-            case .rhythmEchoClap:
-                result += "\(bullet)Listen to the given rhythm."
-                //result += "\(linefeed)\(bullet)When it has finished you will be able to press Start Recording."
-                result += "\(linefeed)\(bullet)Tap your rhythm on the drum that appears and then press Stop Recording once you have finished."
-                
-                result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap and then immediately release"
-                result += " your finger from the screen, rather than holding it down."
-                result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
-
-
-            case .melodyPlay:
-                result += "\(bullet)Press Start Recording then "
-                result += "play the melody and the final chord."
-                result += "\(linefeed)\(bullet)When you have finished, stop the recording."
-                
-            default:
-                result = ""
+        switch mode {
+        case .rhythmVisualClap:
+            result += "\(bullet)Look through the given rhythm."
+            result += "\(linefeed)\(bullet)When you are ready to, press Start Recording."
+            result += "\(linefeed)\(bullet)Tap your rhythm on the drum with the pad of your finger and then press Stop Recording once you have finished."
+            
+            result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap and then immediately release"
+            result += " your finger from the screen, rather than holding it down."
+            if grade >= 2 {
+                result += "\n\n\(bullet)For rests, accurately count them but do not touch the screen."
             }
-        //}
-//        if number == 1 {
-//            switch mode {
-//            case .rhythmVisualClap:
-//                result += "\(bullet)Advice: For a clear result, you should tap and then immediately release"
-//                result += " your finger from the screen, rather than holding it down."
-//                if grade >= 2 {
-//                    result += "\n\n\(bullet)For rests, accurately count them but do not touch the screen."
-//                }
-//
-//            case .rhythmEchoClap:
-//                result += "\(bullet)Advice: For a clear result, you should tap and then immediately release"
-//                result += " your finger from the screen, rather than holding it down."
-//                result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
-//
-//            default:
-//                result = ""
-//            }
-//        }
+            
+        case .rhythmEchoClap:
+            result += "\(bullet)Listen to the given rhythm."
+            //result += "\(linefeed)\(bullet)When it has finished you will be able to press Start Recording."
+            result += "\(linefeed)\(bullet)Tap your rhythm on the drum that appears and then press Stop Recording once you have finished."
+            
+            result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap with the pad of your finger and then immediately release"
+            result += " your finger from the screen, rather than holding it down."
+            result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
+
+
+        case .melodyPlay:
+            result += "\(bullet)Press Start Recording then "
+            result += "play the melody and the final chord."
+            result += "\(linefeed)\(bullet)When you have finished, stop the recording."
+            
+        default:
+            result = ""
+        }
         return result.count > 0 ? result : nil
     }
     
@@ -321,10 +289,11 @@ struct ClapOrPlayPresentView: View {
                 if answerState != .recording {
                     if shouldOfferToPlayRecording() {
                         PlayRecordingView(buttonLabel: "Hear The \(uname)",
-                                          //score: score,
                                           metronome: metronome,
                                           fileName: contentSection.name,
-                                          onStart: {return score},
+                                          onStart: {
+                                            return score
+                                            },
                                           onDone: {rhythmHeard = true}
                         )
                     }
@@ -333,19 +302,21 @@ struct ClapOrPlayPresentView: View {
                 if answerState == .recorded {
                     if !(contentSection.getExamTakingStatus() == .inExam) {
                         PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                          //score: questionType == .melodyPlay ? nil : getStudentTappingAsAScore(),
-                                          //score: getStudentTappingAsAScore()!,
                                           metronome: self.metronome,
                                           fileName: contentSection.name,
                                           onStart: ({
-                            if questionType != .melodyPlay {
+                            if questionType == .melodyPlay {
+                                ///Play from the audio ecording
+                                return nil
+                            }
+                            else {
                                 if let recordedScore = getStudentTappingAsAScore() {
                                     if let recordedtempo = recordedScore.tempo {
                                         metronome.setTempo(tempo: recordedtempo, context:"start hear student")
                                     }
                                 }
+                                return getStudentTappingAsAScore()
                             }
-                            return score
                         }),
                         onDone: ({
                             //recording was played at the student's tempo and now reset metronome
@@ -511,7 +482,9 @@ struct ClapOrPlayPresentView: View {
                                 PlayRecordingView(buttonLabel: "Hear The Given Rhythm", // Again",
                                                   metronome: metronome,
                                                   fileName: contentSection.name,
-                                                  onStart: {return score},
+                                                  onStart: {
+                                                        return score
+                                                    },
                                                   onDone: {})
                                 ///Allow editing (simplifying of the rhythm and a button to restor ethe question rhythm if it was edited
                                 if contentSection.getExamTakingStatus() != .inExam {
@@ -612,7 +585,6 @@ struct ClapOrPlayPresentView: View {
                     })
                 }
 
-                //score.setHiddenStaff(num: 1, isHidden: true)
                 metronome.setTempo(tempo: 90, context: "View init")
                 if questionType == .rhythmEchoClap || questionType == .melodyPlay {
                     metronome.setAllowTempoChange(allow: true)
@@ -886,7 +858,6 @@ struct ClapOrPlayAnswerView: View {
 
                     if questionType == .melodyPlay {
                         PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                          //score: nil,
                                           metronome: answerMetronome,
                                           fileName: contentSection.name,
                                           onStart: {return nil})
@@ -894,7 +865,6 @@ struct ClapOrPlayAnswerView: View {
                     else {
                         if let fittedScore = self.fittedScore {
                             PlayRecordingView(buttonLabel: "Hear Your \(questionType == .melodyPlay ? "Melody" : "Rhythm")",
-                                              //score: fittedScore,
                                               metronome: answerMetronome,
                                               fileName: contentSection.name,
                                               onStart: {return fittedScore})

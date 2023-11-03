@@ -141,39 +141,32 @@ struct ScoreView: View {
     
     var body: some View {
         VStack {
-            //let log = log()
             if let feedback = score.studentFeedback {
                 FeedbackView(score: score, studentFeedback: feedback)
             }
             
-            //ZStack {
-                VStack {
-                    ForEach(score.getStaff(), id: \.self.id) { staff in
-                        if !staff.isHidden {
-                            ZStack {
-                                StaffView(score: score, staff: staff)
+            VStack {
+                ForEach(score.getStaff(), id: \.self.id) { staff in
+                    if !staff.isHidden {
+                        ZStack {
+                            StaffView(score: score, staff: staff)
+                                .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                                //.border(Color .red, width: 2)
+                            
+                            if getBarEditor() != nil {
+                                BarEditorView(score: score)
                                     .frame(height: staffLayoutSize.getStaffHeight(score: score))
-                                    //.border(Color .red, width: 2)
-                                
-                                if let barEditor = getBarEditor() {
-//                                    BarEditorView(score: score,
-//                                                   barEditor: barEditor,
-//                                                   barLayoutPositions: score.barLayoutPositions,
-//                                                   lineSpacing: staffLayoutSize.lineSpacing)
-                                    BarEditorView(score: score)
-                                        .frame(height: staffLayoutSize.getStaffHeight(score: score))
-                                }
                             }
                         }
                     }
                 }
-            //}
+            }
         }
         .background(
             ///This is required to get the size of the score view
             GeometryReader { geometry in
                 Color.clear.onAppear {
-                    self.setOrientationLineSize(ctx: "🤢🤢.background", geometryWidth: geometry.size.width)
+                    self.setOrientationLineSize(ctx: "🤢.background", geometryWidth: geometry.size.width)
                     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
                 }
             }

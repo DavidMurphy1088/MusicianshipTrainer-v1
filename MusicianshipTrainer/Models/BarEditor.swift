@@ -55,7 +55,7 @@ class BarEditor: ObservableObject {
                               timeSignature: TimeSignature(top: score.timeSignature.top, bottom: score.timeSignature.bottom),
                               linesPerStaff: 5)
         let staff = Staff(score: newScore, type: .treble, staffNum: 0, linesInStaff: 1)
-        newScore.setStaff(num: 0, staff: staff)
+        newScore.createStaff(num: 0, staff: staff)
         
         var barNum = 0
         var barWasModified = false

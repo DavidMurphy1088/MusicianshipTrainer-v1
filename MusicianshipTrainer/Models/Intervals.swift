@@ -120,7 +120,7 @@ class Intervals : ObservableObject {
     
     func getVisualColumns(col:Int) -> [IntervalGroup] {
         var result:[IntervalGroup] = []
-        let start = col * intervalsPerColumn
+        //let start = col * intervalsPerColumn
         for i in 0..<intervalsPerColumn {
             let index = i + col * intervalsPerColumn
             if index < intervalNames.count {

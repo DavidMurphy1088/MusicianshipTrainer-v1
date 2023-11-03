@@ -421,7 +421,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                         score = Score(key: key, timeSignature: timeSignature, linesPerStaff: 5)
                         for i in 0..<staffCount {
                             let staff = Staff(score: score!, type: .treble, staffNum: i, linesInStaff: onlyRhythm ? 1 : 5)
-                            score!.setStaff(num: i, staff: staff)
+                            score!.createStaff(num: i, staff: staff)
                         }
                     }
                 }
@@ -504,7 +504,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         
     func addTriad(score:Score, timeSlice:TimeSlice, note:Note, triad:String, value:Double) {
         let bstaff = Staff(score: score, type: .bass, staffNum: 1, linesInStaff: 5)
-        score.setStaff(num: 1, staff: bstaff)
+        score.createStaff(num: 1, staff: bstaff)
         let key = score.key
         
         var pitch = key.firstScaleNote()

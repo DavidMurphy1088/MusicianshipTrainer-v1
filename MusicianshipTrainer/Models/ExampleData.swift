@@ -89,7 +89,7 @@ class ExampleData : ObservableObject {
                 continue
             }
             let score = Score(key: Key(type: .major, keySig: KeySignature(type: .sharp, keyName: "")), timeSignature: TimeSignature(top: 4, bottom: 4), linesPerStaff: 1)
-            score.setStaff(num: 0, staff: Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5))
+            score.createStaff(num: 0, staff: Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5))
             let melody = Melody(halfSteps: halfSteps, name: name)
             for i in 3..<rowCells.count {
                 let parts = rowCells[i].components(separatedBy: ",")
@@ -108,7 +108,7 @@ class ExampleData : ObservableObject {
                     guard let pitch = Int(parts[0]) else {
                         continue
                     }
-                    let note = Note(timeSlice: nil, num:pitch, value:Double(value), staffNum: 0)
+                    let note = Note(timeSlice: timeSlice, num:pitch, value:Double(value), staffNum: 0)
                     if parts.count == 3 {
                         let accidental = Int(parts[2])
                         if [0,1,2].contains(accidental) {

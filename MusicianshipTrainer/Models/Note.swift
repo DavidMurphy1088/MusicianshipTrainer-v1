@@ -6,12 +6,12 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
 
     let id = UUID()
     var staffNum:Int //Narrow the display of the note to just one staff
-    var timeSlice:TimeSlice?
+    var timeSlice:TimeSlice
     var sequence:Int = 0 //the timeslice's sequence position
 
     private var value:Double = Note.VALUE_QUARTER
 
-    init(timeSlice:TimeSlice?, value:Double, staffNum: Int = 0) {
+    init(timeSlice:TimeSlice, value:Double, staffNum: Int = 0) {
         self.value = value
         self.staffNum = staffNum
         self.timeSlice = timeSlice
@@ -37,9 +37,9 @@ class TimeSliceEntry : ObservableObject, Identifiable, Equatable, Hashable {
     //Cause notes that are set for specifc staff to be transparent on other staffs
     func getColor(staff:Staff, log:Bool? = false) -> Color {
         var out:Color? = nil
-        guard let timeSlice = timeSlice else {
-            return Color.black
-        }
+//        guard let timeSlice = timeSlice else {
+//            return Color.black
+//        }
         if timeSlice.statusTag == .inError {
             out = Color(.red)
         }
@@ -119,7 +119,7 @@ class Tie : ScoreEntry {
 }
 
 class Rest : TimeSliceEntry {    
-    override init(timeSlice:TimeSlice?, value:Double, staffNum:Int) {
+    override init(timeSlice:TimeSlice, value:Double, staffNum:Int) {
         super.init(timeSlice:timeSlice, value: value, staffNum: staffNum)
     }
     
@@ -202,7 +202,7 @@ class Note : TimeSliceEntry, Comparable {
         return (note1 % 12) == (note2 % 12)
     }
     
-    init(timeSlice:TimeSlice?, num:Int, value:Double = Note.VALUE_QUARTER, staffNum:Int, accidental:Int?=nil) {
+    init(timeSlice:TimeSlice, num:Int, value:Double = Note.VALUE_QUARTER, staffNum:Int, accidental:Int?=nil) {
         self.midiNumber = num
         super.init(timeSlice:timeSlice, value: value, staffNum: staffNum)
         self.accidental = accidental

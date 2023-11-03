@@ -114,7 +114,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
     func makeScoreFromTaps(questionScore:Score, questionTempo:Int, tapValues: [Double]) -> Score {
         let outputScore = Score(key: questionScore.key, timeSignature: questionScore.timeSignature, linesPerStaff: 1)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
-        outputScore.setStaff(num: 0, staff: staff)
+        outputScore.createStaff(num: 0, staff: staff)
         
         //var questionIdx = 0
         

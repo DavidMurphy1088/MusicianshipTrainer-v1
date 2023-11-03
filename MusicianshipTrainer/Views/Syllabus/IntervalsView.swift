@@ -109,7 +109,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
 
     func initView() {
         let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5)
-        self.score.setStaff(num: 0, staff: staff)
+        self.score.createStaff(num: 0, staff: staff)
         
         var timeslice:TimeSlice?
         var chord:Chord?

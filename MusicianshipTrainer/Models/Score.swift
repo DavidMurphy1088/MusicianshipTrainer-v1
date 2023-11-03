@@ -276,7 +276,7 @@ class Score : ObservableObject {
         }
     }
     
-    func setStaff(num:Int, staff:Staff) {
+    func createStaff(num:Int, staff:Staff) {
         if self.staffs.count <= num {
             self.staffs.append(staff)
         }
@@ -387,12 +387,12 @@ class Score : ObservableObject {
         }
         if timeSignature.top == 2 {
             let startBeatInt = Int(startBeamTimeSlice.beatNumber)
-            if lastBeat > 1 {
-                return [1].contains(startBeatInt)
-            }
-            else {
-                return [0].contains(startBeatInt)
-            }
+            //if lastBeat > 1 {
+                return [0, 1].contains(startBeatInt)
+//            }
+//            else {
+//                return [0].contains(startBeatInt)
+//            }
         }
         return false
     }
@@ -564,7 +564,7 @@ class Score : ObservableObject {
     
     func copyEntries(from:Score, count:Int? = nil) {
         let staff = self.staffs[0]
-        setStaff(num: 0, staff: Staff(score: self, type: staff.type, staffNum: 0, linesInStaff: staff.linesInStaff))
+        createStaff(num: 0, staff: Staff(score: self, type: staff.type, staffNum: 0, linesInStaff: staff.linesInStaff))
 
         self.scoreEntries = []
         var cnt = 0
@@ -630,7 +630,7 @@ class Score : ObservableObject {
     func fitScoreToQuestionScore(tappedScore:Score, tolerancePercent:Double) -> (Score, StudentFeedback) {
         let outputScore = Score(key: self.key, timeSignature: self.timeSignature, linesPerStaff: 1)
         let staff = Staff(score: outputScore, type: .treble, staffNum: 0, linesInStaff: 1)
-        outputScore.setStaff(num: 0, staff: staff)
+        outputScore.createStaff(num: 0, staff: staff)
             
         var errorsFlagged = false
 
