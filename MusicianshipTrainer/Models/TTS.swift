@@ -30,7 +30,9 @@ class TTS : AudioPlayerUser {
         }
         isSpeaking = true
         let cacheKey = contentSection.getPath() + "/" + context
-        let data = dataCache.getData(key: cacheKey)
+        ///5Nov2023 disable cache for the moment. TTS cache is not cleared (yet) by a change in the document text that it is reading
+        ///e.g. a change in the cached Instructions.doc also requires that the the cache key for the TTS narration be cleared
+        let data:Data? = nil //dataCache.getData(key: cacheKey)
         var playAudio = true
         if let data = data {
             play(data: data)

@@ -550,9 +550,12 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                         if data != nil {
                             if fromCache {
                                 ///Dont start speaking at the instant the view is loaded
-//                                if withDelay {
-//                                    sleep(1)
-//                                }
+                                if withDelay {
+                                    ///Nov5,2023 DONT DELETE -  this appears to be required otherwise the audio player gets
+                                    ///all the data but does not play the audio and does not throw any error.
+                                    ///With the sleep the audio is heard. And the audio is heard if the audio data comes from an external lookup - i.e. is delayed
+                                    sleep(1)
+                                }
                             }
                         }
                         AudioRecorder.shared.playFromData(data: data!, onDone: onNarrated)
@@ -561,6 +564,5 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             }
         }
     }
-
 }
 

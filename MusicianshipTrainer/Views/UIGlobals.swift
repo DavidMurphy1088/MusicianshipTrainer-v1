@@ -59,7 +59,7 @@ class UIGlobals {
         }
     }
     static var rhythmTolerancePercent:Double = 30.0
-    
+    static var rhythmTapSoundOn = false
 }
 
 func hintButtonView(_ txt:String, selected:Bool = false) -> some View {
@@ -85,7 +85,6 @@ struct StandardButtonStyle: ButtonStyle {
 }
 
 extension Text {
-    
     func defaultButtonStyle(enabled:Bool = true) -> some View {
         self
             .font(UIDevice.current.userInterfaceIdiom == .pad ? UIGlobals.font : UIGlobals.fontiPhone)

@@ -179,8 +179,7 @@ struct ConfigSelectAgeMode: View {
 
     var body: some View {
         Picker("Select your Age", selection: $selectedIndex) {
-            let total = items.count
-            ForEach(0..<total) { index in
+            ForEach(0..<items.count) { index in
                 Text(items[index]).tag(index).font(.title)
             }
         }

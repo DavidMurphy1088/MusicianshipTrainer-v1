@@ -77,12 +77,7 @@ class DataCache {
             }
             let data = UserDefaults.standard.data(forKey: key)
             self.dataCache[key] = DataCacheEntry(wasLoadedFromExternal: false, data: data)
-            //if let data = data {
             return data
-            //}
-            //else {
-                //return nil
-            //}
         }
     }
 
@@ -356,6 +351,7 @@ class GoogleAPI {
             }
             else {
                 if loadedFromExternal {
+                    //self.logger.reportError(self, "Document data - the cache for file:[\(name)] in path:[\(cacheKey)] was empty")
                     onDone(.failed, nil)
                 }
             }
@@ -421,7 +417,7 @@ class GoogleAPI {
     
     func getAudioDataByFileName(pathSegments:[String],
                        fileName:String,
-                       reportError:Bool,
+                       reportError:Bool,                                
                            onDone: @escaping (_ status:RequestStatus, _ fromCache:Bool, _ document:Data?) -> Void)  {
         var cacheKey = ""
         for path in pathSegments {
@@ -431,25 +427,21 @@ class GoogleAPI {
         }
 
         cacheKey += fileName
-        let data = dataCache.getData(key: cacheKey)
+        let data:Data? = dataCache.getData(key: cacheKey)
         var loadedFromExternal = false
         if let entry = dataCache.getCacheEntry(cacheKey) {
             if entry.wasLoadedFromExternal {
+                ///Data was loaded from internal cache
                 loadedFromExternal = true
             }
         }
 
         if let data = data {
-//            if let document = String(data: data, encoding: .utf8) {
-//                onDone(.success, dataCache.hasCacheKey(cacheKey), data)
-//            }
-//            else {
-//                onDone(.failed, dataCache.hasCacheKey(cacheKey), nil)
-//            }
             onDone(.success, dataCache.hasCacheKey(cacheKey), data)
         }
         else {
             if loadedFromExternal {
+                self.logger.reportError(self, "Audio data - the cache for file:[\(fileName)] in path:[\(cacheKey)] was empty")
                 onDone(.failed, dataCache.hasCacheKey(cacheKey), nil)
             }
         }

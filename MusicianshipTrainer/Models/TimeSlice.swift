@@ -19,15 +19,14 @@ class TimeSlice : ScoreEntry {
     var score:Score
     var footnote:String?
     var barLine:Int = 0
-    private static var idIndex = 0
     var beatNumber:Double = 0.0 //the beat in the bar that the timeslice is at
+    
     //Used when recording a tap sequence into a score
     var tapDuration:Double
     
     init(score:Score) {
         self.score = score
         self.entries = []
-        TimeSlice.idIndex += 1
         tapDuration = 0.0
     }
     
@@ -47,14 +46,12 @@ class TimeSlice : ScoreEntry {
     func addNote(n:Note) {
         n.timeSlice = self
         self.entries.append(n)
-        //if let score = score {
-            let barAlreadyHasNote = score.noteCountForBar(pitch:n.midiNumber) > 1
-            for i in 0..<score.staffs.count {
-                n.setNotePlacementAndAccidental(staff: score.staffs[i], barAlreadyHasNote: barAlreadyHasNote)
-            }
-            score.updateStaffs()
-            score.addStemAndBeamCharaceteristics()
-        //}
+
+        for i in 0..<score.staffs.count {
+            n.setNotePlacementAndAccidental(staff: score.staffs[i], barAlreadyHasNote: score.noteCountForBar(pitch:n.midiNumber) > 1)
+        }
+        score.updateStaffs()
+        score.addStemAndBeamCharaceteristics()
     }
     
     func addRest(rest:Rest) {

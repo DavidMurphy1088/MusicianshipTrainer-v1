@@ -90,7 +90,7 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     }
     
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        setStatus("Recording stopped, status:\(flag ? "OK" : "Error")")
+        setStatus("Recording stopped, successfull status:\(flag ? "OK" : "Error")")
         AudioManager.shared.setSession(.playback)
     }
 
@@ -143,20 +143,32 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
     
     func playFromData(data:Data, onDone:@escaping ()->Void) {
         do {
-            print("+++=================================================== START PLAYING1 \(data.count)")
             self.audioPlayer = try AVAudioPlayer(data: data)
             if self.audioPlayer == nil {
                 Logger.logger.reportError(self, "playFromData, cannot create audio player")
                 return
             }
-            //var msg = "playback started, still recording? \(audioRecorder.isRecording)"
-            //setStatus(msg)
-            //Logger.logger.log(self, msg)
+            
+            ///Required else 2nd play fails...
+            if !self.audioPlayer.prepareToPlay() {
+                Logger.logger.reportError(self, ".prepareToPlay failed")
+                return
+            }
+
             self.playEndedNotify = onDone
             self.audioPlayer.delegate = self
-            print("+++=================================================== START PLAYING2 \(data.count)")
-            self.audioPlayer.play()
-            setStatus("Playback started, status:\(self.audioPlayer.isPlaying ? "OK" : "Error")")
+            if !self.audioPlayer.play() {
+                Logger.logger.reportError(self, ".play failed")
+                return
+            }
+
+            if self.audioPlayer.isPlaying {
+                setStatus("Playback started, status:\(self.audioPlayer.isPlaying ? "OK" : "Error")")
+            }
+            else {
+                Logger.logger.reportError(self, ".isPlaying is false")
+            }
+
         } catch let error {
             Logger.logger.reportError(self, "At Playback, start playing error", error)
         }
@@ -168,18 +180,16 @@ class AudioRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, 
         }
     }
     
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        setStatus("audioPlayerDecodeErrorDidOccur, status:\(String(describing: error?.localizedDescription))")
+        AudioManager.shared.setSession(.playback)
+    }
+
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        print("+++=================================================== STOP PLAYING1")
         setStatus("Playback stopped, status:\(flag ? "OK" : "Error")")
         if let playEndedNotify = self.playEndedNotify {
-            print("+++=================================================== STOP PLAYING2")
-
             playEndedNotify()
         }
-//        if let allDone = self.allDoneCallback {
-//            let status:RequestStatus = flag ? .success : .failed
-//            allDone(status)
-//        }
     }
     
     func getDocumentsDirectory() -> URL {

@@ -20,14 +20,7 @@ struct SelectIntervalView: View {
     
     ///When using hints random incorrect answer are disabled to make the question easier
     @Binding var hintCorrectAnswer:String
-    
-//    func x() -> Bool {
-//        if let hintCorrectAnswer = hintCorrectAnswer {
-//            intervals.setRandomSelected(correctIntervalName: hintCorrectAnswer)
-//        }
-//        return true
-//    }
-    
+        
     var body: some View {
         HStack(alignment: .top)  {
             let columns:Int = intervals.getVisualColumnCount()
@@ -111,10 +104,8 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         let staff = Staff(score: score, type: .treble, staffNum: 0, linesInStaff: 5)
         self.score.createStaff(num: 0, staff: staff)
         
-        var timeslice:TimeSlice?
         var chord:Chord?
         if questionType == .intervalAural {
-            timeslice = score.createTimeSlice()
             chord = Chord()
         }
         for timeSlice in score.getAllTimeSlices() {
@@ -127,9 +118,14 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             }
         }
         if let chord = chord {
-            timeslice?.addChord(c: chord)
+            ///We are adding the two notes as a chord for aural intervals
+            ///Add the chord after a bar line to make sure the chord note accidentals stay in place
+            ///Then remove the bar line
+            score.addBarLine()
+            let timeslice = score.createTimeSlice()
+            timeslice.addChord(c: chord)
+            score.scoreEntries.remove(at: 2)
         }
-        
     }
     
     func buildAnswer() {

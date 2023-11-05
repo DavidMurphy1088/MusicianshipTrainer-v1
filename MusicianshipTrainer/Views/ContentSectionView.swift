@@ -608,10 +608,19 @@ struct ExamView: View {
                     else {
                         self.examState = .failedToLoad
                     }
-            },
-            onNarrated: {
-                self.examState = .narrated
-            })
+                },
+                onNarrated: {
+                    if self.examState == .loadedAndNarrating {
+                        self.examState = .narrated
+                    }
+                })
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                ///5Nov2023 Added after much research into why the audio player can be given data to play but never plays it
+                ///and never throws an error. And therefore never notifies that the audio is narrated
+                if self.examState == .loadedAndNarrating {
+                    self.examState = .narrated
+                }
+            }
         }
         .onDisappear() {
             AudioRecorder.shared.stopPlaying()

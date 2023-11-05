@@ -50,12 +50,12 @@ struct CircularProgressView: View {
         ZStack {
             Circle()
                 .stroke(lineWidth: 5)
-                .opacity(0.3)
-                .foregroundColor(Color.blue)
+                .opacity(timeRemaining == 0 ? 1.0 : 0.3)
+                .foregroundColor(timeRemaining == 0 ? Color.red : Color.blue)
 
             Circle()
                 .trim(from: 0, to: progress)
-                .stroke(Color.blue, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                .stroke(timeRemaining == 0 ? Color.red : Color.blue, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .aspectRatio(contentMode: .fit)
 
@@ -64,5 +64,4 @@ struct CircularProgressView: View {
         }
     }
 }
-
 

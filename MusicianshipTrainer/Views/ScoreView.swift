@@ -122,7 +122,7 @@ struct ScoreView: View {
     }
     
     func getBarEditor() -> BarEditor? {
-        var editor = score.barEditor
+        let editor = score.barEditor
         if let editor = editor {
             editor.toggleState(0)
         }
@@ -180,7 +180,7 @@ struct ScoreView: View {
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
         .background(Settings.colorScore)
-        //.border(Color .red, width: 4)
+        //.border(Color .red, width: 2)
     }
 
 }

@@ -1,6 +1,78 @@
 import SwiftUI
 import CoreData
 import AVFoundation
+import SwiftUI
+import AVFoundation
+
+class SoundPlayer {
+    private var audioEngine: AVAudioEngine?
+    private var audioPlayerNodes: [AVAudioPlayerNode] = []
+    private var audioFile: AVAudioFile?
+    private var playerNodeIndex = 0
+    private let players = 4
+
+    init() {
+        setupAudio()
+    }
+
+    private func setupAudio() {
+        let engine = AVAudioEngine()
+        for _ in 0..<players {
+            let playerNode = AVAudioPlayerNode()
+            audioPlayerNodes.append(playerNode)
+            engine.attach(playerNode)
+        }
+        //let playerNode = AVAudioPlayerNode()
+                
+        //if let fileURL = Bundle.main.url(forResource: "tapSound", withExtension: "mp3"),
+        if let fileURL = Bundle.main.url(forResource: "pop-up-something-160353", withExtension: "mp3"),
+           let file = try? AVAudioFile(forReading: fileURL) {
+            for i in 0..<players {
+                let node = audioPlayerNodes[i]
+                engine.attach(node)
+                engine.connect(node, to: engine.mainMixerNode, format: file.processingFormat)
+            }
+            self.audioFile = file
+        }
+
+        audioEngine = engine
+        //audioPlayerNode = playerNode
+
+        do {
+            try engine.start()
+        } catch {
+            Logger.logger.reportError(self, "Error starting tap audio engine: \(error.localizedDescription)")
+        }
+    }
+
+    func playSound(volume: Float) {
+        guard let audioEngine = audioEngine,
+                //let audioPlayerNode = audioPlayerNode,
+                let audioFile = audioFile else { return }
+
+        if !audioEngine.isRunning {
+            do {
+                try audioEngine.start()
+            } catch {
+                print("Error starting audio engine: \(error.localizedDescription)")
+                return
+            }
+        }
+
+        audioPlayerNodes[playerNodeIndex].stop()
+        audioPlayerNodes[playerNodeIndex].volume = volume
+        audioPlayerNodes[playerNodeIndex].scheduleFile(audioFile, at: nil) {
+            // This closure is called when the audio finishes playing.
+        }
+        audioPlayerNodes[playerNodeIndex].play()
+        if playerNodeIndex < players-1 {
+            playerNodeIndex += 1
+        }
+        else {
+            playerNodeIndex = 0
+        }
+    }
+}
 
 class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, ObservableObject {
     static let shared = TapRecorder()
@@ -13,6 +85,8 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
 
     var metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "Tap Recorder init")
     var metronomeTempoAtRecordingStart:Int? = nil
+    let soundPlayer = SoundPlayer()
+    //let dateFormatter = DateFormatter()
     
     func setStatus(_ msg:String) {
         DispatchQueue.main.async {
@@ -38,13 +112,18 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         }
     }
     
-    func makeTap()  {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+    func makeTap(useSoundPlayer:Bool)  {
+        //dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
         let date = Date()
         self.tapTimes.append(date.timeIntervalSince1970)
-        //audioPlayer.play() Audio Player starts the tick too slowly for fast tempos and short value note and therefore throws of the tapping
-        AudioServicesPlaySystemSound(SystemSoundID(1104))
+        if useSoundPlayer {
+            soundPlayer.playSound(volume: 1.0)
+        }
+        else {
+            //audioPlayer.play() Audio Player starts the tick too slowly for fast tempos and short value note and therefore throws of the tapping
+            let sound = SystemSoundID(1104)
+            AudioServicesPlaySystemSound(sound)
+        }
     }
 
     func stopRecording(score:Score) -> ([Double]) {
@@ -63,27 +142,6 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         }
         return self.tappedValues
     }
-
-//    //Return the standard note value for a millisecond duration given the tempo input
-//    func roundNoteValueToStandardValueOld(inValue:Double, tempo:Int) -> Double? {
-//        let inValueAtTempo = (inValue * Double(tempo)) / 60.0
-//        if inValueAtTempo < 0.3 {
-//            return nil
-//        }
-//        if inValueAtTempo < 0.75 {
-//            return 0.5
-//        }
-//        if inValueAtTempo < 1.5 {
-//            return 1.0
-//        }
-//        if inValueAtTempo < 2.5 {
-//            return 2.0
-//        }
-//        if inValueAtTempo < 3.5 {
-//            return 3.0
-//        }
-//        return 4.0
-//    }
     
     //Return the standard note value for a millisecond duration given the tempo input
     //Handle dooted crotchets

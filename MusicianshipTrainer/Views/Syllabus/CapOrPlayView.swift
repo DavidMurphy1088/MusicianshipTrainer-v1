@@ -152,7 +152,7 @@ struct ClapOrPlayPresentView: View {
 
         case .melodyPlay:
             result += "\(bullet)Press Start Recording then "
-            result += "play the melody and the final chord."
+            result += "play the melody and the final chords."
             result += "\(linefeed)\(bullet)When you have finished, stop the recording."
             
         default:
@@ -175,7 +175,7 @@ struct ClapOrPlayPresentView: View {
         let lname = questionType == .melodyPlay ? "melody" : "rhythm"
         var practiceText = "You can adjust the metronome to hear the given \(lname) at varying tempi."
         if questionType == .melodyPlay {
-            practiceText += " You can also tap tap the picture of the metronome to practise along with the tick."
+            practiceText += " You can also tap the picture of the metronome to practise along with the tick."
         }
         return practiceText
     }
@@ -429,6 +429,7 @@ struct ClapOrPlayPresentView: View {
                                                 self.rhythmWasSimplified = false
                                             }) {
                                                 hintButtonView("Put Back The Question Rhythm", selected: false)
+                                                //Text("Put Back The Question Rhythm").submitAnswerButtonStyle()
                                             }
                                             .padding()
                                         }
@@ -783,7 +784,7 @@ struct ClapOrPlayAnswerView: View {
                         }
                     }) {
                         HStack {
-                            Text("Put Back The Question Rhythm").defaultButtonStyle()
+                            Text("Put Back The Question Rhythm").submitAnswerButtonStyle()
                         }
                     }
                 }
@@ -808,7 +809,7 @@ struct ClapOrPlayAnswerView: View {
                                 Button(action: {
                                     answerState = .notEverAnswered
                                 }) {
-                                    Text("Try Again").defaultButtonStyle()
+                                    Text("Try Again").submitAnswerButtonStyle() //defaultButtonStyle()
                                 }
                                 .padding()
                             }

@@ -44,11 +44,11 @@ struct BarEditorView: View {
             ZStack {
                 ForEach(getPositions(), id: \.self.0) { indexAndPos in
                     let barWidth = (indexAndPos.2 - indexAndPos.1)
-                    VStack {
+                    HStack {
                         if indexAndPos.0 < barEditor.selectedBarStates.count {
                             if barEditor.selectedBarStates[indexAndPos.0] {
                                 if score.scoreEntries.count > 1 {
-                                    Text("Delete Bar \(indexAndPos.0+1)").defaultTextStyle()
+                                    //Text("Delete Bar \(indexAndPos.0+1)").defaultTextStyle()
                                     HStack {
                                         Button(action: {
                                             barEditor.reWriteBar(targetBar: indexAndPos.0, way: .delete)
@@ -72,7 +72,7 @@ struct BarEditorView: View {
                     }
                     .position(x:indexAndPos.2 - barWidth/2.0, y:0)
                     .frame(height: lineSpacing * 12.0)
-                    .border(Color.red)
+                    //.border(Color .green, width: 2)
                     
                     ///Hilite every bar with shading
                     GeometryReader { geometry in
@@ -95,7 +95,7 @@ struct BarEditorView: View {
             
             .onAppear() {
                 showHelp = true
-                Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { _ in
+                Timer.scheduledTimer(withTimeInterval: 8.0, repeats: false) { _ in
                     showHelp = false
                 }
             }

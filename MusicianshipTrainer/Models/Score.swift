@@ -174,32 +174,33 @@ class Score : ObservableObject {
         return result
     }
 
-    func debugScorex(_ ctx:String, withBeam:Bool) {
+    func debugScore(_ ctx:String, withBeam:Bool) {
         print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
             if t.entries.count == 0 {
                 print("ZERO ENTRIES")
                 continue
             }
-            let note = t.entries[0] as? Note
-            if withBeam {
-                print("  Seq", t.sequence, "type:", type(of: t.entries[0]), "midi:", note?.midiNumber ?? "0", "Value:", t.getValue() ?? "", "[beamType:", note?.beamType ?? "__",
-                      "beamEnd", note?.beamEndNote ?? "__", "]")
-            }
-            else {
-                print("  Seq", t.sequence,
-                      "[type:", type(of: t.entries[0]), "]",
-                      "[midi:",note?.midiNumber ?? "0", "]",
-                      "[Value:",note?.getValue(),"]",
-                      "[TapDuration:",t.tapDuration,"]",
-                      "[Accidental:",note?.accidental,"]",
-                      "[Staff:",note?.staffNum,"]",
-                      "[stem:",note?.stemDirection ?? "none", note?.stemLength ?? "none", "]",
-                      "[placement:",note?.noteStaffPlacements[0]?.offsetFromStaffMidline ?? "none", note?.noteStaffPlacements[0]?.accidental ?? "none","]",
-                      t.getValue() ?? "",
-                      "status",t.statusTag,
-                      "tagHigh", t.tagHigh
-                )
+            for note in t.getTimeSliceNotes() {
+                if withBeam {
+                    print("  Seq", t.sequence, "type:", type(of: t.entries[0]), "midi:", note.midiNumber, "Value:", t.getValue() , "[beamType:", note.beamType,
+                          "beamEnd", note.beamEndNote ?? "", "]")
+                }
+                else {
+                    print("  Seq", t.sequence,
+                          "[type:", type(of: t.entries[0]), "]",
+                          "[midi:",note.midiNumber, "]",
+                          "[Value:",note.getValue(),"]",
+                          "[TapDuration:",t.tapDuration,"]",
+                          "[Accidental:",note.accidental ?? "","]",
+                          "[Staff:",note.staffNum,"]",
+                          "[stem:",note.stemDirection, note.stemLength, "]",
+                          "[placement:",note.noteStaffPlacements[0]?.offsetFromStaffMidline ?? "none", note.noteStaffPlacements[0]?.accidental ?? "none","]",
+                          t.getValue() ,
+                          "status",t.statusTag,
+                          "tagHigh", t.tagHigh ?? ""
+                    )
+                }
             }
         }
     }
@@ -792,6 +793,16 @@ class Score : ObservableObject {
     func searchTimeSlices(searchFunction:(_:TimeSlice)->Bool) -> [TimeSlice]  {
         var result:[TimeSlice] = []
         for entry in self.getAllTimeSlices() {
+            if searchFunction(entry) {
+                result.append(entry)
+            }
+        }
+        return result
+    }
+    
+    func searchEntries(searchFunction:(_:ScoreEntry)->Bool) -> [ScoreEntry]  {
+        var result:[ScoreEntry] = []
+        for entry in self.scoreEntries {
             if searchFunction(entry) {
                 result.append(entry)
             }

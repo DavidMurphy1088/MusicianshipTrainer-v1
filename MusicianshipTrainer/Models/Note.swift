@@ -364,7 +364,7 @@ class Note : TimeSliceEntry, Comparable {
     ///default staff offset based on the written accidental. e.g. a note at MIDI 75 would be defaulted to show as E ♭ in C major but may be speciifed to show as D# by a written
     ///accidentail. In that case the note must shift down 1 unit of offset.
     ///
-    func setNotePlacementAndAccidental(staff:Staff, barAlreadyHasNote:Bool) { //}-> NoteStaffPlacement {
+    func setNotePlacementAndAccidental(staff:Staff, barAlreadyHasNote:Bool) {
         let defaultNoteData = staff.getNoteViewPlacement(note: self)
         var offsetFromMiddle = defaultNoteData.offsetFromStaffMidline
         var offsetAccidental:Int? = nil

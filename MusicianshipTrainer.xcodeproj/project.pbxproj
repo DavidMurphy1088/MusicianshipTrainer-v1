@@ -17,7 +17,6 @@
 		7B28079A2A5508D300C70EF4 /* Intervals Visual.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078D2A5508D200C70EF4 /* Intervals Visual.html */; };
 		7B28079B2A5508D300C70EF4 /* Ex1_Sine_Short.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */; };
 		7B28079C2A5508D300C70EF4 /* Clapping.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B28078F2A5508D200C70EF4 /* Clapping.html */; };
-		7B28079D2A5508D300C70EF4 /* open-clap_F_minor.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807902A5508D200C70EF4 /* open-clap_F_minor.wav */; };
 		7B28079E2A5508D300C70EF4 /* Playing.html in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807912A5508D200C70EF4 /* Playing.html */; };
 		7B28079F2A5508D300C70EF4 /* clap-single-inspectorj.wav in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807922A5508D200C70EF4 /* clap-single-inspectorj.wav */; };
 		7B2807A12A5508D300C70EF4 /* Mechanical metronome - Low.aif in Resources */ = {isa = PBXBuildFile; fileRef = 7B2807942A5508D200C70EF4 /* Mechanical metronome - Low.aif */; };
@@ -84,6 +83,7 @@
 		7BA8B70B2AB3D8D900AE7692 /* TTS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA8B70A2AB3D8D900AE7692 /* TTS.swift */; };
 		7BB835492A5555130083C1C0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7BB835482A5555130083C1C0 /* FirebaseFirestore */; };
 		7BBB9CCE2AF1B26900E4DDAB /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBB9CCD2AF1B26900E4DDAB /* CountdownTimer.swift */; };
+		7BBB9CD22AF7783C00E4DDAB /* pop-up-something-160353.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7BBB9CD12AF7783B00E4DDAB /* pop-up-something-160353.mp3 */; };
 		7BC42EB22A550F39004FE117 /* AudioNotes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB12A550F39004FE117 /* AudioNotes */; };
 		7BC42EB42A550F4E004FE117 /* GPTQuestions in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB32A550F4E004FE117 /* GPTQuestions */; };
 		7BC42EB62A550F63004FE117 /* Notes in Resources */ = {isa = PBXBuildFile; fileRef = 7BC42EB52A550F62004FE117 /* Notes */; };
@@ -133,7 +133,6 @@
 		7B28078D2A5508D200C70EF4 /* Intervals Visual.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "Intervals Visual.html"; sourceTree = "<group>"; };
 		7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Ex1_Sine_Short.wav; sourceTree = "<group>"; };
 		7B28078F2A5508D200C70EF4 /* Clapping.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Clapping.html; sourceTree = "<group>"; };
-		7B2807902A5508D200C70EF4 /* open-clap_F_minor.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "open-clap_F_minor.wav"; sourceTree = "<group>"; };
 		7B2807912A5508D200C70EF4 /* Playing.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Playing.html; sourceTree = "<group>"; };
 		7B2807922A5508D200C70EF4 /* clap-single-inspectorj.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "clap-single-inspectorj.wav"; sourceTree = "<group>"; };
 		7B2807942A5508D200C70EF4 /* Mechanical metronome - Low.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mechanical metronome - Low.aif"; sourceTree = "<group>"; };
@@ -200,6 +199,7 @@
 		7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = GoogleAPI.plist; sourceTree = "<group>"; };
 		7BA8B70A2AB3D8D900AE7692 /* TTS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTS.swift; sourceTree = "<group>"; };
 		7BBB9CCD2AF1B26900E4DDAB /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
+		7BBB9CD12AF7783B00E4DDAB /* pop-up-something-160353.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "pop-up-something-160353.mp3"; sourceTree = "<group>"; };
 		7BC42EB12A550F39004FE117 /* AudioNotes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AudioNotes; sourceTree = "<group>"; };
 		7BC42EB32A550F4E004FE117 /* GPTQuestions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GPTQuestions; sourceTree = "<group>"; };
 		7BC42EB52A550F62004FE117 /* Notes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Notes; sourceTree = "<group>"; };
@@ -271,10 +271,10 @@
 			children = (
 				7B2807922A5508D200C70EF4 /* clap-single-inspectorj.wav */,
 				7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */,
+				7BBB9CD12AF7783B00E4DDAB /* pop-up-something-160353.mp3 */,
 				7B28078C2A5508D200C70EF4 /* Mechanical metronome - High.aif */,
 				7B2807942A5508D200C70EF4 /* Mechanical metronome - Low.aif */,
 				7B2807A62A550D2E00C70EF4 /* Nice-Steinway-v3.8.sf2 */,
-				7B2807902A5508D200C70EF4 /* open-clap_F_minor.wav */,
 				7B84261B2AD55C0700A74C9A /* VS_Upright_Piano_lite.sf2 */,
 			);
 			path = Sounds;
@@ -621,10 +621,10 @@
 				7B28079C2A5508D300C70EF4 /* Clapping.html in Resources */,
 				7B28079F2A5508D300C70EF4 /* clap-single-inspectorj.wav in Resources */,
 				7B2807A32A5508D300C70EF4 /* Intervals Aural.html in Resources */,
-				7B28079D2A5508D300C70EF4 /* open-clap_F_minor.wav in Resources */,
 				7BFD93B02A5FA9E3002878D3 /* NameToTitleMap.plist in Resources */,
 				7B2807992A5508D300C70EF4 /* Mechanical metronome - High.aif in Resources */,
 				7B28079E2A5508D300C70EF4 /* Playing.html in Resources */,
+				7BBB9CD22AF7783C00E4DDAB /* pop-up-something-160353.mp3 in Resources */,
 				7B0659C82A6C96B4007A71CA /* Google_OAuth2_Keys_OLD.json in Resources */,
 				7B8EF2F82A6B4A4B00EA088E /* GoogleAPI.plist in Resources */,
 				7BC42EB42A550F4E004FE117 /* GPTQuestions in Resources */,
@@ -978,7 +978,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 33;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;
@@ -1012,7 +1012,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 33;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;
