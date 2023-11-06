@@ -58,25 +58,22 @@ class StudentFeedback : ObservableObject {
     var tempo:Int? = nil
 }
 
-class StaffLayoutSize: ObservableObject {
-    @Published var lineSpacing:Double
-
-    init () {
-        self.lineSpacing = 0.0
-    }
-
-    func setLineSpacing(_ v:Double) {
-        DispatchQueue.main.async {
-            self.lineSpacing = v
-        }
-    }
-
-    func getStaffHeight(score:Score) -> Double {
-        //leave enough space above and below the staff for the Timeslice view to show its tags
-        let height = Double(score.getTotalStaffLineCount() + 2) * self.lineSpacing
-        return height
-    }
-}
+//class StaffLayoutSize: ObservableObject {
+//    @Published var lineSpacing:Double
+//
+//    init () {
+//        //self.lineSpacing = 0.0
+//        self.lineSpacing = 15.0
+//    }
+//
+//    func setLineSpacing(_ v:Double) {
+//        DispatchQueue.main.async {
+//            self.lineSpacing = v
+//        }
+//    }
+//
+//
+//}
 
 class Score : ObservableObject {
     let id:UUID
@@ -87,14 +84,15 @@ class Score : ObservableObject {
     @Published var barEditor:BarEditor?
 
     @Published var scoreEntries:[ScoreEntry] = []
-    @Published var staffLayoutSize:StaffLayoutSize = StaffLayoutSize()
+    //@Published var staffLayoutSize:StaffLayoutSize = StaffLayoutSize()
     
     let ledgerLineCount =  2 //3//4 is required to represent low E
     var staffs:[Staff] = []
     
     var studentFeedback:StudentFeedback? = nil
     var tempo:Int?
-
+    var lineSpacing = 15.0
+    
     private var totalStaffLineCount:Int = 0
     static var accSharp = "\u{266f}"
     static var accNatural = "\u{266e}"
@@ -107,11 +105,17 @@ class Score : ObservableObject {
         totalStaffLineCount = linesPerStaff + (2*ledgerLineCount)
         self.key = key
         barLayoutPositions = BarLayoutPositions()
-        self.staffLayoutSize = StaffLayoutSize()
+        //self.staffLayoutSize = StaffLayoutSize()
     }
     
     func createBarEditor(onEdit: @escaping (_ wasChanged:Bool) -> Void) {
         self.barEditor = BarEditor(score: self, onEdit: onEdit)
+    }
+    
+    func getStaffHeight() -> Double {
+        //leave enough space above and below the staff for the Timeslice view to show its tags
+        let height = Double(getTotalStaffLineCount() + 2) * self.lineSpacing
+        return height
     }
     
     func getBarCount() -> Int {
@@ -174,7 +178,7 @@ class Score : ObservableObject {
         return result
     }
 
-    func debugScore(_ ctx:String, withBeam:Bool) {
+    func debugScorex(_ ctx:String, withBeam:Bool) {
         print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
             if t.entries.count == 0 {

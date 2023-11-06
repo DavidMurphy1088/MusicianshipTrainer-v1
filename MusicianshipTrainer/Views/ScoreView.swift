@@ -40,13 +40,13 @@ struct FeedbackView: View {
 
 struct ScoreView: View {
     @ObservedObject var score:Score
-    @ObservedObject var staffLayoutSize:StaffLayoutSize
+    //@ObservedObject var staffLayoutSize:StaffLayoutSize
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @State private var dragOffset = CGSize.zero
     
     init(score:Score) {
         self.score = score
-        self.staffLayoutSize = score.staffLayoutSize //StaffLayoutSize(lineSpacing: UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0)
+        //self.staffLayoutSize = score.staffLayoutSize //StaffLayoutSize(lineSpacing: UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0)
         //self.staffLayoutSize.lineSpacing = 0.0
         //setOrientationLineSize(ctx: "ScoreView::init")
     }
@@ -58,17 +58,18 @@ struct ScoreView: View {
         //var lastStaff:Staff? = nil
         for staff in score.staffs {
             if !staff.isHidden {
-                height += staffLayoutSize.lineSpacing
+                height += score.lineSpacing
             }
             //lastStaff = staff
         }
         if score.barEditor != nil {
-            height += staffLayoutSize.lineSpacing * 1.0
+            height += score.lineSpacing * 1.0
         }
         return height
     }
     
     func setOrientationLineSize(ctx:String, geometryWidth:Double) {
+        ///Nov2023 NEVER USE THIS AGAIN. Set the line spacing based on some other criteria than the size of the screen
         //Absolutley no idea - the width reported here decreases in landscape mode so use height (which increases)
         //https://www.hackingwithswift.com/quick-start/swiftui/how-to-detect-device-rotation
         var lineSpacing:Double
@@ -112,12 +113,13 @@ struct ScoreView: View {
 //        }
 //        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", ls)
         //UIGlobals.showDeviceOrientation()
-//        print("👉 👉 =====> setOrientationLineSize",
-//              "Score:", score.id.uuidString.suffix(4),
-//              "Width:", geometryWidth,
-//              "Context:", ctx,
-//              "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
-        self.staffLayoutSize.setLineSpacing(lineSpacing)
+        print("👉 👉 =====> setOrientationLineSize",
+              "Score:", score.id.uuidString.suffix(4),
+              "Width:", geometryWidth,
+              "Context:", ctx,
+              "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
+
+        //self.staffLayoutSize.setLineSpacing(lineSpacing)
         //return lineSpacing
     }
     
@@ -134,13 +136,14 @@ struct ScoreView: View {
               "Score:", score.id.uuidString.suffix(4),
               //"Width:", geometryWidth,
               //"Portrait?", UIDevice.current.orientation.isPortrait
-              "lineSpacing", self.staffLayoutSize.lineSpacing)
+              "lineSpacing", self.lineSpacing)
 
         return ""
     }
     
     var body: some View {
         VStack {
+            let x = logx()
             if let feedback = score.studentFeedback {
                 FeedbackView(score: score, studentFeedback: feedback)
             }
@@ -150,28 +153,23 @@ struct ScoreView: View {
                     if !staff.isHidden {
                         ZStack {
                             StaffView(score: score, staff: staff)
-                                .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                                .frame(height: score.getStaffHeight())
                                 //.border(Color .red, width: 2)
                             
                             if getBarEditor() != nil {
                                 BarEditorView(score: score)
-                                    .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                                    .frame(height: score.getStaffHeight())
                             }
                         }
                     }
                 }
             }
         }
-        .background(
-            ///This is required to get the size of the score view
-            GeometryReader { geometry in
-                Color.clear.onAppear {
-                    self.setOrientationLineSize(ctx: "🤢.background", geometryWidth: geometry.size.width)
-                    UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-                }
-            }
-        )
-        
+
+        .onAppear() {
+            //self.setOrientationLineSize(ctx: "🤢.Score View .onAppear", geometryWidth: geometry.size.width)
+            UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        }
         .onDisappear {
             UIDevice.current.endGeneratingDeviceOrientationNotifications()
         }

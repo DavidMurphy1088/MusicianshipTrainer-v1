@@ -3,8 +3,8 @@ import CoreData
 import MessageUI
 
 struct StaffLinesView: View {
+    var score:Score
     @ObservedObject var staff:Staff
-    var staffLayoutSize:StaffLayoutSize
 
     var body: some View {
         GeometryReader { geometry in
@@ -13,7 +13,7 @@ struct StaffLinesView: View {
                 if staff.linesInStaff > 1 {
                     ForEach(-2..<3) { row in
                         Path { path in
-                            let y:Double = (geometry.size.height / 2.0) + Double(row) * staffLayoutSize.lineSpacing
+                            let y:Double = (geometry.size.height / 2.0) + Double(row) * score.lineSpacing
                             path.move(to: CGPoint(x: 0, y: y))
                             path.addLine(to: CGPoint(x: geometry.size.width, y: y))
                         }
@@ -33,15 +33,15 @@ struct StaffLinesView: View {
                 // end of staff bar lines
                 
                 let x:Double = geometry.size.width - 2.0
-                let top:Double = (geometry.size.height/2.0) + Double(2 * staffLayoutSize.lineSpacing)
-                let bottom:Double = (geometry.size.height/2.0) - Double(2 * staffLayoutSize.lineSpacing)
+                let top:Double = (geometry.size.height/2.0) + Double(2 * score.lineSpacing)
+                let bottom:Double = (geometry.size.height/2.0) - Double(2 * score.lineSpacing)
                 
                 Path { path in
                     path.move(to: CGPoint(x: x, y: top))
                     path.addLine(to: CGPoint(x: x, y: bottom))
                 }
-                .stroke(Color.black, lineWidth: Double(staffLayoutSize.lineSpacing) / 3)
-                let x1:Double = geometry.size.width - (Double(staffLayoutSize.lineSpacing) * 0.7)
+                .stroke(Color.black, lineWidth: Double(score.lineSpacing) / 3)
+                let x1:Double = geometry.size.width - (Double(score.lineSpacing) * 0.7)
                 Path { path in
                     path.move(to: CGPoint(x: x1, y: top))
                     path.addLine(to: CGPoint(x: x1, y: bottom))
@@ -88,21 +88,22 @@ struct TimeSignatureView: View {
 }
 
 struct CleffView: View {
+    var score:Score
     @ObservedObject var staff:Staff
-    @ObservedObject var staffLayoutSize:StaffLayoutSize
+    //@ObservedObject var staffLayoutSize:StaffLayoutSize
 
     var body: some View {
         HStack {
             if staff.type == StaffType.treble {
                 VStack {
-                    Text("\u{1d11e}").font(.system(size: CGFloat(staffLayoutSize.lineSpacing * 10)))
+                    Text("\u{1d11e}").font(.system(size: CGFloat(score.lineSpacing * 10)))
                         .padding(.top, 0.0)
-                        .padding(.bottom, staffLayoutSize.lineSpacing * 1.0)
+                        .padding(.bottom, score.lineSpacing * 1.0)
                 }
                 //.border(Color.red)
             }
             else {
-                Text("\u{1d122}").font(.system(size: CGFloat(Double(staffLayoutSize.lineSpacing) * 6.5)))
+                Text("\u{1d122}").font(.system(size: CGFloat(Double(score.lineSpacing) * 6.5)))
             }
         }
         //.border(Color.green)
@@ -110,8 +111,7 @@ struct CleffView: View {
 }
 
 struct KeySignatureView: View {
-    @ObservedObject var score:Score
-    var lineSpacing:Double
+    var score:Score
     var staffOffsets:[Int]
     
     func getWidthMultiplier() -> Double {
@@ -129,12 +129,11 @@ struct KeySignatureView: View {
                     Image("sharp")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: lineSpacing * getWidthMultiplier())
-                        .offset(y: 0 - Double(offset) * lineSpacing / 2.0)
+                        .frame(width: score.lineSpacing * getWidthMultiplier())
+                        .offset(y: 0 - Double(offset) * score.lineSpacing / 2.0)
                 }
                 .padding(0)
-                .frame(width: lineSpacing * getWidthMultiplier())
-                //.border(Color.blue)
+                .frame(width: score.lineSpacing * getWidthMultiplier())
             }
         }
     }
@@ -143,7 +142,7 @@ struct KeySignatureView: View {
 struct StaffView: View {
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
-    @ObservedObject var staffLayoutSize:StaffLayoutSize //= StaffLayoutSize(lineSpacing: 0)
+    //@ObservedObject var staffLayoutSize:StaffLayoutSize //= StaffLayoutSize(lineSpacing: 0)
     
     @State private var rotationId: UUID = UUID()
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -154,12 +153,11 @@ struct StaffView: View {
     init (score:Score, staff:Staff) {
         self.score = score
         self.staff = staff
-        self.staffLayoutSize = score.staffLayoutSize
-        //self.staffLayoutSize = staffLayoutSize
+
     }
     
     func clefWidth() -> Double {
-        return Double(staffLayoutSize.lineSpacing) * 3.0
+        return Double(score.lineSpacing) * 3.0
     }
     
     func getNotes(entry:ScoreEntry) -> [Note] {
@@ -216,33 +214,33 @@ struct StaffView: View {
     
     var body: some View {
         ZStack { // The staff lines view and everything else on the staff share the same space
-            StaffLinesView(staff: staff, staffLayoutSize: staffLayoutSize)
-                .frame(height: staffLayoutSize.getStaffHeight(score: score))
+            StaffLinesView(score:score, staff: staff)
+                .frame(height: score.getStaffHeight())
                 //.border(Color .indigo, width: 3)
             HStack(spacing: 0) {
                 if staff.linesInStaff != 1 {
-                    CleffView(staff: staff, staffLayoutSize: staffLayoutSize)
-                        .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                    CleffView(score:score, staff: staff)
+                        .frame(height: score.getStaffHeight())
                     //.border(Color.red)
                     if score.key.keySig.accidentalCount > 0 {
-                        KeySignatureView(score: score, lineSpacing: staffLayoutSize.lineSpacing,
+                        KeySignatureView(score: score,
                                          staffOffsets: keySigOffsets(staff: staff, keySignture: score.key.keySig))
-                            .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                            .frame(height: score.getStaffHeight())
                     }
                 }
 
-                TimeSignatureView(staff: staff, timeSignature: score.timeSignature, lineSpacing: staffLayoutSize.lineSpacing, clefWidth: clefWidth()/1.0)
-                    .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                TimeSignatureView(staff: staff, timeSignature: score.timeSignature, lineSpacing: score.lineSpacing, clefWidth: clefWidth()/1.0)
+                    .frame(height: score.getStaffHeight())
                 //    .border(Color.red)
 
-                ScoreEntriesView(score: score, staff: staff, lineSpacing: staffLayoutSize)
-                    .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                ScoreEntriesView(score: score, staff: staff)
+                    .frame(height: score.getStaffHeight())
                     .coordinateSpace(name: "StaffNotesView")
             }
             
         }
         .coordinateSpace(name: "StaffView.ZStack")
-        .frame(height: staffLayoutSize.getStaffHeight(score: score))
+        .frame(height: score.getStaffHeight())
         //.border(Color .blue, width: 2)
     }
 }

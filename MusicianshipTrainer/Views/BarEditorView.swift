@@ -5,32 +5,56 @@ import SwiftUI
 struct BarEditorView: View {
     @ObservedObject var score:Score
     @ObservedObject var barEditor:BarEditor
-    let lineSpacing:Double
     @State private var showHelp = false
     
     init (score:Score) {
         self.score = score
         self.barEditor = score.barEditor!
-        self.lineSpacing = score.staffLayoutSize.lineSpacing
+    }
+    
+    func getNoteCountsPerBar() -> [Int] {
+        var result:[Int] = []
+        let entries = score.scoreEntries
+        var count = 0
+        for entry in entries {
+            if entry is BarLine {
+                result.append(count)
+                count = 0
+            }
+            if entry is TimeSlice {
+                count += 1
+            }
+        }
+        result.append(count)
+        return result
     }
     
     ///Return the bar index number and the start and end x span of the bar's postion on the UI
     func getPositions() -> [(Int, CGFloat, CGFloat)] {
         var barLineCovers:[(CGFloat, CGFloat)] = []
+        var totalBarLengths = 0.0
         for p in score.barLayoutPositions.positions {
             barLineCovers.append((p.value.minX, p.value.maxX))
+            totalBarLengths += p.value.maxX - p.value.minX
         }
         let sortedBarLineCovers = barLineCovers.sorted{ $0.0 < $1.0}
-        
+        ///The barLayoutPositions dont include the last bar. So calculate the average width per note and make the last bar that width * the number of notes in the last bar
+        var noteCounts = getNoteCountsPerBar()
+        let noteCount = noteCounts.dropLast().reduce(0, +)
+        var avgLen = 0.0
+        if noteCount > 0 {
+            avgLen = totalBarLengths / Double(noteCount)
+        }
         var barCovers:[(Int, CGFloat, CGFloat)] = []
-        let edgeBarWidth = 40.0
-        var nextX = edgeBarWidth
+        let startEdgeWidth = 40.0
+        let endBarLen = avgLen * Double(noteCounts[noteCounts.count-1])
+        var nextX = startEdgeWidth
 
         for i in 0..<sortedBarLineCovers.count {
             barCovers.append((i, nextX, sortedBarLineCovers[i].0)) //sortedBarLineCovers[i].0))
             nextX = sortedBarLineCovers[i].1
         }
-        barCovers.append((sortedBarLineCovers.count, nextX, nextX + edgeBarWidth * 3.0))
+        barCovers.append((sortedBarLineCovers.count, nextX, nextX + endBarLen * 3.0))
         return barCovers
     }
     
@@ -40,7 +64,7 @@ struct BarEditorView: View {
            
     var body: some View {
         if let barEditor = score.barEditor {
-            let iconWidth = lineSpacing * 3.0
+            let iconWidth = score.lineSpacing * 3.0
             ZStack {
                 ForEach(getPositions(), id: \.self.0) { indexAndPos in
                     let barWidth = (indexAndPos.2 - indexAndPos.1)
@@ -71,7 +95,7 @@ struct BarEditorView: View {
                         }
                     }
                     .position(x:indexAndPos.2 - barWidth/2.0, y:0)
-                    .frame(height: lineSpacing * 12.0)
+                    .frame(height: score.lineSpacing * 12.0)
                     //.border(Color .green, width: 2)
                     
                     ///Hilite every bar with shading
@@ -79,7 +103,7 @@ struct BarEditorView: View {
                         if indexAndPos.0 < barEditor.selectedBarStates.count {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(getColor(way: barEditor.selectedBarStates[indexAndPos.0]))
-                                .frame(width: barWidth, height: lineSpacing * 8.0) //130
+                                .frame(width: barWidth, height: score.lineSpacing * 8.0) //130
                                 .onTapGesture {
                                     barEditor.toggleState(indexAndPos.0)
                                 }

@@ -49,18 +49,18 @@ struct StemView: View {
     @State var staff: Staff
     @State var notePositionLayout: NoteLayoutPositions
     var notes: [Note]
-    @ObservedObject var lineSpacing:StaffLayoutSize
+    //@ObservedObject var lineSpacing:StaffLayoutSize
     
     func getStemLength() -> Double {
         var len = 0.0
         if notes.count > 0 {
-            len = notes[0].stemLength * lineSpacing.lineSpacing
+            len = notes[0].stemLength * score.lineSpacing
         }
         return len
     }
     
     func getNoteWidth() -> Double {
-        return lineSpacing.lineSpacing * 1.2
+        return score.lineSpacing * 1.2
     }
 
     func midPointXOffset(notes:[Note], staff:Staff, stemDirection:Double) -> Double {
@@ -79,6 +79,7 @@ struct StemView: View {
 //        return true
 //    }
 //
+    
     func getStaffNotes(staff:Staff) -> [Note] {
         var notes:[Note] = []
         for n in self.notes {
@@ -107,7 +108,7 @@ struct StemView: View {
                                 //let midX = geo.size.width / 2.0 + (stemDirection * -1.0 * noteWidth / 2.0)
                                 let midX = (geo.size.width + (midPointXOffset(notes: notes, staff: staff, stemDirection: stemDirection))) / 2.0
                                 let midY = geo.size.height / 2.0
-                                let offsetY = CGFloat(notes[0].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                                let offsetY = CGFloat(notes[0].getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * score.lineSpacing + inErrorAjdust
                                 Path { path in
                                     path.move(to: CGPoint(x: midX, y: midY - offsetY))
                                     path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
@@ -122,15 +123,13 @@ struct StemView: View {
 
                         ZStack {
                             ForEach(staffNotes) { note in
-                                //let pp = note.getNoteDisplayCharacteristics(staff: staff)
-                            
-                                let stemDirection = note.stemDirection == .up ? -1.0 : 1.0 //stemDirection(note: furthestFromMidline)
+                                let stemDirection = note.stemDirection == .up ? -1.0 : 1.0
                                 let midX:Double = (geo.size.width + (midPointXOffset(notes: staffNotes, staff: staff, stemDirection: stemDirection))) / 2.0
                                 let midY = geo.size.height / 2.0
                                 let inErrorAjdust = 0.0 //note.noteTag == .inError ? lineSpacing.lineSpacing/2.0 : 0
                                 
                                 if note.getValue() != Note.VALUE_WHOLE {
-                                    let offsetY = CGFloat(note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * lineSpacing.lineSpacing + inErrorAjdust
+                                    let offsetY = CGFloat(note.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline) * 0.5 * score.lineSpacing + inErrorAjdust
                                     Path { path in
                                         path.move(to: CGPoint(x: midX, y: midY - offsetY))
                                         path.addLine(to: CGPoint(x: midX, y: midY - offsetY + (stemDirection * (getStemLength() - inErrorAjdust))))
@@ -152,16 +151,16 @@ struct ScoreEntriesView: View {
 
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
-    @ObservedObject var staffLayoutSize:StaffLayoutSize
+    //@ObservedObject var staffLayoutSize:StaffLayoutSize
     
     static var viewNum:Int = 0
     let noteOffsetsInStaffByKey = NoteOffsetsInStaffByKey()
     let viewNum:Int
     
-    init(score:Score, staff:Staff, lineSpacing:StaffLayoutSize) {
+    init(score:Score, staff:Staff) {
         self.score = score        
         self.staff = staff
-        self.staffLayoutSize = lineSpacing
+        //self.staffLayoutSize = lineSpacing
         self.noteLayoutPositions = staff.noteLayoutPositions
         self.barLayoutPositions = score.barLayoutPositions
         ScoreEntriesView.viewNum += 1
@@ -191,7 +190,7 @@ struct ScoreEntriesView: View {
             let yEndMid = endNotePos.origin.y + endNotePos.size.height / 2.0
             
             let endPitchOffset = endNote.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
-            let yEndNoteMiddle:Double = yEndMid + (Double(endPitchOffset) * getLineSpacing() * -0.5)
+            let yEndNoteMiddle:Double = yEndMid + (Double(endPitchOffset) * score.lineSpacing * -0.5)
             let yEndNoteStemTip = yEndNoteMiddle + stemLength * stemDirection
             
             //start note
@@ -200,7 +199,7 @@ struct ScoreEntriesView: View {
                 let xStartMid = startNotePos.origin.x + startNotePos.size.width / 2.0 + (noteWidth / 2.0 * stemDirection * -1.0)
                 let yStartMid = startNotePos.origin.y + startNotePos.size.height / 2.0
                 let startPitchOffset = startNote.getNoteDisplayCharacteristics(staff: staff).offsetFromStaffMidline
-                let yStartNoteMiddle:Double = yStartMid + (Double(startPitchOffset) * getLineSpacing() * -0.5)
+                let yStartNoteMiddle:Double = yStartMid + (Double(startPitchOffset) * score.lineSpacing * -0.5)
                 let yStartNoteStemTip = yStartNoteMiddle + stemLength * stemDirection
                 let p1 = CGPoint(x:xEndMid, y: yEndNoteStemTip)
                 let p2 = CGPoint(x:xStartMid, y:yStartNoteStemTip)
@@ -210,9 +209,9 @@ struct ScoreEntriesView: View {
         return nil
     }
         
-    func getLineSpacing() -> Double {
-        return self.staffLayoutSize.lineSpacing
-    }
+//    func getLineSpacing() -> Double {
+//        return self.lineSpacing
+//    }
 
     func getQuaverImage(note:Note) -> Image {
         return Image(note.midiNumber > 71 ? "quaver_arm_flipped_grayscale" : "quaver_arm_grayscale")
@@ -256,9 +255,8 @@ struct ScoreEntriesView: View {
     }
     
     var body: some View {
-        ZStack { //ZStack - notes and quaver beam drawing shares same space
-            //let lineSpacing = self.getLineSpacing()
-            let noteWidth = getLineSpacing() * 1.2
+        ZStack {
+            let noteWidth = score.lineSpacing * 1.2
             HStack(spacing: 0) { //HStack - score entries display along the staff
                 ForEach(score.scoreEntries) { entry in
                     ZStack { //VStack - required in forEach closure
@@ -268,7 +266,7 @@ struct ScoreEntriesView: View {
                                 TimeSliceView(staff: staff,
                                               timeSlice: entries,
                                               noteWidth: noteWidth,
-                                              lineSpacing: staffLayoutSize.lineSpacing)
+                                              lineSpacing: score.lineSpacing)
                                 //.border(Color.green)
                                 .background(GeometryReader { geometry in
                                     ///Record and store the note's postion so we can later draw its stems which maybe dependent on the note being in a quaver group with a quaver beam
@@ -280,7 +278,7 @@ struct ScoreEntriesView: View {
                                                 }
                                             }
                                         }
-                                        .onChange(of: staffLayoutSize.lineSpacing) { newValue in
+                                        .onChange(of: score.lineSpacing) { newValue in
                                             if staff.staffNum == 0 {
                                                 noteLayoutPositions.storePosition(notes: entries.getTimeSliceNotes(),rect: geometry.frame(in: .named("HStack")))
                                             }
@@ -290,18 +288,17 @@ struct ScoreEntriesView: View {
                                     StemView(score:score,
                                              staff:staff,
                                              notePositionLayout: noteLayoutPositions,
-                                             notes: entries.getTimeSliceNotes(),
-                                             lineSpacing: staffLayoutSize)
+                                             notes: entries.getTimeSliceNotes())
                                 }
 
                                 TimeSliceLabelView(score:score, staff:staff, timeSlice: entry as! TimeSlice)
-                                    .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                                    .frame(height: score.getStaffHeight())
                             }
                         }
                         if entry is BarLine {
                             GeometryReader { geometry in
-                                BarLineView(entry: entry, staff: staff, staffLayoutSize: staffLayoutSize)
-                                    .frame(height: staffLayoutSize.getStaffHeight(score: score))
+                                BarLineView(score: score, entry: entry, staff: staff) //, staffLayoutSize: staffLayoutSize)
+                                    .frame(height: score.getStaffHeight())
                                     //.border(Color .red)
                                     .onAppear {
                                         if staff.staffNum == 0 {
@@ -309,7 +306,7 @@ struct ScoreEntriesView: View {
                                             barLayoutPositions.storePosition(barLine: barLine, rect: geometry.frame(in: .named("ScoreView")), ctx: "onAppear")
                                         }
                                     }
-                                    .onChange(of: staffLayoutSize.lineSpacing) { newValue in
+                                    .onChange(of: score.lineSpacing) { newValue in
                                         if staff.staffNum == 0 {
                                             let barLine = entry as! BarLine
                                             barLayoutPositions.storePosition(barLine: barLine, rect: geometry.frame(in: .named("ScoreView")), ctx: "onChange")
@@ -341,8 +338,8 @@ struct ScoreEntriesView: View {
                                     let startNote = endNote.getBeamStartNote(score: score, np:noteLayoutPositions)
                                     if let line = getBeamLine(endNote: endNote, noteWidth: noteWidth,
                                                               startNote: startNote, stemLength:
-                                                                self.staffLayoutSize.lineSpacing * 3.5) {
-                                        quaverBeamView(line: line, startNote: startNote, endNote: endNote, lineSpacing: staffLayoutSize.lineSpacing)
+                                                                score.lineSpacing * 3.5) {
+                                        quaverBeamView(line: line, startNote: startNote, endNote: endNote, lineSpacing: score.lineSpacing)
                                     }
                                 }
                             }

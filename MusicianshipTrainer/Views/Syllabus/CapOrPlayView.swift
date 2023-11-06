@@ -101,7 +101,8 @@ struct ClapOrPlayPresentView: View {
     @State private var startWasShortended = false
     @State private var endWasShortended = false
     @State private var rhythmWasSimplified = false
-    
+    @State var examInstructionsWereNarrated = false
+
     var questionType:QuestionType
     let questionTempo = 90
     let googleAPI = GoogleAPI.shared
@@ -121,7 +122,7 @@ struct ClapOrPlayPresentView: View {
     func examInstructionsDone(status:RequestStatus) {
     }
     
-    func getInstruction(mode:QuestionType, grade:Int) -> String? {
+    func getInstruction(mode:QuestionType, grade:Int, examMode:Bool) -> String? {
         var result = ""
         let bullet = "\u{2022}" + " "
         var linefeed = "\n"
@@ -132,23 +133,27 @@ struct ClapOrPlayPresentView: View {
         case .rhythmVisualClap:
             result += "\(bullet)Look through the given rhythm."
             result += "\(linefeed)\(bullet)When you are ready to, press Start Recording."
-            result += "\(linefeed)\(bullet)Tap your rhythm on the drum with the pad of your finger and then press Stop Recording once you have finished."
             
-            result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap and then immediately release"
-            result += " your finger from the screen, rather than holding it down."
-            if grade >= 2 {
+            if !examMode {
+                result += "\(linefeed)\(bullet)Tap your rhythm on the drum with the pad of your finger and then press Stop Recording once you have finished."
+                
+                result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap and then immediately release"
+                result += " your finger from the screen, rather than holding it down."
+                if grade >= 2 {
                 result += "\n\n\(bullet)For rests, accurately count them but do not touch the screen."
             }
+        }
             
         case .rhythmEchoClap:
             result += "\(bullet)Listen to the given rhythm."
             //result += "\(linefeed)\(bullet)When it has finished you will be able to press Start Recording."
             result += "\(linefeed)\(bullet)Tap your rhythm on the drum that appears and then press Stop Recording once you have finished."
             
-            result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap with the pad of your finger and then immediately release"
-            result += " your finger from the screen, rather than holding it down."
-            result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
-
+            if !examMode {
+                result += "\(linefeed)\(bullet)Advice: For a clear result, you should tap with the pad of your finger and then immediately release"
+                result += " your finger from the screen, rather than holding it down."
+                result += "\n\n\(bullet)If you tap the rhythm incorrectly, you will be able to hear your rhythm attempt and the correct given rhythm at crotchet = 90 on the Answer Page."
+            }
 
         case .melodyPlay:
             result += "\(bullet)Press Start Recording then "
@@ -194,7 +199,8 @@ struct ClapOrPlayPresentView: View {
          
     func instructionView() -> some View {
         VStack {
-            if let instruction = self.getInstruction(mode: self.questionType, grade: contentSection.getGrade()) {
+            if let instruction = self.getInstruction(mode: self.questionType, grade: contentSection.getGrade(),
+                                                     examMode: contentSection.getExamTakingStatus() == .inExam) {
                 ScrollView {
                     Text(instruction)
                         .defaultTextStyle()
@@ -202,7 +208,9 @@ struct ClapOrPlayPresentView: View {
                 }
             }
         }
-        .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
+//        .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
+        ///Limit the size of the scroller since otherwise it takes as much height as it can
+        .frame(height: UIScreen.main.bounds.height * 0.25)
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
@@ -270,14 +278,18 @@ struct ClapOrPlayPresentView: View {
         VStack {
             HStack {
                 if contentSection.getExamTakingStatus() == .inExam && answerState != .recorded {
-                    Button(action: {
-                        self.contentSection.playExamInstructions(withDelay: true,
-                                                                 onLoaded: {status in },
-                                                                 onNarrated: {})
-                    }) {
-                        Text("Repeat Instructions").defaultButtonStyle()
-                    }
-                    .padding()
+                    if examInstructionsWereNarrated {
+                        Button(action: {
+                                self.contentSection.playExamInstructions(withDelay: true,
+                                                                         onLoaded: {status in },
+                                                                         onNarrated: {
+                                    examInstructionsWereNarrated = true
+                                })
+                            }) {
+                                Text("Repeat Instructions").defaultButtonStyle()
+                            }
+                            .padding()
+                        }
                 }
             }
             HStack {

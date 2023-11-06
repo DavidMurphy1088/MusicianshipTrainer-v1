@@ -4,20 +4,21 @@ import MessageUI
 import CoreImage
 
 struct BarLineView: View {
+    var score:Score
     var entry:ScoreEntry
     var staff:Staff
-    var staffLayoutSize:StaffLayoutSize
+    //var staffLayoutSize:StaffLayoutSize
 
     var body: some View {
         ///For some unfathomable reason the bar line does not show if its not in a gemetry reader (-:
         GeometryReader { geometry in
             Rectangle()
                 .fill(Color.black)
-                .frame(width: 1.0, height: 4.0 * Double(staffLayoutSize.lineSpacing))
+                .frame(width: 1.0, height: 4.0 * Double(score.lineSpacing))
                 .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
         }
         //.frame(maxWidth: Double(staffLayoutSize.lineSpacing)  * 1.0)
-        .frame(minWidth: Double(staffLayoutSize.lineSpacing)  * 1.1)
+        .frame(minWidth: Double(score.lineSpacing)  * 1.1)
         //.border(Color.red)
     }
 }

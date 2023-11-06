@@ -74,7 +74,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     @ObservedObject private var logger = Logger.logger
     @ObservedObject var audioRecorder = AudioRecorder.shared
 
-    @State var examInstructionsNarrated = false
+    @State var examInstructionsWereNarrated = false
     
     @State var intervalNotes:[Note] = []
     @State private var selectedIntervalName:String?
@@ -181,7 +181,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
     }
     
     func allowHearInterval() -> Bool {
-        return !(self.isTakingExam() && !examInstructionsNarrated)
+        return !(self.isTakingExam() && !examInstructionsWereNarrated)
     }
     
     var body: some View {
@@ -203,15 +203,19 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
 //                    }
                     
                     if isTakingExam() {
-                        Button(action: {
-                            audioRecorder.stopPlaying()
-                            self.contentSection.playExamInstructions(withDelay:false,
-                                                                     onLoaded: {status in},
-                                                                     onNarrated: {})
-                        }) {
-                            Text("Repeat The Instructions").defaultButtonStyle()
+                        if examInstructionsWereNarrated {
+                            if answerState == .notEverAnswered {
+                                Button(action: {
+                                    audioRecorder.stopPlaying()
+                                    self.contentSection.playExamInstructions(withDelay:false,
+                                                                             onLoaded: {status in},
+                                                                             onNarrated: {})
+                                }) {
+                                    Text("Repeat The Instructions").defaultButtonStyle()
+                                }
+                                .padding()
+                            }
                         }
-                        .padding()
                     }
 
                     if questionType == .intervalAural {
@@ -263,7 +267,7 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                         }
                     }
                     HStack {
-                        if !(self.isTakingExam() && !examInstructionsNarrated) {
+                        if !(self.isTakingExam() && !examInstructionsWereNarrated) {
                             SelectIntervalView(answer: $answer,
                                                answerState: $answerState,
                                                intervals: intervals,
@@ -293,12 +297,12 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
             .onAppear {
                 self.initView()
                 if self.isTakingExam() {
-                    examInstructionsNarrated = false
+                    examInstructionsWereNarrated = false
                     self.contentSection.playExamInstructions(withDelay: true,
                            onLoaded: {
                             status in},
                         onNarrated: {
-                            examInstructionsNarrated = true
+                            examInstructionsWereNarrated = true
                     })
                 }
             }
