@@ -32,6 +32,13 @@ class ContentSectionData: Codable {
     }
 }
 
+enum HomeworkStatus {
+    case notAssigned
+    case doneCorrect
+    case doneError
+    case notDone
+}
+
 class ContentSection: ObservableObject, Identifiable { //Codable,
     @Published var selectedIndex:Int? //The row to go into
     @Published var postitionToIndex:Int? //The row to postion to
@@ -70,6 +77,33 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         self.level = level
     }
     
+    func getHomework(contentSection:ContentSection) -> HomeworkStatus {
+        let path = contentSection.getPathAsArray()
+        if path.count == 0 {
+            return .notAssigned
+        }
+        let leafs = path[path.count-1].split(separator: " ")
+        if leafs.count < 2 {
+            return .notAssigned
+        }
+        if leafs[0] != "Example" {
+            return .notAssigned
+        }
+        guard let exNum = Int(leafs[1]) else {
+            return .notAssigned
+        }
+        if exNum > 9 {
+            return .notAssigned
+        }
+        if exNum < 7 {
+            if exNum == 4 {
+                return .doneError
+            }
+            return .doneCorrect
+        }
+        return .notDone
+    }
+    
     func setSelected(_ i:Int) {
         DispatchQueue.main.async {
             ///Force the selected Index to trigger a change event
@@ -87,7 +121,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                 }
             }
         }
-}
+    }
     
     func getGrade() -> Int {
         var grade:Int = 1

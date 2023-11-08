@@ -357,7 +357,9 @@ struct ContentSectionHeaderView: View {
 
 struct SectionsNavigationView:View {
     @ObservedObject var contentSection:ContentSection
-
+    @State var homeworkStatus:HomeworkStatus = .notAssigned
+    @State var showHomework = false
+    
     func getGradeImage(contentSection: ContentSection) -> Image? {
         var name = ""
         if contentSection.isExamTypeContentSection() {
@@ -404,6 +406,90 @@ struct SectionsNavigationView:View {
         }
         return score
     }
+
+    struct HomeworkView: View {
+        @Environment(\.presentationMode) var presentationMode
+        @State var homeworkStatus:HomeworkStatus
+        @State var setHomework = false
+        
+        func msg(homeworkStatus:HomeworkStatus) -> String {
+            var s = ""
+            if homeworkStatus == .doneCorrect {
+                s = "Homework done - Good Job!"
+            }
+            if homeworkStatus == .doneError {
+                s = "Homework was done but it wasn't correct. You need to retry it."
+            }
+            if homeworkStatus == .notDone {
+                s = "This is homework to do."
+            }
+            print("==================", s)
+            return s
+        }
+        
+        func getColor(status:HomeworkStatus) -> Color {
+            if status == .doneError {
+                return Color.red
+            }
+            if status == .doneCorrect {
+                return Color.green
+            }
+            return Color.orange
+        }
+        
+        var body: some View {
+            VStack(spacing: 20) {
+                Text("Homework for week of Monday 6th")
+                    .font(.title)
+                Image("homework_girl_transparent")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 180)
+                    .padding()
+                    .padding()
+                    .padding()
+                    .overlay(Circle().stroke(getColor(status: homeworkStatus), lineWidth: 4)) // Add a circle stroke
+                    .shadow(radius: 10) // Optional shadow for a nice effect
+
+                // Your custom views here
+                Text(msg(homeworkStatus: homeworkStatus))
+                
+                Button(action: {
+                    setHomework.toggle()
+                }) {
+                    HStack {
+                        Image(systemName: setHomework  ? "checkmark.square" : "square")
+                        Text("Set Homework")
+                    }
+                }
+                .padding()
+                Button("Dismiss") {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            }
+            .padding()
+        }
+    }
+    
+    func homeworkImage(status:HomeworkStatus) -> some View {
+        var color = Color.black
+        if status == .doneCorrect {
+            color = Color.green
+        }
+        if status == .doneError {
+            color = Color.red
+        }
+        if status == .notDone {
+            color = Color.orange
+        }
+        let im = Image("hw")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 30)
+            .foregroundColor(color)
+            .overlay(Circle().stroke(color, lineWidth: 2)) // Stroke around a circular image
+        return im
+    }
     
     var body: some View {
         VStack {
@@ -422,19 +508,40 @@ struct SectionsNavigationView:View {
                         
                         ZStack {
                             HStack {
-                                Spacer()
-                                Text(contentSections[index].getTitle())
-                                    .font(UIGlobals.navigationFont)
-                                    .padding(.vertical, 8) //xxxx
-                                Spacer()
-                                if let rowImage = getGradeImage(contentSection: contentSections[index]) {
+                                ZStack {
+                                    let homeworkStatus = contentSection.getHomework(contentSection: contentSections[index])
+                                    if homeworkStatus != .notAssigned {
+                                        HStack {
+                                            Text("                                   ")
+                                            Button(action: {
+                                                self.homeworkStatus = homeworkStatus
+                                                showHomework.toggle()
+                                            }) {
+                                                homeworkImage(status: homeworkStatus)
+                                            }
+                                            .buttonStyle(BorderlessButtonStyle())
+                                            .sheet(isPresented: $showHomework) {
+                                                HomeworkView(homeworkStatus: self.homeworkStatus)
+                                            }
+                                            Spacer()
+                                        }
+                                    }
                                     HStack {
                                         Spacer()
-                                        rowImage
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 40.0)
-                                        Text("    ")
+                                        Text(contentSections[index].getTitle())
+                                            .font(UIGlobals.navigationFont)
+                                            .padding(.vertical, 8) //xxxx
+                                        Spacer()
+                                        if let rowImage = getGradeImage(contentSection: contentSections[index]) {
+                                            HStack {
+                                                Spacer()
+                                                rowImage
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(width: 40.0)
+                                                Text("    ")
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -445,7 +552,6 @@ struct SectionsNavigationView:View {
                             }
                             
                         }
-                        //.border(Color.green)
                     }
                 }
                 ///This color matches the NavigationView background which cannot be changed.
@@ -630,12 +736,10 @@ struct ExamView: View {
 
 struct ContentSectionView: View {
     let contentSection:ContentSection
-    //let contentSectionView: (any View)
     @State private var showNextNavigation: Bool = true
     @State private var endOfSection: Bool = false
     @State var answerState:AnswerState = .notEverAnswered
     @State var answer:Answer = Answer(ctx: "ContentSectionView")//, questionMode: .practice)
-    //@Binding var parentSelectionIndex:Int?
     @State var isShowingConfiguration:Bool = false
 
     let id = UUID()

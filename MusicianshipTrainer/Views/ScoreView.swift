@@ -113,11 +113,11 @@ struct ScoreView: View {
 //        }
 //        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", ls)
         //UIGlobals.showDeviceOrientation()
-        print("👉 👉 =====> setOrientationLineSize",
-              "Score:", score.id.uuidString.suffix(4),
-              "Width:", geometryWidth,
-              "Context:", ctx,
-              "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
+//        print("👉 👉 =====> setOrientationLineSize",
+//              "Score:", score.id.uuidString.suffix(4),
+//              "Width:", geometryWidth,
+//              "Context:", ctx,
+//              "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
 
         //self.staffLayoutSize.setLineSpacing(lineSpacing)
         //return lineSpacing
@@ -131,7 +131,7 @@ struct ScoreView: View {
         return editor
     }
     
-    func logx() -> String {
+    func logxx() -> String {
         print("🤔 =====> ScoreView Body",
               "Score:", score.id.uuidString.suffix(4),
               //"Width:", geometryWidth,
@@ -143,7 +143,7 @@ struct ScoreView: View {
     
     var body: some View {
         VStack {
-            let x = logx()
+            //let x = logx()
             if let feedback = score.studentFeedback {
                 FeedbackView(score: score, studentFeedback: feedback)
             }
