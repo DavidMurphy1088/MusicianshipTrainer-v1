@@ -60,6 +60,7 @@ class UIGlobals {
     }
     static var rhythmTolerancePercent:Double = 30.0
     static var rhythmTapSoundOn = false
+    static var companionTest = true
 }
 
 func hintButtonView(_ txt:String, selected:Bool = false) -> some View {

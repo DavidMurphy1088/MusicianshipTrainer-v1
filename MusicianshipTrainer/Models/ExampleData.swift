@@ -199,7 +199,12 @@ class ExampleData : ObservableObject {
                         }
                         if let parent = contentSection.parent {
                             if parent.isExamTypeContentSection() {
-                                contentSection.loadAnswer()
+                                contentSection.loadAnswerFromFile()
+                            }
+                            else {
+                                if UIGlobals.companionTest {
+                                    contentSection.loadAnswerFromFile()
+                                }
                             }
                         }
                         //MusicianshipTrainerApp.root.debug()

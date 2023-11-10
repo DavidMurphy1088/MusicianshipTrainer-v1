@@ -26,6 +26,7 @@
 		7B30C7CB2AB522C100BD7378 /* Intervals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B30C7CA2AB522C100BD7378 /* Intervals.swift */; };
 		7B3A53A62AE8FEDF0088227E /* BarEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3A53A52AE8FEDF0088227E /* BarEditor.swift */; };
 		7B3DFFE52AFA2D3E00F25825 /* StemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3DFFE42AFA2D3E00F25825 /* StemView.swift */; };
+		7B3DFFE72AFD8CA800F25825 /* SetHomeworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3DFFE62AFD8CA800F25825 /* SetHomeworkView.swift */; };
 		7B40B7EF2A54DF9000CA7FC4 /* TapRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */; };
 		7B40B7F02A54DF9000CA7FC4 /* ExampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D22A54DF8F00CA7FC4 /* ExampleData.swift */; };
 		7B40B7F12A54DF9000CA7FC4 /* Score.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D32A54DF8F00CA7FC4 /* Score.swift */; };
@@ -143,6 +144,7 @@
 		7B30C7CA2AB522C100BD7378 /* Intervals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intervals.swift; sourceTree = "<group>"; };
 		7B3A53A52AE8FEDF0088227E /* BarEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarEditor.swift; sourceTree = "<group>"; };
 		7B3DFFE42AFA2D3E00F25825 /* StemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StemView.swift; sourceTree = "<group>"; };
+		7B3DFFE62AFD8CA800F25825 /* SetHomeworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetHomeworkView.swift; sourceTree = "<group>"; };
 		7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TapRecorder.swift; sourceTree = "<group>"; };
 		7B40B7D22A54DF8F00CA7FC4 /* ExampleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleData.swift; sourceTree = "<group>"; };
 		7B40B7D32A54DF8F00CA7FC4 /* Score.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Score.swift; sourceTree = "<group>"; };
@@ -363,6 +365,7 @@
 				7B40B81D2A54E52A00CA7FC4 /* ScoreEntriesView.swift */,
 				7B40B82B2A54E52A00CA7FC4 /* ScoreView.swift */,
 				7B40B8172A54E52A00CA7FC4 /* StaffView.swift */,
+				7B3DFFE42AFA2D3E00F25825 /* StemView.swift */,
 				7B40B8222A54E52A00CA7FC4 /* Syllabus */,
 				7B40B8192A54E52A00CA7FC4 /* TappingView.swift */,
 				7B40B81F2A54E52A00CA7FC4 /* TestView.swift */,
@@ -370,7 +373,7 @@
 				7B40B8202A54E52A00CA7FC4 /* ToolsView.swift */,
 				7B40B81E2A54E52A00CA7FC4 /* UIGlobals.swift */,
 				7B40B81C2A54E52A00CA7FC4 /* VoiceCounter.swift */,
-				7B3DFFE42AFA2D3E00F25825 /* StemView.swift */,
+				7B3DFFE62AFD8CA800F25825 /* SetHomeworkView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -813,6 +816,7 @@
 				7BA8B70B2AB3D8D900AE7692 /* TTS.swift in Sources */,
 				7B40B7FC2A54DF9000CA7FC4 /* MetronomeTickerPlayer.swift in Sources */,
 				7B40B82E2A54E52A00CA7FC4 /* TimeSliceView.swift in Sources */,
+				7B3DFFE72AFD8CA800F25825 /* SetHomeworkView.swift in Sources */,
 				7B40B8352A54E52A00CA7FC4 /* TestView.swift in Sources */,
 				7B8426222AD7CE2900A74C9A /* MelodyScoreView.swift in Sources */,
 				7B40B7F32A54DF9000CA7FC4 /* Logger.swift in Sources */,

@@ -6,7 +6,8 @@ import UIKit
 
 ///The view that runs a specifc example or test
 struct ContentTypeView: View {
-    let contentSection:ContentSection
+    //let contentSection:ContentSection
+    @ObservedObject var contentSection:ContentSection
     @Binding var answerState:AnswerState
     @Binding var answer:Answer
 
@@ -73,6 +74,12 @@ struct ContentTypeView: View {
         .navigationBarHidden(isNavigationHidden())
         .onDisappear() {
             AudioRecorder.shared.stopPlaying()
+            if UIGlobals.companionTest {
+                if [.doneCorrect, .doneError].contains(contentSection.getHomework()) {
+                    contentSection.setStoredAnswer(answer: answer.copyAnwser(), ctx: "ContentTypeView DISAPPEAR")
+                    contentSection.saveAnswerToFile(answer: answer.copyAnwser())
+                }
+            }
         }
     }
 }
@@ -251,7 +258,7 @@ struct ContentSectionHeaderView: View {
                             Text("Tips and Tricks")
                                 .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                             Image(systemName: "questionmark.circle")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.black)
                                 .font(.largeTitle)
                         }
                     }
@@ -264,7 +271,7 @@ struct ContentSectionHeaderView: View {
                                 Text("Video")
                                     .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                                 Image(systemName: "video")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.black)
                                     .font(.largeTitle)
                             }
                         }
@@ -303,10 +310,27 @@ struct ContentSectionHeaderView: View {
                                 Text("Random Pick")
                                     .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                                 Image(systemName: "tornado")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.black)
                                     .font(.title)
                             }
                         }
+                    }
+                }
+                if UIGlobals.companionTest {
+                    if contentSection.getPathAsArray().count > 2 {
+                    Spacer()
+                    Button(action: {
+                    }) {
+                        NavigationLink(destination: SetHomeworkView(contentSection: contentSection)) {
+                            VStack {
+                                Text("Set Homework")
+                                    .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
+                                Image(systemName: "highlighter")
+                                    .foregroundColor(.black)
+                                    .font(.title)
+                            }
+                        }
+                    }
                     }
                 }
                 
@@ -378,16 +402,22 @@ struct SectionsNavigationView:View {
         }
         else {
             //individual tests
-            if let answer = contentSection.storedAnswer {
-                if answer.correct {
-                    name = "grade_a"
-                }
-                else {
-                    name = "grade_b"
-                }
+            print("============== IMAGE", contentSection.getPath(), contentSection.getHomework(), contentSection.storedAnswer)
+            if contentSection.getHomework() == .notAssigned {
+                return nil
             }
             else {
-                return nil
+                if let answer = contentSection.storedAnswer {
+                    if answer.correct {
+                        name = "grade_a"
+                    }
+                    else {
+                        name = "grade_b"
+                    }
+                }
+                else {
+                    name = "todo_transparent"
+                }
             }
         }
         var image:Image
@@ -423,7 +453,6 @@ struct SectionsNavigationView:View {
             if homeworkStatus == .notDone {
                 s = "This is homework to do."
             }
-            print("==================", s)
             return s
         }
         
@@ -447,22 +476,22 @@ struct SectionsNavigationView:View {
                     .frame(width: 180)
                     .padding()
                     .padding()
-                    .padding()
-                    .overlay(Circle().stroke(getColor(status: homeworkStatus), lineWidth: 4)) // Add a circle stroke
-                    .shadow(radius: 10) // Optional shadow for a nice effect
+//                    .padding()
+//                    .overlay(Circle().stroke(getColor(status: homeworkStatus), lineWidth: 4)) // Add a circle stroke
+//                    .shadow(radius: 10) // Optional shadow for a nice effect
 
                 // Your custom views here
                 Text(msg(homeworkStatus: homeworkStatus))
                 
-                Button(action: {
-                    setHomework.toggle()
-                }) {
-                    HStack {
-                        Image(systemName: setHomework  ? "checkmark.square" : "square")
-                        Text("Set Homework")
-                    }
-                }
-                .padding()
+//                Button(action: {
+//                    setHomework.toggle()
+//                }) {
+//                    HStack {
+//                        Image(systemName: setHomework  ? "checkmark.square" : "square")
+//                        Text("Set Homework")
+//                    }
+//                }
+//                .padding()
                 Button("Dismiss") {
                     presentationMode.wrappedValue.dismiss()
                 }
@@ -509,29 +538,16 @@ struct SectionsNavigationView:View {
                         ZStack {
                             HStack {
                                 ZStack {
-                                    let homeworkStatus = contentSection.getHomework(contentSection: contentSections[index])
-                                    if homeworkStatus != .notAssigned {
-                                        HStack {
-                                            Text("                                   ")
-                                            Button(action: {
-                                                self.homeworkStatus = homeworkStatus
-                                                showHomework.toggle()
-                                            }) {
-                                                homeworkImage(status: homeworkStatus)
-                                            }
-                                            .buttonStyle(BorderlessButtonStyle())
-                                            .sheet(isPresented: $showHomework) {
-                                                HomeworkView(homeworkStatus: self.homeworkStatus)
-                                            }
-                                            Spacer()
-                                        }
-                                    }
                                     HStack {
                                         Spacer()
                                         Text(contentSections[index].getTitle())
                                             .font(UIGlobals.navigationFont)
-                                            .padding(.vertical, 8) //xxxx
+                                            .padding(.vertical, 8)
                                         Spacer()
+                                    }
+                                    let homeworkStatus = contentSections[index].getHomework()
+                                    if homeworkStatus == .notAssigned {
+                                        //Show correct answer icon for an exam question
                                         if let rowImage = getGradeImage(contentSection: contentSections[index]) {
                                             HStack {
                                                 Spacer()
@@ -542,6 +558,35 @@ struct SectionsNavigationView:View {
                                                 Text("    ")
                                             }
                                         }
+                                    }
+                                    else {
+                                        if UIGlobals.companionTest {
+                                            //if homeworkStatus != .notAssigned {
+                                                //Show correct answer icon for a homework question
+                                                HStack {
+                                                    Spacer()
+                                                    Text("                                                   ")
+                                                    Button(action: {
+                                                        self.homeworkStatus = homeworkStatus
+                                                        showHomework.toggle()
+                                                    }) {
+                                                        if let rowImage = getGradeImage(contentSection: contentSections[index]) {
+                                                        rowImage
+                                                            .resizable()
+                                                            .scaledToFit()
+                                                            .frame(width: 40.0)
+                                                    }
+                                                        //homeworkImage(status: homeworkStatus)
+                                                    }
+                                                    .buttonStyle(BorderlessButtonStyle())
+                                                    .sheet(isPresented: $showHomework) {
+                                                        HomeworkView(homeworkStatus: self.homeworkStatus)
+                                                    }
+                                                    Spacer()
+                                                }
+
+                                            }
+                                        //}
                                     }
                                 }
                             }
@@ -584,9 +629,8 @@ struct ExamView: View {
     @Environment(\.presentationMode) var presentationMode
     let contentSection:ContentSection
     @State var sectionIndex = 0
-    //@State var examBeginning = true
     @State var answerState:AnswerState = .notEverAnswered
-    @State var answer = Answer(ctx: "ExamView")//, questionMode: .examTake)
+    @State var answer = Answer(ctx: "ExamView")
     @State private var showingConfirm = false
     @State private var examState:ExamState = .notStartedLoad
     
@@ -646,8 +690,8 @@ struct ExamView: View {
                     if sectionIndex < contentSections.count - 1 {
                         Text("Completed question \(sectionIndex+1) of \(contentSections.count)").defaultTextStyle().padding()
                         Button(action: {
-                            contentSections[sectionIndex].storedAnswer = answer.copyAnwser()
-                            contentSections[sectionIndex].storeAnswer(answer: answer.copyAnwser())
+                            contentSection.setStoredAnswer(answer: answer.copyAnwser(), ctx: "")
+                            contentSection.saveAnswerToFile(answer: answer.copyAnwser())
                             answerState = .notEverAnswered
                             sectionIndex += 1
                         }) {
@@ -670,20 +714,20 @@ struct ExamView: View {
                                   primaryButton: .destructive(Text("Yes, I'm sure")) {
                                 for s in contentSections {
                                     let answer = Answer(ctx: "cancelled")
-                                    s.storedAnswer = answer
-                                    s.storeAnswer(answer: answer)
+                                    s.setStoredAnswer(answer: answer, ctx: "")
+                                    s.saveAnswerToFile(answer: answer)
                                 }
                                 presentationMode.wrappedValue.dismiss()
                             }, secondaryButton: .cancel())
                         }
+                        
                         .padding()
-
                     }
                     else {
                         Spacer()
                         Button(action: {
-                            contentSections[sectionIndex].storedAnswer = answer.copyAnwser()
-                            contentSections[sectionIndex].storeAnswer(answer: answer.copyAnwser())
+                            contentSection.storedAnswer = answer.copyAnwser()
+                            contentSection.saveAnswerToFile(answer: answer.copyAnwser())
                             //Force the parent view to refresh the test lines status
                             contentSection.questionStatus.setStatus(1)
                             presentationMode.wrappedValue.dismiss()
@@ -735,7 +779,9 @@ struct ExamView: View {
 }
 
 struct ContentSectionView: View {
-    let contentSection:ContentSection
+    //let contentSection:ContentSection
+    @ObservedObject var contentSection:ContentSection
+    //@ObservedObject var storedAnswer:Answer
     @State private var showNextNavigation: Bool = true
     @State private var endOfSection: Bool = false
     @State var answerState:AnswerState = .notEverAnswered
@@ -757,7 +803,6 @@ struct ContentSectionView: View {
                         ContentSectionHeaderView(contentSection: contentSection)
                             //.border(Color.red)
                             .padding(.vertical, 0)
-
                         SectionsNavigationView(contentSection: contentSection)
                     }
                     else {
@@ -789,6 +834,15 @@ struct ContentSectionView: View {
                 ContentTypeView(contentSection: self.contentSection,
                                 answerState: $answerState,
                                 answer: $answer)
+                .onDisappear() {
+                    if UIGlobals.companionTest {
+                        if [.doneCorrect, .doneError].contains(contentSection.getHomework()) {
+                            contentSection.setStoredAnswer(answer: answer.copyAnwser(), ctx: "ContentSectionView DISAPPEAR")
+                            contentSection.saveAnswerToFile(answer: answer.copyAnwser())
+                        }
+                    }
+                }
+
             }
         }
         //.background(UIGlobals.colorNavigationBackground)
@@ -801,6 +855,12 @@ struct ContentSectionView: View {
         }
         .onDisappear() {
             AudioRecorder.shared.stopPlaying()
+//            if UIGlobals.companionTest {
+//                if [.doneCorrect, .doneError].contains(contentSection.getHomework()) {
+//                    contentSection.setStoredAnswer(answer: answer.copyAnwser())
+//                    contentSection.saveAnswerToFile(answer: answer.copyAnwser())
+//                }
+//            }
         }
         .navigationBarTitle(contentSection.getTitle(), displayMode: .inline)//.font(.title)
         .toolbar {

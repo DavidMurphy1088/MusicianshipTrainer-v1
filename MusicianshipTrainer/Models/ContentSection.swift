@@ -43,6 +43,9 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     @Published var selectedIndex:Int? //The row to go into
     @Published var postitionToIndex:Int? //The row to postion to
     
+    //Publish changes when a stored answer is set after an example is submitted so the list of examples updates
+    @Published var storedAnswer:Answer?
+
     var id = UUID()
     var parent:ContentSection?
     var name: String
@@ -51,7 +54,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     var subSections:[ContentSection] = []
     var isActive:Bool
     var level:Int
-    var storedAnswer:Answer?
     var questionStatus = QuestionStatus(0)
 
     init(parent:ContentSection?, name:String, type:String, data:ContentSectionData? = nil, isActive:Bool = true) {
@@ -77,8 +79,9 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         self.level = level
     }
     
-    func getHomework(contentSection:ContentSection) -> HomeworkStatus {
-        let path = contentSection.getPathAsArray()
+    func getHomework() -> HomeworkStatus {
+        //let path = contentSection.getPathAsArray()
+        let path = self.getPathAsArray()
         if path.count == 0 {
             return .notAssigned
         }
@@ -92,16 +95,24 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         guard let exNum = Int(leafs[1]) else {
             return .notAssigned
         }
-        if exNum > 9 {
+        if exNum > 7 {
             return .notAssigned
         }
-        if exNum < 7 {
-            if exNum == 4 {
+        if exNum < 6 {
+            if exNum == 3 {
                 return .doneError
             }
             return .doneCorrect
         }
         return .notDone
+    }
+    
+    func setStoredAnswer(answer:Answer, ctx:String) {
+        DispatchQueue.main.async {
+            print("======================>>>>>>>> setStoredAnswer ", self.getPath(), "CTX", ctx)
+            self.storedAnswer = answer
+            print("======================DONE setStoredAnswer ", self.getPath(), "SLEEP")
+        }
     }
     
     func setSelected(_ i:Int) {
@@ -140,7 +151,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         return grade
     }
 
-    func storeAnswer(answer: Answer) {
+    func saveAnswerToFile(answer: Answer) {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         do {
@@ -154,8 +165,8 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                 if let content = content {
                     let data = content.data(using: .utf8)
                     try data?.write(to: fileURL, options: .atomic)
+                    print("================ storeAnswer", fileURL)
                 }
-                
             } else {
                 Logger.logger.reportError(self, "Failed answer save, no document URL")
             }
@@ -164,7 +175,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         }
     }
     
-    func loadAnswer() {
+    func loadAnswerFromFile() {
         let fileManager = FileManager.default
         let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
         let decoder = JSONDecoder()
@@ -174,7 +185,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             do {
                 let data = try Data(contentsOf: fileURL)
                 let answer = try decoder.decode(Answer.self, from: data)
-                self.storedAnswer = answer
+                self.setStoredAnswer(answer: answer, ctx: "From file")
             }
             catch {
                 //Logger.logger.reportError(self, "Failed to parse JSON \(error)")

@@ -10,7 +10,7 @@ enum AnswerState {
 }
 
 ///The answer a student gives to a question
-class Answer : Codable,Identifiable {
+class Answer : ObservableObject, Codable,Identifiable {
     var id:UUID
     //var questionMode: QuestionMode
     var correct: Bool = false
