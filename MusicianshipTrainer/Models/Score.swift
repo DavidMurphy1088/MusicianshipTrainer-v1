@@ -178,7 +178,7 @@ class Score : ObservableObject {
         return result
     }
 
-    func debugScorex(_ ctx:String, withBeam:Bool) {
+    func debugScorexx(_ ctx:String, withBeam:Bool) {
         print("\nSCORE DEBUG =====", ctx, "\tKey", key.keySig.accidentalCount, "StaffCount", self.staffs.count)
         for t in self.getAllTimeSlices() {
             if t.entries.count == 0 {

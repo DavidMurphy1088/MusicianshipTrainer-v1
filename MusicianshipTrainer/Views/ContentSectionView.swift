@@ -75,7 +75,7 @@ struct ContentTypeView: View {
         .onDisappear() {
             AudioRecorder.shared.stopPlaying()
             if UIGlobals.companionTest {
-                if [.doneCorrect, .doneError].contains(contentSection.getHomework()) {
+                if contentSection.homeworkIsAssigned {
                     contentSection.setStoredAnswer(answer: answer.copyAnwser(), ctx: "ContentTypeView DISAPPEAR")
                     contentSection.saveAnswerToFile(answer: answer.copyAnwser())
                 }
@@ -317,20 +317,20 @@ struct ContentSectionHeaderView: View {
                     }
                 }
                 if UIGlobals.companionTest {
-                    if contentSection.getPathAsArray().count > 2 {
-                    Spacer()
-                    Button(action: {
-                    }) {
-                        NavigationLink(destination: SetHomeworkView(contentSection: contentSection)) {
-                            VStack {
-                                Text("Set Homework")
-                                    .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
-                                Image(systemName: "highlighter")
-                                    .foregroundColor(.black)
-                                    .font(.title)
+                    if contentSection.getPathAsArray().count == 2 {
+                        Spacer()
+                        Button(action: {
+                        }) {
+                            NavigationLink(destination: SetHomeworkView(contentSection: contentSection)) {
+                                VStack {
+                                    Text("Set Homework")
+                                        .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
+                                    Image(systemName: "highlighter")
+                                        .foregroundColor(.black)
+                                        .font(.title)
+                                }
                             }
                         }
-                    }
                     }
                 }
                 
@@ -381,7 +381,7 @@ struct ContentSectionHeaderView: View {
 
 struct SectionsNavigationView:View {
     @ObservedObject var contentSection:ContentSection
-    @State var homeworkStatus:HomeworkStatus = .notAssigned
+    @State var homeworkIndex:Int?
     @State var showHomework = false
     
     func getGradeImage(contentSection: ContentSection) -> Image? {
@@ -402,8 +402,7 @@ struct SectionsNavigationView:View {
         }
         else {
             //individual tests
-            print("============== IMAGE", contentSection.getPath(), contentSection.getHomework(), contentSection.storedAnswer)
-            if contentSection.getHomework() == .notAssigned {
+            if !contentSection.homeworkIsAssigned {
                 return nil
             }
             else {
@@ -438,32 +437,36 @@ struct SectionsNavigationView:View {
     }
 
     struct HomeworkView: View {
+        let contentSection:ContentSection
         @Environment(\.presentationMode) var presentationMode
-        @State var homeworkStatus:HomeworkStatus
-        @State var setHomework = false
+        //@State var setHomework = false
         
-        func msg(homeworkStatus:HomeworkStatus) -> String {
+        func msg(contentSection:ContentSection) -> String {
             var s = ""
-            if homeworkStatus == .doneCorrect {
+            guard let answer = contentSection.storedAnswer else {
+                return "This is homework to do."
+            }
+            if answer.correct {
                 s = "Homework done - Good Job!"
             }
-            if homeworkStatus == .doneError {
+            else {
                 s = "Homework was done but it wasn't correct. You need to retry it."
             }
-            if homeworkStatus == .notDone {
-                s = "This is homework to do."
-            }
+
             return s
         }
         
-        func getColor(status:HomeworkStatus) -> Color {
-            if status == .doneError {
-                return Color.red
+        func getColor(contentSection:ContentSection) -> Color {
+            guard let answer = contentSection.storedAnswer else {
+                return Color.orange
             }
-            if status == .doneCorrect {
+
+            if answer.correct {
                 return Color.green
             }
-            return Color.orange
+            else {
+                return Color.red
+            }
         }
         
         var body: some View {
@@ -476,22 +479,9 @@ struct SectionsNavigationView:View {
                     .frame(width: 180)
                     .padding()
                     .padding()
-//                    .padding()
-//                    .overlay(Circle().stroke(getColor(status: homeworkStatus), lineWidth: 4)) // Add a circle stroke
-//                    .shadow(radius: 10) // Optional shadow for a nice effect
 
-                // Your custom views here
-                Text(msg(homeworkStatus: homeworkStatus))
-                
-//                Button(action: {
-//                    setHomework.toggle()
-//                }) {
-//                    HStack {
-//                        Image(systemName: setHomework  ? "checkmark.square" : "square")
-//                        Text("Set Homework")
-//                    }
-//                }
-//                .padding()
+                Text(msg(contentSection:contentSection)).foregroundColor(getColor(contentSection: contentSection)).font(.title)
+                Text("")
                 Button("Dismiss") {
                     presentationMode.wrappedValue.dismiss()
                 }
@@ -500,17 +490,20 @@ struct SectionsNavigationView:View {
         }
     }
     
-    func homeworkImage(status:HomeworkStatus) -> some View {
+    func homeworkImage(contentSection:ContentSection) -> some View {
         var color = Color.black
-        if status == .doneCorrect {
-            color = Color.green
+        if let answer = contentSection.storedAnswer {
+            if answer.correct {
+                color = Color.green
+            }
+            else {
+                color = Color.red
+            }
         }
-        if status == .doneError {
-            color = Color.red
-        }
-        if status == .notDone {
+        else {
             color = Color.orange
         }
+
         let im = Image("hw")
             .resizable()
             .scaledToFit()
@@ -520,9 +513,15 @@ struct SectionsNavigationView:View {
         return im
     }
     
+//    func log() -> String {
+//        print("=========>>>>>>>>>>>>>>>>>>>SectionsNavigationView", contentSection.homeworkIsAssigned, contentSection.getPath())
+//        return ""
+//    }
+    
     var body: some View {
         VStack {
             let contentSections = contentSection.getNavigableChildSections()
+            
             ScrollViewReader { proxy in
                 List(Array(contentSections.indices), id: \.self) { index in
                     ///selection: A bound variable that causes the link to present `destination` when `selection` becomes equal to `tag`
@@ -534,7 +533,6 @@ struct SectionsNavigationView:View {
                                    //selection: $selectedIndex
                                    //selection: $navigationManager.selectedIndex
                     ) {
-                        
                         ZStack {
                             HStack {
                                 ZStack {
@@ -545,8 +543,8 @@ struct SectionsNavigationView:View {
                                             .padding(.vertical, 8)
                                         Spacer()
                                     }
-                                    let homeworkStatus = contentSections[index].getHomework()
-                                    if homeworkStatus == .notAssigned {
+                                    //let homeworkStatus = log()
+                                    if !contentSections[index].homeworkIsAssigned {
                                         //Show correct answer icon for an exam question
                                         if let rowImage = getGradeImage(contentSection: contentSections[index]) {
                                             HStack {
@@ -565,22 +563,23 @@ struct SectionsNavigationView:View {
                                                 //Show correct answer icon for a homework question
                                                 HStack {
                                                     Spacer()
-                                                    Text("                                                   ")
+                                                    Text("                         ").font(.system(size: 18, weight: .regular, design: .monospaced))
                                                     Button(action: {
-                                                        self.homeworkStatus = homeworkStatus
+                                                        homeworkIndex = index
                                                         showHomework.toggle()
                                                     }) {
                                                         if let rowImage = getGradeImage(contentSection: contentSections[index]) {
-                                                        rowImage
+                                                            rowImage
                                                             .resizable()
                                                             .scaledToFit()
                                                             .frame(width: 40.0)
-                                                    }
-                                                        //homeworkImage(status: homeworkStatus)
+                                                        }
                                                     }
                                                     .buttonStyle(BorderlessButtonStyle())
                                                     .sheet(isPresented: $showHomework) {
-                                                        HomeworkView(homeworkStatus: self.homeworkStatus)
+                                                        if let index = homeworkIndex {
+                                                            HomeworkView(contentSection: contentSections[index])
+                                                        }
                                                     }
                                                     Spacer()
                                                 }
@@ -836,7 +835,7 @@ struct ContentSectionView: View {
                                 answer: $answer)
                 .onDisappear() {
                     if UIGlobals.companionTest {
-                        if [.doneCorrect, .doneError].contains(contentSection.getHomework()) {
+                        if contentSection.homeworkIsAssigned {
                             contentSection.setStoredAnswer(answer: answer.copyAnwser(), ctx: "ContentSectionView DISAPPEAR")
                             contentSection.saveAnswerToFile(answer: answer.copyAnwser())
                         }

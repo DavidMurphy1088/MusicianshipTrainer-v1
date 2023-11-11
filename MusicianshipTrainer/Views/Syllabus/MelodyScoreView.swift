@@ -12,26 +12,11 @@ struct MelodyScoreView: View {
         self.interval = interval
         self.melody = melody
     }
-    
-//    func log(_ m:String)->Bool {
-//        print("==============\(m)", melody.id)
-//        return true
-//    }
 
     var body: some View {
         VStack {
             if let score = score {
                 ScoreView(score: score)
-//                Button(action: {
-//                    metronome.playScore(score: score)
-//                }) {
-//                    HStack {
-//                        Image(systemName: "play")
-//                            .foregroundColor(.blue)
-//                            .font(.largeTitle)
-//                    }
-//                }
-//                .padding()
             }
         }
         

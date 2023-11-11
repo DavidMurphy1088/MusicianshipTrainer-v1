@@ -32,13 +32,6 @@ class ContentSectionData: Codable {
     }
 }
 
-enum HomeworkStatus {
-    case notAssigned
-    case doneCorrect
-    case doneError
-    case notDone
-}
-
 class ContentSection: ObservableObject, Identifiable { //Codable,
     @Published var selectedIndex:Int? //The row to go into
     @Published var postitionToIndex:Int? //The row to postion to
@@ -55,7 +48,8 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     var isActive:Bool
     var level:Int
     var questionStatus = QuestionStatus(0)
-
+    var homeworkIsAssigned:Bool = false
+    
     init(parent:ContentSection?, name:String, type:String, data:ContentSectionData? = nil, isActive:Bool = true) {
         self.parent = parent
         self.name = name
@@ -77,41 +71,35 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             par = par!.parent
         }
         self.level = level
+        setHomeworkStatus()
     }
     
-    func getHomework() -> HomeworkStatus {
+    func setHomeworkStatus()  {
         //let path = contentSection.getPathAsArray()
         let path = self.getPathAsArray()
         if path.count == 0 {
-            return .notAssigned
+            return
         }
         let leafs = path[path.count-1].split(separator: " ")
         if leafs.count < 2 {
-            return .notAssigned
+            return
         }
         if leafs[0] != "Example" {
-            return .notAssigned
+            return
         }
         guard let exNum = Int(leafs[1]) else {
-            return .notAssigned
+            return
         }
         if exNum > 7 {
-            return .notAssigned
+            return
         }
-        if exNum < 6 {
-            if exNum == 3 {
-                return .doneError
-            }
-            return .doneCorrect
-        }
-        return .notDone
+        self.homeworkIsAssigned = true
+        print("=============SET", self.getPath())
     }
     
     func setStoredAnswer(answer:Answer, ctx:String) {
         DispatchQueue.main.async {
-            print("======================>>>>>>>> setStoredAnswer ", self.getPath(), "CTX", ctx)
             self.storedAnswer = answer
-            print("======================DONE setStoredAnswer ", self.getPath(), "SLEEP")
         }
     }
     
@@ -152,6 +140,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     }
 
     func saveAnswerToFile(answer: Answer) {
+        print("============SavedAnserToFile", self.getPath(), answer.correct, storedAnswer)
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         do {
@@ -165,7 +154,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
                 if let content = content {
                     let data = content.data(using: .utf8)
                     try data?.write(to: fileURL, options: .atomic)
-                    print("================ storeAnswer", fileURL)
                 }
             } else {
                 Logger.logger.reportError(self, "Failed answer save, no document URL")
@@ -243,6 +231,24 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         }
         return false
     }
+    
+    ///Recursivly search all children with a true test supplied by the caller
+    func contentSearch(testCondition:(_ section:ContentSection)->Bool) -> [ContentSection] {
+        var result:[ContentSection] = []
+        if testCondition(self) {
+            result.append(self)
+        }
+        for section in self.subSections {
+            let childs = section.contentSearch(testCondition: testCondition)
+            if !childs.isEmpty {
+                for c in childs {
+                    result.append(c)
+                }
+            }
+        }
+        return result
+    }
+
     
     func debug() {
         //let spacer = String(repeating: " ", count: 4 * (level))
