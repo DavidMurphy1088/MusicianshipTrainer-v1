@@ -142,7 +142,6 @@ struct KeySignatureView: View {
 struct StaffView: View {
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
-    //@ObservedObject var staffLayoutSize:StaffLayoutSize //= StaffLayoutSize(lineSpacing: 0)
     
     @State private var rotationId: UUID = UUID()
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -153,7 +152,6 @@ struct StaffView: View {
     init (score:Score, staff:Staff) {
         self.score = score
         self.staff = staff
-
     }
     
     func clefWidth() -> Double {

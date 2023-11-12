@@ -6,8 +6,7 @@ struct TimeSliceLabelView: View {
     var staff:Staff
     @ObservedObject var timeSlice:TimeSlice
     @State var showPopover = false
-    let fontSize = 32.0
-    //let font = Font.custom("TimesNewRomanPS-BoldMT", size: 32.0)
+        
     let font = Font.custom("TimesNewRomanPS-BoldMT", size: 28.0)
 
     var body: some View {
@@ -15,10 +14,15 @@ struct TimeSliceLabelView: View {
             if staff.staffNum == 0 {
                 if let tag = timeSlice.tagHigh {
                     VStack {
-                        if tag.popup != nil {
-                            Button(action: {
-                                showPopover.toggle()
-                            }) {
+                        if tag.enablePopup {
+                            if tag.popup != nil {
+                                Button(action: {
+                                    showPopover.toggle()
+                                }) {
+                                    Text(tag.content).font(font)
+                                }
+                            }
+                            else {
                                 Text(tag.content).font(font)
                             }
                         }

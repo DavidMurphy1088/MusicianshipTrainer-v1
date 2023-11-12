@@ -301,6 +301,7 @@
 			children = (
 				7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */,
 				7B0659C72A6C96B4007A71CA /* Google_OAuth2_Keys_OLD.json */,
+				7B40B7D62A54DF8F00CA7FC4 /* Staff.swift */,
 				7B0659CB2A6C9967007A71CA /* Google_OAuth2_Keys.json */,
 			);
 			path = APIKeys;
@@ -329,7 +330,6 @@
 				7B40B7D32A54DF8F00CA7FC4 /* Score.swift */,
 				7B0A64CE2A61562B0091A24A /* Settings.swift */,
 				7B40B7EE2A54DF8F00CA7FC4 /* SpeechSynth.swift */,
-				7B40B7D62A54DF8F00CA7FC4 /* Staff.swift */,
 				7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */,
 				7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */,
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,

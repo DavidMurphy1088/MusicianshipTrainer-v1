@@ -3,9 +3,11 @@ import Foundation
 class TagHigh : ObservableObject {
     @Published var content:String
     var popup:String?
-    init(content:String, popup:String?) {
+    var enablePopup:Bool
+    init(content:String, popup:String?, enablePopup:Bool) {
         self.content = content
         self.popup = popup
+        self.enablePopup = enablePopup
     }
 }
 

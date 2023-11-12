@@ -165,7 +165,16 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         if inValueAtTempo < 3.5 {
             return 3.0
         }
-        return 4.0
+        if inValueAtTempo < 4.5 {
+            return 4.0
+        }
+        if inValueAtTempo < 5.5 {
+            return 5.0
+        }
+        if inValueAtTempo < 6.5 {
+            return 6.0
+        }
+        return 7.0
     }
 
     ///Make a playable score of notes from the tap intervals
@@ -193,10 +202,11 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
             if var tappedValue = roundedTappedValue {
 
                 if i == tapValues.count - 1 {
-                    //The last tap value is when the student endeed the recording and they may have delayed the stop recording
-                    //So instead of using the tapped value, let the last note value be the last question note value so the rhythm is not marked wrong
+                    ///The last tap value is when the student ended the recording and they may have delayed the stop recording
+                    ///So instead of using the tapped value, let the last note value be the last question note value so the rhythm is not marked wrong
+                    ///But only allow an extra delay of 2.0 sec. i.e. they can't delay hitting stop for too long
                     if lastQuestionNote != nil {
-                        if tappedValue > lastQuestionNote!.getValue(){
+                        if tappedValue > lastQuestionNote!.getValue() && tappedValue <= lastQuestionNote!.getValue() + 2.0 {
                             //the student delayed the end of recording
                             tappedValue = lastQuestionNote!.getValue()
                             recordedTapDuration = tappedValue

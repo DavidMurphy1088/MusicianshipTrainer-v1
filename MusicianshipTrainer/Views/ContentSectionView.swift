@@ -74,7 +74,7 @@ struct ContentTypeView: View {
         .navigationBarHidden(isNavigationHidden())
         .onDisappear() {
             AudioRecorder.shared.stopPlaying()
-            if UIGlobals.companionTest {
+            if UIGlobals.companionAppActive {
                 if contentSection.homeworkIsAssigned {
                     contentSection.setStoredAnswer(answer: answer.copyAnwser(), ctx: "ContentTypeView DISAPPEAR")
                     contentSection.saveAnswerToFile(answer: answer.copyAnwser())
@@ -316,7 +316,7 @@ struct ContentSectionHeaderView: View {
                         }
                     }
                 }
-                if UIGlobals.companionTest {
+                if UIGlobals.companionAppActive {
                     if contentSection.getPathAsArray().count == 2 {
                         Spacer()
                         Button(action: {
@@ -388,7 +388,8 @@ struct SectionsNavigationView:View {
         var name = ""
         if contentSection.isExamTypeContentSection() {
             //test section group header
-            if contentSection.hasNoAnswers() {
+            //print("===============getGradeImage", contentSection.getPath())
+            if !contentSection.hasStoredAnswers() {
                 return nil
             }
             else {
@@ -558,7 +559,7 @@ struct SectionsNavigationView:View {
                                         }
                                     }
                                     else {
-                                        if UIGlobals.companionTest {
+                                        if UIGlobals.companionAppActive {
                                             //if homeworkStatus != .notAssigned {
                                                 //Show correct answer icon for a homework question
                                                 HStack {
@@ -567,6 +568,7 @@ struct SectionsNavigationView:View {
                                                     Button(action: {
                                                         homeworkIndex = index
                                                         showHomework.toggle()
+                                                        //print("=====================111", self.homeworkIndex, index)
                                                     }) {
                                                         if let rowImage = getGradeImage(contentSection: contentSections[index]) {
                                                             rowImage
@@ -577,6 +579,7 @@ struct SectionsNavigationView:View {
                                                     }
                                                     .buttonStyle(BorderlessButtonStyle())
                                                     .sheet(isPresented: $showHomework) {
+                                                        //print("=====================222", self.homeworkIndex, index)
                                                         if let index = homeworkIndex {
                                                             HomeworkView(contentSection: contentSections[index])
                                                         }
@@ -689,8 +692,8 @@ struct ExamView: View {
                     if sectionIndex < contentSections.count - 1 {
                         Text("Completed question \(sectionIndex+1) of \(contentSections.count)").defaultTextStyle().padding()
                         Button(action: {
-                            contentSection.setStoredAnswer(answer: answer.copyAnwser(), ctx: "")
-                            contentSection.saveAnswerToFile(answer: answer.copyAnwser())
+                            contentSections[sectionIndex].setStoredAnswer(answer: answer.copyAnwser(), ctx: "")
+                            contentSections[sectionIndex].saveAnswerToFile(answer: answer.copyAnwser())
                             answerState = .notEverAnswered
                             sectionIndex += 1
                         }) {
@@ -725,8 +728,8 @@ struct ExamView: View {
                     else {
                         Spacer()
                         Button(action: {
-                            contentSection.storedAnswer = answer.copyAnwser()
-                            contentSection.saveAnswerToFile(answer: answer.copyAnwser())
+                            contentSections[sectionIndex].storedAnswer = answer.copyAnwser()
+                            contentSections[sectionIndex].saveAnswerToFile(answer: answer.copyAnwser())
                             //Force the parent view to refresh the test lines status
                             contentSection.questionStatus.setStatus(1)
                             presentationMode.wrappedValue.dismiss()
@@ -778,7 +781,6 @@ struct ExamView: View {
 }
 
 struct ContentSectionView: View {
-    //let contentSection:ContentSection
     @ObservedObject var contentSection:ContentSection
     //@ObservedObject var storedAnswer:Answer
     @State private var showNextNavigation: Bool = true
@@ -793,6 +795,12 @@ struct ContentSectionView: View {
         self.contentSection = contentSection
     }
     
+//    func log(cs:ContentSection) -> String {
+//        print("=====================ContentSectionView [", cs.getPath(), "]  ISCS", cs.isExamTypeContentSection(), "Stored", cs.hasStoredAnswers(),
+//              "child", cs.hasExamModeChildren())
+//        return ""
+//    }
+    
     var body: some View {
         VStack {
             if contentSection.getNavigableChildSections().count > 0 {
@@ -805,15 +813,15 @@ struct ContentSectionView: View {
                         SectionsNavigationView(contentSection: contentSection)
                     }
                     else {
-                        if contentSection.hasNoAnswers() {
+                        if contentSection.hasStoredAnswers() {
+                            //Exam was taken
+                            SectionsNavigationView(contentSection: contentSection)
+                        }
+                        else {
                             GeometryReader { geo in
                                 ExamView(contentSection: contentSection)
                                     .frame(width: geo.size.width)
                             }
-                        }
-                        else {
-                            //Exam was taken
-                            SectionsNavigationView(contentSection: contentSection)
                         }
                     }
                 }
@@ -834,7 +842,7 @@ struct ContentSectionView: View {
                                 answerState: $answerState,
                                 answer: $answer)
                 .onDisappear() {
-                    if UIGlobals.companionTest {
+                    if UIGlobals.companionAppActive {
                         if contentSection.homeworkIsAssigned {
                             contentSection.setStoredAnswer(answer: answer.copyAnwser(), ctx: "ContentSectionView DISAPPEAR")
                             contentSection.saveAnswerToFile(answer: answer.copyAnwser())
@@ -854,7 +862,7 @@ struct ContentSectionView: View {
         }
         .onDisappear() {
             AudioRecorder.shared.stopPlaying()
-//            if UIGlobals.companionTest {
+//            if UIGlobals.companionAppActive {
 //                if [.doneCorrect, .doneError].contains(contentSection.getHomework()) {
 //                    contentSection.setStoredAnswer(answer: answer.copyAnwser())
 //                    contentSection.saveAnswerToFile(answer: answer.copyAnwser())

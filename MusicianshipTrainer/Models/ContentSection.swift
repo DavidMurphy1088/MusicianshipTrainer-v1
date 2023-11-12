@@ -76,6 +76,10 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     
     func setHomeworkStatus()  {
         //let path = contentSection.getPathAsArray()
+        if !UIGlobals.companionAppActive {
+            self.homeworkIsAssigned = false
+            return
+        }
         let path = self.getPathAsArray()
         if path.count == 0 {
             return
@@ -94,7 +98,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             return
         }
         self.homeworkIsAssigned = true
-        print("=============SET", self.getPath())
     }
     
     func setStoredAnswer(answer:Answer, ctx:String) {
@@ -140,7 +143,7 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     }
 
     func saveAnswerToFile(answer: Answer) {
-        print("============SavedAnserToFile", self.getPath(), answer.correct, storedAnswer)
+        print("\n============SavedAnserToFile", self.getPath(), answer.correct, storedAnswer)
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         do {
@@ -415,13 +418,13 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
         return nil
     }
     
-    func hasNoAnswers() -> Bool {
+    func hasStoredAnswers() -> Bool {
         for section in self.subSections {
             if section.storedAnswer != nil {
-                return false
+                return true
             }
         }
-        return true
+        return false
     }
     
     func getScore(staffCount:Int, onlyRhythm:Bool, warnNotFound:Bool=true) -> Score {
@@ -571,15 +574,14 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
             }
         }
         let root = Note(timeSlice:timeSlice, num: pitch, staffNum: 0)
-        //timeSlice.setTags(high: TagHigh(content:root.getNoteName(), popup: nil), low: triad)
-        timeSlice.setTags(high: TagHigh(content:Note.getNoteName(midiNum: root.midiNumber), popup: nil), low: triad)
-        //var chord:Chord = Chord()
+        timeSlice.setTags(high: TagHigh(content:Note.getNoteName(midiNum: root.midiNumber),
+                                        popup: nil,
+                                        enablePopup: self.getExamTakingStatus() != .inExam),
+                          low: triad)
         for i in [0,4,7] {
             let note = Note(timeSlice: timeSlice, num: pitch + i, value:value, staffNum: 1)
-            //chord.addNote(note: note)
             timeSlice.addNote(n: note)
         }
-        //timeSlice.addChord(c: chord)
     }
     
     func playExamInstructions(withDelay:Bool, onLoaded: @escaping (_ status:RequestStatus) -> Void, onNarrated: @escaping () -> Void) {

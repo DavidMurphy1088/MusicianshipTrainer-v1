@@ -202,7 +202,7 @@ class ExampleData : ObservableObject {
                                 contentSection.loadAnswerFromFile()
                             }
                             else {
-                                if UIGlobals.companionTest {
+                                if UIGlobals.companionAppActive {
                                     contentSection.loadAnswerFromFile()
                                 }
                             }
