@@ -27,6 +27,8 @@
 		7B3A53A62AE8FEDF0088227E /* BarEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3A53A52AE8FEDF0088227E /* BarEditor.swift */; };
 		7B3DFFE52AFA2D3E00F25825 /* StemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3DFFE42AFA2D3E00F25825 /* StemView.swift */; };
 		7B3DFFE72AFD8CA800F25825 /* SetHomeworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3DFFE62AFD8CA800F25825 /* SetHomeworkView.swift */; };
+		7B3DFFE92B01E83800F25825 /* tap.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7B3DFFE82B01E83800F25825 /* tap.mp3 */; };
+		7B3DFFED2B01EAFF00F25825 /* audiomass-output.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7B3DFFEC2B01EAFF00F25825 /* audiomass-output.mp3 */; };
 		7B40B7EF2A54DF9000CA7FC4 /* TapRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */; };
 		7B40B7F02A54DF9000CA7FC4 /* ExampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D22A54DF8F00CA7FC4 /* ExampleData.swift */; };
 		7B40B7F12A54DF9000CA7FC4 /* Score.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B40B7D32A54DF8F00CA7FC4 /* Score.swift */; };
@@ -145,6 +147,8 @@
 		7B3A53A52AE8FEDF0088227E /* BarEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarEditor.swift; sourceTree = "<group>"; };
 		7B3DFFE42AFA2D3E00F25825 /* StemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StemView.swift; sourceTree = "<group>"; };
 		7B3DFFE62AFD8CA800F25825 /* SetHomeworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetHomeworkView.swift; sourceTree = "<group>"; };
+		7B3DFFE82B01E83800F25825 /* tap.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = tap.mp3; sourceTree = "<group>"; };
+		7B3DFFEC2B01EAFF00F25825 /* audiomass-output.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "audiomass-output.mp3"; sourceTree = "<group>"; };
 		7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TapRecorder.swift; sourceTree = "<group>"; };
 		7B40B7D22A54DF8F00CA7FC4 /* ExampleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleData.swift; sourceTree = "<group>"; };
 		7B40B7D32A54DF8F00CA7FC4 /* Score.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Score.swift; sourceTree = "<group>"; };
@@ -273,6 +277,8 @@
 		7B28078A2A5508D200C70EF4 /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
+				7B3DFFE82B01E83800F25825 /* tap.mp3 */,
+				7B3DFFEC2B01EAFF00F25825 /* audiomass-output.mp3 */,
 				7B2807922A5508D200C70EF4 /* clap-single-inspectorj.wav */,
 				7B28078E2A5508D200C70EF4 /* Ex1_Sine_Short.wav */,
 				7BBB9CD12AF7783B00E4DDAB /* pop-up-something-160353.mp3 */,
@@ -622,6 +628,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7BC42EB82A550F6C004FE117 /* Todo in Resources */,
+				7B3DFFE92B01E83800F25825 /* tap.mp3 in Resources */,
+				7B3DFFED2B01EAFF00F25825 /* audiomass-output.mp3 in Resources */,
 				7BFA20A12A555D90000A09CD /* GoogleAPI in Resources */,
 				7B2807A42A5508D300C70EF4 /* Echo Clap.html in Resources */,
 				7B28079C2A5508D300C70EF4 /* Clapping.html in Resources */,
@@ -986,7 +994,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 34;
+				CURRENT_PROJECT_VERSION = 35;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;
@@ -1020,7 +1028,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 34;
+				CURRENT_PROJECT_VERSION = 35;
 				DEVELOPMENT_ASSET_PATHS = "\"MusicianshipTrainer/Preview Content\"";
 				DEVELOPMENT_TEAM = 98U3T95RVJ;
 				ENABLE_PREVIEWS = YES;

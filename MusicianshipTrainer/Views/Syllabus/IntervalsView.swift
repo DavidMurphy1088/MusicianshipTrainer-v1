@@ -216,6 +216,9 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
                                 .padding()
                             }
                         }
+                        else {
+                            Text("Please wait for narrated instructions ...").hintAnswerButtonStyle(selected: false)
+                        }
                     }
 
                     if questionType == .intervalAural {

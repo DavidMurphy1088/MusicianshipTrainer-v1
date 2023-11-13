@@ -4,73 +4,74 @@ import AVFoundation
 import SwiftUI
 import AVFoundation
 
-class SoundPlayer {
-    private var audioEngine: AVAudioEngine?
+class TapSoundPlayer {
+    private var audioEngine: AVAudioEngine
     private var audioPlayerNodes: [AVAudioPlayerNode] = []
-    private var audioFile: AVAudioFile?
     private var playerNodeIndex = 0
-    private let players = 4
-
+    
+    ///This must be high enough to record every tap in the given rhythm. After all are sounded once they wont sound again. Fure - write code to recreate the AudioNode again
+    private let audioPlayersCount = 32
+    
     init() {
-        setupAudio()
+        audioEngine = AVAudioEngine()
+        //setupAudio()
     }
 
-    private func setupAudio() {
-        let engine = AVAudioEngine()
-        for _ in 0..<players {
+    func startAudio() {
+        audioPlayerNodes = []
+        for _ in 0..<audioPlayersCount {
             let playerNode = AVAudioPlayerNode()
             audioPlayerNodes.append(playerNode)
-            engine.attach(playerNode)
+            audioEngine.attach(playerNode)
         }
-        //let playerNode = AVAudioPlayerNode()
                 
         //if let fileURL = Bundle.main.url(forResource: "tapSound", withExtension: "mp3"),
-        if let fileURL = Bundle.main.url(forResource: "pop-up-something-160353", withExtension: "mp3"),
+        //let name = "pop-up-something-160353"
+        let name = "audiomass-output"
+        if let fileURL = Bundle.main.url(forResource: name, withExtension: "mp3"),
            let file = try? AVAudioFile(forReading: fileURL) {
-            for i in 0..<players {
+            for i in 0..<audioPlayersCount {
                 let node = audioPlayerNodes[i]
-                engine.attach(node)
-                engine.connect(node, to: engine.mainMixerNode, format: file.processingFormat)
+                //engine.attach(node)
+                audioEngine.connect(node, to: audioEngine.mainMixerNode, format: file.processingFormat)
+                node.scheduleFile(file, at: nil, completionHandler: nil)
+//                node.scheduleFile(file, at: nil, completionHandler: { [weak self] in
+//                    node.stop()
+//                    node.scheduleFile(file, at: nil, completionHandler: nil)
+//                })
+
+                node.volume = 1.0
             }
-            self.audioFile = file
+            //self.audioFile = file
+        }
+        else {
+            Logger.logger.reportError(self, "Filed load AVUdioPlayer sound")
         }
 
-        audioEngine = engine
-        //audioPlayerNode = playerNode
-
         do {
-            try engine.start()
+            try audioEngine.start()
         } catch {
             Logger.logger.reportError(self, "Error starting tap audio engine: \(error.localizedDescription)")
         }
     }
-
-    func playSound(volume: Float) {
-        guard let audioEngine = audioEngine,
-                //let audioPlayerNode = audioPlayerNode,
-                let audioFile = audioFile else { return }
-
-        if !audioEngine.isRunning {
-            do {
-                try audioEngine.start()
-            } catch {
-                print("Error starting audio engine: \(error.localizedDescription)")
-                return
-            }
+    
+    func stopAudio() {
+        for i in 0..<audioPlayersCount {
+            audioPlayerNodes[i].stop()
         }
+        for i in 0..<audioPlayersCount {
+            audioEngine.detach(audioPlayerNodes[i])
+        }
+        audioEngine.stop()
+    }
 
-        audioPlayerNodes[playerNodeIndex].stop()
-        audioPlayerNodes[playerNodeIndex].volume = volume
-        audioPlayerNodes[playerNodeIndex].scheduleFile(audioFile, at: nil) {
-            // This closure is called when the audio finishes playing.
-        }
-        audioPlayerNodes[playerNodeIndex].play()
-        if playerNodeIndex < players-1 {
-            playerNodeIndex += 1
-        }
-        else {
+    func playSound() {
+        if playerNodeIndex >= audioPlayerNodes.count {
             playerNodeIndex = 0
         }
+        self.audioPlayerNodes[playerNodeIndex].play()
+        //self.audioPlayerNodes[playerNodeIndex].stop()
+        playerNodeIndex += 1
     }
 }
 
@@ -85,8 +86,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
 
     var metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "Tap Recorder init")
     var metronomeTempoAtRecordingStart:Int? = nil
-    let soundPlayer = SoundPlayer()
-    //let dateFormatter = DateFormatter()
+    let soundPlayer = TapSoundPlayer()
     
     func setStatus(_ msg:String) {
         DispatchQueue.main.async {
@@ -104,6 +104,7 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
             self.enableRecordingLight = true
         }
         self.metronomeTempoAtRecordingStart = metronomeTempoAtRecordingStart
+        soundPlayer.startAudio()
     }
     
     func endMetronomePrefix() {
@@ -117,16 +118,16 @@ class TapRecorder : NSObject, AVAudioPlayerDelegate, AVAudioRecorderDelegate, Ob
         let date = Date()
         self.tapTimes.append(date.timeIntervalSince1970)
         if useSoundPlayer {
-            soundPlayer.playSound(volume: 1.0)
+            soundPlayer.playSound()
         }
         else {
-            //audioPlayer.play() Audio Player starts the tick too slowly for fast tempos and short value note and therefore throws of the tapping
             let sound = SystemSoundID(1104)
             AudioServicesPlaySystemSound(sound)
         }
     }
 
     func stopRecording(score:Score) -> ([Double]) {
+        soundPlayer.stopAudio()
         self.tapTimes.append(Date().timeIntervalSince1970) // record value of last tap made
         self.tappedValues = []
         var last:Double? = nil

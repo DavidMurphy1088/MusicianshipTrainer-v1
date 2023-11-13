@@ -530,6 +530,9 @@ struct ClapOrPlayPresentView: View {
                             if examInstructionsNarrated {
                                 recordingStartView()
                             }
+                            else {
+                                Text("Please wait for narrated instructions ...").hintAnswerButtonStyle(selected: false)
+                            }
                         }
                         else {
                             if rhythmHeard || questionType == .melodyPlay || questionType == .rhythmVisualClap {

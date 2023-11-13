@@ -143,7 +143,6 @@ class ContentSection: ObservableObject, Identifiable { //Codable,
     }
 
     func saveAnswerToFile(answer: Answer) {
-        print("\n============SavedAnserToFile", self.getPath(), answer.correct, storedAnswer)
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         do {

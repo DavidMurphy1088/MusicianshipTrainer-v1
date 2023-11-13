@@ -131,15 +131,15 @@ struct ScoreView: View {
         return editor
     }
     
-    func logxx() -> String {
-        print("🤔 =====> ScoreView Body",
-              "Score:", score.id.uuidString.suffix(4),
-              //"Width:", geometryWidth,
-              //"Portrait?", UIDevice.current.orientation.isPortrait
-              "lineSpacing", self.lineSpacing)
-
-        return ""
-    }
+//    func logzz() -> String {
+//        print("🤔 =====> ScoreView Body",
+//              "Score:", score.id.uuidString.suffix(4),
+//              //"Width:", geometryWidth,
+//              //"Portrait?", UIDevice.current.orientation.isPortrait
+//              "lineSpacing", self.lineSpacing)
+//
+//        return ""
+//    }
     
     var body: some View {
         VStack {

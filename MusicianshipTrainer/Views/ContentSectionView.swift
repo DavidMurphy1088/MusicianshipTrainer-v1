@@ -388,7 +388,6 @@ struct SectionsNavigationView:View {
         var name = ""
         if contentSection.isExamTypeContentSection() {
             //test section group header
-            //print("===============getGradeImage", contentSection.getPath())
             if !contentSection.hasStoredAnswers() {
                 return nil
             }
@@ -568,7 +567,6 @@ struct SectionsNavigationView:View {
                                                     Button(action: {
                                                         homeworkIndex = index
                                                         showHomework.toggle()
-                                                        //print("=====================111", self.homeworkIndex, index)
                                                     }) {
                                                         if let rowImage = getGradeImage(contentSection: contentSections[index]) {
                                                             rowImage
@@ -579,7 +577,6 @@ struct SectionsNavigationView:View {
                                                     }
                                                     .buttonStyle(BorderlessButtonStyle())
                                                     .sheet(isPresented: $showHomework) {
-                                                        //print("=====================222", self.homeworkIndex, index)
                                                         if let index = homeworkIndex {
                                                             HomeworkView(contentSection: contentSections[index])
                                                         }
@@ -588,7 +585,6 @@ struct SectionsNavigationView:View {
                                                 }
 
                                             }
-                                        //}
                                     }
                                 }
                             }
