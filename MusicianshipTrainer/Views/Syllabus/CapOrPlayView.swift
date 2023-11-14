@@ -386,13 +386,18 @@ struct ClapOrPlayPresentView: View {
     }
     
     func setRhythmTolerance() -> some View {
-        VStack {
-            VStack {
-                Slider(value: $rhythmTolerancePercent, in: 0...100).padding(.horizontal, 50)
-                Text("Rhythm Tolerance Percent: \(rhythmTolerancePercent, specifier: "%.2f")")
+        HStack {
+            HStack {
+                Text("Rhythm Tolerance: \(rhythmTolerancePercent, specifier: "%.0f")%")
+                Slider(value: $rhythmTolerancePercent, in: 10...60).padding(.horizontal, 50)
+                //Text("Rhythm Tolerance Percent: \(rhythmTolerancePercent, specifier: "%.2f")")
             }
             .onChange(of: rhythmTolerancePercent) { newValue in
-                UIGlobals.rhythmTolerancePercent = newValue
+                let allowedValues = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+                let sortedValues = allowedValues.sorted()
+                let closest = sortedValues.min(by: { abs($0 - Int(newValue)) < abs($1 - Int(newValue)) })
+                UIGlobals.rhythmTolerancePercent = Double(closest ?? Int(newValue))//newValue
+                rhythmTolerancePercent = UIGlobals.rhythmTolerancePercent
             }
             .padding()
             .overlay(
@@ -473,9 +478,10 @@ struct ClapOrPlayPresentView: View {
                 ///Option for editing the rhythm and restoring the rhythm to the original if the rhythm was edited
                 if answerState != .recording {
                     if contentSection.getExamTakingStatus() != .inExam {
-                        if questionType == .rhythmVisualClap {
-                            if score.getBarCount() > 1 {
-                                HStack {
+                        HStack {
+                            if questionType == .rhythmVisualClap {
+                                if score.getBarCount() > 1 {
+                                    //HStack {
                                     ///Enable bar manager to edit out bars in the given rhythm
                                     if score.barEditor == nil {
                                         Button(action: {
@@ -498,15 +504,16 @@ struct ClapOrPlayPresentView: View {
                                             .padding()
                                         }
                                     }
+                                    //}
                                 }
+                            }
+                            if questionType != .melodyPlay {
+                                setRhythmTolerance()
                             }
                         }
                     }
                 }
                 
-                if questionType != .melodyPlay {
-                    setRhythmTolerance()
-                }
                 
                 if questionType == .melodyPlay {
                     if answerState != .recording {

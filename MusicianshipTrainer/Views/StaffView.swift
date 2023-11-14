@@ -74,13 +74,13 @@ struct TimeSignatureView: View {
             
             if timeSignature.isCommonTime {
                 Text(" C")
-                    .font(.custom("Times New Roman", size: fontSize * 1.5)).bold()
+                    .font(.custom("Times New Roman", size: fontSize * 1.5)).bold().foregroundColor(.black)
                 //.font(.system(size: fontSize(for: geometry.size.height)))
             }
             else {
                 VStack (spacing: 0) {
-                    Text(" \(timeSignature.top)").font(.system(size: fontSize * 1.1)).padding(.vertical, -padding)
-                    Text(" \(timeSignature.bottom)").font(.system(size: fontSize  * 1.1)).padding(.vertical, -padding)
+                    Text(" \(timeSignature.top)").font(.system(size: fontSize * 1.1)).padding(.vertical, -padding).foregroundColor(.black)
+                    Text(" \(timeSignature.bottom)").font(.system(size: fontSize  * 1.1)).padding(.vertical, -padding).foregroundColor(.black)
                 }
             }
         //}
@@ -90,20 +90,23 @@ struct TimeSignatureView: View {
 struct CleffView: View {
     var score:Score
     @ObservedObject var staff:Staff
-    //@ObservedObject var staffLayoutSize:StaffLayoutSize
 
     var body: some View {
         HStack {
             if staff.type == StaffType.treble {
                 VStack {
-                    Text("\u{1d11e}").font(.system(size: CGFloat(score.lineSpacing * 10)))
+                    Text("\u{1d11e}")
+                        .foregroundColor(.black)
+                        .font(.system(size: CGFloat(score.lineSpacing * 10)))
                         .padding(.top, 0.0)
                         .padding(.bottom, score.lineSpacing * 1.0)
                 }
                 //.border(Color.red)
             }
             else {
-                Text("\u{1d122}").font(.system(size: CGFloat(Double(score.lineSpacing) * 6.5)))
+                Text("\u{1d122}")
+                    .foregroundColor(.black)
+                    .font(.system(size: CGFloat(Double(score.lineSpacing) * 6.5)))
             }
         }
         //.border(Color.green)
@@ -128,6 +131,7 @@ struct KeySignatureView: View {
                 VStack {
                     Image("sharp")
                         .resizable()
+                        .foregroundColor(.black)
                         .scaledToFit()
                         .frame(width: score.lineSpacing * getWidthMultiplier())
                         .offset(y: 0 - Double(offset) * score.lineSpacing / 2.0)

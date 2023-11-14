@@ -26,8 +26,13 @@ struct ConfigurationView: View {
     @State var colorScore:Color
     @State var colorBackground:Color
     @State var colorInstructions:Color
-    @State var showReloadHTMLButton: Bool
+    
+    @State var soundOnTaps: Bool
+    @State var useUpstrokeTaps: Bool
+    
     @State var useAnimations: Bool
+    
+    @State var showReloadHTMLButton: Bool
     @State var useTestData: Bool
 
     @State private var selectedOption: Int? = nil
@@ -41,30 +46,10 @@ struct ConfigurationView: View {
         //GeometryReader { geo in //CAUSES ALL CHILDS LEft ALIGNED???
             VStack(alignment: .center) {
                 
-                Text("Your Configuration").font(.title).padding()
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
+                Text("Configuration").font(.title).padding()
+                    //.overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
                     .padding()
-                
-                // ------------ Age Mode ---------------
-                
-                VStack {
-                    Text("Select Your Age Group").font(.title).padding()
-                    ConfigSelectAgeMode(selectedIndex: $selectedAge, items: ages)
-                }
-                .onAppear {
-                    if ageGroup == .Group_5To10 {
-                        selectedAge = 0
-                    }
-                    else {
-                        selectedAge = 1
-                    }
-                }
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-//                )
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
-                .padding()
-                
+
                 // ------------------- Colors ----------------
                 
                 HStack {
@@ -79,7 +64,7 @@ struct ConfigurationView: View {
                             colorBackground = UIGlobals.colorBackgroundDefault
                         }
                     }
-                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
+                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1)).padding()
 
                     VStack {
                         Circle()
@@ -92,7 +77,7 @@ struct ConfigurationView: View {
                             colorScore = UIGlobals.colorDefault
                         }
                     }
-                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
+                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1)).padding()
 
                     VStack {
                         Circle()
@@ -106,38 +91,81 @@ struct ConfigurationView: View {
                         }
 
                     }
-                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2)).padding()
+                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1)).padding()
                 }
                 
-                Button(action: {
-                    useAnimations.toggle()
-                }) {
+                VStack {
                     HStack {
-                        Image(systemName: useAnimations ? "checkmark.square" : "square")
-                        Text("Show Animations for Answers?")
+                        HStack {
+                            Text("Select Your Age Group")
+                            ConfigSelectAgeMode(selectedIndex: $selectedAge, items: ages)
+                        }
+                        .onAppear {
+                            if ageGroup == .Group_5To10 {
+                                selectedAge = 0
+                            }
+                            else {
+                                selectedAge = 1
+                            }
+                        }
+                        //.overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1))
+                        .padding()
+                        
+                        Button(action: {
+                            useAnimations.toggle()
+                        }) {
+                            HStack {
+                                Image(systemName: useAnimations ? "checkmark.square" : "square")
+                                Text("Show Animations for Answers")
+                            }
+                        }
+                        .padding()
+                    }
+                    
+                    HStack {
+                        Button(action: {
+                            soundOnTaps.toggle()
+                        }) {
+                            HStack {
+                                Image(systemName: showReloadHTMLButton ? "checkmark.square" : "square")
+                                Text("Sound on Taps")
+                            }
+                        }
+                        .padding()
+                        
+                        Button(action: {
+                            useUpstrokeTaps.toggle()
+                        }) {
+                            HStack {
+                                Image(systemName: useTestData ? "checkmark.square" : "square")
+                                Text("Use Upstroke Taps")
+                            }
+                        }
+                        .padding()
+                    }
+                    
+                    HStack {
+                        Button(action: {
+                            showReloadHTMLButton.toggle()
+                        }) {
+                            HStack {
+                                Image(systemName: showReloadHTMLButton ? "checkmark.square" : "square")
+                                Text("Show Reload HTML Button")
+                            }
+                        }
+                        .padding()
+                        
+                        Button(action: {
+                            useTestData.toggle()
+                        }) {
+                            HStack {
+                                Image(systemName: useTestData ? "checkmark.square" : "square")
+                                Text("Use Test Data")
+                            }
+                        }
+                        .padding()
                     }
                 }
-                .padding()
-                
-                Button(action: {
-                    showReloadHTMLButton.toggle()
-                }) {
-                    HStack {
-                        Image(systemName: showReloadHTMLButton ? "checkmark.square" : "square")
-                        Text("Show Reload HTML Button?")
-                    }
-                }
-                .padding()
-                
-                Button(action: {
-                    useTestData.toggle()
-                }) {
-                    HStack {
-                        Image(systemName: useTestData ? "checkmark.square" : "square")
-                        Text("Use Test Data?")
-                    }
-                }
-                .padding()
                 
                 //LogView().border(.black).padding()
                 HStack {

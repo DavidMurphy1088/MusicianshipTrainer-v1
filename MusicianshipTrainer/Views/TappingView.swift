@@ -26,8 +26,8 @@ struct TappingView: View {
     @ObservedObject var invert:Invert = Invert()
     @State private var isScaled = false
     @State var tapSoundOn = false
-    @State var soundOn = false
-    @State var upStroke = true
+    //@State var soundOn = false
+    //@State var upStroke = true
 
     func drumView() -> some View {
         VStack {
@@ -58,7 +58,8 @@ struct TappingView: View {
     var body: some View {
         VStack {
             ///.onTapGesture and .gesture can't interoperate... -> use one or the other
-            if upStroke {
+            //if upStroke {
+            if Settings.useUpstrokeTaps {
                 ZStack {
                     drumView()
                 }
@@ -67,7 +68,7 @@ struct TappingView: View {
                     ///Fires on up stroke
                     if isRecording {
                         invert.switchBorder()
-                        tapRecorder.makeTap(useSoundPlayer:soundOn)
+                        tapRecorder.makeTap(useSoundPlayer:Settings.soundOnTaps)
                     }
                 }
             }
@@ -82,34 +83,34 @@ struct TappingView: View {
                     .onChanged({ _ in
                         if isRecording {
                             invert.switchBorder()
-                            tapRecorder.makeTap(useSoundPlayer:soundOn)
+                            tapRecorder.makeTap(useSoundPlayer:Settings.soundOnTaps)
                         }
                     })
                 )
             }
 
-            Text("").padding()
-            HStack {
-                Button(action: {
-                    soundOn.toggle()
-                }) {
-                    HStack {
-                        Image(systemName: soundOn ? "checkmark.square" : "square")
-                        Text("Sound On?")
-                    }
-                }
-                .padding()
-                
-                Button(action: {
-                    upStroke.toggle()
-                }) {
-                    HStack {
-                        Image(systemName: upStroke ? "square" : "checkmark.square")
-                        Text("Use Down Stroke?")
-                    }
-                }
-                .padding()
-            }
+//            Text("").padding()
+//            HStack {
+//                Button(action: {
+//                    soundOn.toggle()
+//                }) {
+//                    HStack {
+//                        Image(systemName: soundOn ? "checkmark.square" : "square")
+//                        Text("Sound On?")
+//                    }
+//                }
+//                .padding()
+//
+//                Button(action: {
+//                    upStroke.toggle()
+//                }) {
+//                    HStack {
+//                        Image(systemName: upStroke ? "square" : "checkmark.square")
+//                        Text("Use Down Stroke?")
+//                    }
+//                }
+//                .padding()
+//            }
             Text("").padding()
             Button(action: {
                 onDone()

@@ -67,8 +67,10 @@ struct ContentNavigationView: View {
                                               colorScore: Settings.colorScore,
                                               colorBackground: Settings.colorBackground,
                                               colorInstructions: Settings.colorInstructions,
-                                              showReloadHTMLButton: Settings.showReloadHTMLButton,
+                                              soundOnTaps: Settings.soundOnTaps,
+                                              useUpstrokeTaps: Settings.useUpstrokeTaps,
                                               useAnimations: Settings.useAnimations,
+                                              showReloadHTMLButton: Settings.showReloadHTMLButton,
                                               useTestData: Settings.useTestData,
                                               ageGroup: Settings.ageGroup)
                         }
@@ -118,8 +120,10 @@ struct ContentNavigationView: View {
                                           colorScore: Settings.colorScore,
                                           colorBackground: Settings.colorBackground,
                                           colorInstructions: Settings.colorInstructions,
-                                          showReloadHTMLButton: Settings.showReloadHTMLButton,
+                                          soundOnTaps: Settings.soundOnTaps,
+                                          useUpstrokeTaps: Settings.useUpstrokeTaps,
                                           useAnimations: Settings.useAnimations,
+                                          showReloadHTMLButton: Settings.showReloadHTMLButton,
                                           useTestData: Settings.useTestData,
                                           ageGroup: Settings.ageGroup
                         )

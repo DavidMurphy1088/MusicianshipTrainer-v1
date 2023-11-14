@@ -93,7 +93,9 @@ class Settings {
     ///Color of each test's screen background
     static var colorBackground = UIGlobals.colorBackgroundDefault
     static let AgeGroup11Plus = "11Plus"
-    
+    static let soundOnTaps = true
+    static let useUpstrokeTaps = false
+
     static let shared = Settings()
     let id = UUID()
     
