@@ -26,7 +26,7 @@ struct TappingView: View {
     @ObservedObject var invert:Invert = Invert()
     @State private var isScaled = false
     @State var tapSoundOn = false
-    //@State var soundOn = false
+    @State var tapCtr = 0
     //@State var upStroke = true
 
     func drumView() -> some View {
@@ -57,9 +57,7 @@ struct TappingView: View {
 
     var body: some View {
         VStack {
-            ///.onTapGesture and .gesture can't interoperate... -> use one or the other
-            //if upStroke {
-            if Settings.useUpstrokeTaps {
+            if Settings.shared.useUpstrokeTaps || UIDevice.current.userInterfaceIdiom == .phone {
                 ZStack {
                     drumView()
                 }
@@ -68,7 +66,11 @@ struct TappingView: View {
                     ///Fires on up stroke
                     if isRecording {
                         invert.switchBorder()
-                        tapRecorder.makeTap(useSoundPlayer:Settings.soundOnTaps)
+                        ///Too much sound lag on phone so dont use sound
+                        tapRecorder.makeTap(useSoundPlayer:Settings.shared.soundOnTaps && UIDevice.current.userInterfaceIdiom == .pad)
+//                        tapCtr += 1
+//                        print("================ ONTap", tapCtr)
+
                     }
                 }
             }
@@ -79,11 +81,14 @@ struct TappingView: View {
                 .padding()
                 .gesture(
                     ///Fires on downstroke
+                    ///Cannot use on iPhone - it seems to generate 4-6 notifictions on each tap.
                     DragGesture(minimumDistance: 0)
                     .onChanged({ _ in
                         if isRecording {
                             invert.switchBorder()
-                            tapRecorder.makeTap(useSoundPlayer:Settings.soundOnTaps)
+                            tapRecorder.makeTap(useSoundPlayer:Settings.shared.soundOnTaps)
+//                            tapCtr += 1
+//                            print("================ ONGesture", tapCtr)
                         }
                     })
                 )

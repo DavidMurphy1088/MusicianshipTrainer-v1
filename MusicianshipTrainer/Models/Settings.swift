@@ -9,6 +9,8 @@ enum UserDefaultKeys {
     static let showReloadHTMLButton = "showReloadHTMLButton"
     static let useTestData = "useTestData"
     static let useAnimations = "useAnimations"
+    static let soundOnTaps = "soundOnTaps"
+    static let useUpstrokeTaps = "useUpstrokeTaps"
 }
 
 extension UserDefaults {
@@ -82,53 +84,68 @@ extension Color {
     }
 }
 
-class Settings {
-    static var useTestData = false
-    static var showReloadHTMLButton = false
-    static var useAnimations = false
-    
-    static var ageGroup:AgeGroup = .Group_11Plus
-    static var colorScore = UIGlobals.colorScoreDefault
-    static var colorInstructions = UIGlobals.colorInstructionsDefault
+class Settings : ObservableObject {
+    var id = UUID()
+    let AGE_GROUP_11_PLUS = "11Plus"
+    @Published var useTestData = false
+    @Published var showReloadHTMLButton = false
+    @Published var useAnimations = false
+    @Published var ageGroup:AgeGroup = .Group_11Plus
+    @Published var colorScore = UIGlobals.colorScoreDefault
+    @Published var colorInstructions = UIGlobals.colorInstructionsDefault
     ///Color of each test's screen background
-    static var colorBackground = UIGlobals.colorBackgroundDefault
-    static let AgeGroup11Plus = "11Plus"
-    static let soundOnTaps = true
-    static let useUpstrokeTaps = false
+    @Published var colorBackground = UIGlobals.colorBackgroundDefault
+    @Published var soundOnTaps = true
+    @Published var useUpstrokeTaps = false
 
-    static let shared = Settings()
-    let id = UUID()
+    static var shared = Settings()
     
     init() {
         if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorScore) {
-            Settings.colorScore = retrievedColor
+            colorScore = retrievedColor
         }
         if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorInstructions) {
-            Settings.colorInstructions = retrievedColor
+            colorInstructions = retrievedColor
         }
         if let retrievedColor = UserDefaults.standard.getSelectedColor(key: UserDefaultKeys.selectedColorBackground) {
-            Settings.colorBackground = retrievedColor
+            colorBackground = retrievedColor
         }
         if let retrievedAgeGroup = UserDefaults.standard.getSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup) {
-            Settings.ageGroup = retrievedAgeGroup
+            ageGroup = retrievedAgeGroup
         }
-        Settings.showReloadHTMLButton = UserDefaults.standard.getBoolean(key: UserDefaultKeys.showReloadHTMLButton)
-        Settings.useTestData = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useTestData)
-        Settings.useAnimations = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useAnimations)
+        showReloadHTMLButton = UserDefaults.standard.getBoolean(key: UserDefaultKeys.showReloadHTMLButton)
+        useTestData = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useTestData)
+        useAnimations = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useAnimations)
+        soundOnTaps = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useAnimations)
+        useUpstrokeTaps = UserDefaults.standard.getUseTestData(key: UserDefaultKeys.useUpstrokeTaps)
     }
     
-    static func getAgeGroup() -> String {
-        return Settings.ageGroup == .Group_11Plus ? AgeGroup11Plus : "5-10"
+    init(copy settings: Settings) {
+        self.useTestData = settings.useTestData
+        self.showReloadHTMLButton = settings.showReloadHTMLButton
+        self.useAnimations = settings.useAnimations
+        self.ageGroup = settings.ageGroup
+        self.colorScore = settings.colorScore
+        self.colorInstructions = settings.colorInstructions
+        self.colorBackground = settings.colorBackground
+        self.soundOnTaps = settings.soundOnTaps
+        self.useUpstrokeTaps = settings.useUpstrokeTaps
+    }
+    
+    func getAgeGroup() -> String {
+        return ageGroup == .Group_11Plus ? AGE_GROUP_11_PLUS : "5-10"
     }
 
     func saveConfig() {
-        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorScore, Settings.colorScore)
-        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorInstructions, Settings.colorInstructions)
-        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorBackground, Settings.colorBackground)
-        UserDefaults.standard.setSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup, Settings.ageGroup)
-        UserDefaults.standard.setBoolean(key: UserDefaultKeys.showReloadHTMLButton, Settings.showReloadHTMLButton)
-        UserDefaults.standard.setBoolean(key: UserDefaultKeys.useTestData, Settings.useTestData)
-        UserDefaults.standard.setBoolean(key: UserDefaultKeys.useAnimations, Settings.useAnimations)
+        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorScore, colorScore)
+        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorInstructions, colorInstructions)
+        UserDefaults.standard.setSelectedColor(key: UserDefaultKeys.selectedColorBackground, colorBackground)
+        UserDefaults.standard.setSelectedAgeGroup(key: UserDefaultKeys.selectedAgeGroup, ageGroup)
+        UserDefaults.standard.setBoolean(key: UserDefaultKeys.showReloadHTMLButton, showReloadHTMLButton)
+        UserDefaults.standard.setBoolean(key: UserDefaultKeys.useTestData, useTestData)
+        UserDefaults.standard.setBoolean(key: UserDefaultKeys.useAnimations, useAnimations)
+        UserDefaults.standard.setBoolean(key: UserDefaultKeys.soundOnTaps, soundOnTaps)
+        UserDefaults.standard.setBoolean(key: UserDefaultKeys.useUpstrokeTaps, useUpstrokeTaps)
     }
     
 }

@@ -17,15 +17,15 @@ struct PracticeToolView: View {
     var text:String
     var body: some View {
         HStack {
-            Text("Practice Tool:")//.padding()
-            Text(text)
+            Text("Practice Tool:").defaultTextStyle()
+            Text(text).defaultTextStyle()
         }
         .padding()
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
         //.background(UIGlobals.backgroundColorLighter)
-        .background(Settings.colorInstructions)
+        .background(Settings.shared.colorInstructions)
         .padding()
     }
 }
@@ -385,15 +385,34 @@ struct ClapOrPlayPresentView: View {
         }
     }
     
+    func getToleranceLabel(_ setting:Double) -> String {
+        var name = UIDevice.current.userInterfaceIdiom == .pad ? "Rhythm Tolerance:" : "Tolerance:"
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if setting <= 15.0 {
+                name += " Extreme"
+            }
+            else {
+                if setting <= 40.0 {
+                    name += " Bravo"
+                }
+                else {
+                    name += " Easy"
+                }
+            }
+        }
+        let percent = " " + String(format: "%.0f", setting) + "%"
+        name += percent
+        return name
+    }
+    
     func setRhythmTolerance() -> some View {
         HStack {
             HStack {
-                Text("Rhythm Tolerance: \(rhythmTolerancePercent, specifier: "%.0f")%")
-                Slider(value: $rhythmTolerancePercent, in: 10...60).padding(.horizontal, 50)
-                //Text("Rhythm Tolerance Percent: \(rhythmTolerancePercent, specifier: "%.2f")")
+                Text(getToleranceLabel(rhythmTolerancePercent)).defaultTextStyle()
+                Slider(value: $rhythmTolerancePercent, in: 10...60).padding(.horizontal, UIDevice.current.userInterfaceIdiom == .pad ? 50 : 4)
             }
             .onChange(of: rhythmTolerancePercent) { newValue in
-                let allowedValues = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+                let allowedValues = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70]
                 let sortedValues = allowedValues.sorted()
                 let closest = sortedValues.min(by: { abs($0 - Int(newValue)) < abs($1 - Int(newValue)) })
                 UIGlobals.rhythmTolerancePercent = Double(closest ?? Int(newValue))//newValue
@@ -403,7 +422,7 @@ struct ClapOrPlayPresentView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
             )
-            .background(Settings.colorScore)
+            .background(Settings.shared.colorScore)
             .padding()
         }
     }
@@ -517,7 +536,7 @@ struct ClapOrPlayPresentView: View {
                 
                 if questionType == .melodyPlay {
                     if answerState != .recording {
-                        CountdownTimerView()
+                        CountdownTimerView(score: score)
                     }
                 }
                 
@@ -1010,7 +1029,7 @@ struct ClapOrPlayView: View {
                                              tryNumber: $tryNumber,
                                              answer: answer,
                                              questionType: questionType)
-                        if Settings.useAnimations {
+                        if Settings.shared.useAnimations {
                             if !contentSection.isExamTypeContentSection() {
                                 if !(self.questionType == .melodyPlay) {
                                     FlyingImageView(answer: answer)
@@ -1022,7 +1041,7 @@ struct ClapOrPlayView: View {
                 Spacer() //Force it to align from the top
             }
         }
-        .background(Settings.colorBackground)
+        .background(Settings.shared.colorBackground)
 
         .onDisappear {
             let metronome = Metronome.getMetronomeWithCurrentSettings(ctx: "")

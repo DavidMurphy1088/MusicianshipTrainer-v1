@@ -8,9 +8,8 @@ enum LaunchScreenStep {
 }
 
 final class LaunchScreenStateManager: ObservableObject {
-
     @MainActor @Published private(set) var state: LaunchScreenStep = .firstStep
-    
+
     @MainActor func dismiss() {
         Task {
             state = .secondStep
@@ -69,12 +68,11 @@ struct LaunchScreenView: View {
         //print("LaunchScreenView ", "id:", id, "state:", launchScreenState.state, "opac:", opacity.imageOpacity, "dur:", durationSeconds, "id:")
     }
     
-    
     @ViewBuilder
     private var image: some View {  // Mark 3
         GeometryReader { geo in
             //hack: for some reason there are 2 instances of LaunchScreenView. The first starts showing too early ??
-            if id == 1 {
+            //if id == 1 {
                 VStack {
                     VStack {
                         Spacer()
@@ -103,14 +101,9 @@ struct LaunchScreenView: View {
                         Text("")
                     }
                 }
-            }
+            //}
         }
     }
-    
-//    @ViewBuilder
-//    private var backgroundColor: some View {  // Mark 3
-//        Color(red: 150 / 255, green: 210 / 255, blue: 225 / 255).ignoresSafeArea()
-//    }
     
     var body: some View {
         ZStack {

@@ -150,7 +150,8 @@ struct ListMelodiesView: View {
                             HStack {
                                 Text(melody.name)
                                     .padding()
-                                    .foregroundColor(selectedMelodyId == melody.id ? .white : .primary)
+                                    .foregroundColor(selectedMelodyId == melody.id ? .black : .black)
+                                    //.foregroundColor(selectedMelodyId == melody.id ? .white : .primary)
                                     .background(selectedMelodyId == melody.id ? Color.blue : Color.white)
                                     .cornerRadius(8)
                                     .padding()

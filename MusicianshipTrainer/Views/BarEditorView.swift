@@ -118,9 +118,11 @@ struct BarEditorView: View {
             }
             
             .onAppear() {
-                showHelp = true
-                Timer.scheduledTimer(withTimeInterval: 8.0, repeats: false) { _ in
-                    showHelp = false
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    showHelp = true
+                    Timer.scheduledTimer(withTimeInterval: 8.0, repeats: false) { _ in
+                        showHelp = false
+                    }
                 }
             }
             .popover(isPresented: $showHelp) {

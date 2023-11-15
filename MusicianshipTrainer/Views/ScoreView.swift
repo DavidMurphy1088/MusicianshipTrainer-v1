@@ -40,9 +40,9 @@ struct FeedbackView: View {
 
 struct ScoreView: View {
     @ObservedObject var score:Score
-    //@ObservedObject var staffLayoutSize:StaffLayoutSize
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @State private var dragOffset = CGSize.zero
+    @State var logCtr = 0
     
     init(score:Score) {
         self.score = score
@@ -68,11 +68,11 @@ struct ScoreView: View {
         return height
     }
     
-    func setOrientationLineSize(ctx:String, geometryWidth:Double) {
+    func setOrientationLineSize(ctx:String) {//}, geometryWidth:Double) {
         ///Nov2023 NEVER USE THIS AGAIN. Set the line spacing based on some other criteria than the size of the screen
         //Absolutley no idea - the width reported here decreases in landscape mode so use height (which increases)
         //https://www.hackingwithswift.com/quick-start/swiftui/how-to-detect-device-rotation
-        var lineSpacing:Double
+        //var lineSpacing:Double
 //        if self.staffLayoutSize.lineSpacing == 0 {
 //            //if UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
 //            if UIDevice.current.userInterfaceIdiom == .phone {
@@ -100,8 +100,9 @@ struct ScoreView: View {
         //self.staffLayoutSize.setLineSpacing(lineSpacing) ????????? WHY 
 
         //lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : UIScreen.main.bounds.width / 64.0
-        lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : geometryWidth / 64.0
-        
+        //score.lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : geometryWidth / 64.0
+        //score.lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 5.0 : 15
+
 //        if UIDevice.current.orientation.isLandscape {
 //            lineSpacing = lineSpacing / 1.5
 //        }
@@ -111,16 +112,12 @@ struct ScoreView: View {
 //        else {
 //            print("\tPortrait", UIScreen.main.bounds, UIDevice.current.orientation.isFlat)
 //        }
-//        print("  \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", ls)
-        //UIGlobals.showDeviceOrientation()
-//        print("👉 👉 =====> setOrientationLineSize",
-//              "Score:", score.id.uuidString.suffix(4),
-//              "Width:", geometryWidth,
-//              "Context:", ctx,
-//              "Portrait?", UIDevice.current.orientation.isPortrait, "lineSpacing", lineSpacing)
-
-        //self.staffLayoutSize.setLineSpacing(lineSpacing)
-        //return lineSpacing
+        
+        //??????????????????????????????
+        //score.lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 5.0 : 8
+        print("\n👉 👉 setOrientationLineSize \(logCtr) \twidth::", UIScreen.main.bounds.width, "height:", UIScreen.main.bounds.height, "\tline spacing", score.lineSpacing)
+        UIGlobals.showDeviceOrientation()
+        logCtr += 1
     }
     
     func getBarEditor() -> BarEditor? {
@@ -131,7 +128,7 @@ struct ScoreView: View {
         return editor
     }
     
-//    func logzz() -> String {
+//    func log() -> String {
 //        print("🤔 =====> ScoreView Body",
 //              "Score:", score.id.uuidString.suffix(4),
 //              //"Width:", geometryWidth,
@@ -167,7 +164,7 @@ struct ScoreView: View {
         }
 
         .onAppear() {
-            //self.setOrientationLineSize(ctx: "🤢.Score View .onAppear", geometryWidth: geometry.size.width)
+            self.setOrientationLineSize(ctx: "🤢.Score View .onAppear") //, geometryWidth: geometry.size.width)
             UIDevice.current.beginGeneratingDeviceOrientationNotifications()
         }
         .onDisappear {
@@ -177,7 +174,7 @@ struct ScoreView: View {
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
-        .background(Settings.colorScore)
+        .background(Settings.shared.colorScore)
         //.border(Color .red, width: 2)
     }
 

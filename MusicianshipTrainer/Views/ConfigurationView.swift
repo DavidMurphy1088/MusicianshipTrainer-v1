@@ -23,196 +23,201 @@ struct LogView: View {
 
 struct ConfigurationView: View {
     @Binding var isPresented: Bool
-    @State var colorScore:Color
-    @State var colorBackground:Color
-    @State var colorInstructions:Color
-    
-    @State var soundOnTaps: Bool
-    @State var useUpstrokeTaps: Bool
-    
-    @State var useAnimations: Bool
-    
-    @State var showReloadHTMLButton: Bool
-    @State var useTestData: Bool
-
-    @State private var selectedOption: Int? = nil
-    @State var ageGroup:AgeGroup
-    @State var selectedAge:Int = 0
-        
-    let ages = ["5-10", "11Plus"]
+    @ObservedObject var settings:Settings
+    //let ages = ["5-10", "11Plus"]
     let colorCircleSize = 60.0
     
     var body: some View {
-        //GeometryReader { geo in //CAUSES ALL CHILDS LEft ALIGNED???
-            VStack(alignment: .center) {
-                
-                Text("Configuration").font(.title).padding()
-                    //.overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
-                    .padding()
+        VStack(alignment: .center) {
+            
+            Text("Configuration").font(.title).padding()
+                //.overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
+                .padding()
 
-                // ------------------- Colors ----------------
-                
-                HStack {
-                    VStack {
-                        Circle()
-                            .fill(colorBackground)
-                            .frame(width: colorCircleSize, height: colorCircleSize)
-                        
-                        ColorPicker("Background\nSelect a Colour", selection: $colorBackground, supportsOpacity: false)
-                        
-                        Button("Reset") {
-                            colorBackground = UIGlobals.colorBackgroundDefault
-                        }
-                    }
-                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1)).padding()
-
-                    VStack {
-                        Circle()
-                            .fill(colorScore)
-                            .frame(width: colorCircleSize, height: colorCircleSize)
-                        
-                        ColorPicker("Score\nSelect a Colour", selection: $colorScore, supportsOpacity: false)
-                        
-                        Button("Reset") {
-                            colorScore = UIGlobals.colorDefault
-                        }
-                    }
-                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1)).padding()
-
-                    VStack {
-                        Circle()
-                            .fill(colorInstructions)
-                            .frame(width: colorCircleSize, height: colorCircleSize)
-                        
-                        ColorPicker("Instructions\nSelect a Colour", selection: $colorInstructions, supportsOpacity: false)
-
-                        Button("Reset") {
-                            colorInstructions = Settings.colorInstructions
-                        }
-
-                    }
-                    .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1)).padding()
-                }
-                
+            // ------------------- Colors ----------------
+            
+            HStack {
                 VStack {
+                    Circle()
+                        .fill(settings.colorBackground)
+                        .frame(width: colorCircleSize, height: colorCircleSize)
+                    
+                    ColorPicker("Background\nSelect a Colour", selection: $settings.colorBackground, supportsOpacity: false)
+                    
+                    Button("Reset") {
+                        DispatchQueue.main.async {
+                            settings.colorBackground = UIGlobals.colorBackgroundDefault
+                        }
+                    }
+                }
+                .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1)).padding()
+
+                VStack {
+                    Circle()
+                        .fill(settings.colorScore)
+                        .frame(width: colorCircleSize, height: colorCircleSize)
+                    
+                    ColorPicker("Score\nSelect a Colour", selection: $settings.colorScore, supportsOpacity: false)
+                    
+                    Button("Reset") {
+                        DispatchQueue.main.async {
+                            settings.colorScore = UIGlobals.colorScoreDefault
+                        }
+                    }
+                }
+                .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1)).padding()
+
+                VStack {
+                    Circle()
+                        .fill(settings.colorInstructions)
+                        .frame(width: colorCircleSize, height: colorCircleSize)
+                    
+                    ColorPicker("Instructions\nSelect a Colour", selection: $settings.colorInstructions, supportsOpacity: false)
+
+                    Button("Reset") {
+                        DispatchQueue.main.async {
+                            settings.colorInstructions = UIGlobals.colorInstructionsDefault
+                        }
+                    }
+
+                }
+                .padding().overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1)).padding()
+            }
+            
+            VStack {
+                HStack {
                     HStack {
+                        Text("Select Your Age Group")
+                        ConfigSelectAgeMode(selectedIndex: $settings.ageGroup)
+                    }
+                    .onAppear {
+//                            if settings.ageGroup == .Group_5To10 {
+//                                settings.selectedAge = .G
+//                            }
+//                            else {
+//                                settings.selectedAge = 1
+//                            }
+                    }
+                    //.overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1))
+                    .padding()
+                    
+                    Button(action: {
+                        DispatchQueue.main.async {
+                            settings.useAnimations.toggle()
+                        }
+                    }) {
                         HStack {
-                            Text("Select Your Age Group")
-                            ConfigSelectAgeMode(selectedIndex: $selectedAge, items: ages)
+                            Image(systemName: settings.useAnimations ? "checkmark.square" : "square")
+                            Text("Show Animations for Answers")
                         }
-                        .onAppear {
-                            if ageGroup == .Group_5To10 {
-                                selectedAge = 0
-                            }
-                            else {
-                                selectedAge = 1
-                            }
-                        }
-                        //.overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1))
-                        .padding()
-                        
-                        Button(action: {
-                            useAnimations.toggle()
-                        }) {
-                            HStack {
-                                Image(systemName: useAnimations ? "checkmark.square" : "square")
-                                Text("Show Animations for Answers")
-                            }
-                        }
-                        .padding()
                     }
-                    
-                    HStack {
-                        Button(action: {
-                            soundOnTaps.toggle()
-                        }) {
-                            HStack {
-                                Image(systemName: showReloadHTMLButton ? "checkmark.square" : "square")
-                                Text("Sound on Taps")
-                            }
-                        }
-                        .padding()
-                        
-                        Button(action: {
-                            useUpstrokeTaps.toggle()
-                        }) {
-                            HStack {
-                                Image(systemName: useTestData ? "checkmark.square" : "square")
-                                Text("Use Upstroke Taps")
-                            }
-                        }
-                        .padding()
-                    }
-                    
-                    HStack {
-                        Button(action: {
-                            showReloadHTMLButton.toggle()
-                        }) {
-                            HStack {
-                                Image(systemName: showReloadHTMLButton ? "checkmark.square" : "square")
-                                Text("Show Reload HTML Button")
-                            }
-                        }
-                        .padding()
-                        
-                        Button(action: {
-                            useTestData.toggle()
-                        }) {
-                            HStack {
-                                Image(systemName: useTestData ? "checkmark.square" : "square")
-                                Text("Use Test Data")
-                            }
-                        }
-                        .padding()
-                    }
+                    .padding()
                 }
                 
-                //LogView().border(.black).padding()
                 HStack {
-                    Button("Ok") {
-                        Settings.colorScore = colorScore
-                        Settings.colorInstructions = colorInstructions
-                        Settings.colorBackground = colorBackground
-                        
-                        Settings.ageGroup = selectedAge == 0 ? .Group_5To10 : .Group_11Plus
-                        Settings.showReloadHTMLButton = showReloadHTMLButton
-                        Settings.useAnimations = useAnimations
-                        Settings.useTestData = useTestData
-                        Settings.shared.saveConfig()
-                        isPresented = false
+                    Button(action: {
+                        DispatchQueue.main.async {
+                            settings.soundOnTaps.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: settings.soundOnTaps ? "checkmark.square" : "square")
+                            let x = settings.soundOnTaps ? 0 : 1
+                            Text("Sound on Taps \(x)")
+                        }
                     }
                     .padding()
-                    Button("Cancel") {
-                        isPresented = false
+                    
+                    Button(action: {
+                        DispatchQueue.main.async {
+                            settings.useUpstrokeTaps.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: settings.useUpstrokeTaps ? "checkmark.square" : "square")
+                            Text("Use Upstroke Taps")
+                        }
                     }
                     .padding()
                 }
                 
-                let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-                let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
-
-                VStack {
-                    Text("Musicianship Trainer - Version.Build \(appVersion).\(buildNumber)").font(.headline)
-                    Text("© 2023 Musicmaster Education LLC.").font(.headline)
+                HStack {
+                    Button(action: {
+                        DispatchQueue.main.async {
+                            settings.showReloadHTMLButton.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: settings.showReloadHTMLButton ? "checkmark.square" : "square")
+                            Text("Show Reload HTML Button")
+                        }
+                    }
+                    .padding()
+                    
+                    Button(action: {
+                        DispatchQueue.main.async {
+                            settings.useTestData.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: settings.useTestData ? "checkmark.square" : "square")
+                            Text("Use Test Data")
+                        }
+                    }
+                    .padding()
                 }
             }
-        //}
+            
+            //LogView().border(.black).padding()
+            HStack {
+                Button("Ok") {
+                    Settings.shared = Settings(copy: settings)
+                    Settings.shared.saveConfig()
+                    isPresented = false
+                }
+                .padding()
+                Button("Cancel") {
+                    isPresented = false
+                }
+                .padding()
+            }
+            
+            let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+            let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+
+            VStack {
+                Text("Musicianship Trainer - Version.Build \(appVersion).\(buildNumber)").font(.headline)
+                Text("© 2023 Musicmaster Education LLC.").font(.headline)
+            }
+        }
     }
-    
 }
 
+//struct ConfigSelectAgeMode: View {
+//    @Binding var selectedIndex: AgeGroup
+//    let items: [String]
+//
+//    var body: some View {
+//        Picker("Select your Age", selection: $selectedIndex) {
+//            ForEach(0..<items.count) { index in
+//                Text(items[index]).tag(index).font(.title)
+//            }
+//        }
+//        .pickerStyle(DefaultPickerStyle())
+//        //.pickerStyle(InlinePickerStyle())
+//    }
+//}
+
 struct ConfigSelectAgeMode: View {
-    @Binding var selectedIndex: Int
-    let items: [String]
+    @Binding var selectedIndex: AgeGroup
 
     var body: some View {
         Picker("Select your Age", selection: $selectedIndex) {
-            ForEach(0..<items.count) { index in
-                Text(items[index]).tag(index).font(.title)
+            ForEach(AgeGroup.allCases) { ageGroup in
+                Text(ageGroup.displayName).tag(ageGroup).font(.title)
             }
         }
-        //.pickerStyle(DefaultPickerStyle())
-        //.pickerStyle(InlinePickerStyle())
+        .pickerStyle(DefaultPickerStyle())
+        // .pickerStyle(InlinePickerStyle())
     }
 }
-

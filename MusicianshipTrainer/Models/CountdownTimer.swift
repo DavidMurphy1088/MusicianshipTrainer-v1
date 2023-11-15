@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 struct CountdownTimerView: View {
+    let score:Score
     @State private var timeRemaining = 30
     @State private var timer: AnyCancellable?
     @State private var isActive = false
@@ -36,7 +37,7 @@ struct CountdownTimerView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             
             CircularProgressView(progress: CGFloat(timeRemaining) / 30.0, timeRemaining: timeRemaining)
-                .frame(width: 70, height: 70)
+                .frame(width: score.lineSpacing * 3, height: score.lineSpacing * 3)
                 .padding(20)
         }
     }

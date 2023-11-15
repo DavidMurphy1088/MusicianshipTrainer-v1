@@ -84,15 +84,15 @@ class Score : ObservableObject {
     @Published var barEditor:BarEditor?
 
     @Published var scoreEntries:[ScoreEntry] = []
-    //@Published var staffLayoutSize:StaffLayoutSize = StaffLayoutSize()
     
     let ledgerLineCount =  2 //3//4 is required to represent low E
     var staffs:[Staff] = []
     
     var studentFeedback:StudentFeedback? = nil
     var tempo:Int?
-    var lineSpacing = 15.0
-    
+    //var lineSpacing = 15.0
+    var lineSpacing = UIDevice.current.userInterfaceIdiom == .phone ? 10.0 : 15.0
+
     private var totalStaffLineCount:Int = 0
     static var accSharp = "\u{266f}"
     static var accNatural = "\u{266e}"
@@ -107,7 +107,20 @@ class Score : ObservableObject {
         barLayoutPositions = BarLayoutPositions()
         //self.staffLayoutSize = StaffLayoutSize()
     }
-    
+
+    func createTimeSlice() -> TimeSlice {
+        let ts = TimeSlice(score: self)
+        ts.sequence = self.scoreEntries.count
+        self.scoreEntries.append(ts)
+        if self.scoreEntries.count > 16 {
+            if UIDevice.current.userInterfaceIdiom == .phone {
+                ///With too many note on the stave 
+                lineSpacing = lineSpacing * 0.95
+            }
+        }
+        return ts
+    }
+
     func createBarEditor(onEdit: @escaping (_ wasChanged:Bool) -> Void) {
         self.barEditor = BarEditor(score: self, onEdit: onEdit)
     }
@@ -210,48 +223,48 @@ class Score : ObservableObject {
     }
     
     ///Return the first timeslice index of where the scores differ
-    func getFirstDifferentTimeSlicex(compareScore:Score) -> Int? {
-         var result:Int? = nil
-         var scoreCtr = 0
-
-         let scoreTimeSlices = self.getAllTimeSlices()
-         let compareTimeSlices = compareScore.getAllTimeSlices()
-
-         for scoreTimeSlice in scoreTimeSlices {
-
-             if compareTimeSlices.count <= scoreCtr {
-                 result = scoreCtr
-                 break
-             }
-             
-             let compareEntry = compareTimeSlices[scoreCtr]
-             let compareNotes = compareEntry.getTimeSliceEntries()
-             let scoreNotes = scoreTimeSlice.getTimeSliceEntries()
-
-             if compareNotes.count == 0 || scoreNotes.count == 0 {
-                 result = scoreCtr
-                 break
-             }
-
-             if scoreCtr == scoreTimeSlices.count - 1 {
-                 if scoreNotes[0].getValue() > compareNotes[0].getValue() {
-                     result = scoreCtr
-                     break
-                 }
-                 else {
-                     compareNotes[0].setValue(value: scoreNotes[0].getValue())
-                 }
-             }
-             else {
-                 if scoreNotes[0].getValue() != compareNotes[0].getValue() {
-                     result = scoreCtr
-                     break
-                 }
-             }
-             scoreCtr += 1
-         }
-         return result
-     }
+//    func getFirstDifferentTimeSlicex(compareScore:Score) -> Int? {
+//         var result:Int? = nil
+//         var scoreCtr = 0
+//
+//         let scoreTimeSlices = self.getAllTimeSlices()
+//         let compareTimeSlices = compareScore.getAllTimeSlices()
+//
+//         for scoreTimeSlice in scoreTimeSlices {
+//
+//             if compareTimeSlices.count <= scoreCtr {
+//                 result = scoreCtr
+//                 break
+//             }
+//
+//             let compareEntry = compareTimeSlices[scoreCtr]
+//             let compareNotes = compareEntry.getTimeSliceEntries()
+//             let scoreNotes = scoreTimeSlice.getTimeSliceEntries()
+//
+//             if compareNotes.count == 0 || scoreNotes.count == 0 {
+//                 result = scoreCtr
+//                 break
+//             }
+//
+//             if scoreCtr == scoreTimeSlices.count - 1 {
+//                 if scoreNotes[0].getValue() > compareNotes[0].getValue() {
+//                     result = scoreCtr
+//                     break
+//                 }
+//                 else {
+//                     compareNotes[0].setValue(value: scoreNotes[0].getValue())
+//                 }
+//             }
+//             else {
+//                 if scoreNotes[0].getValue() != compareNotes[0].getValue() {
+//                     result = scoreCtr
+//                     break
+//                 }
+//             }
+//             scoreCtr += 1
+//         }
+//         return result
+//     }
     
     func setHiddenStaff(num:Int, isHidden:Bool) {
         DispatchQueue.main.async {
@@ -309,13 +322,6 @@ class Score : ObservableObject {
         }
     }
     
-    func createTimeSlice() -> TimeSlice {
-        let ts = TimeSlice(score: self)
-        ts.sequence = self.scoreEntries.count
-        self.scoreEntries.append(ts)
-        return ts
-    }
-
     func addBarLine() {
         let barLine = BarLine()
         barLine.sequence = self.scoreEntries.count

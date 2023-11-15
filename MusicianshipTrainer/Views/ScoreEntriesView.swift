@@ -6,8 +6,7 @@ struct TimeSliceLabelView: View {
     var staff:Staff
     @ObservedObject var timeSlice:TimeSlice
     @State var showPopover = false
-        
-    let font = Font.custom("TimesNewRomanPS-BoldMT", size: 28.0)
+    @State var font = Font.system(size:0) //)//Font.custom("TimesNewRomanPS-BoldMT", size: score.lineSpacing * 1.5)
 
     var body: some View {
         ZStack {
@@ -27,7 +26,7 @@ struct TimeSliceLabelView: View {
                             }
                         }
                         else {
-                            Text(tag.content).font(font)
+                            Text(tag.content).font(font).defaultTextStyle()
                         }
                         Spacer()
                     }
@@ -38,11 +37,13 @@ struct TimeSliceLabelView: View {
                 if let tag = timeSlice.tagLow {
                     VStack {
                         Spacer()
-                        Text(tag).font(font)
-                        //.padding(.bottom, 0)//lineSpacing.value / 2.0)
+                        Text(tag).font(font).defaultTextStyle()
                     }
                 }
             }
+        }
+        .onAppear() {
+            font = Font.custom("TimesNewRomanPS-BoldMT", size: score.lineSpacing * 2.0)
         }
         //.border(Color.red)
     }
@@ -55,7 +56,6 @@ struct ScoreEntriesView: View {
 
     @ObservedObject var score:Score
     @ObservedObject var staff:Staff
-    //@ObservedObject var staffLayoutSize:StaffLayoutSize
     
     static var viewNum:Int = 0
     let noteOffsetsInStaffByKey = NoteOffsetsInStaffByKey()
@@ -64,7 +64,6 @@ struct ScoreEntriesView: View {
     init(score:Score, staff:Staff) {
         self.score = score        
         self.staff = staff
-        //self.staffLayoutSize = lineSpacing
         self.noteLayoutPositions = staff.noteLayoutPositions
         self.barLayoutPositions = score.barLayoutPositions
         ScoreEntriesView.viewNum += 1
@@ -83,6 +82,7 @@ struct ScoreEntriesView: View {
         return nil
     }
     
+    ///Return the start and end points for te quaver beam based on the note postions that were reported
     func getBeamLine(endNote:Note, noteWidth:Double, startNote:Note, stemLength:Double) -> (CGPoint, CGPoint)? {
         let stemDirection:Double = startNote.stemDirection == .up ? -1.0 : 1.0
         if startNote.timeSlice.statusTag == .inError {
@@ -240,9 +240,10 @@ struct ScoreEntriesView: View {
                                 endNote, endNotePos in
                                 if endNote.beamType == .end {
                                     let startNote = endNote.getBeamStartNote(score: score, np:noteLayoutPositions)
-                                    if let line = getBeamLine(endNote: endNote, noteWidth: noteWidth,
-                                                              startNote: startNote, stemLength:
-                                                                score.lineSpacing * 3.5) {
+                                    if let line = getBeamLine(endNote: endNote,
+                                                              noteWidth: noteWidth,
+                                                              startNote: startNote,
+                                                              stemLength:score.lineSpacing * 3.5) {
                                         quaverBeamView(line: line, startNote: startNote, endNote: endNote, lineSpacing: score.lineSpacing)
                                     }
                                 }

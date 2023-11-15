@@ -167,7 +167,6 @@ struct IntervalPresentView: View { //}, QuestionPartProtocol {
         }
     }
 
-
     func isTakingExam() -> Bool {
         guard let parent = contentSection.parent else {
             return false
@@ -401,32 +400,34 @@ struct IntervalAnswerView: View {
             VStack {
                 ScoreSpacerView()
                 ScoreView(score: score).padding()
-                ScoreSpacerView()
+                //ScoreSpacerView()
                 //ScoreSpacerView()
                 
                 HStack {
                     if answer.correct {
                         Image(systemName: "checkmark.circle").resizable().frame(width: imageSize, height: imageSize).foregroundColor(.green)
                         Text("Correct - Good Job")
-                            //.defaultTextStyle()
                             .font(UIGlobals.correctAnswerFont)
+                            .defaultTextStyle()
                     }
                     else {
                         Image(systemName: "staroflife.circle").resizable().frame(width: imageSize, height: imageSize).foregroundColor(.red)
                         Text("Sorry - not correct")
-                            //.defaultTextStyle()
                             .font(UIGlobals.correctAnswerFont)
+                            .defaultTextStyle()
                     }
                 }
-                .padding()
+                //.padding()
                 
                 if !answer.correct {
-                    Text("You said that the interval was a \(answer.selectedIntervalName )").defaultTextStyle().padding()
+                    Text("You said that the interval was a \(answer.selectedIntervalName )").defaultTextStyle()
+                        //.padding()
                 }
                 Text("The interval is a \(answer.correctIntervalName)").defaultTextStyle().padding()
                 if questionType == .intervalVisual {
                     if answer.correct == false {
-                        Text(answer.explanation).defaultTextStyle().padding()
+                        Text(answer.explanation).defaultTextStyle()
+                            //.padding()
                     }
                 }
                 
@@ -519,7 +520,7 @@ struct IntervalView: View {
                                            score: self.score,
                                            answer: answer,
                                            questionType:questionType)
-                        if Settings.useAnimations {
+                        if Settings.shared.useAnimations {
                             if !contentSection.isExamTypeContentSection() {
                                 FlyingImageView(answer: answer)
                             }
@@ -530,7 +531,7 @@ struct IntervalView: View {
         }
         .onAppear() {
         }
-        .background(Settings.colorBackground)
+        .background(Settings.shared.colorBackground)
         //.border(Color.red)
     }
 }
