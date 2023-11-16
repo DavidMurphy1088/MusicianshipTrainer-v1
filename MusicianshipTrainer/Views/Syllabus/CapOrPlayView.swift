@@ -883,14 +883,14 @@ struct ClapOrPlayAnswerView: View {
     var body: AnyView {
         AnyView(
             VStack {
-                if UIDevice.current.userInterfaceIdiom != .phone {
+                //if UIDevice.current.userInterfaceIdiom != .phone {
                     if questionType != .melodyPlay {
                         ToolsView(score: score, helpMetronome: helpMetronome())
                     }
                     else {
                         Text(" ")
                     }
-                }
+                //}
                 //ScoreSpacerView()
                 if questionType == .melodyPlay {
                     ScoreSpacerView()

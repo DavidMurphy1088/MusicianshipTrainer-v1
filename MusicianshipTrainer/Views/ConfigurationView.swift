@@ -187,7 +187,7 @@ struct ConfigurationView: View {
 
             VStack {
                 Text("Musicianship Trainer - Version.Build \(appVersion).\(buildNumber)").font(.headline)
-                Text("© 2023 Musicmaster Education LLC.").font(.headline)
+                Text("© 2024 Musicmaster Education LLC.").font(.headline)
             }
         }
     }

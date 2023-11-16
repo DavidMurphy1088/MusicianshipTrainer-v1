@@ -92,7 +92,7 @@ struct LaunchScreenView: View {
                         //VStack {
                             Text("NZMEB Musicianship Trainer").font(.title)
                             Text("")
-                            Text("© 2024 Musicmaster Education LLC.").font(.title2)
+                            Text("© 2024 Musicmaster Education LLC.")//.font(.title3)
                         //}
                         //.position(x: geo.size.width * 0.5, y: geo.size.height * 0.85)
                         .opacity(self.opacity.imageOpacity)

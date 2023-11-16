@@ -22,26 +22,33 @@ struct MetronomeView: View {
                     Image("metronome")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(height: frameHeight / 2.0)
-                        .padding()
+                    ///Needs more hiehgt on phone to even show
+                        .frame(height: UIDevice.current.userInterfaceIdiom == .phone ? frameHeight * 0.8 : frameHeight * 0.5)
+                        .padding(.horizontal, frameHeight * 0.1)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10)
+                            RoundedRectangle(cornerRadius: frameHeight * 0.1)
                                 .stroke(metronome.tickingIsActive ? Color.blue : Color.clear, lineWidth: 2)
                         )
-                        .padding()
+                        .padding(.horizontal, frameHeight * 0.1)
                 })
-
-                Image("note_transparent")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .scaledToFit()
-                    .frame(width: frameHeight / 6.0)
-                Text("=\(Int(metronome.tempo)) BPM")
-            //}
-            //HStack {
-                Text(metronome.tempoName).padding()
-                //}
-                //.padding()
+                
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    Image("note_transparent")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .scaledToFit()
+                        .frame(width: frameHeight / 6.0)
+                }
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    Text("=\(Int(metronome.tempo)) BPM")
+                }
+                else {
+                    Text("\(Int(metronome.tempo))")
+                }
+                
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    Text(metronome.tempoName).padding()
+                }
                 
                 if metronome.allowChangeTempo {
                     Slider(value: Binding<Double>(
@@ -57,12 +64,11 @@ struct MetronomeView: View {
                     isPopupPresented.toggle()
                 }) {
                     VStack {
-                        //VStack {
+                        if UIDevice.current.userInterfaceIdiom == .pad {
                             Text("Practice Tool")
-                            //Text("Tool")
-                        //}
+                        }
                         Image(systemName: "questionmark.circle")
-                            .font(.largeTitle)
+                            .font(UIDevice.current.userInterfaceIdiom == .pad ? .largeTitle : .title3)
                     }
                 }
                 .padding()
@@ -83,10 +89,9 @@ struct MetronomeView: View {
             }
         }
         .frame(height: frameHeight)
-        .overlay(
-            RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
-        )
-        //.background(UIGlobals.backgroundColorHiliteBox)
+//        .overlay(
+//            RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
+//        )
         .background(Settings.shared.colorInstructions)
     }
 }

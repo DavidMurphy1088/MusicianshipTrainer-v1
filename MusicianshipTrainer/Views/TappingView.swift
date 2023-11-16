@@ -69,7 +69,6 @@ struct TappingView: View {
                         ///Too much sound lag on phone so dont use sound
                         tapRecorder.makeTap(useSoundPlayer:Settings.shared.soundOnTaps && UIDevice.current.userInterfaceIdiom == .pad)
 //                        tapCtr += 1
-//                        print("================ ONTap", tapCtr)
 
                     }
                 }
@@ -88,34 +87,11 @@ struct TappingView: View {
                             invert.switchBorder()
                             tapRecorder.makeTap(useSoundPlayer:Settings.shared.soundOnTaps)
 //                            tapCtr += 1
-//                            print("================ ONGesture", tapCtr)
                         }
                     })
                 )
             }
 
-//            Text("").padding()
-//            HStack {
-//                Button(action: {
-//                    soundOn.toggle()
-//                }) {
-//                    HStack {
-//                        Image(systemName: soundOn ? "checkmark.square" : "square")
-//                        Text("Sound On?")
-//                    }
-//                }
-//                .padding()
-//
-//                Button(action: {
-//                    upStroke.toggle()
-//                }) {
-//                    HStack {
-//                        Image(systemName: upStroke ? "square" : "checkmark.square")
-//                        Text("Use Down Stroke?")
-//                    }
-//                }
-//                .padding()
-//            }
             Text("").padding()
             Button(action: {
                 onDone()
