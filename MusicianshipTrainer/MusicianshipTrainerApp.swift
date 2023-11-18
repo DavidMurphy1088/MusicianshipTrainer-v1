@@ -60,7 +60,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct MusicianshipTrainerApp: App {
     @StateObject var launchScreenState = LaunchScreenStateManager()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    //@ObservedObject
     var logger = Logger.logger
     static let productionMode = true
     let settings:Settings = Settings.shared

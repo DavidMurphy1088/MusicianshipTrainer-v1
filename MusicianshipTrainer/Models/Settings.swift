@@ -96,7 +96,7 @@ class Settings : ObservableObject {
     ///Color of each test's screen background
     @Published var colorBackground = UIGlobals.colorBackgroundDefault
     @Published var soundOnTaps = true
-    @Published var useUpstrokeTaps = false
+    @Published var useUpstrokeTaps = false //Turned off for the moment. Possibly will never use and always use downstrokes
 
     static var shared = Settings()
     

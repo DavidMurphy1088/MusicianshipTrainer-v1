@@ -212,7 +212,7 @@ struct TimeSliceView: View {
                     Text(getAccidental(accidental: accidental))
                         .font(.system(size: lineSpacing * 3.0))
                         .frame(width: noteWidth, height: CGFloat(Double(lineSpacing) * 1.0))
-                        .position(x: noteFrameWidth/2 - lineSpacing * (timeSlice.anyNotesRotated() ? 3.0 : 2.0),
+                        .position(x: noteFrameWidth/2 - lineSpacing * (timeSlice.anyNotesRotated() ? 3.0 : 1.5),
                                   y: noteEllipseMidpoint + yOffset)
                         .foregroundColor(note.getColor(staff: staff))
                     

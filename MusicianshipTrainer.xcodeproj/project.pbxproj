@@ -72,7 +72,6 @@
 		7B4F644B2A54DC6000727710 /* MusicianshipTrainerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F644A2A54DC6000727710 /* MusicianshipTrainerApp.swift */; };
 		7B4F644F2A54DC6100727710 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B4F644E2A54DC6100727710 /* Assets.xcassets */; };
 		7B4F64522A54DC6100727710 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B4F64512A54DC6100727710 /* Preview Assets.xcassets */; };
-		7B4F64542A54DC6100727710 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F64532A54DC6100727710 /* Persistence.swift */; };
 		7B4F64572A54DC6100727710 /* MusicianshipTrainer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F64552A54DC6100727710 /* MusicianshipTrainer.xcdatamodeld */; };
 		7B4F64622A54DC6200727710 /* MusicianshipTrainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F64612A54DC6200727710 /* MusicianshipTrainerTests.swift */; };
 		7B4F646C2A54DC6200727710 /* MusicianshipTrainerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4F646B2A54DC6200727710 /* MusicianshipTrainerUITests.swift */; };
@@ -190,7 +189,6 @@
 		7B4F644A2A54DC6000727710 /* MusicianshipTrainerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicianshipTrainerApp.swift; sourceTree = "<group>"; };
 		7B4F644E2A54DC6100727710 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B4F64512A54DC6100727710 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		7B4F64532A54DC6100727710 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		7B4F64562A54DC6100727710 /* MusicianshipTrainer.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MusicianshipTrainer.xcdatamodel; sourceTree = "<group>"; };
 		7B4F64582A54DC6100727710 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B4F645D2A54DC6200727710 /* MusicianshipTrainerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MusicianshipTrainerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -307,7 +305,6 @@
 			children = (
 				7B8EF2F72A6B4A4B00EA088E /* GoogleAPI.plist */,
 				7B0659C72A6C96B4007A71CA /* Google_OAuth2_Keys_OLD.json */,
-				7B40B7D62A54DF8F00CA7FC4 /* Staff.swift */,
 				7B0659CB2A6C9967007A71CA /* Google_OAuth2_Keys.json */,
 			);
 			path = APIKeys;
@@ -336,6 +333,7 @@
 				7B40B7D32A54DF8F00CA7FC4 /* Score.swift */,
 				7B0A64CE2A61562B0091A24A /* Settings.swift */,
 				7B40B7EE2A54DF8F00CA7FC4 /* SpeechSynth.swift */,
+				7B40B7D62A54DF8F00CA7FC4 /* Staff.swift */,
 				7B40B7D12A54DF8F00CA7FC4 /* TapRecorder.swift */,
 				7B40B7EA2A54DF8F00CA7FC4 /* TimeSignature.swift */,
 				7B40B7D42A54DF8F00CA7FC4 /* TimeSlice.swift */,
@@ -431,7 +429,6 @@
 				7B4F644A2A54DC6000727710 /* MusicianshipTrainerApp.swift */,
 				7BFD93AF2A5FA9E3002878D3 /* NameToTitleMap.plist */,
 				7BC42EB02A550F24004FE117 /* Notes */,
-				7B4F64532A54DC6100727710 /* Persistence.swift */,
 				7B4F64502A54DC6100727710 /* Preview Content */,
 				7B28078A2A5508D200C70EF4 /* Sounds */,
 				7B40B8152A54E52A00CA7FC4 /* Views */,
@@ -815,7 +812,6 @@
 				7B40B8072A54DF9000CA7FC4 /* TimeSignature.swift in Sources */,
 				7B40B8302A54E52A00CA7FC4 /* MetronomeView.swift in Sources */,
 				7B40B80B2A54DF9000CA7FC4 /* SpeechSynth.swift in Sources */,
-				7B4F64542A54DC6100727710 /* Persistence.swift in Sources */,
 				7B40B7F62A54DF9000CA7FC4 /* Chord.swift in Sources */,
 				7B40B8322A54E52A00CA7FC4 /* VoiceCounter.swift in Sources */,
 				7B12C3852A7B2F6B00B4D430 /* AudioSamplerPlayer.swift in Sources */,

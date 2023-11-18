@@ -27,7 +27,7 @@ struct TappingView: View {
     @State private var isScaled = false
     @State var tapSoundOn = false
     @State var tapCtr = 0
-    //@State var upStroke = true
+    @State var lastGestureTime:Date? = nil
 
     func drumView() -> some View {
         VStack {
@@ -35,8 +35,8 @@ struct TappingView: View {
                 .resizable()
                 .scaledToFit()
                 .padding()
-                .frame(width: UIScreen.main.bounds.width / 4.0)
-                .padding()
+                //.frame(width: UIScreen.main.bounds.width / 4.0)
+                //.padding()
                 .clipShape(Circle())
                 .padding()
                 .overlay(Circle().stroke(invert.invert ? Color.white : Color.black, lineWidth: 4))
@@ -57,9 +57,13 @@ struct TappingView: View {
 
     var body: some View {
         VStack {
-            if Settings.shared.useUpstrokeTaps || UIDevice.current.userInterfaceIdiom == .phone {
+            ///18Nov23 - useUpstrokeTaps - removed option - is now alwasy false
+            ///Using the geture on iPhone is problematic. It generates 4-6 notifications per tap. Use use upstroke for phone
+            if Settings.shared.useUpstrokeTaps { //}|| UIDevice.current.userInterfaceIdiom == .phone {
                 ZStack {
                     drumView()
+                        .frame(width: UIScreen.main.bounds.width / (UIDevice.current.userInterfaceIdiom == .pad ? 4 : 2))
+
                 }
                 .padding()
                 .onTapGesture {
@@ -67,7 +71,7 @@ struct TappingView: View {
                     if isRecording {
                         invert.switchBorder()
                         ///Too much sound lag on phone so dont use sound
-                        tapRecorder.makeTap(useSoundPlayer:Settings.shared.soundOnTaps && UIDevice.current.userInterfaceIdiom == .pad)
+                        tapRecorder.makeTap(useSoundPlayer:Settings.shared.soundOnTaps) // && UIDevice.current.userInterfaceIdiom == .pad)
 //                        tapCtr += 1
 
                     }
@@ -77,16 +81,38 @@ struct TappingView: View {
                 ZStack {
                     drumView()
                 }
-                .padding()
+                .frame(width: UIScreen.main.bounds.width / (UIDevice.current.userInterfaceIdiom == .pad ? 3 : 2))
                 .gesture(
                     ///Fires on downstroke
-                    ///Cannot use on iPhone - it seems to generate 4-6 notifictions on each tap.
+                    ///Min distance has to be 0 to notify on tap
                     DragGesture(minimumDistance: 0)
-                    .onChanged({ _ in
+                    .onChanged({ gesture in
                         if isRecording {
-                            invert.switchBorder()
-                            tapRecorder.makeTap(useSoundPlayer:Settings.shared.soundOnTaps)
-//                            tapCtr += 1
+                            ///iPhone seems to generate 4-6 notifictions on each tap. Maybe since this is a gesture?
+                            ///So drop the notifictions that are too close together. < 0.10 seconds
+                            var doTap = false
+                            if UIDevice.current.userInterfaceIdiom == .pad {
+                                doTap = true
+                            }
+                            else {
+                                if let lastTime = lastGestureTime {
+                                    let diff = gesture.time.timeIntervalSince(lastTime)
+                                    if diff > 0.20 {
+                                        doTap = true
+                                    }
+                                    //print("================ Tap", tapCtr, "Do:", doTap, "time", gesture.time, "diff", diff )
+                                }
+                                else {
+                                    doTap = true
+                                }
+                                
+                            }
+                            if doTap {
+                                self.lastGestureTime = gesture.time
+                                invert.switchBorder()
+                                tapRecorder.makeTap(useSoundPlayer:Settings.shared.soundOnTaps)
+                            }
+                            tapCtr += 1
                         }
                     })
                 )

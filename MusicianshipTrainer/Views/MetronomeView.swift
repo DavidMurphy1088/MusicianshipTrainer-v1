@@ -40,14 +40,14 @@ struct MetronomeView: View {
                         .frame(width: frameHeight / 6.0)
                 }
                 if UIDevice.current.userInterfaceIdiom == .pad {
-                    Text("=\(Int(metronome.tempo)) BPM")
+                    Text("=\(Int(metronome.tempo)) BPM").foregroundColor(.black)
                 }
                 else {
-                    Text("\(Int(metronome.tempo))")
+                    Text("\(Int(metronome.tempo))").foregroundColor(.black)
                 }
                 
                 if UIDevice.current.userInterfaceIdiom == .pad {
-                    Text(metronome.tempoName).padding()
+                    Text(metronome.tempoName).padding().foregroundColor(.black)
                 }
                 
                 if metronome.allowChangeTempo {

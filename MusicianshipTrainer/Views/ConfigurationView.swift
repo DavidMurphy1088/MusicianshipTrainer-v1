@@ -122,23 +122,23 @@ struct ConfigurationView: View {
                     }) {
                         HStack {
                             Image(systemName: settings.soundOnTaps ? "checkmark.square" : "square")
-                            let x = settings.soundOnTaps ? 0 : 1
-                            Text("Sound on Taps \(x)")
+                            //let x = settings.soundOnTaps ? 0 : 1
+                            Text("Drum Sound On For Rhythm Tests")
                         }
                     }
                     .padding()
                     
-                    Button(action: {
-                        DispatchQueue.main.async {
-                            settings.useUpstrokeTaps.toggle()
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: settings.useUpstrokeTaps ? "checkmark.square" : "square")
-                            Text("Use Upstroke Taps")
-                        }
-                    }
-                    .padding()
+//                    Button(action: {
+//                        DispatchQueue.main.async {
+//                            settings.useUpstrokeTaps.toggle()
+//                        }
+//                    }) {
+//                        HStack {
+//                            Image(systemName: settings.useUpstrokeTaps ? "checkmark.square" : "square")
+//                            Text("Use Upstroke Taps")
+//                        }
+//                    }
+//                    .padding()
                 }
                 
                 HStack {

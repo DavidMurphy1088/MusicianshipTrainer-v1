@@ -213,7 +213,7 @@ struct ClapOrPlayPresentView: View {
         }
 //        .frame(width: UIScreen.main.bounds.width * 0.9, alignment: .leading)
         ///Limit the size of the scroller since otherwise it takes as much height as it can
-        .frame(height: UIScreen.main.bounds.height * 0.25)
+        .frame(height: UIScreen.main.bounds.height * 0.20)
         .overlay(
             RoundedRectangle(cornerRadius: UIGlobals.cornerRadius).stroke(Color(UIGlobals.borderColor), lineWidth: UIGlobals.borderLineWidth)
         )
@@ -387,18 +387,45 @@ struct ClapOrPlayPresentView: View {
     
     func getToleranceLabel(_ setting:Double) -> String {
         var name = UIDevice.current.userInterfaceIdiom == .pad ? "Rhythm Tolerance:" : "Tolerance:"
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            if setting <= 15.0 {
-                name += " Extreme"
+        //if UIDevice.current.userInterfaceIdiom == .pad {
+        var grade:String? = nil
+        while grade == nil {
+            if setting < 25.0 {
+                grade = "A+"
+                break
             }
-            else {
-                if setting <= 40.0 {
-                    name += " Bravo"
-                }
-                else {
-                    name += " Easy"
-                }
+            if setting < 30.0 {
+                grade = "A"
+                break
             }
+            if setting < 35.0 {
+                grade = "A-"
+                break
+            }
+            if setting < 40.0 {
+                grade = "B+"
+                break
+            }
+            if setting < 45.0 {
+                grade = "B"
+                break
+            }
+            if setting < 50.0 {
+                grade = "B-"
+                break
+            }
+            if setting < 55.0 {
+                grade = "C+"
+                break
+            }
+            if setting <= 60.0 {
+                grade = "C"
+                break
+            }
+            break
+        }
+        if let grade = grade {
+            name += " " + grade
         }
         let percent = " " + String(format: "%.0f", setting) + "%"
         name += percent
@@ -409,10 +436,10 @@ struct ClapOrPlayPresentView: View {
         HStack {
             HStack {
                 Text(getToleranceLabel(rhythmTolerancePercent)).defaultTextStyle()
-                Slider(value: $rhythmTolerancePercent, in: 10...60).padding(.horizontal, UIDevice.current.userInterfaceIdiom == .pad ? 50 : 4)
+                Slider(value: $rhythmTolerancePercent, in: 20...60).padding(.horizontal, UIDevice.current.userInterfaceIdiom == .pad ? 50 : 4)
             }
             .onChange(of: rhythmTolerancePercent) { newValue in
-                let allowedValues = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70]
+                let allowedValues = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70]
                 let sortedValues = allowedValues.sorted()
                 let closest = sortedValues.min(by: { abs($0 - Int(newValue)) < abs($1 - Int(newValue)) })
                 UIGlobals.rhythmTolerancePercent = Double(closest ?? Int(newValue))//newValue
@@ -497,7 +524,7 @@ struct ClapOrPlayPresentView: View {
                 ///Option for editing the rhythm and restoring the rhythm to the original if the rhythm was edited
                 if answerState != .recording {
                     if contentSection.getExamTakingStatus() != .inExam {
-                        HStack {
+                        VStack {
                             if questionType == .rhythmVisualClap {
                                 if score.getBarCount() > 1 {
                                     //HStack {

@@ -148,6 +148,7 @@ struct ContentSectionInstructionsView: UIViewRepresentable {
 }
 
 struct ContentSectionHeaderView: View {
+    @Environment(\.colorScheme) var colorScheme
     var contentSection:ContentSection
 
     let googleAPI = GoogleAPI.shared
@@ -258,7 +259,7 @@ struct ContentSectionHeaderView: View {
                             Text("Tips and Tricks")
                                 .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                             Image(systemName: "questionmark.circle")
-                                .foregroundColor(.black)
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
                                 .font(.largeTitle)
                         }
                     }
@@ -271,7 +272,7 @@ struct ContentSectionHeaderView: View {
                                 Text("Video")
                                     .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                                 Image(systemName: "video")
-                                    .foregroundColor(.black)
+                                    .foregroundColor(colorScheme == .dark ? .white : .black)
                                     .font(.largeTitle)
                             }
                         }
@@ -310,7 +311,7 @@ struct ContentSectionHeaderView: View {
                                 Text("Random Pick")
                                     .font(UIDevice.current.userInterfaceIdiom == .phone ? .footnote : UIGlobals.navigationFont)
                                 Image(systemName: "tornado")
-                                    .foregroundColor(.black)
+                                    .foregroundColor(colorScheme == .dark ? .white : .black)
                                     .font(.title)
                             }
                         }
